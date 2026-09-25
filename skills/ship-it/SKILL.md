@@ -1,7 +1,9 @@
 ---
 name: ship-it
-description: Conducts a feature through the full build loop, plan, spec, tickets, implement, review, end to end across as many sessions as it takes, in any GitHub repository. Looks at what already exists for the feature (a map, a spec, tickets, a diff awaiting review) and states the one next step to take.
-disable-model-invocation: true
+description: "Conducts a feature through the full build loop, plan, spec, tickets, implement, review, end to end across as many sessions as it takes, in any GitHub repository. Looks at what already exists for the feature (a map, a spec, tickets, a diff awaiting review) and states the one next step to take. Manual-only workflow: do NOT invoke automatically or unprompted; only activate when explicitly requested by the user via ship-it or /ship-it."
+compatibility: Git repository, GitHub issue access (gh CLI or GitHub MCP/API), and a cross-platform shell.
+metadata:
+  disable-model-invocation: "true"
 ---
 
 # Ship It
@@ -14,6 +16,26 @@ however many sessions it takes:
 This skill is self-contained and tracks work as GitHub issues: everything it
 needs lives in this folder and in the files it writes into the repo you run it
 in. It doesn't call out to any other skill.
+
+## Invocation & Harness Configuration
+
+`ship-it` is designed as a manual-only workflow and should not be invoked automatically by models without explicit user request.
+
+### Claude Code
+
+To disable automatic model invocation in Claude Code while maintaining schema conformance, configure `.claude/config.json` with `skillOverrides`:
+
+```json
+{
+  "skillOverrides": {
+    "ship-it": {
+      "disableModelInvocation": true
+    }
+  }
+}
+```
+
+This represents the zero-deviation configuration approach. Environments requiring file-level overrides may specify `disable-model-invocation: true` directly at the root of `SKILL.md` frontmatter, though this trades off strict validation conformance against open agent skill schemas.
 
 ## Why a conductor, not one pass
 
