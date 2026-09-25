@@ -1,25 +1,32 @@
 # Review: two-axis check of the diff
 
-Run this in a **fresh session**, separate from whatever session implemented
-the ticket. If you just built this in the current session, stop here and pick
-this back up in a new one: the reason review exists as its own phase is that
-the session which wrote the code is the worst-positioned to judge it, it's
-carrying every rationalization it made along the way. The two-axis split below
-guards against one more thing entirely: one axis's read leaking into the
-other's. Neither substitutes for the other.
+## 2-Tier Context Isolation Protocol
 
-Review the changes made in this phase along two independent axes, run as
-separate passes so neither masks the other:
+Review exists as an independent verification gate because the session that wrote the code is
+the worst-positioned to judge it: it inherently carries every rationalization and shortcut made
+during implementation.
 
-- **Standards**: does the diff follow this repo's documented coding
-  standards?
-- **Spec**: does the diff faithfully implement the ticket or spec it came
-  from?
+**In-context persona simulation is strictly prohibited**: An agent must NEVER attempt to
+"switch personas" or simulate an outside reviewer within the unbroken implementation session.
+In-context persona switching within an authoring session is strictly prohibited due to inherent
+confirmation bias and context token leakage; claims of "clearing working state" within an
+existing context fail to eliminate authoring bias.
 
-Run both, ideally as two separate subagent passes so one doesn't bleed context
-into the other, then report them side by side without merging or reranking.
-If subagents aren't available, run both passes sequentially in the current
-context, clearing your working state between them.
+Review MUST follow the **2-Tier Context Isolation Protocol**:
+
+- **Tier 1 (Isolated Subagent)**: For multi-agent harnesses supporting subagent execution
+  (e.g., Antigravity, Claude Code subagents). The harness spawns isolated subagents with
+  restricted prompts—ideally separate subagent invocations for the Standards and Spec axes so
+  neither axis bleeds context into the other.
+- **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses
+  (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or
+  session dedicated strictly to running `review.md` against the diff.
+
+Review the changes made in this phase along two independent axes, reported side by side without
+merging or reranking:
+
+- **Standards**: does the diff follow this repo's documented coding standards?
+- **Spec**: does the diff faithfully implement the ticket or spec it came from?
 
 ## Why two axes, not one
 
@@ -47,10 +54,10 @@ have nothing to say.
 
 ### 2. Identify the spec source
 
-In order: the ticket or spec this implementation session started from
-(already in context, most of the time); issue references in the commit
-messages (`#123`, `Closes #45`); a path or issue number the user names. If
-truly nothing turns up, ask, and if the user says there genuinely isn't one,
+In order: the ticket or spec this implementation session started from (read via
+`ReadIssue` (`gh issue view <number> --json number,title,body`)); issue references
+in the commit messages (`#123`, `Closes #45`); a path or issue number the user names.
+If truly nothing turns up, ask, and if the user says there genuinely isn't one,
 skip the Spec pass and say so in the final report rather than inventing a
 standard to check against.
 
@@ -119,13 +126,15 @@ that's exactly the reranking the separation exists to prevent.
 
 ## Outcome
 
-- **Either axis has findings**: comment them on the ticket and hand back to a
-  fresh `implement.md` session to address. The ticket stays open, unreviewed;
-  don't apply `ship-it:reviewed` on a report that has anything outstanding.
-- **Both axes clean**: apply `ship-it:reviewed`
-  (`gh issue edit <n> --add-label "ship-it:reviewed"`), then close out. The
-  work-in-progress commit is already on the branch from `implement.md`, so
-  comment the resolution (`gh issue comment`), close the ticket
-  (`gh issue close`), and open the PR or merge, per how the user works.
-  Close-out is gated on this label; don't skip straight to closing because the
+- **Either axis has findings**: post findings to the ticket via `CommentIssue`
+  (`gh issue comment <number> --body-file <file>`) and hand back to a fresh
+  `implement.md` session to address. The ticket stays open, unreviewed; do not apply
+  `ship-it:reviewed` on a report that has anything outstanding.
+- **Both axes clean**: apply `ship-it:reviewed` via `UpdateIssue`
+  (`gh issue edit <number> --add-label "ship-it:reviewed"`), then close out. The
+  work-in-progress commit is already on the branch from `implement.md`, so comment
+  the resolution via `CommentIssue` (`gh issue comment <number> --body "<text>"`),
+  close the ticket via `CloseIssue` (`gh issue close <number> --comment "<text>"`),
+  and open the PR or merge, per how the user works.
+  Close-out is gated on this label; do not skip straight to closing because the
   diff "looked fine" without a report to back it.

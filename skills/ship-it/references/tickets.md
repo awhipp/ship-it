@@ -45,53 +45,86 @@ batch). If even a batch can't stay green alone, keep the sequence but let the
 batches share an integration branch that all block a final
 integrate-and-verify ticket; green is only promised there.
 
-### 4. Check the breakdown with the user
+### 4. Check the breakdown with the user (Approval Gate)
 
 Present it as a numbered list. For each ticket: title, what it's blocked by
 (if anything), and what end-to-end behavior it delivers. Ask whether the
 granularity feels right, whether the blocking edges are correct (each ticket
 depends only on what genuinely gates it), and whether anything should merge or
-split. Iterate until approved; this is a decision worth getting right before
-tickets exist as real artifacts.
+split.
+
+**Approval Checkpoint**: You MUST pause here and obtain explicit user confirmation
+before creating any GitHub issues. Do not autonomously publish tickets without
+user review and sign-off on the slice boundaries and dependency edges. Iterate
+until confirmed; this is a critical gate to prevent premature issue creation and
+unaligned vertical slices.
 
 ### 5. Publish
 
-Publish the approved tickets as GitHub issues, one per ticket, in dependency
-order (blockers first) so each can reference real issue numbers, titled
-`[<slug>] Ticket: <gist>` and applying the `ship-it:ticket` and
-`ready-for-agent` labels. Wire each ticket's blocking edges via the native
-issue-dependency API, and link each ticket as a sub-issue (child) of the spec
-issue via the sub-issues API (see `preflight.md` for both exact calls) —
-mirroring how a map's decision tickets nest under the map, this keeps the
-spec → tickets trail visible in the GitHub UI itself rather than living only
-in prose. Work the frontier from here on: whichever ticket has every blocker
-resolved is takeable.
+Once explicitly approved by the user, publish the tickets as GitHub issues,
+one per ticket, in dependency order (blockers first) so each can reference real
+issue numbers, titled `[<slug>] Ticket: <gist>` and applying the `ship-it:ticket`
+and `ready-for-agent` labels.
+
+#### Markdown Relationship Contract
+
+To guarantee universal compatibility across all GitHub repository tiers,
+environments, and MCP servers without relying on preview API access:
+
+1. **Parent-Child Linkage (`Part of #<spec-id>`)**:
+   - Every child ticket records `Part of #<spec-id>` as the very first line of its markdown body.
+   - The parent spec body remains **immutable** once tickets exist; child tickets link up to the spec, avoiding race conditions or churn on the parent issue body.
+   - If native GitHub sub-issue API is available, link via `LinkParentChild` (see `preflight.md`), but the markdown `Part of #<spec-id>` linkage is the primary contract.
+
+2. **Dependency Edges (`## Blocked by`)**:
+   - Tickets declare blocker dependencies in a tasklist under `## Blocked by`:
+     ```markdown
+     ## Blocked by
+
+     - [ ] Blocked by #<blocker-id>
+     ```
+     Or `None (can start immediately).` if unblocked.
+   - If native GitHub issue-dependency API is available, link via `LinkDependency` (see `preflight.md`), but the markdown tasklist is the primary contract.
+
+3. **Frontier Resolution & Orient Discovery**:
+   - Work the frontier from here on: whichever ticket has every blocker resolved is takeable.
+   - Orient discovers unblocked tickets using this exact algorithm:
+     - Query tickets by feature slug: `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
+     - Filter out any tickets already claimed (`assignees` non-empty) or closed (`state: "CLOSED"`).
+     - For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `ReadIssue` (`gh issue view <id> --json body`).
+     - Check the state of each referenced blocker issue via `ReadIssue` (`gh issue view <blocker-id> --json state`).
+     - A ticket is unblocked on the frontier when all of its referenced blocker issues are closed.
 
 Ticket body:
 
 ```markdown
-    ## What to build
+Part of #<spec-id>
 
-    The end-to-end behavior this ticket makes work, from the user's perspective.
-    Not a layer-by-layer implementation list.
+## What to build
 
-    ## Acceptance criteria
+The end-to-end behavior this ticket makes work, from the user's perspective.
+Not a layer-by-layer implementation list.
 
-    - [ ] Criterion 1
-    - [ ] Criterion 2
+## Acceptance criteria
 
-    ## Blocked by
+- [ ] Criterion 1
+- [ ] Criterion 2
 
-    References to each blocking ticket, or "None (can start immediately)."
+## Blocked by
+
+- [ ] Blocked by #<blocker-id>
 ```
+
+(If unblocked, state `None (can start immediately).` under `## Blocked by`.)
 
 Avoid file paths or code snippets here too, for the same reason as the spec:
 they go stale. The same prototype exception applies.
 
 Don't close the parent spec or rewrite its body once tickets exist; it stays
-as the record of intent, tickets are the record of execution. Linking tickets
-under it as sub-issues is a relationship, not a content edit, and belongs
-alongside publishing them.
+as the record of intent, tickets are the record of execution. Child tickets link
+up to the parent via `Part of #<spec-id>`, leaving the parent spec body immutable.
+Linking tickets under it via the sub-issues API (if available) is a relationship,
+not a content edit, and belongs alongside publishing them.
 
 Recommended next step: `validate.md` audits the ticket set, adversarially and
 in a fresh context, before anyone starts building against it. Run it whenever

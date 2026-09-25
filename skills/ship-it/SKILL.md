@@ -1,7 +1,9 @@
 ---
 name: ship-it
-description: Conducts a feature through the full build loop, plan, spec, tickets, implement, review, end to end across as many sessions as it takes, in any GitHub repository. Looks at what already exists for the feature (a map, a spec, tickets, a diff awaiting review) and states the one next step to take.
-disable-model-invocation: true
+description: "Conducts a feature through the full build loop, plan, spec, tickets, implement, review, end to end across as many sessions as it takes, in any GitHub repository. Looks at what already exists for the feature (a map, a spec, tickets, a diff awaiting review) and states the one next step to take. Manual-only workflow: do NOT invoke automatically or unprompted; only activate when explicitly requested by the user via ship-it or /ship-it."
+compatibility: Git repository, GitHub issue access (gh CLI or GitHub MCP/API), and a cross-platform shell.
+metadata:
+  disable-model-invocation: "true"
 ---
 
 # Ship It
@@ -15,12 +17,40 @@ This skill is self-contained and tracks work as GitHub issues: everything it
 needs lives in this folder and in the files it writes into the repo you run it
 in. It doesn't call out to any other skill.
 
+## Invocation & Harness Configuration
+
+`ship-it` is designed as a manual-only workflow and should not be invoked automatically by models without explicit user request.
+
+### Claude Code
+
+To disable automatic model invocation in Claude Code while maintaining schema conformance, configure `.claude/config.json` with `skillOverrides`:
+
+```json
+{
+  "skillOverrides": {
+    "ship-it": {
+      "disableModelInvocation": true
+    }
+  }
+}
+```
+
+This represents the zero-deviation configuration approach. Environments requiring file-level overrides may specify `disable-model-invocation: true` directly at the root of `SKILL.md` frontmatter, though this trades off strict validation conformance against open agent skill schemas.
+
 ## Why a conductor, not one pass
 
-A feature big enough to need all five phases is also too big to hold in one
-context window. Clearing context between phases is a feature, not a
-limitation: the model reasons better in a fresh window than a crowded one, so
-"one long session" is deliberately not the goal here.
+A feature big enough to need all five phases requires rigorous separation of
+concerns to prevent confirmation bias and enforce objective verification gates.
+When a single session authors, implements, and reviews its own work in one
+unbroken pass, it naturally suffers from authoring bias: rationalizing its own
+assumptions, skipping verification, and confirming its own design choices.
+
+Dividing the build loop into discrete phases—Plan, Spec, Tickets, Implement,
+Review—establishes explicit verification gates at each handoff:
+- Specs are verified against user requirements and adversarially audited before breaking into tickets.
+- Ticket breakdowns require explicit user validation before creation.
+- Implementation demands test-first proof (Red before Green).
+- Review evaluates diffs independently without the author's internal rationalizations.
 
 This skill does not try to run the whole loop in a single reply. Each time you
 run it, it works out where the feature currently stands and does **one** phase's
@@ -36,9 +66,9 @@ the `ready-for-agent` label and the `ship-it:*` type labels present (see
 any of this — skip straight to "Every run" below.
 
 Run the checklist in [references/preflight.md](references/preflight.md) only
-when the user explicitly asks (`/ship-it preflight`), or when a `gh` call
-during a phase fails in a way that checklist covers (auth, permissions,
-missing label, disabled Issues). Fix what's fixable, report the rest.
+when the user explicitly asks (`ship-it preflight`, `/ship-it preflight`, or the equivalent in
+conversation), or when an issue tool call during a phase fails in a way that
+checklist covers (auth, permissions, missing label, disabled Issues). Fix what's fixable, report the rest.
 
 ## Every run
 
@@ -60,10 +90,17 @@ take whichever comes back furthest along:
    `gh issue list --label "ship-it:spec" --search "<slug> in:title" --state open --json number,title,labels,state`
    (see [references/spec.md](references/spec.md))
 3. **Tickets** generated from that spec:
+   Query tickets for the feature via `QueryArtifact`:
    `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
-   (see [references/tickets.md](references/tickets.md)). When routing to a
-   ticket, **skip any with a non-empty `assignees`** — another session has
-   already claimed it.
+   (see [references/tickets.md](references/tickets.md)).
+
+   **Orient's Ticket Discovery & Unblocking Algorithm**:
+   - Filter out claimed and closed tickets: skip any with a non-empty `assignees` (another session has claimed it) and any with `state: "CLOSED"`.
+   - For open, unclaimed tickets, inspect each ticket's dependencies via `ReadIssue` (`gh issue view <number> --json body` or `gh issue view <number>`).
+   - Parse the `## Blocked by` section for tasklist references (`- [ ] Blocked by #<blocker-id>`). If native issue-dependency API edges exist, inspect them too.
+   - For each blocker reference, check blocker issue state via `ReadIssue` (`gh issue view <blocker-id> --json state`).
+   - A ticket is **unblocked** if it has no blockers (or "None") or every blocker issue referenced in its `## Blocked by` tasklist has `state: "CLOSED"`.
+   - Take whichever unblocked, unclaimed ticket is earliest in sequence.
 4. **An implementation in progress**, or a diff that hasn't been reviewed yet:
    check for an open PR referencing the slug or a matching branch, and for a
    ticket from step 3 that's assigned but still open (see
@@ -112,13 +149,17 @@ whole loop at once.
   once planning has produced a clear destination: the thinking compounds. Not
   a hard rule, just worth naming if you're about to lose the thread.
 - **Implement** should start in a **fresh session per ticket**. A ticket is
-  self-contained by construction (see `references/tickets.md`), so carrying
-  old context in only costs tokens without adding value.
-- **Validate and review each want their own fresh session too**, and for the
-  same underlying reason: the session that authored a spec, ticket set, or
-  diff carries the reasoning behind it, and that reasoning is exactly what an
-  outside check needs to not have. Carrying it in doesn't just waste tokens
-  here, it biases the very check the fresh session exists to run.
+  self-contained by construction (see `references/tickets.md`), ensuring each
+  slice is built strictly to its self-contained acceptance criteria and
+  preventing context pollution and confirmation bias from earlier tickets.
+- **Validate and review strictly mandate the 2-Tier Context Isolation Protocol**
+  (Tier 1: Isolated Subagent; Tier 2: Fresh Session), and for the same underlying
+  reason: the session that authored a spec, ticket set, or diff carries the
+  reasoning behind it, and that reasoning is exactly what an outside check
+  needs to not have. In-context persona simulation or switching within an unbroken
+  authoring session is strictly prohibited due to inherent confirmation bias.
+  Carrying it in doesn't just waste tokens here, it biases the very check the
+  isolated context exists to run.
 - If a session's context is growing large before a natural stopping point,
   that's the signal to wrap up and hand off, not to push through with degraded
   reasoning.

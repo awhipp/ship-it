@@ -22,7 +22,7 @@ and labelled `ship-it:map`, with this body:
     ## Destination
 
     <What reaching the end of this map looks like: usually "a spec ready to hand to
-    /spec." One or two lines.>
+    spec.md (via ship-it or /ship-it)." One or two lines.>
 
     ## Notes
 
@@ -72,7 +72,8 @@ let the number ride inside that link rather than stand on its own in prose.
   question, show it, capture the answer.
 - **Grilling**: a conversation with the user is the only way to resolve it,
   because it's a decision only they can make. This is the default case. Ask
-  sharp, one-at-a-time questions; don't answer on their behalf.
+  sharp questions, strictly one question per turn during clarification; never
+  batch multiple questions into a single turn or answer on their behalf.
 - **Task**: something must merely be _done_, not decided, before a decision
   can be made (provisioning access, moving data so its shape becomes visible).
   Do the work if you can; if only the user can do it, leave them a precise
@@ -104,31 +105,36 @@ itself changes.
 **Charting** (first time through, no map exists yet):
 
 1. Grill the user to name the destination: the spec, decision, or change this
-   map is finding its way to. Settle this first; it fixes the scope.
+   map is finding its way to. Settle this first; it fixes the scope. Ask strictly
+   one question per turn during clarification—never batch or barrage multiple
+   questions into a single turn.
 2. Grill again, breadth-first this time: fan out across the whole space rather
    than deep on one thread, surfacing open decisions and what's takeable now.
+   Continue strictly one question per turn.
 3. Write the map: destination and notes filled in, decisions-so-far empty, fog
    sketched into "Not yet specified."
-4. Create whatever tickets you can specify now, then wire their blocking
-   edges. Everything else stays in the fog.
+4. Create whatever tickets you can specify now via `CreateIssue`, then wire their blocking
+   edges via `LinkDependency`. Everything else stays in the fog.
 5. Stop. Charting is its own session's work; it resolves nothing.
 
 **Resolving** (a map already exists):
 
-1. Read the map (the low-resolution body, not every ticket).
+1. Read the map (the low-resolution body, not every ticket) via `ReadIssue`.
 2. Pick the ticket: whichever the user named, or the first unblocked,
    unclaimed one (the frontier), in order.
-3. Claim it (`gh issue edit <n> --add-assignee @me`) before doing any work, so
+3. Claim it via `AssignSelf` (`gh issue edit <number> --add-assignee "@me"`) before doing any work, so
    a concurrent session skips it.
-4. Resolve it: work the ticket per its type above.
-5. Record the resolution: post the answer, close the ticket, append a
-   one-line gisted pointer to the map's "Decisions so far."
+4. Resolve it: work the ticket per its type above. For grilling tickets, ask
+   strictly one question per turn during clarification.
+5. Record the resolution: post the answer via `CommentIssue`, close the ticket
+   via `CloseIssue` (`gh issue close <number> --comment "<text>"`), append a
+   one-line gisted pointer to the map's "Decisions so far" via `UpdateIssue`.
 6. Graduate any fog the answer just made specifiable into fresh tickets
-   (create, then wire blocking edges), clearing it out of "Not yet specified."
-   If the answer reveals a ticket sits beyond the destination, rule it out of
-   scope instead of resolving it.
+   (create via `CreateIssue`, then wire blocking edges via `LinkDependency`),
+   clearing it out of "Not yet specified." If the answer reveals a ticket sits
+   beyond the destination, rule it out of scope instead of resolving it.
 
 Resolve **at most one ticket per session** (research tickets are the
 exception; several can run in a batch since they need no back-and-forth).
 When no tickets remain and nothing is left in the fog, the map is clear: hand
-off to `spec.md`.
+off to `spec.md` (or run `ship-it` or `/ship-it`).
