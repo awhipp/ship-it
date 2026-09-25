@@ -52,7 +52,22 @@ Confirm the fixed point resolves and the diff is non-empty before going
 further; a bad ref should fail here; not inside two review passes that then
 have nothing to say.
 
-### 2. Identify the spec source
+### 2. Verify Red verification artifact (Red Phase Checkpoint)
+
+Before evaluating the diff against standards and spec, verify concrete proof of the Red step from
+the two-step Red-Green verification cycle. Inspect the commit history and issue thread:
+- Check for an explicit git commit of the failing test in `git log <fixed-point>..HEAD --oneline`
+  (e.g., matching the `(RED)` naming convention, such as `test: failing test for <slice> (RED)`).
+- OR check for a collapsible test failure log (`<details><summary>Red Phase Failure Log</summary>...`)
+  in the handoff comment or issue thread (inspected via `ReadIssue`).
+
+**Reject diffs lacking proof**: If neither Red verification artifact is present, reject the diff
+immediately without approval. Post a rejection comment via `CommentIssue`
+(`gh issue comment <number> --body "Review rejected: Missing required Red phase verification artifact (failing test commit or collapsible failure log). Diff cannot be approved without test-first proof."`)
+and return the ticket to a fresh `implement.md` session. Diffs lacking Red verification proof must
+not proceed to approval.
+
+### 3. Identify the spec source
 
 In order: the ticket or spec this implementation session started from (read via
 `ReadIssue` (`gh issue view <number> --json number,title,body`)); issue references
@@ -61,7 +76,7 @@ If truly nothing turns up, ask, and if the user says there genuinely isn't one,
 skip the Spec pass and say so in the final report rather than inventing a
 standard to check against.
 
-### 3. Identify the standards sources
+### 4. Identify the standards sources
 
 Anything the repo documents about how code should be written:
 `CODING_STANDARDS.md`, `CONTRIBUTING.md`, a style guide, whatever exists.
@@ -99,7 +114,7 @@ restating it).
 - **Refused Bequest**: a subclass or implementer ignoring most of what it
   inherits → drop the inheritance, use composition.
 
-### 4. Run both passes
+### 5. Run both passes
 
 **Standards pass**, given the diff, the commit list, whatever standards
 sources were found, and the smell baseline above: report, per file or hunk
@@ -117,7 +132,7 @@ Under 400 words.
 
 If there's no spec source, skip this pass and say so.
 
-### 5. Report
+### 6. Report
 
 Present both under `## Standards` and `## Spec` headings, unmerged. Close with
 a one-line summary: total findings per axis, and the worst issue **within**
@@ -126,11 +141,11 @@ that's exactly the reranking the separation exists to prevent.
 
 ## Outcome
 
-- **Either axis has findings**: post findings to the ticket via `CommentIssue`
-  (`gh issue comment <number> --body-file <file>`) and hand back to a fresh
+- **Red verification artifact missing or either axis has findings**: post findings to the ticket via `CommentIssue`
+  (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<rejection-text>"`) and hand back to a fresh
   `implement.md` session to address. The ticket stays open, unreviewed; do not apply
-  `ship-it:reviewed` on a report that has anything outstanding.
-- **Both axes clean**: apply `ship-it:reviewed` via `UpdateIssue`
+  `ship-it:reviewed` on a report that has anything outstanding or lacks the required Red verification artifact.
+- **Red verification artifact verified and both axes clean**: apply `ship-it:reviewed` via `UpdateIssue`
   (`gh issue edit <number> --add-label "ship-it:reviewed"`), then close out. The
   work-in-progress commit is already on the branch from `implement.md`, so comment
   the resolution via `CommentIssue` (`gh issue comment <number> --body "<text>"`),
