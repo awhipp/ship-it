@@ -1,0 +1,131 @@
+# Review: two-axis check of the diff
+
+Run this in a **fresh session**, separate from whatever session implemented
+the ticket. If you just built this in the current session, stop here and pick
+this back up in a new one: the reason review exists as its own phase is that
+the session which wrote the code is the worst-positioned to judge it, it's
+carrying every rationalization it made along the way. The two-axis split below
+guards against one more thing entirely: one axis's read leaking into the
+other's. Neither substitutes for the other.
+
+Review the changes made in this phase along two independent axes, run as
+separate passes so neither masks the other:
+
+- **Standards**: does the diff follow this repo's documented coding
+  standards?
+- **Spec**: does the diff faithfully implement the ticket or spec it came
+  from?
+
+Run both, ideally as two separate subagent passes so one doesn't bleed context
+into the other, then report them side by side without merging or reranking.
+If subagents aren't available, run both passes sequentially in the current
+context, clearing your working state between them.
+
+## Why two axes, not one
+
+A change can pass one and fail the other:
+
+- Follows every standard, but builds the wrong thing → Standards pass, Spec
+  fail.
+- Does exactly what was asked, but breaks the project's conventions → Spec
+  pass, Standards fail.
+
+Collapsing these into one score lets whichever axis reads more favorably hide
+the other's problems. Keep them separate.
+
+## Process
+
+### 1. Pin the fixed point
+
+Diff against whatever point this ticket's work started from: usually the
+branch point, or the last commit before this ticket began.
+`git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the
+merge-base), plus `git log <fixed-point>..HEAD --oneline` for the commit list.
+Confirm the fixed point resolves and the diff is non-empty before going
+further; a bad ref should fail here; not inside two review passes that then
+have nothing to say.
+
+### 2. Identify the spec source
+
+In order: the ticket or spec this implementation session started from
+(already in context, most of the time); issue references in the commit
+messages (`#123`, `Closes #45`); a path or issue number the user names. If
+truly nothing turns up, ask, and if the user says there genuinely isn't one,
+skip the Spec pass and say so in the final report rather than inventing a
+standard to check against.
+
+### 3. Identify the standards sources
+
+Anything the repo documents about how code should be written:
+`CODING_STANDARDS.md`, `CONTRIBUTING.md`, a style guide, whatever exists.
+
+On top of whatever's documented, always carry this fixed baseline (Fowler,
+_Refactoring_, ch. 3), since it applies even when a repo documents nothing.
+Two rules bind it: a documented repo standard always overrides it (where the
+repo endorses something the baseline would flag, suppress the flag), and every
+smell here is a labelled judgement call, never a hard violation. Skip anything
+tooling already enforces (a linter rule already catching it needs no human
+restating it).
+
+- **Mysterious Name**: a name that doesn't reveal what it holds or does →
+  rename it; if no honest name comes, the design itself is murky.
+- **Duplicated Code**: the same logic shape in more than one hunk or file →
+  extract the shared shape, call it from both.
+- **Feature Envy**: a method reaching into another object's data more than
+  its own → move the method to the data it envies.
+- **Data Clumps**: the same few fields or params always traveling together →
+  bundle them into a type.
+- **Primitive Obsession**: a primitive or string standing in for a domain
+  concept that deserves its own type → give the concept its own small type.
+- **Repeated Switches**: the same switch/if-cascade on the same type recurs →
+  replace with polymorphism, or one shared map.
+- **Shotgun Surgery**: one logical change forces scattered edits across many
+  files → gather what changes together into one module.
+- **Divergent Change**: one file or module edited for several unrelated
+  reasons → split so each module changes for one reason.
+- **Speculative Generality**: abstraction or hooks added for a need the spec
+  doesn't have → delete it; inline back until a real need shows up.
+- **Message Chains**: long `a.b().c().d()` navigation the caller shouldn't
+  depend on → hide the walk behind one method.
+- **Middle Man**: a class or function that mostly just delegates onward → cut
+  it, call the real target directly.
+- **Refused Bequest**: a subclass or implementer ignoring most of what it
+  inherits → drop the inheritance, use composition.
+
+### 4. Run both passes
+
+**Standards pass**, given the diff, the commit list, whatever standards
+sources were found, and the smell baseline above: report, per file or hunk
+where relevant, every place the diff violates a documented standard (citing
+the file and the rule) and any baseline smell spotted (naming it, quoting the
+hunk). Documented-standard breaches can be hard violations; baseline smells
+stay judgement calls. Skip anything tooling enforces. Keep it tight, under 400
+words.
+
+**Spec pass**, given the diff, the commit list, and the spec or ticket: report
+requirements asked for that are missing or partial, behavior in the diff that
+wasn't asked for (scope creep), and requirements that look implemented but
+where the implementation looks wrong. Quote the spec line for each finding.
+Under 400 words.
+
+If there's no spec source, skip this pass and say so.
+
+### 5. Report
+
+Present both under `## Standards` and `## Spec` headings, unmerged. Close with
+a one-line summary: total findings per axis, and the worst issue **within**
+each axis, if any. Don't declare a single overall winner across the two axes;
+that's exactly the reranking the separation exists to prevent.
+
+## Outcome
+
+- **Either axis has findings**: comment them on the ticket and hand back to a
+  fresh `implement.md` session to address. The ticket stays open, unreviewed;
+  don't apply `ship-it:reviewed` on a report that has anything outstanding.
+- **Both axes clean**: apply `ship-it:reviewed`
+  (`gh issue edit <n> --add-label "ship-it:reviewed"`), then close out. The
+  work-in-progress commit is already on the branch from `implement.md`, so
+  comment the resolution (`gh issue comment`), close the ticket
+  (`gh issue close`), and open the PR or merge, per how the user works.
+  Close-out is gated on this label; don't skip straight to closing because the
+  diff "looked fine" without a report to back it.
