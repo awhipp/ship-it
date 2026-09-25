@@ -8,21 +8,31 @@ costs a comment; the same gap found mid-implementation costs a rewrite. Skip it
 only for a small, well-scoped feature where that risk genuinely doesn't apply —
 skipping is the deliberate exception, not the default path through the loop.
 
-## Why this has to run fresh
+## 2-Tier Context Isolation Protocol
 
-The person who wrote the spec remembers why they phrased something loosely,
-what they meant by a vague acceptance criterion, which edge case they
-consciously deferred. None of that reasoning is visible to whoever builds from
-the artifact later; only the words on the issue are. An audit run by the same
-context that authored the artifact inherits that memory and reads right past
-the very gaps a builder would trip on.
+The person or session that authored the spec, map, or tickets remembers why they phrased
+something loosely, what they meant by a vague acceptance criterion, and which edge case they
+consciously deferred. None of that reasoning is visible to whoever builds from the artifact
+later; only the words on the issue are. An audit run by the same context that authored the
+artifact inherits that internal memory and reads right past the very gaps a builder would trip on.
 
-So: if you authored this spec, ticket set, or map in the current session, do
-not audit it yourself. Either start a fresh session that reads only the
-published issue plus the original requirements, or spawn a subagent with that
-same restricted view. Either way, the auditor should have no access to the
-reasoning that produced the artifact, only to the artifact and to what it's
-supposed to satisfy.
+**In-context persona simulation is strictly prohibited**: An agent must NEVER attempt to
+"switch personas" or simulate an outside skeptic within the same unbroken session that authored
+the artifact. In-context persona switching within an authoring session is strictly prohibited due
+to inherent confirmation bias and context token leakage.
+
+Validation MUST follow the **2-Tier Context Isolation Protocol**:
+
+- **Tier 1 (Isolated Subagent)**: For multi-agent harnesses supporting subagent execution
+  (e.g., Antigravity, Claude Code subagents). The parent session spawns an isolated subagent
+  with a restricted prompt containing only the target artifact and upstream requirements, with
+  zero access to the authoring conversation history.
+- **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses
+  (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or
+  session with a dedicated prompt for the validation phase.
+
+Either way, the auditor should have no access to the reasoning that produced the artifact,
+only to the artifact and to what it's supposed to satisfy.
 
 ## What "requirements" means, per artifact
 
@@ -33,8 +43,8 @@ supposed to satisfy.
 - **Map**: the destination it names, and its "Decisions so far." (For a map,
   fog is not itself a defect; see below.)
 
-Read the requirements before the artifact, so the audit starts from what was
-asked for rather than from what was written.
+Read the requirements before the artifact via `ReadIssue` (`gh issue view <number> --json body`),
+so the audit starts from what was asked for rather than from what was written.
 
 ## What to look for
 
@@ -80,7 +90,8 @@ avoid holding up the build; the tier is what unblocks or doesn't.
 
 ## Report
 
-Post the findings as a comment on the artifact's issue, so they're visible to
+Post the findings as a comment on the artifact's issue via `CommentIssue`
+(`gh issue comment <number> --body-file <file>`), so they're visible to
 whoever reads it next, in this session or a later one:
 
 ```markdown
@@ -119,10 +130,10 @@ keeps this audit an outside check rather than a second author.
 
 ## Verdict and the label
 
-- **Any Blocker** → don't apply `ship-it:validated`. The artifact goes back to
-  the phase that owns it, read in a fresh session, so the fix isn't written by
-  the same context the audit just caught out.
-- **Zero Blockers** → apply `ship-it:validated`
-  (`gh issue edit <n> --add-label "ship-it:validated"`). Warnings and Nits are
+- **Any Blocker** → do not apply `ship-it:validated`. The artifact goes back to
+  the phase that owns it, read in a fresh session (Tier 2) or isolated subagent (Tier 1),
+  so the fix isn't written by the same context the audit just caught out.
+- **Zero Blockers** → apply `ship-it:validated` via `UpdateIssue`
+  (`gh issue edit <number> --add-label "ship-it:validated"`). Warnings and Nits are
   on record in the comment; the user decides whether to fold them in now or
   carry them forward, they don't hold up the label.

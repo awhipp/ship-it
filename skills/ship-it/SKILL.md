@@ -152,11 +152,14 @@ whole loop at once.
   self-contained by construction (see `references/tickets.md`), ensuring each
   slice is built strictly to its self-contained acceptance criteria and
   preventing context pollution and confirmation bias from earlier tickets.
-- **Validate and review each want their own fresh session too**, and for the
-  same underlying reason: the session that authored a spec, ticket set, or
-  diff carries the reasoning behind it, and that reasoning is exactly what an
-  outside check needs to not have. Carrying it in doesn't just waste tokens
-  here, it biases the very check the fresh session exists to run.
+- **Validate and review strictly mandate the 2-Tier Context Isolation Protocol**
+  (Tier 1: Isolated Subagent; Tier 2: Fresh Session), and for the same underlying
+  reason: the session that authored a spec, ticket set, or diff carries the
+  reasoning behind it, and that reasoning is exactly what an outside check
+  needs to not have. In-context persona simulation or switching within an unbroken
+  authoring session is strictly prohibited due to inherent confirmation bias.
+  Carrying it in doesn't just waste tokens here, it biases the very check the
+  isolated context exists to run.
 - If a session's context is growing large before a natural stopping point,
   that's the signal to wrap up and hand off, not to push through with degraded
   reasoning.
