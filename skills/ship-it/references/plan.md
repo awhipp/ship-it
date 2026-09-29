@@ -113,24 +113,24 @@ itself changes.
    Continue strictly one question per turn.
 3. Write the map: destination and notes filled in, decisions-so-far empty, fog
    sketched into "Not yet specified."
-4. Create whatever tickets you can specify now via `CreateIssue`, then wire their blocking
-   edges via `LinkDependency`. Everything else stays in the fog.
+4. Create whatever tickets you can specify now (`gh issue create --title "<title>" --body-file <file> --label "<labels>"`), then wire their blocking
+   edges (markdown tasklist under `## Blocked by`). Everything else stays in the fog.
 5. Stop. Charting is its own session's work; it resolves nothing.
 
 **Resolving** (a map already exists):
 
-1. Read the map (the low-resolution body, not every ticket) via `ReadIssue`.
+1. Read the map (the low-resolution body, not every ticket) via `gh issue view <number>`.
 2. Pick the ticket: whichever the user named, or the first unblocked,
    unclaimed one (the frontier), in order.
-3. Claim it via `AssignSelf` (`gh issue edit <number> --add-assignee "@me"`) before doing any work, so
+3. Claim it (`gh issue edit <number> --add-assignee "@me"`) before doing any work, so
    a concurrent session skips it.
 4. Resolve it: work the ticket per its type above. For grilling tickets, ask
    strictly one question per turn during clarification.
-5. Record the resolution: post the answer via `CommentIssue`, close the ticket
-   via `CloseIssue` (`gh issue close <number> --comment "<text>"`), append a
-   one-line gisted pointer to the map's "Decisions so far" via `UpdateIssue`.
+5. Record the resolution: post the answer (`gh issue comment <number> --body "<text>"`), close the ticket
+   (`gh issue close <number> --comment "<text>"`), append a
+   one-line gisted pointer to the map's "Decisions so far" (`gh issue edit <map-number>`).
 6. Graduate any fog the answer just made specifiable into fresh tickets
-   (create via `CreateIssue`, then wire blocking edges via `LinkDependency`),
+   (create via `gh issue create`, then wire blocking edges under `## Blocked by`),
    clearing it out of "Not yet specified." If the answer reveals a ticket sits
    beyond the destination, rule it out of scope instead of resolving it.
 

@@ -43,7 +43,7 @@ only to the artifact and to what it's supposed to satisfy.
 - **Map**: the destination it names, and its "Decisions so far." (For a map,
   fog is not itself a defect; see below.)
 
-Read the requirements before the artifact via `ReadIssue` (`gh issue view <number> --json body`),
+Read the requirements before the artifact (`gh issue view <number> --json body`),
 so the audit starts from what was asked for rather than from what was written.
 
 ## What to look for
@@ -90,7 +90,7 @@ avoid holding up the build; the tier is what unblocks or doesn't.
 
 ## Report
 
-Post the findings as a comment on the artifact's issue via `CommentIssue`
+Post the findings as a comment on the artifact's issue
 (`gh issue comment <number> --body-file <file>`), so they're visible to
 whoever reads it next, in this session or a later one:
 
@@ -133,7 +133,7 @@ keeps this audit an outside check rather than a second author.
 - **Any Blocker** → do not apply `ship-it:validated`. The artifact goes back to
   the phase that owns it, read in a fresh session (Tier 2) or isolated subagent (Tier 1),
   so the fix isn't written by the same context the audit just caught out.
-- **Zero Blockers** → apply `ship-it:validated` via `UpdateIssue`
+- **Zero Blockers** → apply `ship-it:validated`
   (`gh issue edit <number> --add-label "ship-it:validated"`). Warnings and Nits are
   on record in the comment; the user decides whether to fold them in now or
   carry them forward, they don't hold up the label.

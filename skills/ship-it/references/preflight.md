@@ -1,7 +1,7 @@
 # Preflight: verify the repo is set up, only when needed
 
 `ship-it` assumes, by default, that a repo it's asked to work in already has
-what it needs: the `gh` CLI (or GitHub MCP) installed and authenticated, a `github.com`
+what it needs: the `gh` CLI installed and authenticated, a `github.com`
 remote, and Issues enabled with write access. Normal runs don't check any of
 this — they go straight into orienting on the feature and doing the next
 phase's work.
@@ -111,24 +111,21 @@ gh label create "ship-it:reviewed" --description "Diff passed independent review
 If every check passes and the failure that triggered this still doesn't make
 sense, say so plainly rather than guessing further.
 
-## Tool Translation Table
+## Canonical `gh` CLI Commands
 
-`ship-it` abstracts all issue tracker interactions into 9 logical operations.
-This central translation table maps each logical operation to both its `gh` CLI
-invocation and its GitHub MCP (`mcp__github__*`) equivalent. Phase reference guides
-call these logical operations directly.
+The following table summarizes the canonical, cross-platform `gh` CLI commands used across `ship-it` phases:
 
-| Logical Operation | Purpose | `gh` CLI Command | GitHub MCP Tool (`mcp__github__*`) |
-| ----------------- | ------- | ---------------- | ----------------------------------- |
-| `QueryArtifact` | Search and list issues by state, label, and slug | `gh issue list --label "<label>" --search "<slug> in:title" --json number,title,labels,assignees,state` | `mcp__github__search_issues` (`query: "repo:<owner>/<repo> label:<label> <slug> in:title state:open"`) or `mcp__github__list_issues` |
-| `ReadIssue` | Fetch full issue details, metadata, and comments | `gh issue view <number> --comments` or `gh issue view <number> --json number,title,body,labels,assignees,state,comments` | `mcp__github__get_issue` and `mcp__github__get_issue_comments` |
-| `CreateIssue` | Create a new map, spec, or ticket | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` | `mcp__github__create_issue` (`owner`, `repo`, `title`, `body`, `labels`) |
-| `UpdateIssue` | Update issue title, body, or labels | `gh issue edit <number> --title "<title>" --body-file <file> --add-label "<label>"` | `mcp__github__update_issue` (`owner`, `repo`, `issue_number`, `title`, `body`, `labels`) |
-| `CommentIssue` | Add a comment to an existing issue | `gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"` | `mcp__github__add_issue_comment` (`owner`, `repo`, `issue_number`, `body`) |
-| `AssignSelf` | Claim a ticket to prevent concurrent work | `gh issue edit <number> --add-assignee "@me"` | `mcp__github__add_assignees` or `mcp__github__update_issue` (`assignees: ["<user>"]`) |
-| `CloseIssue` | Close an issue with resolution comment | `gh issue close <number> --comment "<text>"` | `mcp__github__update_issue` (`state: "closed"`) and `mcp__github__add_issue_comment` |
-| `LinkDependency` | Link an issue as blocked by another | `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (or markdown fallback) | `mcp__github__update_issue` updating body with `## Blocked by` tasklist |
-| `LinkParentChild` | Link a ticket to a parent spec or map | `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (or markdown fallback) | `mcp__github__create_issue` / `mcp__github__update_issue` setting `Part of #<spec-id>` |
+| Action | Purpose | `gh` CLI Command |
+| ------ | ------- | ---------------- |
+| Query issues | Search and list issues by state, label, and slug | `gh issue list --label "<label>" --search "<slug> in:title" --json number,title,labels,assignees,state` |
+| View issue | Fetch full issue details, metadata, and comments | `gh issue view <number> --comments` or `gh issue view <number> --json number,title,body,labels,assignees,state,comments` |
+| Create issue | Create a new map, spec, or ticket | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
+| Edit issue | Update issue title, body, or labels | `gh issue edit <number> --title "<title>" --body-file <file> --add-label "<label>"` |
+| Comment on issue | Add a comment to an existing issue | `gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"` |
+| Claim ticket | Claim a ticket to prevent concurrent work | `gh issue edit <number> --add-assignee "@me"` |
+| Close issue | Close an issue with resolution comment | `gh issue close <number> --comment "<text>"` |
+| Link dependency | Link an issue as blocked by another | `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (or markdown fallback) |
+| Link parent/child | Link a ticket to a parent spec or map | `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (or markdown fallback) |
 
 ## Cross-Platform Shell Conventions
 
@@ -141,12 +138,12 @@ All shell snippets and automated commands must follow these cross-platform rules
 
 ## Markdown Issue Relationship Contract
 
-Native GitHub sub-issue and issue-dependency APIs (`dependencies/blocked_by` and `sub_issues`) require specific API previews and repository feature access. For universal compatibility across all GitHub repository tiers, tools, and MCP servers without API restrictions, `ship-it` defines the following markdown fallback contract:
+Native GitHub sub-issue and issue-dependency APIs (`dependencies/blocked_by` and `sub_issues`) require specific API previews and repository feature access. For universal compatibility across all GitHub repository tiers and tools without API restrictions, `ship-it` defines the following markdown fallback contract:
 
-1. **Parent-Child Linkage (`LinkParentChild`)**:
+1. **Parent-Child Linkage**:
    - Child tickets record their parent association by including `Part of #<spec-id>` at the beginning of their body.
    - The parent spec body remains **immutable** once tickets are created; child tickets link up to the spec, avoiding race conditions or churn on the parent issue body.
-2. **Dependency Edges (`LinkDependency`)**:
+2. **Dependency Edges**:
    - Tickets declare blockers in a designated markdown section:
      ```markdown
      ## Blocked by
@@ -155,5 +152,5 @@ Native GitHub sub-issue and issue-dependency APIs (`dependencies/blocked_by` and
      ```
    - When a blocker issue closes, its tasklist item can be checked (`- [x] Blocked by #<blocker-id>`).
 3. **Orient Discovery & Unblocking**:
-   - The Orient phase queries all tickets for a slug via `QueryArtifact` (`gh issue list --label "ship-it:ticket" --search "<slug> in:title"`).
+   - The Orient phase queries all tickets for a slug via `gh issue list --label "ship-it:ticket" --search "<slug> in:title"`.
    - A ticket is considered unblocked when all issues listed under its `## Blocked by` section are in the `closed` state.

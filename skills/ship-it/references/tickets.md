@@ -68,13 +68,13 @@ and `ready-for-agent` labels.
 
 #### Markdown Relationship Contract
 
-To guarantee universal compatibility across all GitHub repository tiers,
-environments, and MCP servers without relying on preview API access:
+To guarantee universal compatibility across all GitHub repository tiers
+and environments without relying on preview API access:
 
 1. **Parent-Child Linkage (`Part of #<spec-id>`)**:
    - Every child ticket records `Part of #<spec-id>` as the very first line of its markdown body.
    - The parent spec body remains **immutable** once tickets exist; child tickets link up to the spec, avoiding race conditions or churn on the parent issue body.
-   - If native GitHub sub-issue API is available, link via `LinkParentChild` (see `preflight.md`), but the markdown `Part of #<spec-id>` linkage is the primary contract.
+   - If native GitHub sub-issue API is available, link via `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (see `preflight.md`), but the markdown `Part of #<spec-id>` linkage is the primary contract.
 
 2. **Dependency Edges (`## Blocked by`)**:
    - Tickets declare blocker dependencies in a tasklist under `## Blocked by`:
@@ -84,15 +84,15 @@ environments, and MCP servers without relying on preview API access:
      - [ ] Blocked by #<blocker-id>
      ```
      Or `None (can start immediately).` if unblocked.
-   - If native GitHub issue-dependency API is available, link via `LinkDependency` (see `preflight.md`), but the markdown tasklist is the primary contract.
+   - If native GitHub issue-dependency API is available, link via `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (see `preflight.md`), but the markdown tasklist is the primary contract.
 
 3. **Frontier Resolution & Orient Discovery**:
    - Work the frontier from here on: whichever ticket has every blocker resolved is takeable.
    - Orient discovers unblocked tickets using this exact algorithm:
      - Query tickets by feature slug: `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
      - Filter out any tickets already claimed (`assignees` non-empty) or closed (`state: "CLOSED"`).
-     - For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `ReadIssue` (`gh issue view <id> --json body`).
-     - Check the state of each referenced blocker issue via `ReadIssue` (`gh issue view <blocker-id> --json state`).
+     - For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `gh issue view <id> --json body` (or `gh issue view <id>`).
+     - Check the state of each referenced blocker issue via `gh issue view <blocker-id> --json state`.
      - A ticket is unblocked on the frontier when all of its referenced blocker issues are closed.
 
 Ticket body:

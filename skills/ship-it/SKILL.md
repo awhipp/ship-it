@@ -1,7 +1,7 @@
 ---
 name: ship-it
 description: "Conducts a feature through the full build loop, plan, spec, tickets, implement, review, end to end across as many sessions as it takes, in any GitHub repository. Looks at what already exists for the feature (a map, a spec, tickets, a diff awaiting review) and states the one next step to take. Manual-only workflow: do NOT invoke automatically or unprompted; only activate when explicitly requested by the user via ship-it or /ship-it."
-compatibility: Git repository, GitHub issue access (gh CLI or GitHub MCP/API), and a cross-platform shell.
+compatibility: Git repository, GitHub issue access (gh CLI), and a cross-platform shell.
 metadata:
   disable-model-invocation: "true"
 ---
@@ -90,15 +90,15 @@ take whichever comes back furthest along:
    `gh issue list --label "ship-it:spec" --search "<slug> in:title" --state open --json number,title,labels,state`
    (see [references/spec.md](references/spec.md))
 3. **Tickets** generated from that spec:
-   Query tickets for the feature via `QueryArtifact`:
+   Query tickets for the feature:
    `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
    (see [references/tickets.md](references/tickets.md)).
 
    **Orient's Ticket Discovery & Unblocking Algorithm**:
    - Filter out claimed and closed tickets: skip any with a non-empty `assignees` (another session has claimed it) and any with `state: "CLOSED"`.
-   - For open, unclaimed tickets, inspect each ticket's dependencies via `ReadIssue` (`gh issue view <number> --json body` or `gh issue view <number>`).
+   - For open, unclaimed tickets, inspect each ticket's dependencies via `gh issue view <number> --json body` (or `gh issue view <number>`).
    - Parse the `## Blocked by` section for tasklist references (`- [ ] Blocked by #<blocker-id>`). If native issue-dependency API edges exist, inspect them too.
-   - For each blocker reference, check blocker issue state via `ReadIssue` (`gh issue view <blocker-id> --json state`).
+   - For each blocker reference, check blocker issue state via `gh issue view <blocker-id> --json state`.
    - A ticket is **unblocked** if it has no blockers (or "None") or every blocker issue referenced in its `## Blocked by` tasklist has `state: "CLOSED"`.
    - Take whichever unblocked, unclaimed ticket is earliest in sequence.
 4. **An implementation in progress**, or a diff that hasn't been reviewed yet:

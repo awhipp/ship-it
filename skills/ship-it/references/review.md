@@ -59,9 +59,9 @@ Before evaluating the diff against standards and spec, evaluate verification evi
 - **Where Red-Green applies (code changes in repositories with automated test suites)**:
   Verify concrete proof of the Red step from the two-step Red-Green verification cycle. Inspect the commit history and issue thread:
   - Check for a git commit capturing the failing test in `git log <fixed-point>..HEAD --oneline`.
-  - OR check for natural test runner output, terminal failure logs, or test execution traces in the handoff comment or issue thread (inspected via `ReadIssue` or `gh issue view`).
+  - OR check for natural test runner output, terminal failure logs, or test execution traces in the handoff comment or issue thread (inspected via `gh issue view <number> --comments` or `gh issue view`).
   Accept natural terminal logs, test runner output, or standard git commits without demanding specific HTML wrapper tags (like `<details>`) or prescriptive commit prefixes (like `(RED)`).
-  **Reject diffs lacking proof**: If the change involves executable code in a repository with an automated test suite and no Red verification evidence is present, reject the diff without approval. Post a rejection comment via `CommentIssue` (`gh issue comment <number> --body "Review rejected: Missing required test-first verification proof (failing test commit or terminal failure log). Diff cannot be approved without test-first proof."`) and return the ticket to a fresh `implement.md` session.
+  **Reject diffs lacking proof**: If the change involves executable code in a repository with an automated test suite and no Red verification evidence is present, reject the diff without approval. Post a rejection comment (`gh issue comment <number> --body "Review rejected: Missing required test-first verification proof (failing test commit or terminal failure log). Diff cannot be approved without test-first proof."`) and return the ticket to a fresh `implement.md` session.
 
 - **Where Red-Green is not viable or needed (documentation, markdown skill definitions, configuration files, visual/asset changes, or repositories lacking test infrastructure)**:
   Do not expect or require failing test evidence, and do not demand artificial string-matching tests or mock harnesses. Instead, verify that the implementation satisfies the acceptance criteria directly via document inspection, schema validation, linting, or diff review. The Red Phase Checkpoint is satisfied if the acceptance criteria are verified and documented in the handoff report or issue thread.
@@ -69,7 +69,7 @@ Before evaluating the diff against standards and spec, evaluate verification evi
 ### 3. Identify the spec source
 
 In order: the ticket or spec this implementation session started from (read via
-`ReadIssue` (`gh issue view <number> --json number,title,body`)); issue references
+`gh issue view <number> --json number,title,body`); issue references
 in the commit messages (`#123`, `Closes #45`); a path or issue number the user names.
 If truly nothing turns up, ask, and if the user says there genuinely isn't one,
 skip the Spec pass and say so in the final report rather than inventing a
@@ -140,15 +140,15 @@ that's exactly the reranking the separation exists to prevent.
 
 ## Outcome
 
-- **Red verification evidence missing (where applicable) or either axis has findings**: post findings to the ticket via `CommentIssue`
+- **Red verification evidence missing (where applicable) or either axis has findings**: post findings to the ticket
   (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<rejection-text>"`) and hand back to a fresh
   `implement.md` session to address. The ticket stays open, unreviewed; do not apply
   `ship-it:reviewed` on a report that has anything outstanding or lacks required test verification evidence.
-- **Red verification evidence verified (or not applicable) and both axes clean**: apply `ship-it:reviewed` via `UpdateIssue`
+- **Red verification evidence verified (or not applicable) and both axes clean**: apply `ship-it:reviewed`
   (`gh issue edit <number> --add-label "ship-it:reviewed"`), then close out. The
   work-in-progress commit is already on the branch from `implement.md`, so comment
-  the resolution via `CommentIssue` (`gh issue comment <number> --body "<text>"`),
-  close the ticket via `CloseIssue` (`gh issue close <number> --comment "<text>"`),
+  the resolution (`gh issue comment <number> --body "<text>"`),
+  close the ticket (`gh issue close <number> --comment "<text>"`),
   and open the PR or merge, per how the user works.
   Close-out is gated on this label; do not skip straight to closing because the
   diff "looked fine" without a report to back it.

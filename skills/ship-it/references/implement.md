@@ -7,7 +7,7 @@ from prior tickets rarely helps and often just costs tokens.
 
 ## Process
 
-1. **Claim the ticket** via `AssignSelf` (`gh issue edit <number> --add-assignee "@me"`) before
+1. **Claim the ticket** (`gh issue edit <number> --add-assignee "@me"`) before
    writing anything, so a concurrent session doesn't pick up the same one. Note the assignee
    must be quoted as `"@me"` to ensure cross-platform shell compatibility.
 
@@ -33,8 +33,8 @@ from prior tickets rarely helps and often just costs tokens.
 
 4. **Stop drifting from the acceptance criteria.** If something in the ticket turns out to
    be wrong or the acceptance criteria don't fit what you're learning mid-build, don't silently
-   reinterpret it: say so, and either edit the issue via `UpdateIssue` or flag it in a comment
-   via `CommentIssue` (`gh issue comment <number> --body "<text>"`) rather than quietly building
+   reinterpret it: say so, and either edit the issue (`gh issue edit <number>`) or flag it in a comment
+   (`gh issue comment <number> --body "<text>"`) rather than quietly building
    something else.
 
 5. **Commit and stop.** Once the ticket's behavior is built and the full suite is green (or acceptance criteria verified for non-code changes), commit the work-in-progress to the current branch so the diff exists and survives past this session. Don't self-review and don't close the ticket here: the session that just wrote this code is the worst-positioned session to check it, it's carrying every rationalization it made along the way. Leave the ticket assigned and open; that "implemented, awaiting review" state is what a fresh session picks up next.
@@ -51,4 +51,4 @@ from prior tickets rarely helps and often just costs tokens.
 
 Same process, just working directly from the spec's User Stories and Implementation Decisions
 instead of a ticket's acceptance criteria. The spec issue itself is the record; there's nothing
-separate to claim via `AssignSelf` or close via `CloseIssue`.
+separate to claim (`gh issue edit <number> --add-assignee "@me"`) or close (`gh issue close <number>`).
