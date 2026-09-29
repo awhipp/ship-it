@@ -40,12 +40,13 @@ from prior tickets rarely helps and often just costs tokens.
 5. **Commit and stop.** Once the ticket's behavior is built and the full suite is green (or acceptance criteria verified for non-code changes), commit the work-in-progress to the current branch so the diff exists and survives past this session. Don't self-review and don't close the ticket here: the session that just wrote this code is the worst-positioned session to check it, it's carrying every rationalization it made along the way. Leave the ticket assigned and open; that "implemented, awaiting review" state is what a fresh session picks up next.
 
 6. **Report and hand off.** Tell the user the ticket is implemented and waiting on independent
-   review, and that the next step is a **fresh session** running `review.md` against this diff
+   review under the 2-Tier Context Isolation Protocol (see [references/validate.md](validate.md)),
+   and that the next step is an isolated review session running `review.md` against this diff
    (e.g., via `ship-it review`, `/ship-it review`, or the equivalent in conversation).
    Include the Red verification proof (e.g., test runner output, terminal failure log, or failing
    test commit ref), or the acceptance criteria verification summary where Red-Green is not applicable,
    in the handoff report and issue comment. Don't run review yourself, even as a "quick check" before
-   stopping; that's the dirty-context review this split exists to avoid.
+   stopping; in-context persona simulation is strictly prohibited.
 
 ## When there's no ticket (small, single-session feature)
 

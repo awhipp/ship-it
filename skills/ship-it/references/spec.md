@@ -10,8 +10,8 @@ don't turn this into a full grilling session; that already happened upstream
 ## Process
 
 1. **Gather what's already settled.** If a map exists for this feature, read
-   its "Decisions so far" and zoom into any ticket whose detail matters.
-   Otherwise, work from the conversation.
+   its "Decisions so far" via `gh issue view <map-number>` and zoom into any
+   ticket whose detail matters. Otherwise, work from the conversation.
 
 2. **Explore the codebase**, if you haven't already, to ground the spec in
    what's actually there. Use the project's own vocabulary throughout (its
@@ -25,9 +25,18 @@ don't turn this into a full grilling session; that already happened upstream
    match the user's expectations before moving on; a spec built on the wrong
    seam is expensive to unwind later.
 
-4. **Write the spec** using the template below, then publish it as a GitHub
-   issue titled `[<slug>] Spec: <gist>` (`gh issue create`), applying the
-   `ship-it:spec` and `ready-for-agent` labels.
+4. **Draft the spec** using the template below, presenting it to the user.
+
+   **Approval Checkpoint**: You MUST pause here and obtain explicit user confirmation
+   before creating any GitHub issue. Do not autonomously publish the spec without
+   user review and sign-off on the scope and decisions. Iterate until confirmed.
+
+5. **Publish the spec.** Once explicitly approved, publish the spec as a GitHub
+   issue titled `[<slug>] Spec: <gist>` using `--body-file` (writing the spec
+   content to a file first to guarantee cross-platform shell compatibility):
+   ```shell
+   gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec,ready-for-agent"
+   ```
 
 ## Spec template
 
@@ -79,10 +88,11 @@ don't turn this into a full grilling session; that already happened upstream
 ```
 
 Once published, this spec is what `tickets.md`, `implement.md`, and
-`review.md` all read to know what's being built.
+`review.md` all read (`gh issue view <spec-number>`) to know what's being built.
 
-Recommended next step: `validate.md` audits this spec, adversarially and in a
-fresh context, before anyone splits it into tickets or builds from it
-directly. Worth running on anything that spans more than one session — treat
-skipping it as the exception, reserved for a small feature where a missed gap
-would surface (and get fixed) just as cheaply during the build itself.
+Recommended next step: [references/validate.md](validate.md) audits this spec,
+adversarially under the 2-Tier Context Isolation Protocol (Tier 1 isolated subagent
+or Tier 2 fresh session; see `validate.md`), before anyone splits it into tickets
+or builds from it directly. Worth running on anything that spans more than one
+session — treat skipping it as the exception, reserved for a small feature where a
+missed gap would surface (and get fixed) just as cheaply during the build itself.

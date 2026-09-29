@@ -138,19 +138,9 @@ All shell snippets and automated commands must follow these cross-platform rules
 
 ## Markdown Issue Relationship Contract
 
-Native GitHub sub-issue and issue-dependency APIs (`dependencies/blocked_by` and `sub_issues`) require specific API previews and repository feature access. For universal compatibility across all GitHub repository tiers and tools without API restrictions, `ship-it` defines the following markdown fallback contract:
+For universal compatibility across all GitHub repository tiers without relying on preview API access, `ship-it` uses the Markdown Relationship Contract defined in [references/tickets.md](tickets.md):
+- **Parent-Child Linkage**: Child tickets record `Part of #<spec-id>` on the first line of their body; parent specs remain immutable.
+- **Dependency Edges**: Tickets declare blockers under `## Blocked by` using markdown tasklists (`- [ ] Blocked by #<blocker-id>`).
+- **Orient Discovery**: Orient determines unblocked tickets when all blockers listed under `## Blocked by` have `state: "CLOSED"`.
 
-1. **Parent-Child Linkage**:
-   - Child tickets record their parent association by including `Part of #<spec-id>` at the beginning of their body.
-   - The parent spec body remains **immutable** once tickets are created; child tickets link up to the spec, avoiding race conditions or churn on the parent issue body.
-2. **Dependency Edges**:
-   - Tickets declare blockers in a designated markdown section:
-     ```markdown
-     ## Blocked by
-
-     - [ ] Blocked by #<blocker-id>
-     ```
-   - When a blocker issue closes, its tasklist item can be checked (`- [x] Blocked by #<blocker-id>`).
-3. **Orient Discovery & Unblocking**:
-   - The Orient phase queries all tickets for a slug via `gh issue list --label "ship-it:ticket" --search "<slug> in:title"`.
-   - A ticket is considered unblocked when all issues listed under its `## Blocked by` section are in the `closed` state.
+Where native GitHub sub-issue or dependency APIs are unavailable, this markdown contract serves as the primary relationship store across all phases.

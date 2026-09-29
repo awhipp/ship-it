@@ -10,29 +10,30 @@ skipping is the deliberate exception, not the default path through the loop.
 
 ## 2-Tier Context Isolation Protocol
 
-The person or session that authored the spec, map, or tickets remembers why they phrased
-something loosely, what they meant by a vague acceptance criterion, and which edge case they
-consciously deferred. None of that reasoning is visible to whoever builds from the artifact
-later; only the words on the issue are. An audit run by the same context that authored the
-artifact inherits that internal memory and reads right past the very gaps a builder would trip on.
+The person or session that authored a spec, map, ticket set, or code diff remembers why they phrased
+something loosely, what shortcuts or rationalizations they made, and which edge cases they
+consciously deferred. None of that reasoning is visible to whoever builds from or reviews the artifact
+later; only the words and code on record are. An audit or review run by the same context that authored the
+artifact inherits that internal memory and reads right past the very gaps an independent check would catch.
 
 **In-context persona simulation is strictly prohibited**: An agent must NEVER attempt to
-"switch personas" or simulate an outside skeptic within the same unbroken session that authored
-the artifact. In-context persona switching within an authoring session is strictly prohibited due
-to inherent confirmation bias and context token leakage.
+"switch personas" or simulate an outside skeptic or reviewer within the same unbroken session that
+authored the artifact or diff. In-context persona switching within an authoring session is strictly
+prohibited due to inherent confirmation bias and context token leakage; claims of "clearing working state"
+within an existing context fail to eliminate authoring bias.
 
-Validation MUST follow the **2-Tier Context Isolation Protocol**:
+All validation and review phases MUST follow the **2-Tier Context Isolation Protocol**:
 
 - **Tier 1 (Isolated Subagent)**: For multi-agent harnesses supporting subagent execution
   (e.g., Antigravity, Claude Code subagents). The parent session spawns an isolated subagent
-  with a restricted prompt containing only the target artifact and upstream requirements, with
+  with a restricted prompt containing only the target artifact/diff and upstream requirements, with
   zero access to the authoring conversation history.
 - **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses
   (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or
-  session with a dedicated prompt for the validation phase.
+  session with a dedicated prompt for the validation or review phase.
 
-Either way, the auditor should have no access to the reasoning that produced the artifact,
-only to the artifact and to what it's supposed to satisfy.
+Either way, the auditor or reviewer must have no access to the reasoning that produced the artifact or diff,
+only to the artifact and to what it is required to satisfy.
 
 ## What "requirements" means, per artifact
 

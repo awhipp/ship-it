@@ -95,11 +95,10 @@ take whichever comes back furthest along:
    (see [references/tickets.md](references/tickets.md)).
 
    **Orient's Ticket Discovery & Unblocking Algorithm**:
-   - Filter out claimed and closed tickets: skip any with a non-empty `assignees` (another session has claimed it) and any with `state: "CLOSED"`.
-   - For open, unclaimed tickets, inspect each ticket's dependencies via `gh issue view <number> --json body` (or `gh issue view <number>`).
-   - Parse the `## Blocked by` section for tasklist references (`- [ ] Blocked by #<blocker-id>`). If native issue-dependency API edges exist, inspect them too.
-   - For each blocker reference, check blocker issue state via `gh issue view <blocker-id> --json state`.
-   - A ticket is **unblocked** if it has no blockers (or "None") or every blocker issue referenced in its `## Blocked by` tasklist has `state: "CLOSED"`.
+   Find the earliest unblocked, unclaimed ticket per the Markdown Relationship Contract in [references/tickets.md](references/tickets.md):
+   - Filter out claimed (`assignees` non-empty) and closed (`state: "CLOSED"`) tickets.
+   - For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `gh issue view <number> --json body` (and native dependency edges if present).
+   - Check blocker issue states via `gh issue view <blocker-id> --json state`. A ticket is **unblocked** if it has no blockers (or "None") or every blocker referenced in its `## Blocked by` tasklist has `state: "CLOSED"`.
    - Take whichever unblocked, unclaimed ticket is earliest in sequence.
 4. **An implementation in progress**, or a diff that hasn't been reviewed yet:
    check for an open PR referencing the slug or a matching branch, and for a
@@ -153,13 +152,7 @@ whole loop at once.
   slice is built strictly to its self-contained acceptance criteria and
   preventing context pollution and confirmation bias from earlier tickets.
 - **Validate and review strictly mandate the 2-Tier Context Isolation Protocol**
-  (Tier 1: Isolated Subagent; Tier 2: Fresh Session), and for the same underlying
-  reason: the session that authored a spec, ticket set, or diff carries the
-  reasoning behind it, and that reasoning is exactly what an outside check
-  needs to not have. In-context persona simulation or switching within an unbroken
-  authoring session is strictly prohibited due to inherent confirmation bias.
-  Carrying it in doesn't just waste tokens here, it biases the very check the
-  isolated context exists to run.
+  (see [references/validate.md](references/validate.md)): All audits and diff reviews must execute in an isolated context (Tier 1: Isolated Subagent; Tier 2: Fresh Session) rather than the authoring context. In-context persona simulation within an authoring session is strictly prohibited due to inherent confirmation bias.
 - If a session's context is growing large before a natural stopping point,
   that's the signal to wrap up and hand off, not to push through with degraded
   reasoning.

@@ -2,25 +2,11 @@
 
 ## 2-Tier Context Isolation Protocol
 
-Review exists as an independent verification gate because the session that wrote the code is
-the worst-positioned to judge it: it inherently carries every rationalization and shortcut made
-during implementation.
+Review strictly enforces the **2-Tier Context Isolation Protocol** defined in [references/validate.md](validate.md). In-context persona simulation is strictly prohibited: an agent must never attempt to simulate an outside reviewer within the unbroken implementation session.
 
-**In-context persona simulation is strictly prohibited**: An agent must NEVER attempt to
-"switch personas" or simulate an outside reviewer within the unbroken implementation session.
-In-context persona switching within an authoring session is strictly prohibited due to inherent
-confirmation bias and context token leakage; claims of "clearing working state" within an
-existing context fail to eliminate authoring bias.
-
-Review MUST follow the **2-Tier Context Isolation Protocol**:
-
-- **Tier 1 (Isolated Subagent)**: For multi-agent harnesses supporting subagent execution
-  (e.g., Antigravity, Claude Code subagents). The harness spawns isolated subagents with
-  restricted prompts—ideally separate subagent invocations for the Standards and Spec axes so
-  neither axis bleeds context into the other.
-- **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses
-  (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or
-  session dedicated strictly to running `review.md` against the diff.
+Review MUST run in an isolated context:
+- **Tier 1 (Isolated Subagent)**: Multi-agent harnesses (e.g., Antigravity, Claude Code subagents) spawn isolated subagents with restricted prompts—ideally separate subagent invocations for the Standards and Spec axes so neither axis bleeds context into the other.
+- **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or session dedicated strictly to running `review.md` against the diff.
 
 Review the changes made in this phase along two independent axes, reported side by side without
 merging or reranking:

@@ -18,9 +18,17 @@ open agent skill standard (`agentskills.io`), making it copyable into any global
 or project skills directory and usable across any compatible agent harness.
 
 > [!TIP]
-> ### See it in action: A living case study
+> ### Example Walkthrough: Distributed Rate Limiting
 >
-> Follow [GitHub Issue #1](https://github.com/awhipp/ship-it/issues/1) on this repository as an active, living case study demonstrating the complete `ship-it` build loop in action: drafting and adversarially auditing the specification, splitting it into vertical-slice tickets with unblocking dependencies, test-first Red-Green implementation with concrete failure proof, and independent multi-tier code reviews.
+> Here is how `ship-it` conducts a realistic feature through all five phases:
+>
+> 1. **Plan** (`[rate-limiting] Map: distributed rate limiter`): An interactive session maps open architectural questions—settling on a Redis sliding-window algorithm while ruling client-side throttling out of scope.
+> 2. **Spec** (`[rate-limiting] Spec: sliding-window rate limiter with Redis`): Synthesizes user stories, API rate limit headers (`X-RateLimit-*`), HTTP 429 response contracts, and test seams before requesting user sign-off.
+> 3. **Validate**: An outside skeptic in an isolated context audits the spec against requirements, catching an unhandled Redis connection timeout before any code is written.
+> 4. **Tickets**: Slices the approved spec into buildable vertical tickets:
+>    - Ticket #101: `[rate-limiting] Ticket: Redis sliding-window algorithm` (Blocked by: None)
+>    - Ticket #102: `[rate-limiting] Ticket: Express middleware and HTTP 429 handling` (Blocked by: #101)
+> 5. **Implement & Review**: Ticket #101 is built test-first with verifiable proof of test failure, then reviewed across independent Standards and Spec fidelity axes in an isolated session.
 
 ## Prior art
 
@@ -79,16 +87,15 @@ at every seam, and that gap is where most of `ship-it`'s own ideas live.
   - **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or
     manual harnesses (Cursor, Aider, terminal CLI), running each validation or
     review in a fresh conversation tab.
-- **Test-first Red-Green verification gates**: Implementers must execute a strict
-  two-step cycle: write a test capturing the behavior, observe failure (Red), write
-  code, and observe pass (Green). Before writing any implementation code, the
-  implementer must establish a concrete verification artifact (a failing test
-  commit using the `(RED)` convention or a collapsible `<details><summary>Red Phase Failure Log</summary>`
-  log). Diff reviews explicitly check for and reject diffs lacking this proof.
-- **Tool-agnostic issue abstraction**: Operations are defined by logical actions
-  (`QueryArtifact`, `ReadIssue`, `CreateIssue`, `UpdateIssue`, `CommentIssue`,
-  `AssignSelf`, `CloseIssue`, `LinkDependency`, `LinkParentChild`) mapped to both
-  the `gh` CLI and the GitHub Model Context Protocol (`mcp__github__*`).
+- **Test-first Red-Green verification gates**: Where automated tests apply, implementers
+  build in test-first slices: write a test capturing the next behavior, demonstrate
+  concrete proof of failure (natural test runner output, terminal logs, or a test commit),
+  implement the minimal code to pass, and verify green. Rigid ceremony (forced commit prefixes
+  or mandatory HTML tags) is avoided. For non-code changes (documentation, configuration),
+  changes are verified directly against acceptance criteria.
+- **Direct canonical `gh` CLI commands**: Direct, portable GitHub CLI commands with
+  cross-platform safety (quoted `"@me"` assignees, `--body-file` for multi-line content)
+  without speculative tool mappings or artificial meta-vocabularies.
 - **Cross-platform shell compatibility**: All commands and scripts operate
   identically on Windows PowerShell/CMD and Unix/macOS shells without bash-specific
   assumptions.
@@ -97,7 +104,7 @@ at every seam, and that gap is where most of `ship-it`'s own ideas live.
   GitHub plans without requiring preview sub-issue API access.
 - **Two-axis independent review**: Standards and spec-fidelity run as two
   separate passes that never collapse into one verdict, alongside verification
-  of the Red failure artifact.
+  of test failure proof or acceptance criteria.
 
 - The Pragmatic Programmer: <https://www.oreilly.com/library/view/the-pragmatic-programmer/9780135956977/>
 - Parallel Change: <https://martinfowler.com/bliki/ParallelChange.html>
@@ -123,14 +130,14 @@ carrying state, and a Review built so its two checks can't blur into one.
 | **Plan**      | A map (a GitHub issue) charting the open decisions for an effort too big or too foggy to spec directly, using strict one-question-per-turn dialogue. Only needed when the destination genuinely isn't clear yet.                      |
 | **Spec**      | A GitHub issue synthesizing what's been decided into a Problem Statement, Solution, User Stories, Implementation Decisions, Testing Decisions, and Out of Scope. Adversarially audited via fresh context before tickets.         |
 | **Tickets**   | Vertical-slice GitHub issues splitting the spec into session-sized, independently buildable pieces, each declaring what blocks it. Gated by explicit user confirmation before creation.                                          |
-| **Implement** | A test-first build of one ticket (or the whole spec, if it fits in one sitting) following the strict two-step Red-Green cycle with verified proof of failure, ending in a diff ready for review.                                  |
-| **Review**    | A two-axis check of that diff in an isolated fresh context (Tier 1 subagent or Tier 2 session): does it follow the repo's coding standards, does it faithfully implement what was asked, and did it provide proof of test failure? |
+| **Implement** | A test-first build of one ticket (or the whole spec, if it fits in one sitting) following the Red-Green cycle with verified proof of failure (or acceptance criteria verification), ending in a diff ready for review.              |
+| **Review**    | A two-axis check of that diff in an isolated fresh context (Tier 1 subagent or Tier 2 session): does it follow the repo's coding standards, does it faithfully implement what was asked, and is verification proof established? |
 
 ## Setup and requirements
 
 `ship-it` needs, per repo:
 
-- GitHub issue access via the `gh` CLI (installed and authenticated) or the GitHub Model Context Protocol (MCP) server
+- GitHub issue access via the `gh` CLI (installed and authenticated)
 - A `github.com` remote
 - Issues enabled on the repo, with write access
 - A cross-platform shell (PowerShell on Windows, or bash/zsh on macOS/Linux)
