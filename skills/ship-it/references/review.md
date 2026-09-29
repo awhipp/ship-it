@@ -52,20 +52,19 @@ Confirm the fixed point resolves and the diff is non-empty before going
 further; a bad ref should fail here; not inside two review passes that then
 have nothing to say.
 
-### 2. Verify Red verification artifact (Red Phase Checkpoint)
+### 2. Verify Red verification evidence (Red Phase Checkpoint)
 
-Before evaluating the diff against standards and spec, verify concrete proof of the Red step from
-the two-step Red-Green verification cycle. Inspect the commit history and issue thread:
-- Check for an explicit git commit of the failing test in `git log <fixed-point>..HEAD --oneline`
-  (e.g., matching the `(RED)` naming convention, such as `test: failing test for <slice> (RED)`).
-- OR check for a collapsible test failure log (`<details><summary>Red Phase Failure Log</summary>...`)
-  in the handoff comment or issue thread (inspected via `ReadIssue`).
+Before evaluating the diff against standards and spec, evaluate verification evidence according to the nature of the task and repository:
 
-**Reject diffs lacking proof**: If neither Red verification artifact is present, reject the diff
-immediately without approval. Post a rejection comment via `CommentIssue`
-(`gh issue comment <number> --body "Review rejected: Missing required Red phase verification artifact (failing test commit or collapsible failure log). Diff cannot be approved without test-first proof."`)
-and return the ticket to a fresh `implement.md` session. Diffs lacking Red verification proof must
-not proceed to approval.
+- **Where Red-Green applies (code changes in repositories with automated test suites)**:
+  Verify concrete proof of the Red step from the two-step Red-Green verification cycle. Inspect the commit history and issue thread:
+  - Check for a git commit capturing the failing test in `git log <fixed-point>..HEAD --oneline`.
+  - OR check for natural test runner output, terminal failure logs, or test execution traces in the handoff comment or issue thread (inspected via `ReadIssue` or `gh issue view`).
+  Accept natural terminal logs, test runner output, or standard git commits without demanding specific HTML wrapper tags (like `<details>`) or prescriptive commit prefixes (like `(RED)`).
+  **Reject diffs lacking proof**: If the change involves executable code in a repository with an automated test suite and no Red verification evidence is present, reject the diff without approval. Post a rejection comment via `CommentIssue` (`gh issue comment <number> --body "Review rejected: Missing required test-first verification proof (failing test commit or terminal failure log). Diff cannot be approved without test-first proof."`) and return the ticket to a fresh `implement.md` session.
+
+- **Where Red-Green is not viable or needed (documentation, markdown skill definitions, configuration files, visual/asset changes, or repositories lacking test infrastructure)**:
+  Do not expect or require failing test evidence, and do not demand artificial string-matching tests or mock harnesses. Instead, verify that the implementation satisfies the acceptance criteria directly via document inspection, schema validation, linting, or diff review. The Red Phase Checkpoint is satisfied if the acceptance criteria are verified and documented in the handoff report or issue thread.
 
 ### 3. Identify the spec source
 
@@ -141,11 +140,11 @@ that's exactly the reranking the separation exists to prevent.
 
 ## Outcome
 
-- **Red verification artifact missing or either axis has findings**: post findings to the ticket via `CommentIssue`
+- **Red verification evidence missing (where applicable) or either axis has findings**: post findings to the ticket via `CommentIssue`
   (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<rejection-text>"`) and hand back to a fresh
   `implement.md` session to address. The ticket stays open, unreviewed; do not apply
-  `ship-it:reviewed` on a report that has anything outstanding or lacks the required Red verification artifact.
-- **Red verification artifact verified and both axes clean**: apply `ship-it:reviewed` via `UpdateIssue`
+  `ship-it:reviewed` on a report that has anything outstanding or lacks required test verification evidence.
+- **Red verification evidence verified (or not applicable) and both axes clean**: apply `ship-it:reviewed` via `UpdateIssue`
   (`gh issue edit <number> --add-label "ship-it:reviewed"`), then close out. The
   work-in-progress commit is already on the branch from `implement.md`, so comment
   the resolution via `CommentIssue` (`gh issue comment <number> --body "<text>"`),
