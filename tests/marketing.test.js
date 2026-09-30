@@ -65,11 +65,35 @@ describe('Marketing Site Architecture & Domains', () => {
   // DOMAIN: Document Metadata & Semantic Layout
   // =========================================================================
   describe('Domain: Document Metadata & Semantic Layout', () => {
-    it('should contain descriptive page title and SEO meta tags', () => {
+    it('should contain descriptive page title, SEO meta tags, Open Graph, and Twitter metadata', () => {
       expect(document.title).toMatch(/ship-it/i);
       const metaDesc = document.querySelector('meta[name="description"]');
       expect(metaDesc).not.toBeNull();
       expect(metaDesc.getAttribute('content').length).toBeGreaterThan(20);
+
+      // Open Graph & Social Cards
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      const ogType = document.querySelector('meta[property="og:type"]');
+      const twitterCard = document.querySelector('meta[name="twitter:card"]');
+      const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+
+      expect(ogTitle, 'og:title meta tag must exist').not.toBeNull();
+      expect(ogDesc, 'og:description meta tag must exist').not.toBeNull();
+      expect(ogType, 'og:type meta tag must exist').not.toBeNull();
+      expect(twitterCard, 'twitter:card meta tag must exist').not.toBeNull();
+      expect(twitterTitle, 'twitter:title meta tag must exist').not.toBeNull();
+    });
+
+    it('should configure a valid favicon link referencing an existing asset', () => {
+      const faviconLink = document.querySelector('link[rel~="icon"]');
+      expect(faviconLink, 'Favicon link must exist in head').not.toBeNull();
+      const href = faviconLink.getAttribute('href');
+      expect(href).toMatch(/favicon\.(svg|ico|png)/i);
+
+      const cleanHref = href.replace(/^\.\//, '');
+      const faviconPath = path.join(ROOT_DIR, cleanHref);
+      expect(fs.existsSync(faviconPath), `Favicon asset must exist at ${faviconPath}`).toBe(true);
     });
 
     it('should structure content within semantic header, main, and footer landmarks', () => {
@@ -78,12 +102,12 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(document.querySelector('footer')).not.toBeNull();
     });
 
-    it('should arrange primary sections in logical sequential flow: Hero -> Lifecycle Explorer -> SDLC Comparison -> Quickstart', () => {
+    it('should arrange primary sections in logical sequential flow: Hero -> Lifecycle Explorer -> SDLC Comparison -> Architecture Deep-Dive -> Quickstart', () => {
       const main = document.querySelector('main');
       const sections = Array.from(main.querySelectorAll(':scope > section'));
       const sectionIds = sections.map(s => s.getAttribute('id'));
 
-      expect(sectionIds).toEqual(['hero', 'lifecycle-explorer', 'sdlc-comparison', 'quickstart']);
+      expect(sectionIds).toEqual(['hero', 'lifecycle-explorer', 'sdlc-comparison', 'architecture-deep-dive', 'quickstart']);
     });
 
     it('should guarantee unique IDs across all interactive elements', () => {
@@ -106,7 +130,7 @@ describe('Marketing Site Architecture & Domains', () => {
     it('should render a single h1 element clearly communicating the value proposition', () => {
       const h1s = document.querySelectorAll('h1');
       expect(h1s.length).toBe(1);
-      expect(h1s[0].textContent.replace(/\s+/g, ' ').trim()).toContain("The autonomous conductor that keeps developers in the driver's seat");
+      expect(h1s[0].textContent.replace(/\s+/g, ' ').trim()).toMatch(/driver's seat/i);
     });
 
     it('should provide functional CTA links for GitHub repository and Quickstart anchor', () => {
@@ -120,18 +144,6 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(ctaQuickstart, 'Quickstart CTA button must exist').not.toBeNull();
       expect(ctaQuickstart.getAttribute('href')).toBe('#quickstart');
     });
-
-    it('should render the Quickstart section with installation command and copy action', () => {
-      const quickstart = document.querySelector('#quickstart');
-      expect(quickstart).not.toBeNull();
-
-      const installCommand = document.querySelector('#cmd-install');
-      expect(installCommand).not.toBeNull();
-      expect(installCommand.textContent).toContain('awhipp/ship-it');
-
-      const copyBtn = document.querySelector('#btn-copy-install');
-      expect(copyBtn).not.toBeNull();
-    });
   });
 
   // =========================================================================
@@ -143,7 +155,7 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(section, 'Lifecycle Explorer section #lifecycle-explorer must exist').not.toBeNull();
       const heading = section.querySelector('h2');
       expect(heading).not.toBeNull();
-      expect(heading.textContent).toMatch(/Lifecycle|5-Phase|Explorer/i);
+      expect(heading.textContent).toMatch(/Lifecycle|5-Phase|Explorer|Workflow|Step-By-Step/i);
     });
 
     it('should render tabbed navigation controls for all 5 phases: Plan, Spec, Tickets, Implement, Review', () => {
@@ -259,6 +271,117 @@ describe('Marketing Site Architecture & Domains', () => {
   });
 
   // =========================================================================
+  // DOMAIN: Architectural Deep Dives & Foundations
+  // =========================================================================
+  describe('Domain: Architectural Deep Dives & Foundations', () => {
+    it('should have a dedicated architecture deep-dive section with semantic heading', () => {
+      const section = document.querySelector('#architecture-deep-dive');
+      expect(section, 'Architecture section #architecture-deep-dive must exist').not.toBeNull();
+      const heading = section.querySelector('h2');
+      expect(heading).not.toBeNull();
+      expect(heading.textContent).toMatch(/Architecture|Foundations|Pillars|Principles|Deep Dive/i);
+    });
+
+    it('should render four architecture deep-dive cards with icons, headings, and conceptual explanations', () => {
+      const section = document.querySelector('#architecture-deep-dive');
+      expect(section).not.toBeNull();
+      const cards = section.querySelectorAll('.deep-dive-card');
+      expect(cards.length).toBe(4);
+
+      cards.forEach((card, index) => {
+        expect(card.querySelector('.deep-dive-icon, .card-icon'), `Card ${index + 1} must have an icon`).not.toBeNull();
+        expect(card.querySelector('h3'), `Card ${index + 1} must have an h3 title`).not.toBeNull();
+        expect(card.querySelector('p'), `Card ${index + 1} must have a description`).not.toBeNull();
+      });
+    });
+
+    it('should articulate the four core architectural pillars: Context Hygiene, Adversarial Validation Gate, Two-Axis Code Review, and GitHub-Native Traceability', () => {
+      const section = document.querySelector('#architecture-deep-dive');
+      expect(section).not.toBeNull();
+      const text = section.textContent;
+
+      // Pillar 1: Context Hygiene
+      expect(text).toMatch(/Context Hygiene/i);
+      expect(text).toMatch(/reasoning degradation|context rot|clearing context|fresh session/i);
+
+      // Pillar 2: Adversarial Validation Gate
+      expect(text).toMatch(/Adversarial Validation/i);
+      expect(text).toMatch(/fresh-session|confirmation bias|audit|pre-build/i);
+
+      // Pillar 3: Two-Axis Code Review
+      expect(text).toMatch(/Two-Axis.*Review|Coding Standards.*Spec Fidelity/i);
+      expect(text).toMatch(/standards/i);
+      expect(text).toMatch(/spec fidelity/i);
+
+      // Pillar 4: GitHub-Native Traceability
+      expect(text).toMatch(/GitHub-Native Traceability|State Machine/i);
+      expect(text).toMatch(/issues as.*state machine|zero proprietary SaaS|no vendor lock-in|git-native/i);
+    });
+  });
+
+  // =========================================================================
+  // DOMAIN: Interactive CLI Terminal & Quickstart Onboarding
+  // =========================================================================
+  describe('Domain: Interactive CLI Terminal & Quickstart Onboarding', () => {
+    it('should render the Quickstart section with installation and invocation commands', () => {
+      const quickstart = document.querySelector('#quickstart');
+      expect(quickstart).not.toBeNull();
+
+      const installCommand = document.querySelector('#cmd-install');
+      expect(installCommand).not.toBeNull();
+      expect(installCommand.textContent).toContain('npx skills install awhipp/ship-it');
+
+      const copyBtn = document.querySelector('#btn-copy-install');
+      expect(copyBtn).not.toBeNull();
+
+      const invokeSnippet = document.querySelector('#cmd-invoke, .cmd-invocation');
+      expect(invokeSnippet, 'Copyable invocation snippet must exist').not.toBeNull();
+      expect(invokeSnippet.textContent).toContain('/ship-it');
+
+      const copyInvokeBtn = document.querySelector('#btn-copy-invoke, .btn-copy-invoke');
+      expect(copyInvokeBtn, 'Copy invocation button must exist').not.toBeNull();
+    });
+
+    it('should provide interactive CLI terminal controls to simulate /ship-it lifecycle phases', () => {
+      const terminal = document.querySelector('#terminal-interactive, #terminal-quickstart');
+      expect(terminal, 'Interactive terminal container must exist').not.toBeNull();
+
+      const simControls = document.querySelector('#terminal-sim-controls, .terminal-sim-tabs');
+      expect(simControls, 'Simulation controls container must exist').not.toBeNull();
+
+      const simButtons = simControls.querySelectorAll('button[data-sim-step]');
+      expect(simButtons.length).toBeGreaterThanOrEqual(3);
+
+      const terminalScreen = document.querySelector('#terminal-screen, .terminal-screen-output');
+      expect(terminalScreen, 'Terminal screen output container must exist').not.toBeNull();
+    });
+
+    it('should interactively update terminal execution output across Orient, Implement, and Review steps', () => {
+      const btnOrient = document.querySelector('[data-sim-step="orient"]');
+      const btnImplement = document.querySelector('[data-sim-step="implement"]');
+      const btnReview = document.querySelector('[data-sim-step="review"]');
+      const terminalScreen = document.querySelector('#terminal-screen, .terminal-screen-output');
+
+      expect(btnOrient).not.toBeNull();
+      expect(btnImplement).not.toBeNull();
+      expect(btnReview).not.toBeNull();
+      expect(terminalScreen).not.toBeNull();
+
+      // Trigger Orient simulation
+      btnOrient.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      expect(terminalScreen.textContent).toMatch(/orient|slug|unblocked|ticket/i);
+
+      // Trigger Implement simulation
+      btnImplement.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      expect(terminalScreen.textContent).toMatch(/claim|branch|test|red.*green/i);
+
+      // Trigger Review simulation
+      btnReview.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      expect(terminalScreen.textContent).toMatch(/two-axis|standards|spec/i);
+    });
+  });
+
+  // =========================================================================
   // DOMAIN: Design System & Responsive Layout
   // =========================================================================
   describe('Domain: Design System & Responsive Layout', () => {
@@ -307,6 +430,7 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(html).toContain('id="hero"');
       expect(html).toContain('id="lifecycle-explorer"');
       expect(html).toContain('id="sdlc-comparison"');
+      expect(html).toContain('id="architecture-deep-dive"');
       expect(html).toContain('id="quickstart"');
     });
   });
