@@ -1,7 +1,6 @@
 // ship-it Marketing Site Interactive Logic
 
 document.addEventListener('DOMContentLoaded', () => {
-  initLifecycleTeaser();
   initExplorerTabs();
   initComparisonHover();
   initSmoothScroll();
@@ -105,88 +104,6 @@ function initComparisonHover() {
   });
 }
 
-/**
- * Initializes the 5-phase interactive lifecycle teaser in the hero section.
- * Automatically cycles through active phases with smooth micro-animations,
- * while allowing user hover/click to manually inspect any phase.
- */
-function initLifecycleTeaser() {
-  const cards = document.querySelectorAll('#hero-lifecycle-teaser .phase-card');
-  const panels = document.querySelectorAll('#phase-visual-display .phase-detail-panel');
-  const statusPill = document.getElementById('teaser-active-status');
-  if (!cards.length) return;
-
-  const phaseStatusLabels = {
-    plan: 'Phase 01: Decision Map',
-    spec: 'Phase 02: Audited Spec',
-    tickets: 'Phase 03: Vertical Slices',
-    implement: 'Phase 04: Red-Green Build',
-    review: 'Phase 05: Two-Axis Review',
-  };
-
-  let currentIndex = 0;
-  let isHovered = false;
-  let pauseUntil = 0;
-
-  const setActivePhase = (index) => {
-    const activeCard = cards[index];
-    const phaseKey = activeCard ? activeCard.getAttribute('data-phase') : 'plan';
-
-    // Update cards
-    cards.forEach((card, idx) => {
-      if (idx === index) {
-        card.classList.add('active');
-      } else {
-        card.classList.remove('active');
-      }
-    });
-
-    // Update visual detail panels
-    panels.forEach(panel => {
-      if (panel.getAttribute('data-phase-detail') === phaseKey) {
-        panel.classList.add('active');
-      } else {
-        panel.classList.remove('active');
-      }
-    });
-
-    // Update status pill text
-    if (statusPill && phaseStatusLabels[phaseKey]) {
-      statusPill.textContent = phaseStatusLabels[phaseKey];
-    }
-  };
-
-  // Initial active state
-  setActivePhase(0);
-
-  // Auto-cycle through phases every 3.2s when not hovered or temporarily paused
-  setInterval(() => {
-    if (!isHovered && Date.now() > pauseUntil) {
-      currentIndex = (currentIndex + 1) % cards.length;
-      setActivePhase(currentIndex);
-    }
-  }, 3200);
-
-  // Manual hover/click interaction
-  cards.forEach((card, idx) => {
-    card.addEventListener('mouseenter', () => {
-      isHovered = true;
-      currentIndex = idx;
-      setActivePhase(idx);
-    });
-
-    card.addEventListener('mouseleave', () => {
-      isHovered = false;
-    });
-
-    card.addEventListener('click', () => {
-      currentIndex = idx;
-      setActivePhase(idx);
-      // Pause auto-cycle for 6 seconds on user click so they can read
-      pauseUntil = Date.now() + 6000;
-    });
-  });
-}
 
 /**
  * Handles smooth scrolling with offset for sticky header navigation.

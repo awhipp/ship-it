@@ -84,474 +84,6 @@
             <span>View on GitHub</span>
           </a>
         </div>
-
-        <!-- Animated 5-Phase Lifecycle Teaser -->
-        <div class="hero-lifecycle-container" id="hero-lifecycle-teaser">
-          <div class="lifecycle-header">
-            <span class="lifecycle-header-title">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              The 5-Phase Build Loop
-            </span>
-            <span class="status-pill" id="teaser-active-status">One step at a time</span>
-          </div>
-
-          <div class="lifecycle-phases-grid" role="list">
-            <!-- Phase 1: Plan -->
-            <div class="phase-card active" data-phase="plan" id="phase-card-plan" role="listitem">
-              <div class="phase-icon-wrapper">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                  <line x1="8" y1="2" x2="8" y2="18"></line>
-                  <line x1="16" y1="6" x2="16" y2="22"></line>
-                </svg>
-              </div>
-              <div class="phase-text-group">
-                <div class="phase-step-tag">Step 01</div>
-                <h3 class="phase-name">Plan</h3>
-                <p class="phase-role">Map out technical decisions and trade-offs before writing code</p>
-              </div>
-            </div>
-
-            <!-- Phase 2: Spec -->
-            <div class="phase-card" data-phase="spec" id="phase-card-spec" role="listitem">
-              <div class="phase-icon-wrapper">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                </svg>
-              </div>
-              <div class="phase-text-group">
-                <div class="phase-step-tag">Step 02</div>
-                <h3 class="phase-name">Spec</h3>
-                <p class="phase-role">Define user stories, expected behavior, and test seams</p>
-              </div>
-            </div>
-
-            <!-- Phase 3: Tickets -->
-            <div class="phase-card" data-phase="tickets" id="phase-card-tickets" role="listitem">
-              <div class="phase-icon-wrapper">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="7" height="7"></rect>
-                  <rect x="14" y="3" width="7" height="7"></rect>
-                  <rect x="14" y="14" width="7" height="7"></rect>
-                  <rect x="3" y="14" width="7" height="7"></rect>
-                </svg>
-              </div>
-              <div class="phase-text-group">
-                <div class="phase-step-tag">Step 03</div>
-                <h3 class="phase-name">Tickets</h3>
-                <p class="phase-role">Sequence work into self-contained units of progress</p>
-              </div>
-            </div>
-
-            <!-- Phase 4: Implement -->
-            <div class="phase-card" data-phase="implement" id="phase-card-implement" role="listitem">
-              <div class="phase-icon-wrapper">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="16 18 22 12 16 6"></polyline>
-                  <polyline points="8 6 2 12 8 18"></polyline>
-                </svg>
-              </div>
-              <div class="phase-text-group">
-                <div class="phase-step-tag">Step 04</div>
-                <h3 class="phase-name">Implement</h3>
-                <p class="phase-role">Build test-first with Red-Green verification cycles</p>
-              </div>
-            </div>
-
-            <!-- Phase 5: Review -->
-            <div class="phase-card" data-phase="review" id="phase-card-review" role="listitem">
-              <div class="phase-icon-wrapper">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-              </div>
-              <div class="phase-text-group">
-                <div class="phase-step-tag">Step 05</div>
-                <h3 class="phase-name">Review</h3>
-                <p class="phase-role">Audit pull requests for repository standards and spec requirements</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Dynamic Visual Step Inspector & GitHub Process Viewer -->
-            <div class="phase-visual-container" id="phase-visual-display">
-              <!-- Plan Visual Panel -->
-              <div class="phase-detail-panel active" data-phase-detail="plan" id="panel-plan">
-                <div class="github-issue-mock">
-                  <div class="mock-issue-header">
-                    <div class="mock-issue-meta">
-                      <span class="mock-issue-id">Issue #101</span>
-                      <span class="mock-issue-status">Open</span>
-                      <span class="mock-badge badge-map">ship-it:map</span>
-                      <span class="mock-badge badge-ready">ready-for-agent</span>
-                    </div>
-                    <div class="mock-issue-title">[auth-rewrite] Map: Architectural Decision Frontier</div>
-                  </div>
-                  <div class="mock-diagram">
-                    <div class="diagram-flow">
-                      <div class="diagram-node resolved">
-                        <span class="node-icon">✓</span>
-                        <span class="node-label">Session Store</span>
-                        <span class="node-sub">Resolved: Redis</span>
-                      </div>
-                      <div class="diagram-arrow">→</div>
-                      <div class="diagram-node frontier">
-                        <span class="node-icon">⚡</span>
-                        <span class="node-label">Token Rotation</span>
-                        <span class="node-sub">Active Frontier</span>
-                      </div>
-                      <div class="diagram-arrow">→</div>
-                      <div class="diagram-node fog">
-                        <span class="node-icon">🔒</span>
-                        <span class="node-label">Rate Limiter</span>
-                        <span class="node-sub">Fog of War</span>
-                      </div>
-                    </div>
-                    <div class="mock-footer-note">
-                      <span class="note-label">GitHub Process:</span>
-                      <code>gh issue list --label "ship-it:map"</code> • Interactive 1-question turn-taking resolves one decision per session.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Spec Visual Panel -->
-              <div class="phase-detail-panel" data-phase-detail="spec" id="panel-spec">
-                <div class="github-issue-mock">
-                  <div class="mock-issue-header">
-                    <div class="mock-issue-meta">
-                      <span class="mock-issue-id">Issue #102</span>
-                      <span class="mock-issue-status">Open</span>
-                      <span class="mock-badge badge-spec">ship-it:spec</span>
-                      <span class="mock-badge badge-validated">ship-it:validated</span>
-                    </div>
-                    <div class="mock-issue-title">[auth-rewrite] Spec: Distributed Session Handling & Token Rotation</div>
-                  </div>
-                  <div class="mock-diagram">
-                    <div class="spec-checklist-grid">
-                      <div class="spec-item"><span class="check-icon">✓</span> Problem Statement & Solution</div>
-                      <div class="spec-item"><span class="check-icon">✓</span> User Stories (Acceptance Criteria)</div>
-                      <div class="spec-item"><span class="check-icon">✓</span> Implementation Decisions & Seams</div>
-                      <div class="spec-item"><span class="check-icon">✓</span> Testing Strategy & Out of Scope</div>
-                    </div>
-                    <div class="mock-footer-note">
-                      <span class="note-label">Adversarial Audit:</span>
-                      A fresh-context skeptic audits edge cases before approval. Carries <code>ship-it:validated</code> to unlock tickets.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Tickets Visual Panel -->
-              <div class="phase-detail-panel" data-phase-detail="tickets" id="panel-tickets">
-                <div class="github-issue-mock">
-                  <div class="mock-issue-header">
-                    <div class="mock-issue-meta">
-                      <span class="mock-issue-id">Issue #103</span>
-                      <span class="mock-issue-status">Open</span>
-                      <span class="mock-badge badge-ticket">ship-it:ticket</span>
-                      <span class="mock-badge badge-parent">Part of #102</span>
-                    </div>
-                    <div class="mock-issue-title">[auth-rewrite] Ticket: Session store interface & Redis adapter</div>
-                  </div>
-                  <div class="mock-diagram">
-                    <div class="ticket-chain">
-                      <div class="ticket-card active-slice">
-                        <span class="ticket-num">#103</span>
-                        <span class="ticket-name">Redis Store</span>
-                        <span class="ticket-status-tag unblocked">Unblocked (Next)</span>
-                      </div>
-                      <div class="chain-arrow">➔</div>
-                      <div class="ticket-card blocked-slice">
-                        <span class="ticket-num">#104</span>
-                        <span class="ticket-name">Token Rotation</span>
-                        <span class="ticket-status-tag blocked">Blocked by #103</span>
-                      </div>
-                      <div class="chain-arrow">➔</div>
-                      <div class="ticket-card blocked-slice">
-                        <span class="ticket-num">#105</span>
-                        <span class="ticket-name">Middleware</span>
-                        <span class="ticket-status-tag blocked">Blocked by #104</span>
-                      </div>
-                    </div>
-                    <div class="mock-footer-note">
-                      <span class="note-label">Vertical Slicing:</span>
-                      Markdown tasklists (<code>- [ ] Blocked by #103</code>) establish unambiguous build order without SaaS tools.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Implement Visual Panel -->
-              <div class="phase-detail-panel" data-phase-detail="implement" id="panel-implement">
-                <div class="github-issue-mock">
-                  <div class="mock-issue-header">
-                    <div class="mock-issue-meta">
-                      <span class="mock-issue-id">Branch: feat/auth-rewrite</span>
-                      <span class="mock-badge badge-assignee">Assignee: @me</span>
-                      <span class="mock-badge badge-redgreen">Red-Green Verified</span>
-                    </div>
-                    <div class="mock-issue-title">Building Ticket #103 • Test-First Implementation</div>
-                  </div>
-                  <div class="mock-diagram">
-                    <div class="redgreen-timeline">
-                      <div class="rg-step red-step">
-                        <div class="rg-badge red">RED Phase</div>
-                        <div class="rg-desc">Write failing test & record failure log</div>
-                        <code class="rg-code">FAIL tests/session.test.js: SessionStore is not defined</code>
-                      </div>
-                      <div class="rg-arrow">➔</div>
-                      <div class="rg-step green-step">
-                        <div class="rg-badge green">GREEN Phase</div>
-                        <div class="rg-desc">Write minimal code to pass & commit diff</div>
-                        <code class="rg-code">PASS tests/session.test.js (4 passed) • commit af8a97d</code>
-                      </div>
-                    </div>
-                    <div class="mock-footer-note">
-                      <span class="note-label">Quality Gate:</span>
-                      Writing implementation code without a failing test first is prohibited. Diff committed to branch ready for review.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Review Visual Panel -->
-              <div class="phase-detail-panel" data-phase-detail="review" id="panel-review">
-                <div class="github-issue-mock">
-                  <div class="mock-issue-header">
-                    <div class="mock-issue-meta">
-                      <span class="mock-issue-id">PR Review #25</span>
-                      <span class="mock-badge badge-reviewed">ship-it:reviewed</span>
-                      <span class="mock-badge badge-isolated">Fresh Context</span>
-                    </div>
-                    <div class="mock-issue-title">Two-Axis Independent Diff Audit • Ticket #103</div>
-                  </div>
-                  <div class="mock-diagram">
-                    <div class="two-axis-grid">
-                      <div class="axis-box standards-axis">
-                        <div class="axis-title">Axis 1: Standards</div>
-                        <div class="axis-verdict pass">PASS (0 Findings)</div>
-                        <p class="axis-desc">Checks repo conventions, Fowler refactoring smells, and clean design.</p>
-                      </div>
-                      <div class="axis-divider">VS</div>
-                      <div class="axis-box spec-axis">
-                        <div class="axis-title">Axis 2: Spec Fidelity</div>
-                        <div class="axis-verdict pass">PASS (100% Match)</div>
-                        <p class="axis-desc">Checks user stories and ensures no unintended changes or missing behavior.</p>
-                      </div>
-                    </div>
-                    <div class="mock-footer-note">
-                      <span class="note-label">Two-Axis Rule:</span>
-                      Both axes evaluated side-by-side. Clean review adds <code>ship-it:reviewed</code> and closes ticket.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          <div class="lifecycle-checkpoint-banner">
-            <span class="checkpoint-badge">Native to GitHub</span>
-            <span>All progress is tracked in standard GitHub issues and pull requests—no proprietary databases or external dashboards.</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- The SDLC Crisis vs. The ship-it Solution -->
-    <section class="sdlc-comparison-section" id="sdlc-comparison" aria-labelledby="comparison-title">
-      <div class="container">
-        <div class="section-header-centered">
-          <div class="section-tag-badge">The Contrast</div>
-          <h2 class="section-title" id="comparison-title">
-            Single-Pass Prompts <span class="text-versus">vs.</span> <span class="gradient-solution-text">The ship-it Method</span>
-          </h2>
-          <p class="section-subtitle" id="comparison-subtitle">
-            When development tasks expand beyond a simple script, prompting an assistant all at once leads to familiar frustrations. Here is how structured orchestration changes the everyday development experience.
-          </p>
-        </div>
-
-        <div class="comparison-grid" id="comparison-grid">
-          <!-- Left Column: Unchecked Single-Pass Prompts -->
-          <div class="comparison-card comparison-card-drift" id="card-drift" data-comparison="drift">
-            <div class="comparison-card-header">
-              <div class="comparison-badge badge-drift">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                  <line x1="12" y1="9" x2="12" y2="13"></line>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-                <span>Single-Pass Prompts</span>
-              </div>
-              <h3 class="comparison-card-title">The All-at-Once Approach</h3>
-              <p class="comparison-card-desc">Asking an assistant to handle architecture, code, and debugging in a single continuous prompt.</p>
-            </div>
-
-            <div class="comparison-items-list" role="list">
-              <!-- Item 1: Diff Scope -->
-              <div class="comparison-item item-drift" id="comp-drift-pr" role="listitem">
-                <div class="item-icon-box drift-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </div>
-                <div class="item-content">
-                  <div class="item-dimension">Diff Scope & PR Size</div>
-                  <h4 class="item-headline">Mega-PRs and Sprawling Diffs</h4>
-                  <p class="item-detail">
-                    The assistant generates sprawling, mega-PR-style diffs modifying dozens of files at once. The volume of code quickly becomes exhausting to review and leaves room for bugs to slip through.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Item 2: Context Window -->
-              <div class="comparison-item item-drift" id="comp-drift-ctx" role="listitem">
-                <div class="item-icon-box drift-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </div>
-                <div class="item-content">
-                  <div class="item-dimension">Context Length</div>
-                  <h4 class="item-headline">Context Bloat & Degraded Reasoning</h4>
-                  <p class="item-detail">
-                    As conversations drag on, assistants accumulate discarded attempts and stale assumptions. This context bloat leads to degraded reasoning until the model starts hallucinating APIs.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Item 3: Verification -->
-              <div class="comparison-item item-drift" id="comp-drift-diff" role="listitem">
-                <div class="item-icon-box drift-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </div>
-                <div class="item-content">
-                  <div class="item-dimension">Review Quality</div>
-                  <h4 class="item-headline">Unreviewable Diffs & Rubber-Stamping</h4>
-                  <p class="item-detail">
-                    Without isolated commits or automated test evidence, real review becomes impractical. What could have been an unreviewable diff slips into main because rubber-stamping feels easier than reading thousands of lines.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Item 4: Agency -->
-              <div class="comparison-item item-drift" id="comp-drift-ctrl" role="listitem">
-                <div class="item-icon-box drift-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </div>
-                <div class="item-content">
-                  <div class="item-dimension">Developer Direction</div>
-                  <h4 class="item-headline">Losing Control of the Architecture</h4>
-                  <p class="item-detail">
-                    Without deliberate decision gates, you face lost control over system design as the assistant quietly makes architectural choices or relies on hallucinated conventions that conflict with your stack.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="comparison-card-footer drift-footer">
-              <span class="footer-stat"><strong>The challenge:</strong> Spending more time untangling chaotic diffs than shipping features.</span>
-            </div>
-          </div>
-
-          <!-- Right Column: The ship-it Method -->
-          <div class="comparison-card comparison-card-solution" id="card-solution" data-comparison="solution">
-            <div class="comparison-card-header">
-              <div class="comparison-badge badge-solution">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-                <span>The ship-it Method</span>
-              </div>
-              <h3 class="comparison-card-title">Structured Orchestration</h3>
-              <p class="comparison-card-desc">Guiding assistants through incremental phases with developer agency and verification at every step.</p>
-            </div>
-
-            <div class="comparison-items-list" role="list">
-              <!-- Item 1: Diff Scope -->
-              <div class="comparison-item item-solution" id="comp-sol-pr" role="listitem">
-                <div class="item-icon-box solution-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </div>
-                <div class="item-content">
-                  <div class="item-dimension">Diff Scope & PR Size</div>
-                  <h4 class="item-headline">Manageable Vertical Slices</h4>
-                  <p class="item-detail">
-                    Features are broken into focused vertical slices that each deliver one working piece. Each pull request is concise, easy to understand, and quick to review.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Item 2: Context Window -->
-              <div class="comparison-item item-solution" id="comp-sol-ctx" role="listitem">
-                <div class="item-icon-box solution-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </div>
-                <div class="item-content">
-                  <div class="item-dimension">Context Length</div>
-                  <h4 class="item-headline">Fresh Session per Step</h4>
-                  <p class="item-detail">
-                    Starting a fresh session for each phase provides context isolation. The model stays focused on the current slice without carrying conversational clutter.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Item 3: Verification -->
-              <div class="comparison-item item-solution" id="comp-sol-diff" role="listitem">
-                <div class="item-icon-box solution-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </div>
-                <div class="item-content">
-                  <div class="item-dimension">Review Quality</div>
-                  <h4 class="item-headline">Independent Two-Axis Verification</h4>
-                  <p class="item-detail">
-                    Diffs are audited through two separate lenses: repository standards and ticket criteria. This adversarial verification ensures clean style never hides missing behavior.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Item 4: Agency -->
-              <div class="comparison-item item-solution" id="comp-sol-ctrl" role="listitem">
-                <div class="item-icon-box solution-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </div>
-                <div class="item-content">
-                  <div class="item-dimension">Developer Direction</div>
-                  <h4 class="item-headline">Human Driver, Autonomous Engine</h4>
-                  <p class="item-detail">
-                    You maintain full architectural control: you approve the plan, verify test requirements, and sign off on diffs. The assistant does the heavy lifting while you remain the human driver.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="comparison-card-footer solution-footer">
-              <span class="footer-stat"><strong>The outcome:</strong> Clear progress, manageable pull requests, and predictable architecture.</span>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -1211,6 +743,197 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The SDLC Crisis vs. The ship-it Solution -->
+    <section class="sdlc-comparison-section" id="sdlc-comparison" aria-labelledby="comparison-title">
+      <div class="container">
+        <div class="section-header-centered">
+          <div class="section-tag-badge">The Contrast</div>
+          <h2 class="section-title" id="comparison-title">
+            Single-Pass Prompts <span class="text-versus">vs.</span> <span class="gradient-solution-text">The ship-it Method</span>
+          </h2>
+          <p class="section-subtitle" id="comparison-subtitle">
+            When development tasks expand beyond a simple script, prompting an assistant all at once leads to familiar frustrations. Here is how structured orchestration changes the everyday development experience.
+          </p>
+        </div>
+
+        <div class="comparison-grid" id="comparison-grid">
+          <!-- Left Column: Unchecked Single-Pass Prompts -->
+          <div class="comparison-card comparison-card-drift" id="card-drift" data-comparison="drift">
+            <div class="comparison-card-header">
+              <div class="comparison-badge badge-drift">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>Single-Pass Prompts</span>
+              </div>
+              <h3 class="comparison-card-title">The All-at-Once Approach</h3>
+              <p class="comparison-card-desc">Asking an assistant to handle architecture, code, and debugging in a single continuous prompt.</p>
+            </div>
+
+            <div class="comparison-items-list" role="list">
+              <!-- Item 1: Diff Scope -->
+              <div class="comparison-item item-drift" id="comp-drift-pr" role="listitem">
+                <div class="item-icon-box drift-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Diff Scope & PR Size</div>
+                  <h4 class="item-headline">Mega-PRs and Sprawling Diffs</h4>
+                  <p class="item-detail">
+                    The assistant generates sprawling, mega-PR-style diffs modifying dozens of files at once. The volume of code quickly becomes exhausting to review and leaves room for bugs to slip through.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 2: Context Window -->
+              <div class="comparison-item item-drift" id="comp-drift-ctx" role="listitem">
+                <div class="item-icon-box drift-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Context Length</div>
+                  <h4 class="item-headline">Context Bloat & Degraded Reasoning</h4>
+                  <p class="item-detail">
+                    As conversations drag on, assistants accumulate discarded attempts and stale assumptions. This context bloat leads to degraded reasoning until the model starts hallucinating APIs.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 3: Verification -->
+              <div class="comparison-item item-drift" id="comp-drift-diff" role="listitem">
+                <div class="item-icon-box drift-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Review Quality</div>
+                  <h4 class="item-headline">Unreviewable Diffs & Rubber-Stamping</h4>
+                  <p class="item-detail">
+                    Without isolated commits or automated test evidence, real review becomes impractical. What could have been an unreviewable diff slips into main because rubber-stamping feels easier than reading thousands of lines.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 4: Agency -->
+              <div class="comparison-item item-drift" id="comp-drift-ctrl" role="listitem">
+                <div class="item-icon-box drift-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Developer Direction</div>
+                  <h4 class="item-headline">Losing Control of the Architecture</h4>
+                  <p class="item-detail">
+                    Without deliberate decision gates, you face lost control over system design as the assistant quietly makes architectural choices or relies on hallucinated conventions that conflict with your stack.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="comparison-card-footer drift-footer">
+              <span class="footer-stat"><strong>The challenge:</strong> Spending more time untangling chaotic diffs than shipping features.</span>
+            </div>
+          </div>
+
+          <!-- Right Column: The ship-it Method -->
+          <div class="comparison-card comparison-card-solution" id="card-solution" data-comparison="solution">
+            <div class="comparison-card-header">
+              <div class="comparison-badge badge-solution">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>The ship-it Method</span>
+              </div>
+              <h3 class="comparison-card-title">Structured Orchestration</h3>
+              <p class="comparison-card-desc">Guiding assistants through incremental phases with developer agency and verification at every step.</p>
+            </div>
+
+            <div class="comparison-items-list" role="list">
+              <!-- Item 1: Diff Scope -->
+              <div class="comparison-item item-solution" id="comp-sol-pr" role="listitem">
+                <div class="item-icon-box solution-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Diff Scope & PR Size</div>
+                  <h4 class="item-headline">Manageable Vertical Slices</h4>
+                  <p class="item-detail">
+                    Features are broken into focused vertical slices that each deliver one working piece. Each pull request is concise, easy to understand, and quick to review.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 2: Context Window -->
+              <div class="comparison-item item-solution" id="comp-sol-ctx" role="listitem">
+                <div class="item-icon-box solution-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Context Length</div>
+                  <h4 class="item-headline">Fresh Session per Step</h4>
+                  <p class="item-detail">
+                    Starting a fresh session for each phase provides context isolation. The model stays focused on the current slice without carrying conversational clutter.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 3: Verification -->
+              <div class="comparison-item item-solution" id="comp-sol-diff" role="listitem">
+                <div class="item-icon-box solution-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Review Quality</div>
+                  <h4 class="item-headline">Independent Two-Axis Verification</h4>
+                  <p class="item-detail">
+                    Diffs are audited through two separate lenses: repository standards and ticket criteria. This adversarial verification ensures clean style never hides missing behavior.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 4: Agency -->
+              <div class="comparison-item item-solution" id="comp-sol-ctrl" role="listitem">
+                <div class="item-icon-box solution-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Developer Direction</div>
+                  <h4 class="item-headline">Human Driver, Autonomous Engine</h4>
+                  <p class="item-detail">
+                    You maintain full architectural control: you approve the plan, verify test requirements, and sign off on diffs. The assistant does the heavy lifting while you remain the human driver.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="comparison-card-footer solution-footer">
+              <span class="footer-stat"><strong>The outcome:</strong> Clear progress, manageable pull requests, and predictable architecture.</span>
             </div>
           </div>
         </div>
