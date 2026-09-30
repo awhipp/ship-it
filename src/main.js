@@ -218,8 +218,17 @@ function initCliTerminalSimulation() {
     // Build terminal HTML
     let html = `
       <div class="terminal-sim-line command-line">
-        <span class="terminal-prompt">$</span>
-        <span class="sim-command-text">${data.command}</span>
+        <div class="sim-cmd-left">
+          <span class="terminal-prompt">$</span>
+          <code class="sim-command-text cmd-invocation" id="cmd-invoke">${data.command}</code>
+        </div>
+        <button class="btn-copy btn-copy-invoke" id="btn-copy-invoke" aria-label="Copy invocation command" title="Copy invocation command to clipboard">
+          <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span class="copy-text">Copy</span>
+        </button>
       </div>
       <div class="terminal-sim-output">
     `;
@@ -236,6 +245,29 @@ function initCliTerminalSimulation() {
 
     html += `</div>`;
     terminalScreen.innerHTML = html;
+
+    // Attach copy behavior for the active command button
+    const copyInvokeBtn = document.getElementById('btn-copy-invoke');
+    const cmdInvoke = document.getElementById('cmd-invoke');
+    if (copyInvokeBtn && cmdInvoke) {
+      copyInvokeBtn.addEventListener('click', async () => {
+        const textToCopy = cmdInvoke.textContent.trim();
+        const textSpan = copyInvokeBtn.querySelector('.copy-text');
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(textToCopy);
+          }
+        } catch {
+          // fallback handled if needed
+        }
+        copyInvokeBtn.classList.add('copied');
+        if (textSpan) textSpan.textContent = 'Copied!';
+        setTimeout(() => {
+          copyInvokeBtn.classList.remove('copied');
+          if (textSpan) textSpan.textContent = 'Copy';
+        }, 2000);
+      });
+    }
   };
 
   simButtons.forEach(btn => {
