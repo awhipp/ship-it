@@ -1,55 +1,15 @@
 # ship-it
 
-<div align="center">
+[![Live Site](https://img.shields.io/badge/Live_Site-awhipp.github.io%2Fship--it-2563eb?style=flat-square&logo=githubpages&logoColor=white)](https://awhipp.github.io/ship-it/)
+[![Standard](https://img.shields.io/badge/agentskills.io-compliant-10b981?style=flat-square)](https://agentskills.io)
 
-### The Autonomous Conductor for Software Engineering
-
-**Put developers back in the driver's seat of the SDLC with strict phase gates, 2-tier context isolation, and test-first verification.**
-
-[![Live Marketing Site](https://img.shields.io/badge/Live_Site-awhipp.github.io%2Fship--it-blue?style=for-the-badge&logo=githubpages&logoColor=white)](https://awhipp.github.io/ship-it/)
-[![Open Agent Skills Standard](https://img.shields.io/badge/agentskills.io-compliant-10b981?style=for-the-badge)](https://agentskills.io)
-[![GitHub Issues](https://img.shields.io/badge/GitHub-Issues_as_State_Machine-181717?style=for-the-badge&logo=github)](https://github.com/awhipp/ship-it/issues)
-
----
-
-### [🌐 Explore the Live Interactive Experience →](https://awhipp.github.io/ship-it/)
-
-*Step through the 5-phase lifecycle, compare SDLC workflows, explore architecture deep-dive cards, and run the simulated CLI terminal.*
-
----
+**The Autonomous Conductor for Software Engineering.** Put developers back in the driver's seat of the SDLC with strict phase gates, 2-tier context isolation, and test-first verification.
 
 ```txt
 Plan ──▶ Spec ──▶ Tickets ──▶ Implement ──▶ Review
 ```
 
 *One bounded phase at a time. Verified gates at every seam. Zero agent drift.*
-
-</div>
-
-## Table of Contents
-
-- [The Philosophy](#the-philosophy)
-  - [The SDLC Crisis: Unchecked AI Drift](#the-sdlc-crisis-unchecked-ai-drift)
-  - [The ship-it Solution: Autonomous Engine, Human Driver](#the-ship-it-solution-autonomous-engine-human-driver)
-  - [Core Architectural Guarantees](#core-architectural-guarantees)
-- [The 5-Phase Lifecycle](#the-5-phase-lifecycle)
-  - [1. Plan (Map)](#1-plan-map)
-  - [2. Spec](#2-spec)
-  - [3. Tickets](#3-tickets)
-  - [4. Implement](#4-implement)
-  - [5. Review](#5-review)
-- [Living Case Study: Dogfooding `[marketing]`](#living-case-study-dogfooding-marketing)
-  - [How We Built Our Own Marketing Experience](#how-we-built-our-own-marketing-experience)
-  - [The Real-World Issue & PR Traceability Matrix](#the-real-world-issue-pr-traceability-matrix)
-- [Frictionless Quickstart](#frictionless-quickstart)
-  - [1. Prerequisites](#1-prerequisites)
-  - [2. Installation](#2-installation)
-  - [3. Invocation](#3-invocation)
-  - [4. Automated Preflight](#4-automated-preflight)
-- [Prior Art & Attribution](#prior-art-attribution)
-  - [Foundational Lineage](#foundational-lineage)
-  - [What ship-it Uniquely Adds](#what-ship-it-uniquely-adds)
-  - [Engineering Literature](#engineering-literature)
 
 ---
 
@@ -62,14 +22,36 @@ Modern autonomous coding agents place developers in a frustrating dilemma:
 1. **Unchecked Agent Sprawl**: Hand an autonomous agent a fuzzy prompt and 20,000 tokens of context. The model hallucinates APIs, silently drops constraints, mangles existing codebase conventions, and produces an unreviewable 1,500-line mega-PR. Developers are relegated to rubber-stamping code they don't understand or abandoning agentic tools altogether.
 2. **Micro-Prompt Fatigue**: Manually guiding an AI model line-by-line, copy-pasting code snippets, and babysitting every function signature sacrifices the velocity advantages of agentic workflows.
 
-### The ship-it Solution: Autonomous Engine, Human Driver
+### Prior Art & Attribution
 
-`ship-it` restores developer agency by establishing a disciplined division of labor:
+`ship-it` builds upon foundational work in agentic workflows, specifications, and classic software engineering literature.
 
-- **Developers remain the architectural drivers**: Setting requirements, auditing specifications, confirming ticket dependency DAGs, and validating code reviews.
-- **Agents serve as the autonomous engine**: Executing self-contained, vertically sliced tasks within bounded context windows.
+#### Foundational Lineage
 
-`ship-it` conducts complex engineering work through strict phase gates. Work cannot advance past a phase until explicit human checkpoints and adversarial verification gates are satisfied.
+- **Matt Pocock's Wayfinder**:
+  - Video Walkthrough: <https://www.youtube.com/watch?v=F3lL98Pj90o>
+  - Original Skill: <https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder>
+  - *Attribution*: `ship-it` draws inspiration from Wayfinder's 5-phase lifecycle and planning vocabulary: the decision map, decision tickets, the four ticket types, and mapping the frontier across the fog of war.
+- **Spec-First Protocol (SFP)**:
+  - Repository: <https://github.com/awhipp/spec-first-protocol>
+  - *Attribution*: `ship-it` adopts SFP's adversarial audit gate (auditing artifacts with fresh-context skepticism before building) and context clearing as a first-class architectural feature.
+
+#### What ship-it Uniquely Adds
+
+Neither parent framework combines an end-to-end plan-through-review conductor with verifiable gates at every handoff. `ship-it` contributes:
+
+1. **Zero Internal State**: `ship-it` stores zero runtime state. It derives state dynamically from GitHub issues, allowing multiple agents and developers to collaborate asynchronously without state desynchronization.
+2. **2-Tier Context Isolation Protocol**: Mandatory physical context isolation (Tier 1: Isolated Subagents; Tier 2: Fresh Sessions) for adversarial validation and code review, strictly prohibiting in-context persona simulation.
+3. **Test-First Red-Green Verification Gates**: Requiring concrete proof of test failure prior to implementation code authoring.
+4. **Non-Collapsing Two-Axis Review**: Standards and Spec Fidelity evaluated independently so high code quality cannot mask spec deviations.
+5. **Open Agent Standard Alignment**: Conforms strictly to the `agentskills.io` standard with cross-platform shell compatibility across Windows, macOS, and Linux.
+
+#### Engineering Literature
+
+- **The Pragmatic Programmer** (Andrew Hunt & David Thomas): <https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/>
+- **Refactoring: Improving the Design of Existing Code** (Martin Fowler): <https://martinfowler.com/books/refactoring.html>
+- **Parallel Change** (Martin Fowler): <https://martinfowler.com/bliki/ParallelChange.html>
+- **Working Effectively with Legacy Code** (Michael Feathers): <https://www.informit.com/store/working-effectively-with-legacy-code-9780131177055>
 
 ### Core Architectural Guarantees
 
@@ -156,7 +138,7 @@ See [`skills/ship-it/references/review.md`](skills/ship-it/references/review.md)
 
 Rather than describing a hypothetical scenario, `ship-it` was dogfooded to build its own comprehensive marketing and documentation overhaul:
 
-1. **Plan Phase**: Skipped because the objective was well-scoped: launch an interactive marketing landing page on a dedicated `gh-pages` branch and refactor the root `README.md` on `main`.
+1. **Plan Phase**: Skipped because the objective was well-scoped: launch a marketing landing page on a dedicated `gh-pages` branch and refactor the root `README.md` on `main`.
 2. **Spec Phase**: Authored [Spec #16](https://github.com/awhipp/ship-it/issues/16). Passed an adversarial validation audit confirming clean branch isolation between `gh-pages` (web app source) and `main` (clean skill distribution).
 3. **Tickets Phase**: Decomposed Spec #16 into four vertical slices with explicit dependency ordering: Ticket #17 (Scaffold & Hero) ➔ Ticket #18 (Explorer & Comparison) ➔ Ticket #19 (Deep Dives & Terminal Simulator) ➔ Ticket #20 (Root README Refactor).
 4. **Implement Phase**: Each ticket was implemented in a fresh session with verified Red-Green test proof in Vitest or rigorous link/acceptance criteria auditing.
@@ -172,7 +154,7 @@ Every phase, issue, commit, and pull request is completely transparent and verif
 | **Ticket #17** | [Ticket #17](https://github.com/awhipp/ship-it/issues/17) | Commit [`af8a97d`](https://github.com/awhipp/ship-it/commit/af8a97d) | Red test commit `836f747`; all 11 hero tests passing | 0 Standards / 0 Spec findings |
 | **Ticket #18** | [Ticket #18](https://github.com/awhipp/ship-it/issues/18) | Commit [`958ea8d`](https://github.com/awhipp/ship-it/commit/958ea8d) | Red test commit `70b8823`; all 20 explorer tests passing | 0 Standards / 0 Spec findings |
 | **Ticket #19** | [Ticket #19](https://github.com/awhipp/ship-it/issues/19) | Commit [`2d974de`](https://github.com/awhipp/ship-it/commit/2d974de) | Red test commit `64c9fe6`; all 26 deep-dive tests passing | 0 Standards / 0 Spec findings |
-| **Ticket #20** | [Ticket #20](https://github.com/awhipp/ship-it/issues/20) | Branch `feat/marketing-readme` | Automated URL & anchor verification (100% passing) | Awaiting 2-tier review |
+| **Ticket #20** | [Ticket #20](https://github.com/awhipp/ship-it/issues/20) | PR [#22](https://github.com/awhipp/ship-it/pull/22) | Automated URL & anchor verification (100% passing) | Awaiting 2-tier review |
 
 *Additional Prior Art PR*: See merged Pull Request [PR #8](https://github.com/awhipp/ship-it/pull/8) (`feat/agnostic-skill`) establishing harness-, CLI-, and model-agnostic compatibility.
 
@@ -250,34 +232,3 @@ Before starting a feature, or if a GitHub tool call fails, run preflight to veri
 Preflight automatically checks authentication, repository remotes, issue access, and ensures required labels (`ready-for-agent`, `ship-it:map`, `ship-it:spec`, `ship-it:ticket`, `ship-it:validated`, `ship-it:reviewed`) are provisioned. See [`skills/ship-it/references/preflight.md`](skills/ship-it/references/preflight.md).
 
 ---
-
-## Prior Art & Attribution
-
-`ship-it` builds upon foundational work in agentic workflows, specifications, and classic software engineering literature.
-
-### Foundational Lineage
-
-- **Matt Pocock's Wayfinder**:
-  - Video Walkthrough: <https://www.youtube.com/watch?v=F3lL98Pj90o>
-  - Original Skill: <https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder>
-  - *Attribution*: `ship-it` draws inspiration from Wayfinder's 5-phase lifecycle and planning vocabulary: the decision map, decision tickets, the four ticket types, and mapping the frontier across the fog of war.
-- **Spec-First Protocol (SFP)**:
-  - Repository: <https://github.com/awhipp/spec-first-protocol>
-  - *Attribution*: `ship-it` adopts SFP's adversarial audit gate (auditing artifacts with fresh-context skepticism before building) and context clearing as a first-class architectural feature.
-
-### What ship-it Uniquely Adds
-
-Neither parent framework combines an end-to-end plan-through-review conductor with verifiable gates at every handoff. `ship-it` contributes:
-
-1. **Zero Internal State**: `ship-it` stores zero runtime state. It derives state dynamically from GitHub issues, allowing multiple agents and developers to collaborate asynchronously without state desynchronization.
-2. **2-Tier Context Isolation Protocol**: Mandatory physical context isolation (Tier 1: Isolated Subagents; Tier 2: Fresh Sessions) for adversarial validation and code review, strictly prohibiting in-context persona simulation.
-3. **Test-First Red-Green Verification Gates**: Requiring concrete proof of test failure prior to implementation code authoring.
-4. **Non-Collapsing Two-Axis Review**: Standards and Spec Fidelity evaluated independently so high code quality cannot mask spec deviations.
-5. **Open Agent Standard Alignment**: Conforms strictly to the `agentskills.io` standard with cross-platform shell compatibility across Windows, macOS, and Linux.
-
-### Engineering Literature
-
-- **The Pragmatic Programmer** (Andrew Hunt & David Thomas): <https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/>
-- **Refactoring: Improving the Design of Existing Code** (Martin Fowler): <https://martinfowler.com/books/refactoring.html>
-- **Parallel Change** (Martin Fowler): <https://martinfowler.com/bliki/ParallelChange.html>
-- **Working Effectively with Legacy Code** (Michael Feathers): <https://www.informit.com/store/working-effectively-with-legacy-code-9780131177055>
