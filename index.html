@@ -60,10 +60,9 @@
         </h1>
 
         <p class="hero-description" id="hero-description">
-          Stop letting AI agents write unreviewable 2,000-line pull requests.
+          Build software with AI assistants without losing your grasp on the codebase.
           <br></br>
-          <strong>ship-it</strong> breaks large features into small, bite-sized tasks,
-          tests each piece before building, and clears context between steps so the model never loses the plot.
+          <strong>ship-it</strong> coordinates feature planning, specifications, testing, and review directly inside your GitHub repository.
         </p>
 
         <div class="hero-cta-group">
@@ -112,7 +111,7 @@
               <div class="phase-text-group">
                 <div class="phase-step-tag">Step 01</div>
                 <h3 class="phase-name">Plan</h3>
-                <p class="phase-role">Map out the problem and boundaries before writing any code</p>
+                <p class="phase-role">Map out technical decisions and trade-offs before writing code</p>
               </div>
             </div>
 
@@ -129,7 +128,7 @@
               <div class="phase-text-group">
                 <div class="phase-step-tag">Step 02</div>
                 <h3 class="phase-name">Spec</h3>
-                <p class="phase-role">Agree on user stories, behavior, and test seams upfront</p>
+                <p class="phase-role">Define user stories, expected behavior, and test seams</p>
               </div>
             </div>
 
@@ -146,7 +145,7 @@
               <div class="phase-text-group">
                 <div class="phase-step-tag">Step 03</div>
                 <h3 class="phase-name">Tickets</h3>
-                <p class="phase-role">Split into bite-sized tasks that build on each other</p>
+                <p class="phase-role">Sequence work into self-contained units of progress</p>
               </div>
             </div>
 
@@ -161,7 +160,7 @@
               <div class="phase-text-group">
                 <div class="phase-step-tag">Step 04</div>
                 <h3 class="phase-name">Implement</h3>
-                <p class="phase-role">Build one ticket at a time with test-first Red-Green cycles</p>
+                <p class="phase-role">Build test-first with Red-Green verification cycles</p>
               </div>
             </div>
 
@@ -176,7 +175,7 @@
               <div class="phase-text-group">
                 <div class="phase-step-tag">Step 05</div>
                 <h3 class="phase-name">Review</h3>
-                <p class="phase-role">Review code against repo standards and spec requirements</p>
+                <p class="phase-role">Audit pull requests for repository standards and spec requirements</p>
               </div>
             </div>
           </div>
@@ -345,7 +344,7 @@
                       <div class="axis-box spec-axis">
                         <div class="axis-title">Axis 2: Spec Fidelity</div>
                         <div class="axis-verdict pass">PASS (100% Match)</div>
-                        <p class="axis-desc">Checks user stories and ensures zero scope creep or missing behavior.</p>
+                        <p class="axis-desc">Checks user stories and ensures no unintended changes or missing behavior.</p>
                       </div>
                     </div>
                     <div class="mock-footer-note">
@@ -358,8 +357,861 @@
             </div>
 
           <div class="lifecycle-checkpoint-banner">
-            <span class="checkpoint-badge">Fresh Context Every Step</span>
-            <span>Each phase runs in a clean session. No context bloat, no hallucinated architecture.</span>
+            <span class="checkpoint-badge">Native to GitHub</span>
+            <span>All progress is tracked in standard GitHub issues and pull requests—no proprietary databases or external dashboards.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The SDLC Crisis vs. The ship-it Solution -->
+    <section class="sdlc-comparison-section" id="sdlc-comparison" aria-labelledby="comparison-title">
+      <div class="container">
+        <div class="section-header-centered">
+          <div class="section-tag-badge">The Contrast</div>
+          <h2 class="section-title" id="comparison-title">
+            Single-Pass Prompts <span class="text-versus">vs.</span> <span class="gradient-solution-text">The ship-it Method</span>
+          </h2>
+          <p class="section-subtitle" id="comparison-subtitle">
+            When development tasks expand beyond a simple script, prompting an assistant all at once leads to familiar frustrations. Here is how structured orchestration changes the everyday development experience.
+          </p>
+        </div>
+
+        <div class="comparison-grid" id="comparison-grid">
+          <!-- Left Column: Unchecked Single-Pass Prompts -->
+          <div class="comparison-card comparison-card-drift" id="card-drift" data-comparison="drift">
+            <div class="comparison-card-header">
+              <div class="comparison-badge badge-drift">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>Single-Pass Prompts</span>
+              </div>
+              <h3 class="comparison-card-title">The All-at-Once Approach</h3>
+              <p class="comparison-card-desc">Asking an assistant to handle architecture, code, and debugging in a single continuous prompt.</p>
+            </div>
+
+            <div class="comparison-items-list" role="list">
+              <!-- Item 1: Diff Scope -->
+              <div class="comparison-item item-drift" id="comp-drift-pr" role="listitem">
+                <div class="item-icon-box drift-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Diff Scope & PR Size</div>
+                  <h4 class="item-headline">Mega-PRs and Sprawling Diffs</h4>
+                  <p class="item-detail">
+                    The assistant generates sprawling, mega-PR-style diffs modifying dozens of files at once. The volume of code quickly becomes exhausting to review and leaves room for bugs to slip through.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 2: Context Window -->
+              <div class="comparison-item item-drift" id="comp-drift-ctx" role="listitem">
+                <div class="item-icon-box drift-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Context Length</div>
+                  <h4 class="item-headline">Context Bloat & Degraded Reasoning</h4>
+                  <p class="item-detail">
+                    As conversations drag on, assistants accumulate discarded attempts and stale assumptions. This context bloat leads to degraded reasoning until the model starts hallucinating APIs.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 3: Verification -->
+              <div class="comparison-item item-drift" id="comp-drift-diff" role="listitem">
+                <div class="item-icon-box drift-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Review Quality</div>
+                  <h4 class="item-headline">Unreviewable Diffs & Rubber-Stamping</h4>
+                  <p class="item-detail">
+                    Without isolated commits or automated test evidence, real review becomes impractical. What could have been an unreviewable diff slips into main because rubber-stamping feels easier than reading thousands of lines.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 4: Agency -->
+              <div class="comparison-item item-drift" id="comp-drift-ctrl" role="listitem">
+                <div class="item-icon-box drift-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Developer Direction</div>
+                  <h4 class="item-headline">Losing Control of the Architecture</h4>
+                  <p class="item-detail">
+                    Without deliberate decision gates, you face lost control over system design as the assistant quietly makes architectural choices or relies on hallucinated conventions that conflict with your stack.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="comparison-card-footer drift-footer">
+              <span class="footer-stat"><strong>The challenge:</strong> Spending more time untangling chaotic diffs than shipping features.</span>
+            </div>
+          </div>
+
+          <!-- Right Column: The ship-it Method -->
+          <div class="comparison-card comparison-card-solution" id="card-solution" data-comparison="solution">
+            <div class="comparison-card-header">
+              <div class="comparison-badge badge-solution">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>The ship-it Method</span>
+              </div>
+              <h3 class="comparison-card-title">Structured Orchestration</h3>
+              <p class="comparison-card-desc">Guiding assistants through incremental phases with developer agency and verification at every step.</p>
+            </div>
+
+            <div class="comparison-items-list" role="list">
+              <!-- Item 1: Diff Scope -->
+              <div class="comparison-item item-solution" id="comp-sol-pr" role="listitem">
+                <div class="item-icon-box solution-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Diff Scope & PR Size</div>
+                  <h4 class="item-headline">Manageable Vertical Slices</h4>
+                  <p class="item-detail">
+                    Features are broken into focused vertical slices that each deliver one working piece. Each pull request is concise, easy to understand, and quick to review.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 2: Context Window -->
+              <div class="comparison-item item-solution" id="comp-sol-ctx" role="listitem">
+                <div class="item-icon-box solution-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Context Length</div>
+                  <h4 class="item-headline">Fresh Session per Step</h4>
+                  <p class="item-detail">
+                    Starting a fresh session for each phase provides context isolation. The model stays focused on the current slice without carrying conversational clutter.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 3: Verification -->
+              <div class="comparison-item item-solution" id="comp-sol-diff" role="listitem">
+                <div class="item-icon-box solution-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Review Quality</div>
+                  <h4 class="item-headline">Independent Two-Axis Verification</h4>
+                  <p class="item-detail">
+                    Diffs are audited through two separate lenses: repository standards and ticket criteria. This adversarial verification ensures clean style never hides missing behavior.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Item 4: Agency -->
+              <div class="comparison-item item-solution" id="comp-sol-ctrl" role="listitem">
+                <div class="item-icon-box solution-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <div class="item-dimension">Developer Direction</div>
+                  <h4 class="item-headline">Human Driver, Autonomous Engine</h4>
+                  <p class="item-detail">
+                    You maintain full architectural control: you approve the plan, verify test requirements, and sign off on diffs. The assistant does the heavy lifting while you remain the human driver.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="comparison-card-footer solution-footer">
+              <span class="footer-stat"><strong>The outcome:</strong> Clear progress, manageable pull requests, and predictable architecture.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive 5-Phase Lifecycle Explorer -->
+    <section class="lifecycle-explorer-section" id="lifecycle-explorer" aria-labelledby="explorer-title">
+      <div class="container">
+        <div class="section-header-centered">
+          <div class="section-tag-badge">Step-By-Step Workflow</div>
+          <h2 class="section-title" id="explorer-title">
+            Interactive <span class="gradient-explorer-text">5-Phase Lifecycle Explorer</span>
+          </h2>
+          <p class="section-subtitle" id="explorer-subtitle">
+            Click through any step to see what information goes in, what comes out, when you step in to guide it, and how the workflow keeps the assistant on track.
+          </p>
+        </div>
+
+        <!-- Explorer Navigation Stepper -->
+        <div class="explorer-nav-wrapper">
+          <div class="explorer-nav-tabs" id="explorer-nav" data-explorer-nav role="tablist" aria-label="5-Phase Lifecycle Tabs">
+            <!-- Tab 1: Plan -->
+            <button class="explorer-tab-btn active" id="btn-tab-plan" data-explorer-tab="plan" role="tab"
+              aria-selected="true" aria-controls="panel-explorer-plan">
+              <span class="tab-step">01</span>
+              <span class="tab-info">
+                <span class="tab-title">Plan</span>
+                <span class="tab-subtitle">Architecture</span>
+              </span>
+              <span class="tab-active-dot" aria-hidden="true"></span>
+            </button>
+
+            <!-- Tab 2: Spec -->
+            <button class="explorer-tab-btn" id="btn-tab-spec" data-explorer-tab="spec" role="tab"
+              aria-selected="false" aria-controls="panel-explorer-spec">
+              <span class="tab-step">02</span>
+              <span class="tab-info">
+                <span class="tab-title">Spec</span>
+                <span class="tab-subtitle">Requirements</span>
+              </span>
+              <span class="tab-active-dot" aria-hidden="true"></span>
+            </button>
+
+            <!-- Tab 3: Tickets -->
+            <button class="explorer-tab-btn" id="btn-tab-tickets" data-explorer-tab="tickets" role="tab"
+              aria-selected="false" aria-controls="panel-explorer-tickets">
+              <span class="tab-step">03</span>
+              <span class="tab-info">
+                <span class="tab-title">Tickets</span>
+                <span class="tab-subtitle">Work Units</span>
+              </span>
+              <span class="tab-active-dot" aria-hidden="true"></span>
+            </button>
+
+            <!-- Tab 4: Implement -->
+            <button class="explorer-tab-btn" id="btn-tab-implement" data-explorer-tab="implement" role="tab"
+              aria-selected="false" aria-controls="panel-explorer-implement">
+              <span class="tab-step">04</span>
+              <span class="tab-info">
+                <span class="tab-title">Implement</span>
+                <span class="tab-subtitle">Test-First</span>
+              </span>
+              <span class="tab-active-dot" aria-hidden="true"></span>
+            </button>
+
+            <!-- Tab 5: Review -->
+            <button class="explorer-tab-btn" id="btn-tab-review" data-explorer-tab="review" role="tab"
+              aria-selected="false" aria-controls="panel-explorer-review">
+              <span class="tab-step">05</span>
+              <span class="tab-info">
+                <span class="tab-title">Review</span>
+                <span class="tab-subtitle">Two-Axis Check</span>
+              </span>
+              <span class="tab-active-dot" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Explorer Detail Panels Container -->
+        <div class="explorer-panels-container" id="explorer-panels">
+          <!-- Panel 1: Plan -->
+          <div class="explorer-panel active" id="panel-explorer-plan" data-explorer-panel="plan" role="tabpanel"
+            aria-labelledby="btn-tab-plan">
+            <div class="explorer-panel-header">
+              <div class="panel-meta-tag">
+                <span class="phase-number-badge">Phase 01</span>
+                <span class="phase-cli-badge"><code>gh issue list --label "ship-it:map"</code></span>
+              </div>
+              <h3 class="panel-headline">Explore Technical Trade-offs Upfront</h3>
+              <p class="panel-summary">
+                When a feature has multiple viable paths, map out architectural questions through structured conversation before touching code.
+              </p>
+            </div>
+
+            <!-- 4-Grid Breakdown: Purpose, Inputs/Outputs, Human Checkpoint & Keeping on Track -->
+            <div class="explorer-grid-breakdown">
+              <!-- Purpose -->
+              <div class="breakdown-card card-purpose">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon purple-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                      <line x1="8" y1="2" x2="8" y2="18"></line>
+                      <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">What this step does</h4>
+                </div>
+                <p class="breakdown-text">
+                  Surfaces architectural decisions early. The assistant presents technical alternatives with trade-offs so choices like state management, schemas, or protocols are decided deliberately.
+                </p>
+              </div>
+
+              <!-- Inputs & Outputs -->
+              <div class="breakdown-card card-io">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon blue-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 17l6-6-6-6M12 19h8"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Inputs & Outputs</h4>
+                </div>
+                <div class="io-list">
+                  <div class="io-group">
+                    <span class="io-label">Inputs:</span>
+                    <span class="io-val">Feature goals, codebase constraints, and open technical trade-offs</span>
+                  </div>
+                  <div class="io-group">
+                    <span class="io-label">Outputs:</span>
+                    <span class="io-val">A decision map issue documenting settled choices and outstanding questions</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Human Checkpoint -->
+              <div class="breakdown-card card-checkpoint">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon amber-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Where you step in</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Technical direction:</strong> You review the trade-offs between patterns or tools and select the direction that matches your architecture.
+                </p>
+              </div>
+
+              <!-- Keeping on Track -->
+              <div class="breakdown-card card-antidrift">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon green-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Keeping on track</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Preventing Drift:</strong> Stops the assistant from quietly making assumptions that would be costly to undo later. Foundational decisions are settled before any code is generated.
+                </p>
+              </div>
+            </div>
+
+            <!-- Visual Artifact Mock -->
+            <div class="explorer-artifact-preview">
+              <div class="artifact-preview-header">
+                <span class="artifact-tag">Artifact Preview: Decision Map Issue</span>
+                <span class="artifact-status">Status: Settling Decisions</span>
+              </div>
+              <div class="artifact-preview-body">
+                <div class="map-frontier-visual">
+                  <div class="frontier-node node-done">
+                    <span class="f-icon">✓</span>
+                    <span class="f-title">Session Store</span>
+                    <span class="f-desc">Resolved: Redis Adapter</span>
+                  </div>
+                  <div class="frontier-connector active-pulse">➔</div>
+                  <div class="frontier-node node-current">
+                    <span class="f-icon">⚡</span>
+                    <span class="f-title">Token Rotation</span>
+                    <span class="f-desc">Active Decision Frontier</span>
+                  </div>
+                  <div class="frontier-connector">➔</div>
+                  <div class="frontier-node node-future">
+                    <span class="f-icon">🔒</span>
+                    <span class="f-title">Rate Limiting</span>
+                    <span class="f-desc">Deferred for Next Step</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 2: Spec -->
+          <div class="explorer-panel" id="panel-explorer-spec" data-explorer-panel="spec" role="tabpanel"
+            aria-labelledby="btn-tab-spec">
+            <div class="explorer-panel-header">
+              <div class="panel-meta-tag">
+                <span class="phase-number-badge">Phase 02</span>
+                <span class="phase-cli-badge"><code>gh issue list --label "ship-it:spec"</code></span>
+              </div>
+              <h3 class="panel-headline">Establish the Behavioral Contract</h3>
+              <p class="panel-summary">
+                Define unambiguous user stories, acceptance criteria, and explicit boundaries before implementation begins.
+              </p>
+            </div>
+
+            <div class="explorer-grid-breakdown">
+              <!-- Purpose -->
+              <div class="breakdown-card card-purpose">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon indigo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">What this step does</h4>
+                </div>
+                <p class="breakdown-text">
+                  Translates broad goals into concrete, verifiable requirements. Documents user stories, designated test seams, and intentionally excluded features to prevent scope creep.
+                </p>
+              </div>
+
+              <!-- Inputs & Outputs -->
+              <div class="breakdown-card card-io">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon blue-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 17l6-6-6-6M12 19h8"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Inputs & Outputs</h4>
+                </div>
+                <div class="io-list">
+                  <div class="io-group">
+                    <span class="io-label">Inputs:</span>
+                    <span class="io-val">Feature goals, settled architecture choices, and repository conventions</span>
+                  </div>
+                  <div class="io-group">
+                    <span class="io-label">Outputs:</span>
+                    <span class="io-val">A validated specification issue with verifiable user stories and an out-of-scope checklist</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Human Checkpoint -->
+              <div class="breakdown-card card-checkpoint">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon amber-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Where you step in</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Boundary sign-off:</strong> You confirm acceptance criteria reflect true user needs and verify the out-of-scope boundaries to keep the project focused.
+                </p>
+              </div>
+
+              <!-- Keeping on Track -->
+              <div class="breakdown-card card-antidrift">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon green-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Keeping on track</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Preventing Drift:</strong> A fresh-eyes review pass in an isolated context audits the specification for ambiguities, untested assumptions, or vague requirements before work begins.
+                </p>
+              </div>
+            </div>
+
+            <div class="explorer-artifact-preview">
+              <div class="artifact-preview-header">
+                <span class="artifact-tag">Artifact Preview: Feature Specification</span>
+                <span class="artifact-status">Label: ship-it:validated</span>
+              </div>
+              <div class="artifact-preview-body">
+                <div class="spec-contract-visual">
+                  <div class="contract-section">
+                    <span class="contract-badge">Part 1</span>
+                    <span class="contract-name">Problem Statement & Proposed Solution</span>
+                  </div>
+                  <div class="contract-section">
+                    <span class="contract-badge">Part 2</span>
+                    <span class="contract-name">User Stories & Acceptance Criteria Checklist</span>
+                  </div>
+                  <div class="contract-section">
+                    <span class="contract-badge">Part 3</span>
+                    <span class="contract-name">Implementation Decisions & Test Seams</span>
+                  </div>
+                  <div class="contract-section">
+                    <span class="contract-badge">Part 4</span>
+                    <span class="contract-name">Out of Scope & Clear Boundaries</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 3: Tickets -->
+          <div class="explorer-panel" id="panel-explorer-tickets" data-explorer-panel="tickets" role="tabpanel"
+            aria-labelledby="btn-tab-tickets">
+            <div class="explorer-panel-header">
+              <div class="panel-meta-tag">
+                <span class="phase-number-badge">Phase 03</span>
+                <span class="phase-cli-badge"><code>gh issue list --label "ship-it:ticket"</code></span>
+              </div>
+              <h3 class="panel-headline">Deconstruct into Sequential Units of Work</h3>
+              <p class="panel-summary">
+                Break the specification into self-contained tasks with explicit dependency order so progress is steady and predictable.
+              </p>
+            </div>
+
+            <div class="explorer-grid-breakdown">
+              <!-- Purpose -->
+              <div class="breakdown-card card-purpose">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon cyan-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">What this step does</h4>
+                </div>
+                <p class="breakdown-text">
+                  Divides the feature into an ordered tasklist where each issue encapsulates one working increment with clear prerequisites and isolated acceptance tests.
+                </p>
+              </div>
+
+              <!-- Inputs & Outputs -->
+              <div class="breakdown-card card-io">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon blue-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 17l6-6-6-6M12 19h8"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Inputs & Outputs</h4>
+                </div>
+                <div class="io-list">
+                  <div class="io-group">
+                    <span class="io-label">Inputs:</span>
+                    <span class="io-val">The validated feature specification and its identified test seams</span>
+                  </div>
+                  <div class="io-group">
+                    <span class="io-label">Outputs:</span>
+                    <span class="io-val">A sequence of GitHub issues linked with markdown dependency checklists</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Human Checkpoint -->
+              <div class="breakdown-card card-checkpoint">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon amber-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Where you step in</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Task sequencing:</strong> You verify that each ticket represents a manageable unit of work with clear deliverables that can be reviewed independently.
+                </p>
+              </div>
+
+              <!-- Keeping on Track -->
+              <div class="breakdown-card card-antidrift">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon green-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Keeping on track</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Preventing Drift:</strong> Work only proceeds on tickets whose prerequisites have already been merged and verified, eliminating broken dependencies and chaotic branch merges.
+                </p>
+              </div>
+            </div>
+
+            <div class="explorer-artifact-preview">
+              <div class="artifact-preview-header">
+                <span class="artifact-tag">Artifact Preview: Task Sequence & Dependencies</span>
+                <span class="artifact-status">Order: Sequential Delivery</span>
+              </div>
+              <div class="artifact-preview-body">
+                <div class="ticket-dag-visual">
+                  <div class="dag-item dag-ready">
+                    <div class="dag-header">
+                      <span class="dag-badge ready">Ready</span>
+                      <span class="dag-id">Ticket #18</span>
+                    </div>
+                    <div class="dag-title">Lifecycle Explorer & Comparative Visuals</div>
+                    <div class="dag-blocker">Blockers: #17 (Finished ✓)</div>
+                  </div>
+                  <div class="dag-arrow">➔</div>
+                  <div class="dag-item dag-blocked">
+                    <div class="dag-header">
+                      <span class="dag-badge blocked">Next</span>
+                      <span class="dag-id">Ticket #19</span>
+                    </div>
+                    <div class="dag-title">Architecture Cards & Terminal Demo</div>
+                    <div class="dag-blocker">Prerequisite: Ticket #18</div>
+                  </div>
+                  <div class="dag-arrow">➔</div>
+                  <div class="dag-item dag-blocked">
+                    <div class="dag-header">
+                      <span class="dag-badge blocked">Queued</span>
+                      <span class="dag-id">Ticket #20</span>
+                    </div>
+                    <div class="dag-title">Root README.md Case Study Overhaul</div>
+                    <div class="dag-blocker">Prerequisite: Ticket #19</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 4: Implement -->
+          <div class="explorer-panel" id="panel-explorer-implement" data-explorer-panel="implement" role="tabpanel"
+            aria-labelledby="btn-tab-implement">
+            <div class="explorer-panel-header">
+              <div class="panel-meta-tag">
+                <span class="phase-number-badge">Phase 04</span>
+                <span class="phase-cli-badge"><code>gh issue edit &lt;num&gt; --add-assignee "@me"</code></span>
+              </div>
+              <h3 class="panel-headline">Build with Test-First Discipline</h3>
+              <p class="panel-summary">
+                Tackle one ticket at a time in a focused session, using Red-Green test cycles to prove each requirement works.
+              </p>
+            </div>
+
+            <div class="explorer-grid-breakdown">
+              <!-- Purpose -->
+              <div class="breakdown-card card-purpose">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon amber-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="16 18 22 12 16 6"></polyline>
+                      <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">What this step does</h4>
+                </div>
+                <p class="breakdown-text">
+                  Applies test-driven development to build the feature. The assistant creates an automated test reproducing the ticket criteria, confirms it fails, and then writes the minimal code to pass.
+                </p>
+              </div>
+
+              <!-- Inputs & Outputs -->
+              <div class="breakdown-card card-io">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon blue-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 17l6-6-6-6M12 19h8"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Inputs & Outputs</h4>
+                </div>
+                <div class="io-list">
+                  <div class="io-group">
+                    <span class="io-label">Inputs:</span>
+                    <span class="io-val">The unblocked ticket, its acceptance criteria, and the working branch</span>
+                  </div>
+                  <div class="io-group">
+                    <span class="io-label">Outputs:</span>
+                    <span class="io-val">A recorded test failure log, passing test suite, and minimal code diff</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Human Checkpoint -->
+              <div class="breakdown-card card-checkpoint">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon amber-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Where you step in</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Course correction:</strong> If implementation exposes an edge case or an unpredicted technical obstacle, the assistant pauses and asks you for guidance instead of inventing an undocumented workaround.
+                </p>
+              </div>
+
+              <!-- Keeping on Track -->
+              <div class="breakdown-card card-antidrift">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon green-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Keeping on track</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Preventing Drift:</strong> Demonstrating test failure before implementation ensures the test is genuinely validating the required behavior and prevents false passes.
+                </p>
+              </div>
+            </div>
+
+            <div class="explorer-artifact-preview">
+              <div class="artifact-preview-header">
+                <span class="artifact-tag">Artifact Preview: Test-First Development Cycle</span>
+                <span class="artifact-status">State: Tests Passing</span>
+              </div>
+              <div class="artifact-preview-body">
+                <div class="redgreen-box">
+                  <div class="rg-log red">
+                    <span class="log-tag">Step 1: Write Failing Test</span>
+                    <code class="log-code">FAIL tests/explorer.test.js &gt; Explorer navigation controls (1 failed)</code>
+                    <span class="log-note">Confirm the test catches missing behavior before writing code</span>
+                  </div>
+                  <div class="rg-divider">➔</div>
+                  <div class="rg-log green">
+                    <span class="log-tag">Step 2: Implement & Pass</span>
+                    <code class="log-code">PASS tests/explorer.test.js &gt; All tests passed (0 errors)</code>
+                    <span class="log-note">Write the minimal code needed to satisfy the test, then commit</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 5: Review -->
+          <div class="explorer-panel" id="panel-explorer-review" data-explorer-panel="review" role="tabpanel"
+            aria-labelledby="btn-tab-review">
+            <div class="explorer-panel-header">
+              <div class="panel-meta-tag">
+                <span class="phase-number-badge">Phase 05</span>
+                <span class="phase-cli-badge"><code>gh issue view &lt;num&gt; --comments</code></span>
+              </div>
+              <h3 class="panel-headline">Audit the Diff from Two Perspectives</h3>
+              <p class="panel-summary">
+                Perform an independent review that evaluates code craft and functional correctness separately.
+              </p>
+            </div>
+
+            <div class="explorer-grid-breakdown">
+              <!-- Purpose -->
+              <div class="breakdown-card card-purpose">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon green-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">What this step does</h4>
+                </div>
+                <p class="breakdown-text">
+                  Evaluates branch changes on two independent axes: codebase standards (modularity, readability, conventions) and specification fidelity (ensuring all user stories pass without unintended changes).
+                </p>
+              </div>
+
+              <!-- Inputs & Outputs -->
+              <div class="breakdown-card card-io">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon blue-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 17l6-6-6-6M12 19h8"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Inputs & Outputs</h4>
+                </div>
+                <div class="io-list">
+                  <div class="io-group">
+                    <span class="io-label">Inputs:</span>
+                    <span class="io-val">The branch diff, team conventions, and ticket acceptance criteria</span>
+                  </div>
+                  <div class="io-group">
+                    <span class="io-label">Outputs:</span>
+                    <span class="io-val">A two-axis review scorecard with clear findings and a merge recommendation</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Human Checkpoint -->
+              <div class="breakdown-card card-checkpoint">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon amber-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Where you step in</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Final merge sign-off:</strong> You inspect the findings from both review axes and make the final call to merge the pull request into your branch.
+                </p>
+              </div>
+
+              <!-- Keeping on Track -->
+              <div class="breakdown-card card-antidrift">
+                <div class="breakdown-card-header">
+                  <div class="breakdown-icon green-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </div>
+                  <h4 class="breakdown-title">Keeping on track</h4>
+                </div>
+                <p class="breakdown-text">
+                  <strong>Preventing Drift:</strong> Evaluating code structure and behavior separately ensures clean aesthetics don't mask missing logic, and working code doesn't excuse sloppy patterns.
+                </p>
+              </div>
+            </div>
+
+            <div class="explorer-artifact-preview">
+              <div class="artifact-preview-header">
+                <span class="artifact-tag">Artifact Preview: Independent Two-Axis Review</span>
+                <span class="artifact-status">Status: Ready to Merge</span>
+              </div>
+              <div class="artifact-preview-body">
+                <div class="review-scorecard-visual">
+                  <div class="scorecard-axis axis-standards">
+                    <div class="axis-header">
+                      <span class="axis-name">Axis 1: Code Standards</span>
+                      <span class="axis-verdict-pill pass">0 Issues Spotted</span>
+                    </div>
+                    <ul class="axis-check-list">
+                      <li>✓ Follows team conventions & formatting</li>
+                      <li>✓ Clean variable names & clear intent</li>
+                      <li>✓ Modular functions without hidden side effects</li>
+                    </ul>
+                  </div>
+                  <div class="scorecard-axis axis-spec">
+                    <div class="axis-header">
+                      <span class="axis-name">Axis 2: Ticket Requirements</span>
+                      <span class="axis-verdict-pill pass">All Criteria Met</span>
+                    </div>
+                    <ul class="axis-check-list">
+                      <li>✓ All acceptance tests pass</li>
+                      <li>✓ No unintended changes or scope creep</li>
+                      <li>✓ Production build compiles cleanly</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -17,6 +17,12 @@ describe('Ticket #18: Interactive 5-Phase Lifecycle Explorer and SDLC Crisis Com
     dom = new JSDOM(html, { runScripts: 'dangerously' });
     document = dom.window.document;
     window = dom.window;
+
+    // Load and execute main.js in JSDOM
+    const jsPath = path.join(ROOT_DIR, 'src/main.js');
+    const jsCode = fs.readFileSync(jsPath, 'utf8');
+    window.eval(jsCode);
+    document.dispatchEvent(new window.Event('DOMContentLoaded'));
   });
 
   describe('SDLC Crisis vs The ship-it Solution Comparative Section', () => {
@@ -89,11 +95,11 @@ describe('Ticket #18: Interactive 5-Phase Lifecycle Explorer and SDLC Crisis Com
         expect(panel, `Detail panel for phase "${phase}" must exist`).not.toBeNull();
 
         const panelText = panel.textContent;
-        expect(panelText).toMatch(/Purpose|Mission/i);
+        expect(panelText).toMatch(/Purpose|Mission|What this step does/i);
         expect(panelText).toMatch(/Input/i);
         expect(panelText).toMatch(/Output/i);
-        expect(panelText).toMatch(/Human.*Checkpoint|Review.*Checkpoint/i);
-        expect(panelText).toMatch(/Anti-Drift|Guarantee/i);
+        expect(panelText).toMatch(/Human.*Checkpoint|Review.*Checkpoint|Where you step in/i);
+        expect(panelText).toMatch(/Anti-Drift|Guarantee|Keeping on track|Preventing Drift/i);
       }
     });
 
@@ -109,6 +115,33 @@ describe('Ticket #18: Interactive 5-Phase Lifecycle Explorer and SDLC Crisis Com
         }
       });
     });
+
+    it('should switch active tab and panel on user interaction', () => {
+      const specTab = document.querySelector('#btn-tab-spec');
+      const planTab = document.querySelector('#btn-tab-plan');
+      const specPanel = document.querySelector('#panel-explorer-spec');
+      const planPanel = document.querySelector('#panel-explorer-plan');
+
+      expect(specTab).not.toBeNull();
+      expect(specPanel).not.toBeNull();
+
+      // Trigger click on spec tab
+      specTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+
+      // Plan should now be inactive, spec active
+      expect(specTab.classList.contains('active')).toBe(true);
+      expect(specTab.getAttribute('aria-selected')).toBe('true');
+      expect(specPanel.classList.contains('active')).toBe(true);
+
+      expect(planTab.classList.contains('active')).toBe(false);
+      expect(planTab.getAttribute('aria-selected')).toBe('false');
+      expect(planPanel.classList.contains('active')).toBe(false);
+
+      // Click back to plan tab
+      planTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      expect(planTab.classList.contains('active')).toBe(true);
+      expect(planPanel.classList.contains('active')).toBe(true);
+    });
   });
 
   describe('CSS & Responsive Layout Rules', () => {
@@ -121,6 +154,23 @@ describe('Ticket #18: Interactive 5-Phase Lifecycle Explorer and SDLC Crisis Com
       expect(css).toContain('.lifecycle-explorer-section');
       expect(css).toContain('--color-drift');
       expect(css).toContain('--color-solution');
+
+      // Mobile media query checks
+      expect(css).toMatch(/@media[^{]*max-width:\s*768px/i);
+      expect(css).toMatch(/@media[^{]*max-width:\s*400px/i);
+    });
+  });
+
+  describe('Production Bundle Verification', () => {
+    it('should include comparison and explorer sections in dist/index.html with relative asset paths', () => {
+      const distHtmlPath = path.join(ROOT_DIR, 'dist/index.html');
+      expect(fs.existsSync(distHtmlPath), 'dist/index.html must exist').toBe(true);
+
+      const html = fs.readFileSync(distHtmlPath, 'utf8');
+      expect(html).toContain('id="sdlc-comparison"');
+      expect(html).toContain('id="lifecycle-explorer"');
+      expect(html).toContain('src="./assets/');
+      expect(html).not.toMatch(/src="\/assets\//);
     });
   });
 });

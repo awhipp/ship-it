@@ -2,9 +2,108 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   initLifecycleTeaser();
+  initExplorerTabs();
+  initComparisonHover();
   initSmoothScroll();
   initCopyButton();
 });
+
+/**
+ * Initializes the Interactive 5-Phase Lifecycle Explorer.
+ * Supports accessible tab switching, keyboard arrow navigation, and smooth panel transitions.
+ */
+function initExplorerTabs() {
+  const tabs = Array.from(document.querySelectorAll('[data-explorer-tab]'));
+  const panels = Array.from(document.querySelectorAll('[data-explorer-panel]'));
+  if (!tabs.length || !panels.length) return;
+
+  const activatePhase = (phaseKey) => {
+    tabs.forEach(tab => {
+      const isMatch = tab.getAttribute('data-explorer-tab') === phaseKey;
+      tab.classList.toggle('active', isMatch);
+      tab.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+      tab.setAttribute('tabindex', isMatch ? '0' : '-1');
+    });
+
+    panels.forEach(panel => {
+      const isMatch = panel.getAttribute('data-explorer-panel') === phaseKey;
+      panel.classList.toggle('active', isMatch);
+    });
+  };
+
+  // Click handler
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const phase = tab.getAttribute('data-explorer-tab');
+      activatePhase(phase);
+    });
+
+    // Keyboard navigation (ARIA tablist pattern)
+    tab.addEventListener('keydown', (e) => {
+      const currentIndex = tabs.indexOf(tab);
+      let targetIndex = -1;
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        targetIndex = (currentIndex + 1) % tabs.length;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        targetIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        targetIndex = 0;
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        targetIndex = tabs.length - 1;
+      }
+
+      if (targetIndex !== -1) {
+        tabs[targetIndex].focus();
+        const phase = tabs[targetIndex].getAttribute('data-explorer-tab');
+        activatePhase(phase);
+      }
+    });
+  });
+
+  // Ensure initial active phase
+  activatePhase('plan');
+}
+
+/**
+ * Connects matching dimension rows in the SDLC comparison section on hover.
+ */
+function initComparisonHover() {
+  const driftItems = document.querySelectorAll('.comparison-card-drift .comparison-item');
+  const solutionItems = document.querySelectorAll('.comparison-card-solution .comparison-item');
+
+  driftItems.forEach((item, index) => {
+    const counterpart = solutionItems[index];
+    if (!counterpart) return;
+
+    item.addEventListener('mouseenter', () => {
+      item.classList.add('item-highlighted');
+      counterpart.classList.add('item-counterpart-highlighted');
+    });
+    item.addEventListener('mouseleave', () => {
+      item.classList.remove('item-highlighted');
+      counterpart.classList.remove('item-counterpart-highlighted');
+    });
+  });
+
+  solutionItems.forEach((item, index) => {
+    const counterpart = driftItems[index];
+    if (!counterpart) return;
+
+    item.addEventListener('mouseenter', () => {
+      item.classList.add('item-highlighted');
+      counterpart.classList.add('item-counterpart-highlighted');
+    });
+    item.addEventListener('mouseleave', () => {
+      item.classList.remove('item-highlighted');
+      counterpart.classList.remove('item-counterpart-highlighted');
+    });
+  });
+}
 
 /**
  * Initializes the 5-phase interactive lifecycle teaser in the hero section.
