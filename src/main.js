@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   initLifecycleTeaser();
   initSmoothScroll();
+  initCopyButton();
 });
 
 /**
@@ -31,7 +32,7 @@ function initLifecycleTeaser() {
   setActivePhase(0);
 
   // Auto-cycle through phases every 2.8s when not hovered
-  const intervalId = setInterval(() => {
+  setInterval(() => {
     if (!isHovered) {
       currentIndex = (currentIndex + 1) % cards.length;
       setActivePhase(currentIndex);
@@ -62,14 +63,14 @@ function initLifecycleTeaser() {
  */
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
       const targetId = this.getAttribute('href');
       if (targetId === '#') return;
 
       const targetEl = document.querySelector(targetId);
       if (targetEl) {
         e.preventDefault();
-        const headerOffset = 80;
+        const headerOffset = 70;
         const elementPosition = targetEl.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -79,5 +80,47 @@ function initSmoothScroll() {
         });
       }
     });
+  });
+}
+
+/**
+ * Copies the quickstart installation command to clipboard with visual confirmation.
+ */
+function initCopyButton() {
+  const copyBtn = document.getElementById('btn-copy-install');
+  const cmdEl = document.getElementById('cmd-install');
+  if (!copyBtn || !cmdEl) return;
+
+  copyBtn.addEventListener('click', async () => {
+    const textToCopy = cmdEl.textContent.trim();
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      const textSpan = copyBtn.querySelector('.copy-text');
+      const originalText = textSpan ? textSpan.textContent : 'Copy';
+
+      copyBtn.classList.add('copied');
+      if (textSpan) textSpan.textContent = 'Copied!';
+
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        if (textSpan) textSpan.textContent = originalText;
+      }, 2000);
+    } catch {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = textToCopy;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      const textSpan = copyBtn.querySelector('.copy-text');
+      if (textSpan) textSpan.textContent = 'Copied!';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        if (textSpan) textSpan.textContent = 'Copy';
+      }, 2000);
+    }
   });
 }

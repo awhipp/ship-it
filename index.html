@@ -1,269 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ship-it | The Autonomous Conductor for Software Engineering</title>
-    <meta
-      name="description"
-      content="The autonomous conductor that keeps developers in the driver's seat. Orchestrate agentic software development across Plan, Spec, Tickets, Implement, and Review with strict context hygiene and two-axis verification."
-    />
-    <meta name="theme-color" content="#07090e" />
 
-    <!-- Google Fonts Preconnect & Stylesheet -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ship-it | The Autonomous Conductor for Software Engineering</title>
+  <meta name="description"
+    content="The autonomous conductor that keeps developers in the driver's seat. Break features into bite-sized tasks, test before building, and clear context between steps." />
+  <meta name="theme-color" content="#07090e" />
 
-    <link rel="stylesheet" href="./src/styles/main.css" />
-  </head>
-  <body>
-    <!-- Site Header -->
-    <header class="site-header" id="main-header">
-      <div class="container header-container">
-        <a href="#" class="brand-link" id="brand-logo-link" aria-label="ship-it Home">
-          <div class="brand-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <span class="brand-text">ship-it</span>
-          <span class="brand-badge">v1.0</span>
+  <!-- Google Fonts Preconnect & Stylesheet -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="./src/styles/main.css" />
+</head>
+
+<body>
+  <!-- Site Header -->
+  <header class="site-header" id="main-header">
+    <div class="container header-container">
+      <a href="#" class="brand-link" id="brand-logo-link" aria-label="ship-it Home">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        </div>
+        <span class="brand-text">ship-it</span>
+        <span class="brand-badge">v1.0</span>
+      </a>
+
+      <div class="nav-actions">
+        <a href="https://github.com/awhipp/ship-it" target="_blank" rel="noopener noreferrer" class="btn-ghost-nav"
+          id="nav-github-link" aria-label="View ship-it on GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+          </svg>
+          <span>GitHub</span>
         </a>
+      </div>
+    </div>
+  </header>
 
-        <nav class="nav-menu" aria-label="Primary Navigation">
-          <ul class="nav-links">
-            <li><a href="#hero" class="nav-link" id="nav-link-overview">Overview</a></li>
-            <li><a href="#hero-lifecycle-teaser" class="nav-link" id="nav-link-lifecycle">5-Phase Loop</a></li>
-            <li><a href="#quickstart" class="nav-link" id="nav-link-quickstart">Quickstart</a></li>
-          </ul>
-        </nav>
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero" aria-labelledby="hero-title">
+      <div class="hero-glow-bg" aria-hidden="true"></div>
 
-        <div class="nav-actions">
-          <a
-            href="https://github.com/awhipp/ship-it"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn-ghost-nav"
-            id="nav-github-link"
-            aria-label="View ship-it on GitHub"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+      <div class="container hero-content">
+
+        <h1 class="hero-title" id="hero-title">
+          The autonomous conductor that keeps developers in the <span class="hero-gradient-text">driver's seat</span>
+        </h1>
+
+        <p class="hero-description" id="hero-description">
+          Stop letting AI agents write unreviewable 2,000-line pull requests.
+          <br></br>
+          <strong>ship-it</strong> breaks large features into small, bite-sized tasks,
+          tests each piece before building, and clears context between steps so the model never loses the plot.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#quickstart" class="btn-primary" id="cta-quickstart">
+            <span>Quickstart</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
-            <span>GitHub</span>
+          </a>
+
+          <a href="https://github.com/awhipp/ship-it" target="_blank" rel="noopener noreferrer" class="btn-secondary"
+            id="cta-github-repo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            </svg>
+            <span>View on GitHub</span>
           </a>
         </div>
-      </div>
-    </header>
 
-    <!-- Main Content -->
-    <main>
-      <!-- Hero Section -->
-      <section class="hero-section" id="hero" aria-labelledby="hero-title">
-        <div class="hero-glow-bg" aria-hidden="true"></div>
-
-        <div class="container hero-content">
-          <div class="hero-pill" id="hero-badge">
-            <span class="hero-pill-dot"></span>
-            <span>Autonomous agentic SDLC conductor</span>
+        <!-- Animated 5-Phase Lifecycle Teaser -->
+        <div class="hero-lifecycle-container" id="hero-lifecycle-teaser">
+          <div class="lifecycle-header">
+            <span class="lifecycle-header-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              The 5-Phase Build Loop
+            </span>
+            <span class="status-pill" id="teaser-active-status">One step at a time</span>
           </div>
 
-          <h1 class="hero-title" id="hero-title">
-            The autonomous conductor that keeps developers in the <span class="hero-gradient-text">driver's seat</span>
-          </h1>
-
-          <p class="hero-description" id="hero-description">
-            Build software with AI agents without losing architectural control.
-            <strong>ship-it</strong> enforces strict phase gates, 2-tier context hygiene to eliminate reasoning drift,
-            and independent two-axis code reviews directly inside your GitHub repository.
-          </p>
-
-          <div class="hero-cta-group">
-            <a href="#quickstart" class="btn-primary" id="cta-quickstart">
-              <span>Explore Quickstart</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </a>
-
-            <a
-              href="https://github.com/awhipp/ship-it"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn-secondary"
-              id="cta-github-repo"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-              </svg>
-              <span>View on GitHub</span>
-            </a>
-          </div>
-
-          <!-- Animated 5-Phase Lifecycle Teaser -->
-          <div class="hero-lifecycle-container" id="hero-lifecycle-teaser">
-            <div class="lifecycle-header">
-              <span class="lifecycle-header-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
+          <div class="lifecycle-phases-grid" role="list">
+            <!-- Phase 1: Plan -->
+            <div class="phase-card active" data-phase="plan" id="phase-card-plan" role="listitem">
+              <div class="phase-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                  <line x1="8" y1="2" x2="8" y2="18"></line>
+                  <line x1="16" y1="6" x2="16" y2="22"></line>
                 </svg>
-                The 5-Phase Disciplined Build Loop
-              </span>
-              <span class="status-pill" id="teaser-active-status">Active Pipeline</span>
-            </div>
-
-            <div class="lifecycle-phases-grid" role="list">
-              <!-- Phase 1: Plan -->
-              <div class="phase-card active" data-phase="plan" id="phase-card-plan" role="listitem">
-                <div class="phase-step-tag">Phase 01</div>
-                <div class="phase-icon-wrapper">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                    <line x1="8" y1="2" x2="8" y2="18"></line>
-                    <line x1="16" y1="6" x2="16" y2="22"></line>
-                  </svg>
-                </div>
+              </div>
+              <div class="phase-text-group">
+                <div class="phase-step-tag">Step 01</div>
                 <h3 class="phase-name">Plan</h3>
-                <p class="phase-role">Map boundaries & architecture before writing a line</p>
-              </div>
-
-              <!-- Phase 2: Spec -->
-              <div class="phase-card" data-phase="spec" id="phase-card-spec" role="listitem">
-                <div class="phase-step-tag">Phase 02</div>
-                <div class="phase-icon-wrapper">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                </div>
-                <h3 class="phase-name">Spec</h3>
-                <p class="phase-role">User stories, implementation decisions, and agreed seams</p>
-              </div>
-
-              <!-- Phase 3: Tickets -->
-              <div class="phase-card" data-phase="tickets" id="phase-card-tickets" role="listitem">
-                <div class="phase-step-tag">Phase 03</div>
-                <div class="phase-icon-wrapper">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="3" width="7" height="7"></rect>
-                    <rect x="14" y="14" width="7" height="7"></rect>
-                    <rect x="3" y="14" width="7" height="7"></rect>
-                  </svg>
-                </div>
-                <h3 class="phase-name">Tickets</h3>
-                <p class="phase-role">Slice into vertical tracer bullets with strict unblocking order</p>
-              </div>
-
-              <!-- Phase 4: Implement -->
-              <div class="phase-card" data-phase="implement" id="phase-card-implement" role="listitem">
-                <div class="phase-step-tag">Phase 04</div>
-                <div class="phase-icon-wrapper">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="16 18 22 12 16 6"></polyline>
-                    <polyline points="8 6 2 12 8 18"></polyline>
-                  </svg>
-                </div>
-                <h3 class="phase-name">Implement</h3>
-                <p class="phase-role">Test-first Red-Green cycles in fresh isolated context</p>
-              </div>
-
-              <!-- Phase 5: Review -->
-              <div class="phase-card" data-phase="review" id="phase-card-review" role="listitem">
-                <div class="phase-step-tag">Phase 05</div>
-                <div class="phase-icon-wrapper">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                  </svg>
-                </div>
-                <h3 class="phase-name">Review</h3>
-                <p class="phase-role">Independent 2-axis verification: Standards vs Spec</p>
+                <p class="phase-role">Map out the problem and boundaries before writing any code</p>
               </div>
             </div>
 
-            <div class="lifecycle-checkpoint-banner">
-              <span class="checkpoint-badge">Context Hygiene Guarantee</span>
-              <span>Context is cleared between phases. No multi-thousand-line hallucination spirals.</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Quickstart Anchor Section (Placeholder for Ticket 19 interactive CLI component) -->
-      <section class="container" id="quickstart" style="padding: 40px 24px; text-align: center;">
-        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 32px 24px; max-width: 800px; margin: 0 auto;">
-          <h2 style="font-size: 1.5rem; margin-bottom: 12px; color: var(--text-primary);">Frictionless Setup</h2>
-          <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
-            Run <code style="font-family: var(--font-mono); color: var(--accent-cyan); background: rgba(6,182,212,0.1); padding: 2px 6px; border-radius: 4px;">/ship-it</code> in any AI harness (Antigravity, Cursor, Claude Code, Aider) on top of GitHub Issues.
-          </p>
-          <a
-            href="https://github.com/awhipp/ship-it#quickstart"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn-secondary"
-            id="btn-quickstart-docs"
-          >
-            <span>Read Quickstart Guide on GitHub</span>
-          </a>
-        </div>
-      </section>
-    </main>
-
-    <!-- Site Footer -->
-    <footer class="site-footer" id="main-footer">
-      <div class="container">
-        <div class="footer-content">
-          <div class="footer-brand">
-            <div class="brand-link">
-              <div class="brand-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            <!-- Phase 2: Spec -->
+            <div class="phase-card" data-phase="spec" id="phase-card-spec" role="listitem">
+              <div class="phase-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
                 </svg>
               </div>
-              <span class="brand-text">ship-it</span>
+              <div class="phase-text-group">
+                <div class="phase-step-tag">Step 02</div>
+                <h3 class="phase-name">Spec</h3>
+                <p class="phase-role">Agree on user stories, behavior, and test seams upfront</p>
+              </div>
             </div>
-            <p class="footer-tagline">
-              The autonomous conductor that keeps developers in the driver's seat.
-              Disciplined agentic orchestration across GitHub.
-            </p>
+
+            <!-- Phase 3: Tickets -->
+            <div class="phase-card" data-phase="tickets" id="phase-card-tickets" role="listitem">
+              <div class="phase-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+              </div>
+              <div class="phase-text-group">
+                <div class="phase-step-tag">Step 03</div>
+                <h3 class="phase-name">Tickets</h3>
+                <p class="phase-role">Split into bite-sized tasks that build on each other</p>
+              </div>
+            </div>
+
+            <!-- Phase 4: Implement -->
+            <div class="phase-card" data-phase="implement" id="phase-card-implement" role="listitem">
+              <div class="phase-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+              </div>
+              <div class="phase-text-group">
+                <div class="phase-step-tag">Step 04</div>
+                <h3 class="phase-name">Implement</h3>
+                <p class="phase-role">Build one ticket at a time with test-first Red-Green cycles</p>
+              </div>
+            </div>
+
+            <!-- Phase 5: Review -->
+            <div class="phase-card" data-phase="review" id="phase-card-review" role="listitem">
+              <div class="phase-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div class="phase-text-group">
+                <div class="phase-step-tag">Step 05</div>
+                <h3 class="phase-name">Review</h3>
+                <p class="phase-role">Review code against repo standards and spec requirements</p>
+              </div>
+            </div>
           </div>
 
-          <ul class="footer-links">
-            <li>
-              <a href="https://github.com/awhipp/ship-it" target="_blank" rel="noopener noreferrer" class="footer-link" id="footer-link-github">
-                GitHub Repository
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/awhipp/ship-it/issues" target="_blank" rel="noopener noreferrer" class="footer-link" id="footer-link-issues">
-                GitHub Issues
-              </a>
-            </li>
-            <li>
-              <a href="https://github.com/awhipp/ship-it/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" class="footer-link" id="footer-link-license">
-                MIT License
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <div class="footer-bottom">
-          <span>&copy; 2026 ship-it. Crafted for disciplined agentic workflows.</span>
-          <span>Open Source on GitHub</span>
+          <div class="lifecycle-checkpoint-banner">
+            <span class="checkpoint-badge">Fresh Context Every Step</span>
+            <span>Each phase runs in a clean session. No context bloat, no hallucinated architecture.</span>
+          </div>
         </div>
       </div>
-    </footer>
+    </section>
 
-    <script type="module" src="./src/main.js"></script>
-  </body>
+    <!-- Quickstart Section -->
+    <section class="container quickstart-section" id="quickstart" aria-labelledby="quickstart-title">
+      <div class="quickstart-card">
+        <div class="quickstart-header">
+          <h2 class="quickstart-title" id="quickstart-title">Install in Seconds</h2>
+          <p class="quickstart-subtitle">
+            Add the ship-it skill directly to your workspace with one command:
+          </p>
+        </div>
+
+        <div class="terminal-box" id="terminal-quickstart">
+          <div class="terminal-bar">
+            <div class="terminal-dots">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+            <span class="terminal-title">terminal</span>
+          </div>
+          <div class="terminal-body">
+            <span class="terminal-prompt">$</span>
+            <code class="terminal-command" id="cmd-install">npx skills install awhipp/ship-it</code>
+            <button class="btn-copy" id="btn-copy-install" aria-label="Copy install command" title="Copy to clipboard">
+              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span class="copy-text">Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <p class="quickstart-footnote">
+          Works out of the box in Antigravity, Cursor, Claude Code, Aider, and any agentic coding environment.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer" id="main-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="brand-link">
+            <div class="brand-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <span class="brand-text">ship-it</span>
+          </div>
+          <p class="footer-tagline">
+            The autonomous conductor that keeps developers in the driver's seat.
+            Disciplined agentic orchestration across GitHub.
+          </p>
+        </div>
+
+        <ul class="footer-links">
+          <li>
+            <a href="https://github.com/awhipp/ship-it" target="_blank" rel="noopener noreferrer" class="footer-link"
+              id="footer-link-github">
+              GitHub Repository
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/awhipp/ship-it/issues" target="_blank" rel="noopener noreferrer"
+              class="footer-link" id="footer-link-issues">
+              GitHub Issues
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/awhipp/ship-it/blob/main/LICENSE" target="_blank" rel="noopener noreferrer"
+              class="footer-link" id="footer-link-license">
+              MIT License
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 ship-it. Crafted for disciplined agentic workflows.</span>
+        <span>Open Source on GitHub</span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+
 </html>
