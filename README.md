@@ -18,6 +18,7 @@ open agent skill standard (`agentskills.io`), making it copyable into any global
 or project skills directory and usable across any compatible agent harness.
 
 > [!TIP]
+>
 > ### Example Walkthrough: Distributed Rate Limiting
 >
 > Here is how `ship-it` conducts a realistic feature through all five phases:

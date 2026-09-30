@@ -79,11 +79,13 @@ and environments without relying on preview API access:
 
 2. **Dependency Edges (`## Blocked by`)**:
    - Tickets declare blocker dependencies in a tasklist under `## Blocked by`:
+
      ```markdown
      ## Blocked by
 
      - [ ] Blocked by #<blocker-id>
      ```
+
      Or `None (can start immediately).` if unblocked.
    - If native GitHub issue-dependency API is available, link via `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (see `preflight.md`), but the markdown tasklist is the primary contract.
 

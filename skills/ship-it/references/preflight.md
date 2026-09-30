@@ -45,26 +45,6 @@ so only run them if nothing above failed:
 `ship-it` is designed as a manual-only workflow and should not be invoked automatically
 by models without explicit user request.
 
-### Claude Code Configuration
-
-To disable automatic model invocation in Claude Code while maintaining schema conformance,
-configure `.claude/config.json` with `skillOverrides`:
-
-```json
-{
-  "skillOverrides": {
-    "ship-it": {
-      "disableModelInvocation": true
-    }
-  }
-}
-```
-
-This represents the zero-deviation configuration approach. Environments requiring
-file-level overrides may specify `disable-model-invocation: true` directly at the root
-of `SKILL.md` frontmatter, though this trades off strict validation conformance against
-open agent skill schemas (e.g. `agentskills.io`).
-
 ## The label set
 
 Every label `ship-it` uses, across all phases. **Type labels** mark what an

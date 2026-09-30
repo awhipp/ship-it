@@ -9,9 +9,7 @@ metadata:
 # Ship It
 
 Conduct a feature through the full build loop, one phase at a time, across
-however many sessions it takes:
-
-**Plan → Spec → Tickets → Implement → Review**
+however many sessions it takes: **Plan → Spec → Tickets → Implement → Review**
 
 This skill is self-contained and tracks work as GitHub issues: everything it
 needs lives in this folder and in the files it writes into the repo you run it
@@ -19,7 +17,7 @@ in. It doesn't call out to any other skill.
 
 ## Invocation & Harness Configuration
 
-`ship-it` is designed as a manual-only workflow and should not be invoked automatically by models without explicit user request. For harness-specific setup (such as configuring `skillOverrides` in Claude Code's `.claude/config.json` or frontmatter overrides), see [references/preflight.md](references/preflight.md).
+`ship-it` is designed as a manual-only workflow and should not be invoked automatically by models without explicit user request.
 
 ## Why a conductor, not one pass
 
@@ -31,6 +29,7 @@ assumptions, skipping verification, and confirming its own design choices.
 
 Dividing the build loop into discrete phases—Plan, Spec, Tickets, Implement,
 Review—establishes explicit verification gates at each handoff:
+
 - Specs are verified against user requirements and adversarially audited before breaking into tickets.
 - Ticket breakdowns require explicit user validation before creation.
 - Implementation demands test-first proof (Red before Green).
@@ -132,6 +131,7 @@ whole loop at once.
 ### Feature close-out protocol
 
 When the final ticket of a spec is closed and reviewed:
+
 1. Close the parent spec issue (and map, if one exists) with a resolution comment summarizing what was shipped (`gh issue close <spec-id> --comment "<text>"`).
 2. Reference `Closes #<spec-id>` in the pull request description so merging the PR auto-closes the spec issue.
 

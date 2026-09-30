@@ -34,6 +34,7 @@ don't turn this into a full grilling session; that already happened upstream
 5. **Publish the spec.** Once explicitly approved, publish the spec as a GitHub
    issue titled `[<slug>] Spec: <gist>` using `--body-file` (writing the spec
    content to a file first to guarantee cross-platform shell compatibility):
+
    ```shell
    gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec,ready-for-agent"
    ```
