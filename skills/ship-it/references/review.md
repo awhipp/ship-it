@@ -1,25 +1,19 @@
 # Review: two-axis check of the diff
 
-Run this in a **fresh session**, separate from whatever session implemented
-the ticket. If you just built this in the current session, stop here and pick
-this back up in a new one: the reason review exists as its own phase is that
-the session which wrote the code is the worst-positioned to judge it, it's
-carrying every rationalization it made along the way. The two-axis split below
-guards against one more thing entirely: one axis's read leaking into the
-other's. Neither substitutes for the other.
+## 2-Tier Context Isolation Protocol
 
-Review the changes made in this phase along two independent axes, run as
-separate passes so neither masks the other:
+Review strictly enforces the **2-Tier Context Isolation Protocol** defined in [references/validate.md](validate.md). In-context persona simulation is strictly prohibited: an agent must never attempt to simulate an outside reviewer within the unbroken implementation session.
 
-- **Standards**: does the diff follow this repo's documented coding
-  standards?
-- **Spec**: does the diff faithfully implement the ticket or spec it came
-  from?
+Review MUST run in an isolated context:
 
-Run both, ideally as two separate subagent passes so one doesn't bleed context
-into the other, then report them side by side without merging or reranking.
-If subagents aren't available, run both passes sequentially in the current
-context, clearing your working state between them.
+- **Tier 1 (Isolated Subagent)**: Multi-agent harnesses (e.g., Antigravity, Claude Code subagents) spawn isolated subagents with restricted prompts—ideally separate subagent invocations for the Standards and Spec axes so neither axis bleeds context into the other.
+- **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or session dedicated strictly to running `review.md` against the diff.
+
+Review the changes made in this phase along two independent axes, reported side by side without
+merging or reranking:
+
+- **Standards**: does the diff follow this repo's documented coding standards?
+- **Spec**: does the diff faithfully implement the ticket or spec it came from?
 
 ## Why two axes, not one
 
@@ -45,16 +39,27 @@ Confirm the fixed point resolves and the diff is non-empty before going
 further; a bad ref should fail here; not inside two review passes that then
 have nothing to say.
 
-### 2. Identify the spec source
+### 2. Verify verification evidence (Red Phase Checkpoint)
 
-In order: the ticket or spec this implementation session started from
-(already in context, most of the time); issue references in the commit
-messages (`#123`, `Closes #45`); a path or issue number the user names. If
-truly nothing turns up, ask, and if the user says there genuinely isn't one,
+Before evaluating the diff against standards and spec, inspect the evidence for the verification strategy required by [references/implement.md](implement.md):
+
+- **Where Red-Green applies**:
+  Inspect the commit history (`git log <fixed-point>..HEAD --oneline`) and the issue thread or handoff comment (`gh issue view <number> --comments` or `gh issue view`) for valid Red verification proof defined in [references/implement.md](implement.md).
+  **Reject diffs lacking proof**: If the change involves executable code in a repository with an automated test suite and lacks valid Red proof, reject the diff without approval. Post a rejection comment (`gh issue comment <number> --body "Review rejected: Missing required test-first verification proof (failing test commit or terminal failure log). Diff cannot be approved without test-first proof."`) and return the ticket to a fresh `implement.md` session.
+
+- **Where Red-Green is exempt**:
+  Confirm that the handoff report or issue thread documents acceptance criteria verification as specified in [references/implement.md](implement.md). Do not require failing test evidence or artificial mock harnesses.
+
+### 3. Identify the spec source
+
+In order: the ticket or spec this implementation session started from (read via
+`gh issue view <number> --json number,title,body`); issue references
+in the commit messages (`#123`, `Closes #45`); a path or issue number the user names.
+If truly nothing turns up, ask, and if the user says there genuinely isn't one,
 skip the Spec pass and say so in the final report rather than inventing a
 standard to check against.
 
-### 3. Identify the standards sources
+### 4. Identify the standards sources
 
 Anything the repo documents about how code should be written:
 `CODING_STANDARDS.md`, `CONTRIBUTING.md`, a style guide, whatever exists.
@@ -92,7 +97,7 @@ restating it).
 - **Refused Bequest**: a subclass or implementer ignoring most of what it
   inherits → drop the inheritance, use composition.
 
-### 4. Run both passes
+### 5. Run both passes
 
 **Standards pass**, given the diff, the commit list, whatever standards
 sources were found, and the smell baseline above: report, per file or hunk
@@ -110,7 +115,7 @@ Under 400 words.
 
 If there's no spec source, skip this pass and say so.
 
-### 5. Report
+### 6. Report
 
 Present both under `## Standards` and `## Spec` headings, unmerged. Close with
 a one-line summary: total findings per axis, and the worst issue **within**
@@ -119,13 +124,20 @@ that's exactly the reranking the separation exists to prevent.
 
 ## Outcome
 
-- **Either axis has findings**: comment them on the ticket and hand back to a
-  fresh `implement.md` session to address. The ticket stays open, unreviewed;
-  don't apply `ship-it:reviewed` on a report that has anything outstanding.
-- **Both axes clean**: apply `ship-it:reviewed`
-  (`gh issue edit <n> --add-label "ship-it:reviewed"`), then close out. The
-  work-in-progress commit is already on the branch from `implement.md`, so
-  comment the resolution (`gh issue comment`), close the ticket
-  (`gh issue close`), and open the PR or merge, per how the user works.
-  Close-out is gated on this label; don't skip straight to closing because the
+- **Red verification evidence missing (where applicable) or either axis has findings**: post findings to the ticket
+  (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<rejection-text>"`) and hand back to a fresh
+  `implement.md` session to address. The ticket stays open, unreviewed; do not apply
+  `ship-it:reviewed` on a report that has anything outstanding or lacks required test verification evidence.
+- **Red verification evidence verified (or not applicable) and both axes clean**: apply `ship-it:reviewed`
+  (`gh issue edit <number> --add-label "ship-it:reviewed"`), then close out. The
+  work-in-progress commit is already on the branch from `implement.md`, so comment
+  the resolution (`gh issue comment <number> --body "<text>"`),
+  close the ticket (`gh issue close <number> --comment "<text>"`),
+  and open the PR or merge, per how the user works.
+  Close-out is gated on this label; do not skip straight to closing because the
   diff "looked fine" without a report to back it.
+
+  **Feature Close-Out Protocol**:
+  When the final ticket of a spec is closed and reviewed:
+  1. Close the parent spec issue (and map, if one exists) with a resolution comment summarizing what was shipped (`gh issue close <spec-id> --comment "<text>"`).
+  2. Reference `Closes #<spec-id>` in the pull request description so that merging the PR auto-closes the parent spec issue on GitHub.
