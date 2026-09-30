@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="shipBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+    <linearGradient id="shipAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="shipGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+  </defs>
+  <!-- Background Rounded Shield -->
+  <rect width="64" height="64" rx="14" fill="url(#shipBg)" stroke="rgba(99, 102, 241, 0.4)" stroke-width="2" />
+  
+  <!-- Outer Glow Circle -->
+  <circle cx="32" cy="32" r="22" stroke="url(#shipAccent)" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.4" />
+  
+  <!-- Conductor Ship Helm / Diamond Layer 1 (Top) -->
+  <path d="M32 12L48 20L32 28L16 20L32 12Z" fill="url(#shipAccent)" opacity="0.9" />
+  
+  <!-- Middle Layer (Phase Handshake) -->
+  <path d="M16 28L32 36L48 28" stroke="url(#shipGlow)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Bottom Layer (Verified Grounding) -->
+  <path d="M16 36L32 44L48 36" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Center Core Beacon -->
+  <circle cx="32" cy="28" r="3.5" fill="#ffffff" />
+</svg>

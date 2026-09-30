@@ -9,6 +9,25 @@
     content="The autonomous conductor that keeps developers in the driver's seat. Break features into bite-sized tasks, test before building, and clear context between steps." />
   <meta name="theme-color" content="#07090e" />
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://awhipp.github.io/ship-it/" />
+  <meta property="og:title" content="ship-it | The Autonomous Conductor for Software Engineering" />
+  <meta property="og:description"
+    content="Keep developers in the driver's seat. Orchestrate agentic workflows with strict phase gates, adversarial verification, two-axis reviews, and context hygiene." />
+  <meta property="og:image" content="./favicon.svg" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://awhipp.github.io/ship-it/" />
+  <meta name="twitter:title" content="ship-it | The Autonomous Conductor for Software Engineering" />
+  <meta name="twitter:description"
+    content="Keep developers in the driver's seat. Orchestrate agentic workflows with strict phase gates, adversarial verification, two-axis reviews, and context hygiene." />
+  <meta name="twitter:image" content="./favicon.svg" />
+
   <!-- Google Fonts Preconnect & Stylesheet -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -915,36 +934,235 @@
       </div>
     </section>
 
-    <!-- Quickstart Section -->
-    <section class="container quickstart-section" id="quickstart" aria-labelledby="quickstart-title">
-      <div class="quickstart-card">
-        <div class="quickstart-header">
-          <h2 class="quickstart-title" id="quickstart-title">Install in Seconds</h2>
-          <p class="quickstart-subtitle">
-            Add the ship-it skill directly to your workspace with one command:
+    <!-- Architecture Deep-Dives: Engineering Foundations -->
+    <section class="architecture-deep-dive-section" id="architecture-deep-dive" aria-labelledby="deep-dive-title">
+      <div class="container">
+        <div class="section-header-centered">
+          <div class="section-tag-badge">Engineering Foundations</div>
+          <h2 class="section-title" id="deep-dive-title">
+            Architectural <span class="gradient-deep-dive-text">Pillars & Principles</span>
+          </h2>
+          <p class="section-subtitle" id="deep-dive-subtitle">
+            Built from first principles to keep autonomous agents bounded, truthful, and rigorously verified.
+            Four architectural guarantees that eliminate chaotic agent drift.
           </p>
         </div>
 
-        <div class="terminal-box" id="terminal-quickstart">
-          <div class="terminal-bar">
-            <div class="terminal-dots">
-              <span class="dot dot-red"></span>
-              <span class="dot dot-yellow"></span>
-              <span class="dot dot-green"></span>
+        <div class="deep-dive-grid" id="deep-dive-grid">
+          <!-- Card 1: Context Hygiene -->
+          <div class="deep-dive-card" id="deep-dive-card-context-hygiene">
+            <div class="deep-dive-header">
+              <div class="deep-dive-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                </svg>
+              </div>
+              <span class="deep-dive-badge">Pillar 01</span>
             </div>
-            <span class="terminal-title">terminal</span>
+            <div class="deep-dive-body">
+              <h3 class="deep-dive-headline">Context Hygiene</h3>
+              <p class="deep-dive-tagline">Clearing context as a core feature</p>
+              <p class="deep-dive-desc">
+                Monolithic chats suffer from token bloat and severe reasoning degradation. ship-it treats context clearing
+                as a fundamental engineering primitive: every phase and ticket slice starts in a clean, fresh session
+                anchored to the git merge-base, ensuring zero context rot and sustained model precision.
+              </p>
+            </div>
+            <div class="deep-dive-footer">
+              <div class="deep-dive-tags">
+                <span class="tag-pill">Zero Context Rot</span>
+                <span class="tag-pill">Fresh Session per Ticket</span>
+                <span class="tag-pill">Git Merge-Base Anchor</span>
+              </div>
+            </div>
           </div>
-          <div class="terminal-body">
-            <span class="terminal-prompt">$</span>
-            <code class="terminal-command" id="cmd-install">npx skills install awhipp/ship-it</code>
-            <button class="btn-copy" id="btn-copy-install" aria-label="Copy install command" title="Copy to clipboard">
-              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
+
+          <!-- Card 2: Adversarial Validation Gate -->
+          <div class="deep-dive-card" id="deep-dive-card-adversarial-validation">
+            <div class="deep-dive-header">
+              <div class="deep-dive-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <path d="m9 12 2 2 4-4"></path>
+                </svg>
+              </div>
+              <span class="deep-dive-badge">Pillar 02</span>
+            </div>
+            <div class="deep-dive-body">
+              <h3 class="deep-dive-headline">Adversarial Validation Gate</h3>
+              <p class="deep-dive-tagline">Fresh-session pre-build auditing</p>
+              <p class="deep-dive-desc">
+                When the same model session authors a spec and approves it, author confirmation bias masks hidden flaws.
+                ship-it enforces a 2-Tier Context Isolation Protocol: an independent auditor evaluates specs, maps, and
+                ticket DAGs in a fresh session before any implementation code is written.
+              </p>
+            </div>
+            <div class="deep-dive-footer">
+              <div class="deep-dive-tags">
+                <span class="tag-pill">2-Tier Context Isolation</span>
+                <span class="tag-pill">Zero Confirmation Bias</span>
+                <span class="tag-pill">Pre-Build Audit</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Two-Axis Code Review -->
+          <div class="deep-dive-card" id="deep-dive-card-two-axis-review">
+            <div class="deep-dive-header">
+              <div class="deep-dive-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <span class="deep-dive-badge">Pillar 03</span>
+            </div>
+            <div class="deep-dive-body">
+              <h3 class="deep-dive-headline">Two-Axis Code Review</h3>
+              <p class="deep-dive-tagline">Coding Standards vs. Spec Fidelity</p>
+              <p class="deep-dive-desc">
+                Review verdicts must never collapse into a single subjective rubber-stamp. ship-it audits diffs along two
+                orthogonal axes: Axis 1 inspects Fowler refactoring heuristics and architectural hygiene, while Axis 2
+                systematically validates line-by-line ticket acceptance criteria.
+              </p>
+            </div>
+            <div class="deep-dive-footer">
+              <div class="deep-dive-tags">
+                <span class="tag-pill">Axis 1: Fowler Standards</span>
+                <span class="tag-pill">Axis 2: Spec Fidelity</span>
+                <span class="tag-pill">Dual-Verdict Gate</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: GitHub-Native Traceability -->
+          <div class="deep-dive-card" id="deep-dive-card-github-traceability">
+            <div class="deep-dive-header">
+              <div class="deep-dive-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="18" cy="18" r="3"></circle>
+                  <circle cx="6" cy="6" r="3"></circle>
+                  <path d="M13 6h3a2 2 0 0 1 2 2v7"></path>
+                  <line x1="6" y1="9" x2="6" y2="21"></line>
+                </svg>
+              </div>
+              <span class="deep-dive-badge">Pillar 04</span>
+            </div>
+            <div class="deep-dive-body">
+              <h3 class="deep-dive-headline">GitHub-Native Traceability</h3>
+              <p class="deep-dive-tagline">Issues as a transparent state machine</p>
+              <p class="deep-dive-desc">
+                No proprietary SaaS, no external telemetry dashboards, and zero vendor lock-in. ship-it models the full SDLC
+                directly inside GitHub: issues act as the state machine, tasklists form dependency DAGs, and standard git
+                branches and pull requests house the verified audit trail.
+              </p>
+            </div>
+            <div class="deep-dive-footer">
+              <div class="deep-dive-tags">
+                <span class="tag-pill">Issues as State Machine</span>
+                <span class="tag-pill">Zero Proprietary SaaS</span>
+                <span class="tag-pill">100% Git-Native</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quickstart Section with Interactive CLI Terminal Simulator -->
+    <section class="container quickstart-section" id="quickstart" aria-labelledby="quickstart-title">
+      <div class="quickstart-card">
+        <div class="quickstart-header">
+          <div class="section-tag-badge">Developer Onboarding</div>
+          <h2 class="quickstart-title" id="quickstart-title">Install & Run in Seconds</h2>
+          <p class="quickstart-subtitle">
+            Add the ship-it skill directly to your workspace and experience disciplined agentic orchestration:
+          </p>
+        </div>
+
+        <!-- Quick Copy Action Bar -->
+        <div class="quickstart-actions-row">
+          <div class="action-chip">
+            <span class="chip-label">Install Skill:</span>
+            <code class="action-command" id="cmd-install">npx skills install awhipp/ship-it</code>
+            <button class="btn-copy" id="btn-copy-install" aria-label="Copy install command" title="Copy install command to clipboard">
+              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
               <span class="copy-text">Copy</span>
             </button>
+          </div>
+
+          <div class="action-chip">
+            <span class="chip-label">Run in Chat:</span>
+            <code class="action-command cmd-invocation" id="cmd-invoke">/ship-it</code>
+            <button class="btn-copy btn-copy-invoke" id="btn-copy-invoke" aria-label="Copy invocation command" title="Copy invocation command to clipboard">
+              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span class="copy-text">Copy</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive CLI Terminal Simulator -->
+        <div class="terminal-interactive-wrapper" id="terminal-interactive">
+          <div class="terminal-box" id="terminal-quickstart">
+            <div class="terminal-bar">
+              <div class="terminal-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <div class="terminal-title-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="terminal-icon" aria-hidden="true">
+                  <polyline points="4 17 10 11 4 5"></polyline>
+                  <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+                <span class="terminal-title">ship-it-cli &mdash; bash</span>
+              </div>
+              <div class="terminal-badge-live">
+                <span class="live-dot" aria-hidden="true"></span>
+                <span>Interactive Simulation</span>
+              </div>
+            </div>
+
+            <!-- Terminal Simulator Navigation / Step Controls -->
+            <div class="terminal-sim-tabs" id="terminal-sim-controls" role="tablist" aria-label="CLI Simulation Controls">
+              <button class="sim-tab-btn active" id="btn-sim-orient" data-sim-step="orient" role="tab" aria-selected="true" aria-controls="terminal-screen">
+                <span class="sim-step-num">01</span>
+                <span>Orient & Discovery</span>
+              </button>
+              <button class="sim-tab-btn" id="btn-sim-implement" data-sim-step="implement" role="tab" aria-selected="false" aria-controls="terminal-screen">
+                <span class="sim-step-num">02</span>
+                <span>Implement (Red-Green)</span>
+              </button>
+              <button class="sim-tab-btn" id="btn-sim-review" data-sim-step="review" role="tab" aria-selected="false" aria-controls="terminal-screen">
+                <span class="sim-step-num">03</span>
+                <span>Two-Axis Review</span>
+              </button>
+            </div>
+
+            <!-- Terminal Screen Output -->
+            <div class="terminal-body terminal-screen-output" id="terminal-screen" aria-live="polite">
+              <div class="terminal-sim-line command-line">
+                <span class="terminal-prompt">$</span>
+                <span class="sim-command-text">/ship-it</span>
+              </div>
+              <div class="terminal-sim-output">
+                <div class="sim-log-row"><span class="sim-icon">🧭</span> <span class="sim-cyan">Orienting repository:</span> scanning GitHub issues and feature slugs...</div>
+                <div class="sim-log-row"><span class="sim-icon">📋</span> Found active spec: <span class="sim-bold">[marketing] Spec: User-facing README refactor (#16)</span></div>
+                <div class="sim-log-row"><span class="sim-icon">🔍</span> Inspecting dependency DAG in markdown tasklist:</div>
+                <div class="sim-log-sub"><span class="sim-green">✔</span> Ticket #17: Setup build & pipeline &mdash; <span class="sim-badge closed">CLOSED</span></div>
+                <div class="sim-log-sub"><span class="sim-green">✔</span> Ticket #18: Explorer & SDLC Comparison &mdash; <span class="sim-badge closed">CLOSED</span></div>
+                <div class="sim-log-sub"><span class="sim-purple">➜</span> Ticket #19: Architecture Deep-Dives & CLI &mdash; <span class="sim-badge unblocked">UNBLOCKED</span></div>
+                <div class="sim-log-row highlight-box">
+                  <span class="sim-accent-star">★</span> <span class="sim-text">Earliest unblocked ticket discovered: <strong>#19</strong></span>
+                </div>
+                <div class="sim-log-row"><span class="sim-icon">👉</span> <strong>Next step:</strong> Claim and build slice: <code>/ship-it Implement #19</code></div>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -3,7 +3,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   initExplorerTabs();
   initSmoothScroll();
-  initCopyButton();
+  initCopyButtons();
+  initCliTerminalSimulation();
 });
 
 /**
@@ -67,8 +68,6 @@ function initExplorerTabs() {
   activatePhase('plan');
 }
 
-
-
 /**
  * Handles smooth scrolling with offset for sticky header navigation.
  */
@@ -95,43 +94,154 @@ function initSmoothScroll() {
 }
 
 /**
- * Copies the quickstart installation command to clipboard with visual confirmation.
+ * Manages clipboard copying for install and invocation snippets with visual feedback.
  */
-function initCopyButton() {
-  const copyBtn = document.getElementById('btn-copy-install');
-  const cmdEl = document.getElementById('cmd-install');
-  if (!copyBtn || !cmdEl) return;
+function initCopyButtons() {
+  const setupCopy = (btnId, cmdId) => {
+    const btn = document.getElementById(btnId);
+    const cmd = document.getElementById(cmdId);
+    if (!btn || !cmd) return;
 
-  copyBtn.addEventListener('click', async () => {
-    const textToCopy = cmdEl.textContent.trim();
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      const textSpan = copyBtn.querySelector('.copy-text');
+    btn.addEventListener('click', async () => {
+      const textToCopy = cmd.textContent.trim();
+      const textSpan = btn.querySelector('.copy-text');
       const originalText = textSpan ? textSpan.textContent : 'Copy';
 
-      copyBtn.classList.add('copied');
-      if (textSpan) textSpan.textContent = 'Copied!';
+      const showCopied = () => {
+        btn.classList.add('copied');
+        if (textSpan) textSpan.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          if (textSpan) textSpan.textContent = originalText;
+        }, 2000);
+      };
 
-      setTimeout(() => {
-        copyBtn.classList.remove('copied');
-        if (textSpan) textSpan.textContent = originalText;
-      }, 2000);
-    } catch {
-      // Fallback for older browsers
-      const textarea = document.createElement('textarea');
-      textarea.value = textToCopy;
-      document.body.appendChild(textarea);
-      textarea.select();
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(textToCopy);
+          showCopied();
+        } else {
+          fallbackCopy(textToCopy);
+          showCopied();
+        }
+      } catch {
+        fallbackCopy(textToCopy);
+        showCopied();
+      }
+    });
+  };
+
+  const fallbackCopy = (text) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
       document.execCommand('copy');
-      document.body.removeChild(textarea);
-
-      const textSpan = copyBtn.querySelector('.copy-text');
-      if (textSpan) textSpan.textContent = 'Copied!';
-      copyBtn.classList.add('copied');
-      setTimeout(() => {
-        copyBtn.classList.remove('copied');
-        if (textSpan) textSpan.textContent = 'Copy';
-      }, 2000);
+    } catch {
+      // Ignore fallback error
     }
+    document.body.removeChild(textarea);
+  };
+
+  setupCopy('btn-copy-install', 'cmd-install');
+  setupCopy('btn-copy-invoke', 'cmd-invoke');
+}
+
+/**
+ * Interactive CLI Terminal Simulation.
+ * Allows developers to step through simulated /ship-it execution (Orient, Implement, Review).
+ */
+function initCliTerminalSimulation() {
+  const simButtons = Array.from(document.querySelectorAll('button[data-sim-step]'));
+  const terminalScreen = document.getElementById('terminal-screen');
+  if (!simButtons.length || !terminalScreen) return;
+
+  const SIM_CONTENT = {
+    orient: {
+      command: '/ship-it',
+      lines: [
+        { type: 'log', icon: '🧭', text: '<span class="sim-cyan">Orienting repository:</span> scanning GitHub issues and feature slugs...' },
+        { type: 'log', icon: '📋', text: 'Found active spec: <span class="sim-bold">[marketing] Spec: User-facing README refactor (#16)</span>' },
+        { type: 'log', icon: '🔍', text: 'Inspecting dependency DAG in markdown tasklist:' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: 'Ticket #17: Setup build & pipeline &mdash; <span class="sim-badge closed">CLOSED</span>' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: 'Ticket #18: Explorer & SDLC Comparison &mdash; <span class="sim-badge closed">CLOSED</span>' },
+        { type: 'sub', icon: '<span class="sim-purple">➜</span>', text: 'Ticket #19: Architecture Deep-Dives & CLI &mdash; <span class="sim-badge unblocked">UNBLOCKED</span>' },
+        { type: 'highlight', icon: '★', text: 'Earliest unblocked ticket discovered: <strong>#19</strong>' },
+        { type: 'log', icon: '👉', text: '<strong>Next step:</strong> Claim and build slice: <code>/ship-it Implement #19</code>' }
+      ]
+    },
+    implement: {
+      command: '/ship-it Implement #19',
+      lines: [
+        { type: 'log', icon: '🔒', text: '<span class="sim-cyan">Claiming ticket #19:</span> <code>gh issue edit 19 --add-assignee "@me"</code>' },
+        { type: 'log', icon: '🌿', text: 'Switched to dedicated feature branch: <span class="sim-bold">gh-pages</span>' },
+        { type: 'log', icon: '🔴', text: '<span class="sim-red sim-bold">Red Phase:</span> Writing test suite for acceptance criteria...' },
+        { type: 'sub', icon: '<span class="sim-red">✖</span>', text: '<code>FAIL tests/marketing.test.js</code> &mdash; 10 failed, 16 passed' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: 'Established verification gate: committed failing test <code>(64c9fe6)</code>' },
+        { type: 'log', icon: '🟢', text: '<span class="sim-green sim-bold">Green Phase:</span> Implementing minimal production code...' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: '<code>PASS tests/marketing.test.js</code> &mdash; all 26 passed cleanly' },
+        { type: 'highlight', icon: '📦', text: 'Production build verified: <code>dist/index.html</code> (clean relative assets)' },
+        { type: 'log', icon: '👉', text: '<strong>Next step:</strong> Start fresh session for independent review under 2-Tier Context Isolation' }
+      ]
+    },
+    review: {
+      command: '/ship-it Review',
+      lines: [
+        { type: 'log', icon: '🛡️', text: '<span class="sim-cyan">Launching 2-Tier Context Isolation Review</span> in fresh session...' },
+        { type: 'log', icon: '🧼', text: 'Authoring context discarded. Checking diff against merge-base...' },
+        { type: 'log', icon: '⚖️', text: '<strong>Axis 1: Standards (Fowler Heuristics)</strong>' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: 'Naming & Modularization: PASS (0 findings)' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: 'Duplication & Dead Abstraction: PASS (0 findings)' },
+        { type: 'log', icon: '🎯', text: '<strong>Axis 2: Spec Fidelity (Acceptance Criteria)</strong>' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: 'Four Architecture Deep-Dive Cards: PASS' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: 'Interactive CLI Terminal Simulation: PASS' },
+        { type: 'sub', icon: '<span class="sim-green">✔</span>', text: 'Complete SEO Metadata, Favicon & Relative Bundles: PASS' },
+        { type: 'highlight', icon: '🚀', text: '<strong>Dual-Axis Verdict: PASSED.</strong> Ready to merge pull request!' }
+      ]
+    }
+  };
+
+  const renderSimStep = (stepKey) => {
+    const data = SIM_CONTENT[stepKey];
+    if (!data) return;
+
+    // Update active button state
+    simButtons.forEach(btn => {
+      const isMatch = btn.getAttribute('data-sim-step') === stepKey;
+      btn.classList.toggle('active', isMatch);
+      btn.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+    });
+
+    // Build terminal HTML
+    let html = `
+      <div class="terminal-sim-line command-line">
+        <span class="terminal-prompt">$</span>
+        <span class="sim-command-text">${data.command}</span>
+      </div>
+      <div class="terminal-sim-output">
+    `;
+
+    data.lines.forEach(line => {
+      if (line.type === 'sub') {
+        html += `<div class="sim-log-sub">${line.icon} ${line.text}</div>`;
+      } else if (line.type === 'highlight') {
+        html += `<div class="sim-log-row highlight-box"><span class="sim-accent-star">${line.icon}</span> <span class="sim-text">${line.text}</span></div>`;
+      } else {
+        html += `<div class="sim-log-row"><span class="sim-icon">${line.icon}</span> ${line.text}</div>`;
+      }
+    });
+
+    html += `</div>`;
+    terminalScreen.innerHTML = html;
+  };
+
+  simButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step = btn.getAttribute('data-sim-step');
+      renderSimStep(step);
+    });
   });
 }
