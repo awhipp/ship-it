@@ -147,7 +147,7 @@ normal run. If an issue tool call fails, or you request preflight (e.g., via
 `ship-it preflight`, `/ship-it preflight`, or prompt), it runs the checklist,
 fixes what it can (like a missing `ready-for-agent` label), and reports the rest
 instead of guessing or stopping partway through. See
-[references/preflight.md](references/preflight.md) for the full checklist.
+[skills/ship-it/references/preflight.md](skills/ship-it/references/preflight.md) for the full checklist.
 
 ## Using it
 

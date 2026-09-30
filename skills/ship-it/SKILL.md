@@ -19,23 +19,7 @@ in. It doesn't call out to any other skill.
 
 ## Invocation & Harness Configuration
 
-`ship-it` is designed as a manual-only workflow and should not be invoked automatically by models without explicit user request.
-
-### Claude Code
-
-To disable automatic model invocation in Claude Code while maintaining schema conformance, configure `.claude/config.json` with `skillOverrides`:
-
-```json
-{
-  "skillOverrides": {
-    "ship-it": {
-      "disableModelInvocation": true
-    }
-  }
-}
-```
-
-This represents the zero-deviation configuration approach. Environments requiring file-level overrides may specify `disable-model-invocation: true` directly at the root of `SKILL.md` frontmatter, though this trades off strict validation conformance against open agent skill schemas.
+`ship-it` is designed as a manual-only workflow and should not be invoked automatically by models without explicit user request. For harness-specific setup (such as configuring `skillOverrides` in Claude Code's `.claude/config.json` or frontmatter overrides), see [references/preflight.md](references/preflight.md).
 
 ## Why a conductor, not one pass
 

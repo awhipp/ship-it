@@ -38,19 +38,16 @@ Confirm the fixed point resolves and the diff is non-empty before going
 further; a bad ref should fail here; not inside two review passes that then
 have nothing to say.
 
-### 2. Verify Red verification evidence (Red Phase Checkpoint)
+### 2. Verify verification evidence (Red Phase Checkpoint)
 
-Before evaluating the diff against standards and spec, evaluate verification evidence according to the nature of the task and repository:
+Before evaluating the diff against standards and spec, inspect the evidence for the verification strategy required by [references/implement.md](implement.md):
 
-- **Where Red-Green applies (code changes in repositories with automated test suites)**:
-  Verify concrete proof of the Red step from the two-step Red-Green verification cycle. Inspect the commit history and issue thread:
-  - Check for a git commit capturing the failing test in `git log <fixed-point>..HEAD --oneline`.
-  - OR check for natural test runner output, terminal failure logs, or test execution traces in the handoff comment or issue thread (inspected via `gh issue view <number> --comments` or `gh issue view`).
-  Accept natural terminal logs, test runner output, or standard git commits without demanding specific HTML wrapper tags (like `<details>`) or prescriptive commit prefixes (like `(RED)`).
-  **Reject diffs lacking proof**: If the change involves executable code in a repository with an automated test suite and no Red verification evidence is present, reject the diff without approval. Post a rejection comment (`gh issue comment <number> --body "Review rejected: Missing required test-first verification proof (failing test commit or terminal failure log). Diff cannot be approved without test-first proof."`) and return the ticket to a fresh `implement.md` session.
+- **Where Red-Green applies**:
+  Inspect the commit history (`git log <fixed-point>..HEAD --oneline`) and the issue thread or handoff comment (`gh issue view <number> --comments` or `gh issue view`) for valid Red verification proof defined in [references/implement.md](implement.md).
+  **Reject diffs lacking proof**: If the change involves executable code in a repository with an automated test suite and lacks valid Red proof, reject the diff without approval. Post a rejection comment (`gh issue comment <number> --body "Review rejected: Missing required test-first verification proof (failing test commit or terminal failure log). Diff cannot be approved without test-first proof."`) and return the ticket to a fresh `implement.md` session.
 
-- **Where Red-Green is not viable or needed (documentation, markdown skill definitions, configuration files, visual/asset changes, or repositories lacking test infrastructure)**:
-  Do not expect or require failing test evidence, and do not demand artificial string-matching tests or mock harnesses. Instead, verify that the implementation satisfies the acceptance criteria directly via document inspection, schema validation, linting, or diff review. The Red Phase Checkpoint is satisfied if the acceptance criteria are verified and documented in the handoff report or issue thread.
+- **Where Red-Green is exempt**:
+  Confirm that the handoff report or issue thread documents acceptance criteria verification as specified in [references/implement.md](implement.md). Do not require failing test evidence or artificial mock harnesses.
 
 ### 3. Identify the spec source
 

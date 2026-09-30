@@ -138,9 +138,6 @@ All shell snippets and automated commands must follow these cross-platform rules
 
 ## Markdown Issue Relationship Contract
 
-For universal compatibility across all GitHub repository tiers without relying on preview API access, `ship-it` uses the Markdown Relationship Contract defined in [references/tickets.md](tickets.md):
-- **Parent-Child Linkage**: Child tickets record `Part of #<spec-id>` on the first line of their body; parent specs remain immutable.
-- **Dependency Edges**: Tickets declare blockers under `## Blocked by` using markdown tasklists (`- [ ] Blocked by #<blocker-id>`).
-- **Orient Discovery**: Orient determines unblocked tickets when all blockers listed under `## Blocked by` have `state: "CLOSED"`.
+For universal compatibility across all GitHub repository tiers without relying on preview API access, `ship-it` uses the Markdown Relationship Contract canonicalized in [references/tickets.md](tickets.md). This defines Parent-Child Linkage (`Part of #<spec-id>`), Dependency Edges (`## Blocked by`), and Orient Discovery rules.
 
 Where native GitHub sub-issue or dependency APIs are unavailable, this markdown contract serves as the primary relationship store across all phases.
