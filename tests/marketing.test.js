@@ -68,7 +68,7 @@ describe('Ticket #17: Marketing Site Scaffold & Hero Section', () => {
     it('should render a single h1 element with the core value proposition', () => {
       const h1s = document.querySelectorAll('h1');
       expect(h1s.length).toBe(1);
-      expect(h1s[0].textContent).toContain("The autonomous conductor that keeps developers in the driver's seat");
+      expect(h1s[0].textContent.replace(/\s+/g, ' ').trim()).toContain("The autonomous conductor that keeps developers in the driver's seat");
     });
 
     it('should render functional CTAs for GitHub repository and Quickstart anchor', () => {
@@ -121,6 +121,20 @@ describe('Ticket #17: Marketing Site Scaffold & Hero Section', () => {
 
       // Responsive media queries checks
       expect(css).toMatch(/@media[^{]*max-width:\s*768px/i);
+    });
+  });
+
+  describe('Production Bundle Verification', () => {
+    it('should generate dist/index.html with relative asset references and no root-relative asset paths', () => {
+      const distHtmlPath = path.join(ROOT_DIR, 'dist/index.html');
+      expect(fs.existsSync(distHtmlPath), 'dist/index.html must exist').toBe(true);
+
+      const html = fs.readFileSync(distHtmlPath, 'utf8');
+      expect(html).toContain('src="./assets/');
+      expect(html).toContain('href="./assets/');
+      // Ensure no broken root-relative paths
+      expect(html).not.toMatch(/src="\/assets\//);
+      expect(html).not.toMatch(/href="\/assets\//);
     });
   });
 });
