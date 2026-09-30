@@ -7,9 +7,7 @@ from prior tickets rarely helps and often just costs tokens.
 
 ## Process
 
-1. **Claim the ticket** (`gh issue edit <number> --add-assignee "@me"`) before
-   writing anything, so a concurrent session doesn't pick up the same one. Note the assignee
-   must be quoted as `"@me"` to ensure cross-platform shell compatibility.
+1. **Branch and claim the ticket.** Work on a dedicated feature branch rather than `main` (or the default branch)—create the feature branch if starting the feature, or switch to the existing feature branch—ensuring `review.md`'s three-dot diff (`git diff <fixed-point>...HEAD`) has a valid merge-base. Claim the ticket (`gh issue edit <number> --add-assignee "@me"`) before writing anything, so a concurrent session doesn't pick up the same one. Note the assignee must be quoted as `"@me"` to ensure cross-platform shell compatibility.
 
 2. **Execute the verification cycle.** Tailor the verification strategy to the nature of the change and repository:
 
@@ -37,7 +35,7 @@ from prior tickets rarely helps and often just costs tokens.
    (`gh issue comment <number> --body "<text>"`) rather than quietly building
    something else.
 
-5. **Commit and stop.** Once the ticket's behavior is built and the full suite is green (or acceptance criteria verified for non-code changes), commit the work-in-progress to the current branch so the diff exists and survives past this session. Don't self-review and don't close the ticket here: the session that just wrote this code is the worst-positioned session to check it, it's carrying every rationalization it made along the way. Leave the ticket assigned and open; that "implemented, awaiting review" state is what a fresh session picks up next.
+5. **Commit and stop.** Once the ticket's behavior is built and the full suite is green (or acceptance criteria verified for non-code changes), commit the work-in-progress to the feature branch so the diff exists and survives past this session. Don't self-review and don't close the ticket here: the session that just wrote this code is the worst-positioned session to check it, it's carrying every rationalization it made along the way. Leave the ticket assigned and open; that "implemented, awaiting review" state is what a fresh session picks up next.
 
 6. **Report and hand off.** Tell the user the ticket is implemented and waiting on independent
    review under the 2-Tier Context Isolation Protocol (see [references/validate.md](validate.md)),
@@ -51,5 +49,5 @@ from prior tickets rarely helps and often just costs tokens.
 ## When there's no ticket (small, single-session feature)
 
 Same process, just working directly from the spec's User Stories and Implementation Decisions
-instead of a ticket's acceptance criteria. The spec issue itself is the record; there's nothing
+instead of a ticket's acceptance criteria, still on a dedicated feature branch. The spec issue itself is the record; there's nothing
 separate to claim (`gh issue edit <number> --add-assignee "@me"`) or close (`gh issue close <number>`).

@@ -51,8 +51,8 @@ any of this — skip straight to "Every run" below.
 
 Run the checklist in [references/preflight.md](references/preflight.md) only
 when the user explicitly asks (`ship-it preflight`, `/ship-it preflight`, or the equivalent in
-conversation), or when an issue tool call during a phase fails in a way that
-checklist covers (auth, permissions, missing label, disabled Issues). Fix what's fixable, report the rest.
+conversation), or when an issue tool call during Orient or a phase fails in a way that
+checklist covers (auth, rate limits, 403/500 errors, network errors, permissions, missing label, disabled Issues). Fix what's fixable, report the rest.
 
 ## Every run
 
@@ -101,6 +101,8 @@ license to route straight past the audit into tickets or implementation.
 
 Whichever of these is furthest along tells you the phase. Nothing existing at
 all means the feature hasn't started.
+
+**Orient error-recovery**: If any `gh` query fails during Orient (e.g. rate limit, 403, 500, network or authentication error), do **not** assume "nothing exists" or restart the feature from scratch—falsely assuming absence risks duplicating specs or tickets. Instead, treat the failure as an error and route to preflight ([references/preflight.md](references/preflight.md)) to diagnose and fix the environment before re-running Orient.
 
 ### 2. Route to the one next step
 
