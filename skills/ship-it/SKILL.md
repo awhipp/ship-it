@@ -112,12 +112,13 @@ all means the feature hasn't started.
 | The map is resolved (or planning was skipped) and no spec exists                     | Read `references/spec.md`.                                                                                            |
 | A spec exists, lacks `ship-it:validated`, and the build spans more than one session  | Read `references/validate.md` and audit the spec before splitting it into tickets. This is the recommended default here, not a parallel option to skip in favor of speed; skip only for a genuinely small, well-scoped spec. |
 | A spec exists, no tickets yet, and the build needs more than one session             | Read `references/tickets.md`.                                                                                         |
-| A spec exists and the whole build fits in one sitting                                | Read `references/implement.md` directly against the spec; skip ticket-splitting.                                      |
+| A spec exists and the whole build fits in one sitting                                | Read `references/implement.md` directly against the spec; skip ticket-splitting. Validation (`references/validate.md`) is recommended even here unless the spec is trivially small. |
 | Tickets exist, lack `ship-it:validated`, and haven't started                         | Read `references/validate.md` and audit the ticket set before anyone starts building. Recommended default whenever the set is big enough that a bad slice would surface mid-implementation; skip only for a small, obviously-right set. |
 | Tickets exist and at least one is unblocked and unclaimed                            | Read `references/implement.md`, claim and build that ticket. Start a **fresh session** for it (see Context hygiene).  |
 | A ticket is implemented (assigned, still open) and lacks `ship-it:reviewed`          | Read `references/review.md` in a **fresh session**, separate from whatever session implemented it.                    |
-| A ticket carries `ship-it:reviewed`                                                  | Close out: comment resolution, close the ticket, open the PR or merge, per how the user works.                        |
+| A ticket carries `ship-it:reviewed`                                                  | Close out: comment resolution, close the ticket, open the PR or merge, per how the user works. If this is the final ticket of the spec, execute the feature close-out protocol.     |
 | Review found issues                                                                  | Route back to `references/implement.md`, in a fresh session, to address them, then back to `references/review.md`.    |
+| Tickets exist but none are unblocked and unclaimed                                  | Report status (blocked or in-flight tickets) and stop.                                                                |
 
 ### 3. Report and stop
 
@@ -125,6 +126,12 @@ End every run with one line: which phase you worked, what you did, and, if
 the feature isn't finished, the exact next thing to run. Don't silently chain
 into the next phase in the same reply unless the user explicitly asked for the
 whole loop at once.
+
+### Feature close-out protocol
+
+When the final ticket of a spec is closed and reviewed:
+1. Close the parent spec issue (and map, if one exists) with a resolution comment summarizing what was shipped (`gh issue close <spec-id> --comment "<text>"`).
+2. Reference `Closes #<spec-id>` in the pull request description so merging the PR auto-closes the spec issue.
 
 ## Context hygiene
 
