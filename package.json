@@ -1,0 +1,18 @@
+{
+  "name": "ship-it-marketing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0",
+    "jsdom": "^26.0.0",
+    "vite": "^6.2.0",
+    "vitest": "^3.0.7"
+  }
+}
