@@ -217,19 +217,23 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(section, 'Comparison section #sdlc-comparison must exist').not.toBeNull();
       const heading = section.querySelector('h2');
       expect(heading).not.toBeNull();
-      expect(heading.textContent).toMatch(/Contrast|Crisis|Drift|Solution|Method/i);
+      expect(heading.textContent).toMatch(/Why a Conductor|Value|Contrast|Crisis|Drift|Solution|Method/i);
     });
 
-    it('should contain side-by-side comparison cards for Unchecked AI Drift vs The ship-it Method', () => {
+    it('should contain Value Dividends Bento cards with contrast micro-tags for All-at-Once vs ship-it', () => {
       const section = document.querySelector('#sdlc-comparison');
-      const driftCard = section.querySelector('.comparison-card-drift, [data-comparison="drift"]');
-      const solutionCard = section.querySelector('.comparison-card-solution, [data-comparison="solution"]');
+      const bentoCards = section.querySelectorAll('.bento-value-card');
+      expect(bentoCards.length).toBe(4);
 
-      expect(driftCard, 'Unchecked AI Drift comparison card must exist').not.toBeNull();
-      expect(solutionCard, 'The ship-it Method comparison card must exist').not.toBeNull();
-
-      expect(driftCard.textContent).toMatch(/mega-PR|unreviewable|drift|chaos/i);
-      expect(solutionCard.textContent).toMatch(/vertical slice|isolation|adversarial|agency/i);
+      const sectionText = section.textContent;
+      expect(sectionText).toMatch(/mega-PR|sprawling/i);
+      expect(sectionText).toMatch(/vertical slice/i);
+      expect(sectionText).toMatch(/context.*bloat|degraded.*reasoning/i);
+      expect(sectionText).toMatch(/fresh.*session|zero.*memory/i);
+      expect(sectionText).toMatch(/rubber-stamp|unreviewable/i);
+      expect(sectionText).toMatch(/two-axis|adversarial.*verification/i);
+      expect(sectionText).toMatch(/lost.*control|hallucinated/i);
+      expect(sectionText).toMatch(/architectural control|human.*driver/i);
     });
 
     it('should contrast four critical SDLC dimensions: diff scope, context length, review verification, and developer agency', () => {

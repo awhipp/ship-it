@@ -2,7 +2,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   initExplorerTabs();
-  initComparisonHover();
   initSmoothScroll();
   initCopyButton();
 });
@@ -68,41 +67,6 @@ function initExplorerTabs() {
   activatePhase('plan');
 }
 
-/**
- * Connects matching dimension rows in the SDLC comparison section on hover.
- */
-function initComparisonHover() {
-  const driftItems = document.querySelectorAll('.comparison-card-drift .comparison-item');
-  const solutionItems = document.querySelectorAll('.comparison-card-solution .comparison-item');
-
-  driftItems.forEach((item, index) => {
-    const counterpart = solutionItems[index];
-    if (!counterpart) return;
-
-    item.addEventListener('mouseenter', () => {
-      item.classList.add('item-highlighted');
-      counterpart.classList.add('item-counterpart-highlighted');
-    });
-    item.addEventListener('mouseleave', () => {
-      item.classList.remove('item-highlighted');
-      counterpart.classList.remove('item-counterpart-highlighted');
-    });
-  });
-
-  solutionItems.forEach((item, index) => {
-    const counterpart = driftItems[index];
-    if (!counterpart) return;
-
-    item.addEventListener('mouseenter', () => {
-      item.classList.add('item-highlighted');
-      counterpart.classList.add('item-counterpart-highlighted');
-    });
-    item.addEventListener('mouseleave', () => {
-      item.classList.remove('item-highlighted');
-      counterpart.classList.remove('item-counterpart-highlighted');
-    });
-  });
-}
 
 
 /**
