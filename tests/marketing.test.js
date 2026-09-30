@@ -95,6 +95,19 @@ describe('Ticket #17: Marketing Site Scaffold & Hero Section', () => {
       }
     });
 
+    it('should render a visual step inspector with mock GitHub issues and process details for each phase', () => {
+      const visualContainer = document.querySelector('#phase-visual-display');
+      expect(visualContainer, 'Visual step inspector container must exist').not.toBeNull();
+
+      const phases = ['plan', 'spec', 'tickets', 'implement', 'review'];
+      for (const phase of phases) {
+        const panel = visualContainer.querySelector(`[data-phase-detail="${phase}"]`);
+        expect(panel, `Detail panel for ${phase} must exist`).not.toBeNull();
+        expect(panel.querySelector('.github-issue-mock')).not.toBeNull();
+        expect(panel.querySelector('.mock-footer-note')).not.toBeNull();
+      }
+    });
+
     it('should ensure interactive elements have unique IDs', () => {
       const interactiveEls = document.querySelectorAll('a, button, input');
       const ids = new Set();

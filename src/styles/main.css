@@ -334,7 +334,6 @@ button {
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   position: relative;
-  overflow: hidden;
 }
 
 .lifecycle-header {
@@ -477,6 +476,428 @@ button {
   font-size: 0.78rem;
   color: var(--text-secondary);
   line-height: 1.35;
+}
+
+/* ==========================================================================
+   Visual Step Inspector & GitHub Process Viewer
+   ========================================================================== */
+.phase-visual-container {
+  margin-top: 24px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 20px;
+  position: relative;
+  width: 100%;
+}
+
+.phase-detail-panel {
+  display: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+
+.phase-detail-panel.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  animation: panelFadeIn 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.github-issue-mock {
+  background: #090d16;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  text-align: left;
+  box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.7);
+  position: relative;
+  overflow: hidden;
+}
+
+.mock-issue-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.mock-issue-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.mock-issue-id {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.mock-issue-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: #238636;
+  color: white;
+}
+
+.mock-badge {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-map {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.badge-ready {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-spec {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.badge-validated {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.badge-ticket {
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.badge-parent {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.badge-assignee {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-redgreen {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-reviewed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.badge-isolated {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.mock-issue-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 4px;
+}
+
+/* Phase 1: Diagram Flow (Decision Map) */
+.diagram-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 0 16px;
+}
+
+.diagram-node {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 130px;
+}
+
+.diagram-node.resolved {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.06);
+}
+.diagram-node.resolved .node-icon { color: #10b981; }
+
+.diagram-node.frontier {
+  border-color: rgba(168, 85, 247, 0.5);
+  background: rgba(168, 85, 247, 0.1);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.2);
+}
+.diagram-node.frontier .node-icon { color: #c084fc; }
+
+.diagram-node.fog {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.15);
+  opacity: 0.65;
+}
+.diagram-node.fog .node-icon { color: var(--text-muted); }
+
+.node-icon {
+  font-size: 1.1rem;
+  margin-bottom: 2px;
+}
+.node-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.node-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.diagram-arrow {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Phase 2: Spec Checklist Grid */
+.spec-checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 10px 0 16px;
+}
+.spec-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.86rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.check-icon {
+  color: #10b981;
+  font-weight: bold;
+}
+
+/* Phase 3: Ticket Chain */
+.ticket-chain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 0 16px;
+}
+.ticket-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+  text-align: left;
+}
+.ticket-card.active-slice {
+  border-color: rgba(6, 182, 212, 0.5);
+  background: rgba(6, 182, 212, 0.08);
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.15);
+}
+.ticket-num {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.ticket-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 2px 0 4px;
+}
+.ticket-status-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+.ticket-status-tag.unblocked {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+.ticket-status-tag.blocked {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+.chain-arrow {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+/* Phase 4: Red-Green Timeline */
+.redgreen-timeline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 0 16px;
+}
+.rg-step {
+  flex: 1;
+  min-width: 220px;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  text-align: left;
+}
+.rg-step.red-step {
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+.rg-step.green-step {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.rg-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+.rg-badge.red { background: rgba(244, 63, 94, 0.2); color: #f43f5e; }
+.rg-badge.green { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.rg-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.rg-code {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: #e2e8f0;
+}
+.rg-arrow {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* Phase 5: Two-Axis Grid */
+.two-axis-grid {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 16px;
+  padding: 10px 0 16px;
+  flex-wrap: wrap;
+}
+.axis-box {
+  flex: 1;
+  min-width: 200px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: left;
+}
+.axis-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.axis-verdict {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+.axis-verdict.pass {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.axis-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.axis-divider {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.mock-footer-note {
+  margin-top: 6px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.mock-footer-note .note-label {
+  font-weight: 700;
+  color: var(--text-highlight);
+  margin-right: 4px;
+}
+.mock-footer-note code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #38bdf8;
 }
 
 .lifecycle-checkpoint-banner {
@@ -757,8 +1178,8 @@ button {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
   }
 
   .lifecycle-header-title {
@@ -770,9 +1191,19 @@ button {
     padding: 2px 8px;
   }
 
+  /* Compact Horizontal Step Switcher on Mobile */
   .lifecycle-phases-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 8px;
+    padding: 2px 2px 10px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .lifecycle-phases-grid::-webkit-scrollbar {
+    display: none;
   }
 
   .lifecycle-phases-grid::before {
@@ -780,39 +1211,46 @@ button {
   }
 
   .phase-card {
-    flex-direction: row;
-    align-items: flex-start;
-    text-align: left;
-    gap: 14px;
-    padding: 14px 16px;
+    flex: 0 0 120px;
+    scroll-snap-align: start;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
   }
 
   .phase-icon-wrapper {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    margin-bottom: 0;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    margin-bottom: 2px;
+  }
+
+  .phase-icon-wrapper svg {
+    width: 16px;
+    height: 16px;
   }
 
   .phase-text-group {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    align-items: center;
   }
 
   .phase-step-tag {
-    font-size: 0.65rem;
-    margin-bottom: 2px;
+    font-size: 0.62rem;
+    margin-bottom: 1px;
   }
 
   .phase-name {
-    font-size: 0.98rem;
-    margin-bottom: 2px;
+    font-size: 0.88rem;
+    margin-bottom: 0;
   }
 
   .phase-role {
-    font-size: 0.8rem;
-    line-height: 1.4;
+    display: none;
   }
 
   .lifecycle-checkpoint-banner {
@@ -821,10 +1259,125 @@ button {
     gap: 6px;
     font-size: 0.8rem;
     padding: 10px 12px;
+    margin-top: 16px;
   }
 
   .checkpoint-badge {
     font-size: 0.72rem;
+  }
+
+  /* Visual Step Inspector on Mobile: Generous Vertical Room & Zero Choking */
+  .phase-visual-container {
+    margin-top: 12px;
+    padding-top: 14px;
+    min-height: auto;
+  }
+
+  .github-issue-mock {
+    padding: 16px 14px;
+    border-radius: var(--radius-sm);
+  }
+
+  .mock-issue-title {
+    font-size: 0.95rem;
+    line-height: 1.35;
+  }
+
+  .spec-checklist-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .diagram-flow {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .diagram-node {
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+
+  .diagram-node .node-icon {
+    font-size: 1.1rem;
+    margin-bottom: 0;
+  }
+
+  .diagram-arrow {
+    display: none;
+  }
+
+  .ticket-chain {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+  }
+
+  .ticket-card {
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+  }
+
+  .chain-arrow {
+    display: none;
+  }
+
+  .redgreen-timeline {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+    padding: 8px 0;
+  }
+
+  .rg-step {
+    min-width: 0;
+    width: 100%;
+    padding: 10px 12px;
+  }
+
+  .rg-code {
+    word-break: break-all;
+    white-space: normal;
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  .rg-arrow {
+    display: none;
+  }
+
+  .two-axis-grid {
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px 0;
+  }
+
+  .axis-box {
+    min-width: 0;
+    width: 100%;
+    padding: 12px 14px;
+  }
+
+  .axis-divider {
+    display: none;
+  }
+
+  .mock-footer-note {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    padding: 8px 10px;
+    margin-top: 10px;
   }
 
   /* Quickstart on Mobile */
