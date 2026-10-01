@@ -28,8 +28,7 @@ Break the work into tracer-bullet tickets:
   slice of just one layer.
 - Incorporate natural verification into each slice: where automated test suites
   exist, tests are written to verify the slice's acceptance criteria and organized
-  strictly by domain, module, or feature seam (never name test files after tickets,
-  e.g., strictly prohibit `ticket-18.test.js`). Where automated tests are not
+  by domain, module, or feature seam per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition). Where automated tests are not
   viable or needed, define clear acceptance criteria that can be verified directly
   (linting, typechecking, build, manual/CLI inspection).
 - A completed slice is demoable or verifiable on its own.
@@ -70,7 +69,7 @@ unaligned vertical slices.
 Once explicitly approved by the user, publish the tickets as GitHub issues,
 one per ticket, in dependency order (blockers first) so each can reference real
 issue numbers, titled `[<slug>] Ticket: <gist>` and applying the `ship-it:ticket`
-and `ready-for-agent` labels.
+and `ready-for-agent` labels (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions)).
 
 #### Markdown Relationship Contract
 
@@ -80,8 +79,8 @@ and environments without relying on preview API access:
 1. **Parent-Child Linkage (`Part of #<spec-id>`)**:
    - Every child ticket records `Part of #<spec-id>` as the very first line of its markdown body.
    - The parent spec body remains **immutable** once tickets exist; child tickets link up to the spec, avoiding race conditions or churn on the parent issue body.
-   - If native GitHub sub-issue API is available, link via `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (see `preflight.md`), but the markdown `Part of #<spec-id>` linkage is the primary contract.
-   - **Feature Close-Out**: The parent spec remains open as the record of intent while tickets are being executed. When the final child ticket is closed and reviewed, close the parent spec issue (and map, if one exists) with a resolution comment, and reference `Closes #<spec-id>` in the PR description so merging auto-closes the spec (see `review.md`).
+   - If native GitHub sub-issue API is available, link via the sub-issues API (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands)), but the markdown `Part of #<spec-id>` linkage is the primary contract.
+   - **Feature Close-Out**: The parent spec remains open as the record of intent while tickets are being executed; upon completion of the final ticket, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).
 
 2. **Dependency Edges (`## Blocked by`)**:
    - Tickets declare blocker dependencies in a tasklist under `## Blocked by`:
@@ -93,16 +92,11 @@ and environments without relying on preview API access:
      ```
 
      Or `None (can start immediately).` if unblocked.
-   - If native GitHub issue-dependency API is available, link via `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (see `preflight.md`), but the markdown tasklist is the primary contract.
+   - If native GitHub issue-dependency API is available, link via the issue-dependencies API (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands)), but the markdown tasklist is the primary contract.
 
 3. **Frontier Resolution & Orient Discovery**:
    - Work the frontier from here on: whichever ticket has every blocker resolved is takeable.
-   - Orient discovers unblocked tickets using this exact algorithm:
-     - Query tickets by feature slug: `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
-     - Filter out any tickets already claimed (`assignees` non-empty) or closed (`state: "CLOSED"`).
-     - For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `gh issue view <id> --json body` (or `gh issue view <id>`).
-     - Check the state of each referenced blocker issue via `gh issue view <blocker-id> --json state`.
-     - A ticket is unblocked on the frontier when all of its referenced blocker issues are closed.
+   - Orient discovers unblocked tickets using the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm).
 
 Ticket body:
 
@@ -129,16 +123,15 @@ Not a layer-by-layer implementation list.
 Acceptance criteria should state verifiable outcomes that naturally incorporate
 verification. Avoid file paths or code snippets here too, for the same reason
 as the spec: they go stale. The same prototype exception applies. Likewise,
-never mandate or introduce ticket-named test files (e.g., `ticket-18.test.js`);
-automated tests must live in domain- or module-aligned test files.
+automated test files must adhere to the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
 
 Don't close the parent spec or rewrite its body while child tickets are in progress;
 it stays as the record of intent, tickets are the record of execution. Child tickets link
 up to the parent via `Part of #<spec-id>`, leaving the parent spec body immutable.
-The parent spec (and map, if one exists) is closed only as part of the feature close-out
-protocol upon completion of the final ticket (see `review.md`). Linking tickets under it
-via the sub-issues API (if available) is a relationship, not a content edit, and belongs
-alongside publishing them.
+The parent spec (and map, if one exists) is closed only as part of the
+[Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol) upon completion
+of the final ticket. Linking tickets under it via the sub-issues API (if available)
+is a relationship, not a content edit, and belongs alongside publishing them.
 
 Recommended next step: `validate.md` audits the ticket set, adversarially and
 in a fresh context, before anyone starts building against it. Run it whenever

@@ -1,13 +1,6 @@
 # Review: two-axis check of the diff
 
-## 2-Tier Context Isolation Protocol
-
-Review strictly enforces the **2-Tier Context Isolation Protocol** defined in [references/validate.md](validate.md). In-context persona simulation is strictly prohibited: an agent must never attempt to simulate an outside reviewer within the unbroken implementation session.
-
-Review MUST run in an isolated context:
-
-- **Tier 1 (Isolated Subagent)**: Multi-agent harnesses (e.g., Antigravity, Claude Code subagents) spawn isolated subagents with restricted prompts—ideally separate subagent invocations for the Standards and Spec axes so neither axis bleeds context into the other.
-- **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or session dedicated strictly to running `review.md` against the diff.
+Review strictly enforces the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol); in-context persona simulation is strictly prohibited.
 
 Review the changes made in this phase along two independent axes, reported side by side without
 merging or reranking:
@@ -47,7 +40,7 @@ Before evaluating the diff against standards and spec, inspect the evidence for 
   Inspect the commit history (`git log <fixed-point>..HEAD --oneline`) and the issue thread or handoff comment (`gh issue view <number> --comments` or `gh issue view`) for verification evidence (such as test runner output, test commit refs, or terminal traces). Evaluate whether verification was appropriate for the change: where tests were written or modified, confirm they pass and verify the acceptance criteria. Do not automatically reject diffs solely over missing terminal failure logs if the tests and implementation cleanly verify the requirements.
 
 - **Where automated tests are not viable or needed**:
-  Confirm that the handoff report or issue thread documents domain-appropriate acceptance criteria verification (such as linting, typechecking, build compilation, manual inspection, CLI/browser verification, or schema validation) as specified in [references/implement.md](implement.md). Do not require artificial mock harnesses or brittle string tests.
+  Confirm that the handoff report or issue thread documents domain-appropriate acceptance criteria verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 
 ### 3. Identify the spec source
 
@@ -96,12 +89,9 @@ restating it).
 - **Refused Bequest**: a subclass or implementer ignoring most of what it
   inherits → drop the inheritance, use composition.
 - **Ticket-Named Artifacts**: test files, test suites, or source files named after
-  tickets or issue numbers (e.g., `ticket-18.test.js`, `test_issue_23.py`) rather
-  than domain, module, or feature seams → rename to reflect domain ownership.
-- **Over-Architected Test Ceremonies**: ad-hoc mock test harnesses, invented test
-  runners, or brittle string-matching assertions created purely to simulate test
-  coverage where no framework exists → replace with domain-appropriate direct
-  verification (linting, typechecking, build, inspection) or genuine domain tests.
+  tickets rather than domain seams → rename per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
+- **Over-Architected Test Ceremonies**: ad-hoc mock test harnesses or invented runners
+  simulating coverage → replace with direct verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 
 ### 5. Run both passes
 
@@ -141,9 +131,5 @@ that's exactly the reranking the separation exists to prevent.
   close the ticket (`gh issue close <number> --comment "<text>"`),
   and open the PR or merge, per how the user works.
   Close-out is gated on this label; do not skip straight to closing because the
-  diff "looked fine" without a report to back it.
-
-  **Feature Close-Out Protocol**:
-  When the final ticket of a spec is closed and reviewed:
-  1. Close the parent spec issue (and map, if one exists) with a resolution comment summarizing what was shipped (`gh issue close <spec-id> --comment "<text>"`).
-  2. Reference `Closes #<spec-id>` in the pull request description so that merging the PR auto-closes the parent spec issue on GitHub.
+  diff "looked fine" without a report to back it. If this is the final ticket of
+  the spec, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).

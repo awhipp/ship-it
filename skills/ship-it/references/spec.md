@@ -25,7 +25,7 @@ don't turn this into a full grilling session; that already happened upstream
    the highest seam you can, the fewest number across the codebase, ideally one.
    If the repository lacks automated tests or the change is non-executable (e.g.
    documentation, configuration, skills), outline direct verification methods
-   instead of inventing ad-hoc mock test harnesses. Confirm these match the
+   per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm these match the
    user's expectations before moving on; a spec built on the wrong seam is
    expensive to unwind later.
 
@@ -36,8 +36,7 @@ don't turn this into a full grilling session; that already happened upstream
    user review and sign-off on the scope and decisions. Iterate until confirmed.
 
 5. **Publish the spec.** Once explicitly approved, publish the spec as a GitHub
-   issue titled `[<slug>] Spec: <gist>` using `--body-file` (writing the spec
-   content to a file first to guarantee cross-platform shell compatibility):
+   issue titled `[<slug>] Spec: <gist>` using `--body-file` per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions) (see also [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands)):
 
    ```shell
    gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec,ready-for-agent"
@@ -85,8 +84,8 @@ don't turn this into a full grilling session; that already happened upstream
     domain modules or feature seams get tested, and any prior art elsewhere in the
     codebase. For areas lacking test suites or where automated tests are not
     viable or needed, state the domain-appropriate direct verification (linting,
-    typechecking, build compilation, CLI/browser verification) instead of
-    inventing ad-hoc test harnesses.
+    typechecking, build compilation, CLI/browser verification) per the
+    [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 
     ## Out of Scope
 
@@ -100,9 +99,8 @@ don't turn this into a full grilling session; that already happened upstream
 Once published, this spec is what `tickets.md`, `implement.md`, and
 `review.md` all read (`gh issue view <spec-number>`) to know what's being built.
 
-Recommended next step: [references/validate.md](validate.md) audits this spec,
-adversarially under the 2-Tier Context Isolation Protocol (Tier 1 isolated subagent
-or Tier 2 fresh session; see `validate.md`), before anyone splits it into tickets
-or builds from it directly. Worth running on anything that spans more than one
+Recommended next step: [references/validate.md](validate.md) audits this spec
+adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol)
+before anyone splits it into tickets or builds from it directly. Worth running on anything that spans more than one
 session — treat skipping it as the exception, reserved for a small feature where a
 missed gap would surface (and get fixed) just as cheaply during the build itself.
