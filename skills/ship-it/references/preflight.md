@@ -116,8 +116,6 @@ All shell snippets and automated commands must follow these cross-platform rules
 - **Single number space**: GitHub issues and pull requests share a single number space within a repository. Resolve a bare `#42` with `gh pr view 42`, falling back to `gh issue view 42`.
 - **Feature slug**: Every issue for a feature carries a consistent slug in its title, e.g. `[auth-rewrite] Spec: ...`.
 
-## Markdown Issue Relationship Contract
+## Markdown Relationship Contract
 
-For universal compatibility across all GitHub repository tiers without relying on preview API access, `ship-it` uses the Markdown Relationship Contract canonicalized in [references/tickets.md](tickets.md). This defines Parent-Child Linkage (`Part of #<spec-id>`), Dependency Edges (`## Blocked by`), and Orient Discovery rules.
-
-Where native GitHub sub-issue or dependency APIs are unavailable, this markdown contract serves as the primary relationship store across all phases.
+See the [Markdown Relationship Contract](tickets.md#markdown-relationship-contract) for universal issue relationships, dependency edges, and Orient discovery rules across all repository tiers.

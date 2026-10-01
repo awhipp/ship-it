@@ -134,9 +134,5 @@ that's exactly the reranking the separation exists to prevent.
   close the ticket (`gh issue close <number> --comment "<text>"`),
   and open the PR or merge, per how the user works.
   Close-out is gated on this label; do not skip straight to closing because the
-  diff "looked fine" without a report to back it.
-
-  **Feature Close-Out Protocol**:
-  When the final ticket of a spec is closed and reviewed:
-  1. Close the parent spec issue (and map, if one exists) with a resolution comment summarizing what was shipped (`gh issue close <spec-id> --comment "<text>"`).
-  2. Reference `Closes #<spec-id>` in the pull request description so that merging the PR auto-closes the parent spec issue on GitHub.
+  diff "looked fine" without a report to back it. If this is the final ticket of
+  the spec, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).

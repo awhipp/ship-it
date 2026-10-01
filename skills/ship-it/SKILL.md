@@ -75,14 +75,7 @@ take whichever comes back furthest along:
 3. **Tickets** generated from that spec:
    Query tickets for the feature:
    `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
-   (see [references/tickets.md](references/tickets.md)).
-
-   **Orient's Ticket Discovery & Unblocking Algorithm**:
-   Find the earliest unblocked, unclaimed ticket per the Markdown Relationship Contract in [references/tickets.md](references/tickets.md):
-   - Filter out claimed (`assignees` non-empty) and closed (`state: "CLOSED"`) tickets.
-   - For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `gh issue view <number> --json body` (and native dependency edges if present).
-   - Check blocker issue states via `gh issue view <blocker-id> --json state`. A ticket is **unblocked** if it has no blockers (or "None") or every blocker referenced in its `## Blocked by` tasklist has `state: "CLOSED"`.
-   - Take whichever unblocked, unclaimed ticket is earliest in sequence.
+   and find the earliest unblocked, unclaimed ticket per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract).
 4. **An implementation in progress**, or a diff that hasn't been reviewed yet:
    check for an open PR referencing the slug or a matching branch, and for a
    ticket from step 3 that's assigned but still open (see
@@ -117,7 +110,7 @@ all means the feature hasn't started.
 | Tickets exist, lack `ship-it:validated`, and haven't started                         | Read `references/validate.md` and audit the ticket set before anyone starts building. Recommended default whenever the set is big enough that a bad slice would surface mid-implementation; skip only for a small, obviously-right set. |
 | Tickets exist and at least one is unblocked and unclaimed                            | Read `references/implement.md`, claim and build that ticket. Start a **fresh session** for it (see Context hygiene).  |
 | A ticket is implemented (assigned, still open) and lacks `ship-it:reviewed`          | Read `references/review.md` in a **fresh session**, separate from whatever session implemented it.                    |
-| A ticket carries `ship-it:reviewed`                                                  | Close out: comment resolution, close the ticket, open the PR or merge, per how the user works. If this is the final ticket of the spec, execute the feature close-out protocol.     |
+| A ticket carries `ship-it:reviewed`                                                  | Close out: comment resolution, close the ticket, open the PR or merge, per how the user works. If this is the final ticket of the spec, execute the [Feature Close-Out Protocol](#feature-close-out-protocol).     |
 | Review found issues                                                                  | Route back to `references/implement.md`, in a fresh session, to address them, then back to `references/review.md`.    |
 | Tickets exist but none are unblocked and unclaimed                                  | Report status (blocked or in-flight tickets) and stop.                                                                |
 
@@ -128,7 +121,7 @@ the feature isn't finished, the exact next thing to run. Don't silently chain
 into the next phase in the same reply unless the user explicitly asked for the
 whole loop at once.
 
-### Feature close-out protocol
+### Feature Close-Out Protocol
 
 When the final ticket of a spec is closed and reviewed:
 

@@ -81,7 +81,7 @@ and environments without relying on preview API access:
    - Every child ticket records `Part of #<spec-id>` as the very first line of its markdown body.
    - The parent spec body remains **immutable** once tickets exist; child tickets link up to the spec, avoiding race conditions or churn on the parent issue body.
    - If native GitHub sub-issue API is available, link via `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (see `preflight.md`), but the markdown `Part of #<spec-id>` linkage is the primary contract.
-   - **Feature Close-Out**: The parent spec remains open as the record of intent while tickets are being executed. When the final child ticket is closed and reviewed, close the parent spec issue (and map, if one exists) with a resolution comment, and reference `Closes #<spec-id>` in the PR description so merging auto-closes the spec (see `review.md`).
+   - **Feature Close-Out**: The parent spec remains open as the record of intent while tickets are being executed; upon completion of the final ticket, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).
 
 2. **Dependency Edges (`## Blocked by`)**:
    - Tickets declare blocker dependencies in a tasklist under `## Blocked by`:
@@ -135,10 +135,10 @@ automated tests must live in domain- or module-aligned test files.
 Don't close the parent spec or rewrite its body while child tickets are in progress;
 it stays as the record of intent, tickets are the record of execution. Child tickets link
 up to the parent via `Part of #<spec-id>`, leaving the parent spec body immutable.
-The parent spec (and map, if one exists) is closed only as part of the feature close-out
-protocol upon completion of the final ticket (see `review.md`). Linking tickets under it
-via the sub-issues API (if available) is a relationship, not a content edit, and belongs
-alongside publishing them.
+The parent spec (and map, if one exists) is closed only as part of the
+[Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol) upon completion
+of the final ticket. Linking tickets under it via the sub-issues API (if available)
+is a relationship, not a content edit, and belongs alongside publishing them.
 
 Recommended next step: `validate.md` audits the ticket set, adversarially and
 in a fresh context, before anyone starts building against it. Run it whenever
