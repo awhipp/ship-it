@@ -143,7 +143,9 @@ When the final ticket of a spec is closed and reviewed:
 - **Implement** should start in a **fresh session per ticket**. A ticket is
   self-contained by construction (see `references/tickets.md`), ensuring each
   slice is built strictly to its self-contained acceptance criteria and
+  preventing context pollution and confirmation bias from earlier tickets.
 - **Validate and review** strictly mandate the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol) rather than the authoring context; in-context persona simulation within an authoring session is strictly prohibited.
+- If a session's context is growing large before a natural stopping point,
   that's the signal to wrap up and hand off, not to push through with degraded
   reasoning.
 
