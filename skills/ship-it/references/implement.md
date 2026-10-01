@@ -32,6 +32,7 @@ Never name test files, test suites, or source files after tickets or issue numbe
 #### Ad-hoc test harness prohibition
 
 For documentation, markdown skill definitions, configuration files, visual/asset changes, or repositories lacking test infrastructure:
+
 - Do not force over-architected test ceremonies, invent ad-hoc test runners, or write brittle string-matching mock tests simply to simulate test coverage.
 - Verify requirements directly against acceptance criteria using domain-appropriate verification (such as linting, typechecking, build compilation, manual inspection, CLI/browser verification, or schema validation).
 - Record this verification evidence in the handoff report and issue comment.

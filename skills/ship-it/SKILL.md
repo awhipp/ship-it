@@ -85,6 +85,7 @@ take whichever comes back furthest along:
 #### Orient Discovery Algorithm
 
 Find the earliest unblocked, unclaimed ticket:
+
 - Filter out claimed (`assignees` non-empty) and closed (`state: "CLOSED"`) tickets.
 - For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `gh issue view <number> --json body` (and native dependency edges if present per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract)).
 - Check blocker issue states via `gh issue view <blocker-id> --json state`. A ticket is **unblocked** if it has no blockers (or "None") or every blocker referenced in its `## Blocked by` tasklist has `state: "CLOSED"`.
