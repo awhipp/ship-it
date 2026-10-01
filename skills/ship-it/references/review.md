@@ -39,16 +39,15 @@ Confirm the fixed point resolves and the diff is non-empty before going
 further; a bad ref should fail here; not inside two review passes that then
 have nothing to say.
 
-### 2. Verify verification evidence (Red Phase Checkpoint)
+### 2. Verify verification evidence
 
 Before evaluating the diff against standards and spec, inspect the evidence for the verification strategy required by [references/implement.md](implement.md):
 
-- **Where Red-Green applies**:
-  Inspect the commit history (`git log <fixed-point>..HEAD --oneline`) and the issue thread or handoff comment (`gh issue view <number> --comments` or `gh issue view`) for valid Red verification proof defined in [references/implement.md](implement.md).
-  **Reject diffs lacking proof**: If the change involves executable code in a repository with an automated test suite and lacks valid Red proof, reject the diff without approval. Post a rejection comment (`gh issue comment <number> --body "Review rejected: Missing required test-first verification proof (failing test commit or terminal failure log). Diff cannot be approved without test-first proof."`) and return the ticket to a fresh `implement.md` session.
+- **Automated test suites (where applicable)**:
+  Inspect the commit history (`git log <fixed-point>..HEAD --oneline`) and the issue thread or handoff comment (`gh issue view <number> --comments` or `gh issue view`) for verification evidence (such as test runner output, test commit refs, or terminal traces). Evaluate whether verification was appropriate for the change: where tests were written or modified, confirm they pass and verify the acceptance criteria. Do not automatically reject diffs solely over missing terminal failure logs if the tests and implementation cleanly verify the requirements.
 
-- **Where Red-Green is exempt**:
-  Confirm that the handoff report or issue thread documents acceptance criteria verification as specified in [references/implement.md](implement.md). Do not require failing test evidence or artificial mock harnesses.
+- **Where automated tests are not viable or needed**:
+  Confirm that the handoff report or issue thread documents domain-appropriate acceptance criteria verification (such as linting, typechecking, build compilation, manual inspection, CLI/browser verification, or schema validation) as specified in [references/implement.md](implement.md). Do not require artificial mock harnesses or brittle string tests.
 
 ### 3. Identify the spec source
 
@@ -96,6 +95,13 @@ restating it).
   it, call the real target directly.
 - **Refused Bequest**: a subclass or implementer ignoring most of what it
   inherits → drop the inheritance, use composition.
+- **Ticket-Named Artifacts**: test files, test suites, or source files named after
+  tickets or issue numbers (e.g., `ticket-18.test.js`, `test_issue_23.py`) rather
+  than domain, module, or feature seams → rename to reflect domain ownership.
+- **Over-Architected Test Ceremonies**: ad-hoc mock test harnesses, invented test
+  runners, or brittle string-matching assertions created purely to simulate test
+  coverage where no framework exists → replace with domain-appropriate direct
+  verification (linting, typechecking, build, inspection) or genuine domain tests.
 
 ### 5. Run both passes
 
@@ -124,11 +130,11 @@ that's exactly the reranking the separation exists to prevent.
 
 ## Outcome
 
-- **Red verification evidence missing (where applicable) or either axis has findings**: post findings to the ticket
-  (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<rejection-text>"`) and hand back to a fresh
+- **Verification evidence missing or either axis has findings**: post findings to the ticket
+  (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"`) and hand back to a fresh
   `implement.md` session to address. The ticket stays open, unreviewed; do not apply
-  `ship-it:reviewed` on a report that has anything outstanding or lacks required test verification evidence.
-- **Red verification evidence verified (or not applicable) and both axes clean**: apply `ship-it:reviewed`
+  `ship-it:reviewed` on a report that has anything outstanding or lacks appropriate verification evidence.
+- **Verification evidence verified and both axes clean**: apply `ship-it:reviewed`
   (`gh issue edit <number> --add-label "ship-it:reviewed"`), then close out. The
   work-in-progress commit is already on the branch from `implement.md`, so comment
   the resolution (`gh issue comment <number> --body "<text>"`),
