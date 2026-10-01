@@ -19,11 +19,15 @@ don't turn this into a full grilling session; that already happened upstream
    decision records in the area you're touching, rather than re-deciding
    something already settled.
 
-3. **Sketch the test seams**: the points in the code where you'll verify this
-   feature works. Prefer existing seams to new ones, and the highest seam you
-   can, the fewest number across the codebase, ideally one. Confirm these
-   match the user's expectations before moving on; a spec built on the wrong
-   seam is expensive to unwind later.
+3. **Sketch the test seams and verification strategy**: identify where and how
+   you'll verify this feature works, aligned with existing workspace test
+   conventions and directory structures. Prefer existing seams to new ones, and
+   the highest seam you can, the fewest number across the codebase, ideally one.
+   If the repository lacks automated tests or the change is non-executable (e.g.
+   documentation, configuration, skills), outline direct verification methods
+   instead of inventing ad-hoc mock test harnesses. Confirm these match the
+   user's expectations before moving on; a spec built on the wrong seam is
+   expensive to unwind later.
 
 4. **Draft the spec** using the template below, presenting it to the user.
 
@@ -75,9 +79,14 @@ don't turn this into a full grilling session; that already happened upstream
 
     ## Testing Decisions
 
-    What makes a good test here (external behavior, not implementation details),
-    which modules get tested, and any prior art elsewhere in the codebase for this
-    shape of test.
+    How this feature will be verified, aligned with the workspace's established
+    test framework, runners, and directory conventions where they exist. What
+    makes a good test here (external behavior, not implementation details), which
+    domain modules or feature seams get tested, and any prior art elsewhere in the
+    codebase. For areas lacking test suites or where automated tests are not
+    viable or needed, state the domain-appropriate direct verification (linting,
+    typechecking, build compilation, CLI/browser verification) instead of
+    inventing ad-hoc test harnesses.
 
     ## Out of Scope
 
