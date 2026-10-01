@@ -27,7 +27,8 @@ All validation and review phases MUST follow the **2-Tier Context Isolation Prot
 - **Tier 1 (Isolated Subagent)**: For multi-agent harnesses supporting subagent execution
   (e.g., Antigravity, Claude Code subagents). The parent session spawns an isolated subagent
   with a restricted prompt containing only the target artifact/diff and upstream requirements, with
-  zero access to the authoring conversation history.
+  zero access to the authoring conversation history (for reviews, ideally separate subagent
+  invocations for the Standards and Spec axes so neither axis bleeds context into the other).
 - **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses
   (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or
   session with a dedicated prompt for the validation or review phase.

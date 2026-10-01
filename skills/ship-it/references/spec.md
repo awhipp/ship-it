@@ -100,9 +100,8 @@ don't turn this into a full grilling session; that already happened upstream
 Once published, this spec is what `tickets.md`, `implement.md`, and
 `review.md` all read (`gh issue view <spec-number>`) to know what's being built.
 
-Recommended next step: [references/validate.md](validate.md) audits this spec,
-adversarially under the 2-Tier Context Isolation Protocol (Tier 1 isolated subagent
-or Tier 2 fresh session; see `validate.md`), before anyone splits it into tickets
-or builds from it directly. Worth running on anything that spans more than one
+Recommended next step: [references/validate.md](validate.md) audits this spec
+adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol)
+before anyone splits it into tickets or builds from it directly. Worth running on anything that spans more than one
 session — treat skipping it as the exception, reserved for a small feature where a
 missed gap would surface (and get fixed) just as cheaply during the build itself.

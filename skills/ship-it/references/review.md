@@ -1,13 +1,6 @@
 # Review: two-axis check of the diff
 
-## 2-Tier Context Isolation Protocol
-
-Review strictly enforces the **2-Tier Context Isolation Protocol** defined in [references/validate.md](validate.md). In-context persona simulation is strictly prohibited: an agent must never attempt to simulate an outside reviewer within the unbroken implementation session.
-
-Review MUST run in an isolated context:
-
-- **Tier 1 (Isolated Subagent)**: Multi-agent harnesses (e.g., Antigravity, Claude Code subagents) spawn isolated subagents with restricted prompts—ideally separate subagent invocations for the Standards and Spec axes so neither axis bleeds context into the other.
-- **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or manual harnesses (e.g., Cursor, Aider, terminal). The user initiates a completely fresh conversation tab or session dedicated strictly to running `review.md` against the diff.
+Review strictly enforces the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol); in-context persona simulation is strictly prohibited.
 
 Review the changes made in this phase along two independent axes, reported side by side without
 merging or reranking:
