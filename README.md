@@ -108,6 +108,29 @@ Autonomous coding agents present a frustrating dilemma:
 
 ---
 
+## Developing ship-it (For Contributors)
+
+When developing `ship-it` inside this repository:
+
+- **Source of Truth**: The canonical skill definition tracked by Git lives in [`skills/ship-it/`](skills/ship-it/).
+- **Agent Discovery**: Agent harnesses (e.g., Antigravity, Cursor) discover workspace customizations in `.agents/skills/`, which is ignored by Git (`.gitignore`).
+
+To ensure your local agent runs your active edits without duplicating files or confusing the repo skill with the agent skill, link `.agents/skills` to `skills/`:
+
+**Windows (PowerShell — NTFS Junction, no admin required):**
+
+```powershell
+New-Item -ItemType Junction -Path ".agents\skills" -Target (Resolve-Path "skills")
+```
+
+**macOS / Linux:**
+
+```bash
+mkdir -p .agents && ln -s ../skills .agents/skills
+```
+
+---
+
 ## Prior Art & Attribution
 
 `ship-it` stands on the shoulders of foundational work in agentic workflows and software engineering:
