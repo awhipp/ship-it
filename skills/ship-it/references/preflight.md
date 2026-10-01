@@ -42,8 +42,7 @@ so only run them if nothing above failed:
 
 ## Harness & Invocation Configuration
 
-`ship-it` is designed as a manual-only workflow and should not be invoked automatically
-by models without explicit user request.
+See [Invocation & Harness Configuration](../SKILL.md#invocation-harness-configuration) for the manual-only invocation policy.
 
 ## The label set
 
@@ -118,4 +117,4 @@ All shell snippets and automated commands must follow these cross-platform rules
 
 ## Markdown Relationship Contract
 
-See the [Markdown Relationship Contract](tickets.md#markdown-relationship-contract) for universal issue relationships, dependency edges, and Orient discovery rules across all repository tiers.
+See the [Markdown Relationship Contract](tickets.md#markdown-relationship-contract) for universal issue relationships and dependency edges across all repository tiers, and the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm) for frontier resolution.

@@ -9,7 +9,7 @@ from prior tickets rarely helps and often just costs tokens.
 
 ### 1. Branch and claim the ticket
 
-Work on a dedicated feature branch rather than `main` (or the default branch)—create the feature branch if starting the feature, or switch to the existing feature branch—ensuring `review.md`'s three-dot diff (`git diff <fixed-point>...HEAD`) has a valid merge-base. Claim the ticket (`gh issue edit <number> --add-assignee "@me"`) before writing anything, so a concurrent session doesn't pick up the same one. Note the assignee must be quoted as `"@me"` to ensure cross-platform shell compatibility.
+Work on a dedicated feature branch rather than `main` (or the default branch)—create the feature branch if starting the feature, or switch to the existing feature branch—ensuring `review.md`'s three-dot diff (`git diff <fixed-point>...HEAD`) has a valid merge-base. Claim the ticket (`gh issue edit <number> --add-assignee "@me"`) before writing anything, so a concurrent session doesn't pick up the same one (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions)).
 
 ### 2. Execute the verification cycle
 

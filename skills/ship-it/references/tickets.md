@@ -69,7 +69,7 @@ unaligned vertical slices.
 Once explicitly approved by the user, publish the tickets as GitHub issues,
 one per ticket, in dependency order (blockers first) so each can reference real
 issue numbers, titled `[<slug>] Ticket: <gist>` and applying the `ship-it:ticket`
-and `ready-for-agent` labels.
+and `ready-for-agent` labels (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions)).
 
 #### Markdown Relationship Contract
 
@@ -79,7 +79,7 @@ and environments without relying on preview API access:
 1. **Parent-Child Linkage (`Part of #<spec-id>`)**:
    - Every child ticket records `Part of #<spec-id>` as the very first line of its markdown body.
    - The parent spec body remains **immutable** once tickets exist; child tickets link up to the spec, avoiding race conditions or churn on the parent issue body.
-   - If native GitHub sub-issue API is available, link via `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (see `preflight.md`), but the markdown `Part of #<spec-id>` linkage is the primary contract.
+   - If native GitHub sub-issue API is available, link via the sub-issues API (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands)), but the markdown `Part of #<spec-id>` linkage is the primary contract.
    - **Feature Close-Out**: The parent spec remains open as the record of intent while tickets are being executed; upon completion of the final ticket, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).
 
 2. **Dependency Edges (`## Blocked by`)**:
@@ -92,16 +92,11 @@ and environments without relying on preview API access:
      ```
 
      Or `None (can start immediately).` if unblocked.
-   - If native GitHub issue-dependency API is available, link via `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (see `preflight.md`), but the markdown tasklist is the primary contract.
+   - If native GitHub issue-dependency API is available, link via the issue-dependencies API (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands)), but the markdown tasklist is the primary contract.
 
 3. **Frontier Resolution & Orient Discovery**:
    - Work the frontier from here on: whichever ticket has every blocker resolved is takeable.
-   - Orient discovers unblocked tickets using this exact algorithm:
-     - Query tickets by feature slug: `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
-     - Filter out any tickets already claimed (`assignees` non-empty) or closed (`state: "CLOSED"`).
-     - For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `gh issue view <id> --json body` (or `gh issue view <id>`).
-     - Check the state of each referenced blocker issue via `gh issue view <blocker-id> --json state`.
-     - A ticket is unblocked on the frontier when all of its referenced blocker issues are closed.
+   - Orient discovers unblocked tickets using the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm).
 
 Ticket body:
 

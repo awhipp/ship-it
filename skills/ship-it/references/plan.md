@@ -43,8 +43,8 @@ and labelled `ship-it:map`, with this body:
     <!-- Work ruled beyond the destination. Never graduates into a ticket. -->
 ```
 
-Each **ticket** is a child issue of the map (see `preflight.md` for the
-sub-issue/blocking API), titled `[<slug>] <ticket type>: <question gist>` and
+Each **ticket** is a child issue of the map (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) for the
+sub-issues and dependency APIs), titled `[<slug>] <ticket type>: <question gist>` and
 labelled with its type below (`ship-it:research`, `ship-it:prototype`,
 `ship-it:grilling`, or `ship-it:task`), with a body of just the question:
 
@@ -113,7 +113,7 @@ itself changes.
    Continue strictly one question per turn.
 3. Write the map: destination and notes filled in, decisions-so-far empty, fog
    sketched into "Not yet specified."
-4. Create whatever tickets you can specify now (`gh issue create --title "<title>" --body-file <file> --label "<labels>"`), then wire their blocking
+4. Create whatever tickets you can specify now (`gh issue create`; see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions)), then wire their blocking
    edges (markdown tasklist under `## Blocked by`). Everything else stays in the fog.
 5. Stop. Charting is its own session's work; it resolves nothing.
 
@@ -122,7 +122,7 @@ itself changes.
 1. Read the map (the low-resolution body, not every ticket) via `gh issue view <number>`.
 2. Pick the ticket: whichever the user named, or the first unblocked,
    unclaimed one (the frontier), in order.
-3. Claim it (`gh issue edit <number> --add-assignee "@me"`) before doing any work, so
+3. Claim it (`gh issue edit <number> --add-assignee "@me"`) before doing any work per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions), so
    a concurrent session skips it.
 4. Resolve it: work the ticket per its type above. For grilling tickets, ask
    strictly one question per turn during clarification.

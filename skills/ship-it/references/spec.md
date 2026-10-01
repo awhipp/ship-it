@@ -36,8 +36,7 @@ don't turn this into a full grilling session; that already happened upstream
    user review and sign-off on the scope and decisions. Iterate until confirmed.
 
 5. **Publish the spec.** Once explicitly approved, publish the spec as a GitHub
-   issue titled `[<slug>] Spec: <gist>` using `--body-file` (writing the spec
-   content to a file first to guarantee cross-platform shell compatibility):
+   issue titled `[<slug>] Spec: <gist>` using `--body-file` per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions) (see also [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands)):
 
    ```shell
    gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec,ready-for-agent"

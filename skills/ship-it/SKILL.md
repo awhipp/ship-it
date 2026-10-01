@@ -75,12 +75,20 @@ take whichever comes back furthest along:
 3. **Tickets** generated from that spec:
    Query tickets for the feature:
    `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
-   and find the earliest unblocked, unclaimed ticket per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract).
+   and find the earliest unblocked, unclaimed ticket per the [Orient Discovery Algorithm](#orient-discovery-algorithm).
 4. **An implementation in progress**, or a diff that hasn't been reviewed yet:
    check for an open PR referencing the slug or a matching branch, and for a
    ticket from step 3 that's assigned but still open (see
    [references/implement.md](references/implement.md) and
    [references/review.md](references/review.md))
+
+#### Orient Discovery Algorithm
+
+Find the earliest unblocked, unclaimed ticket:
+- Filter out claimed (`assignees` non-empty) and closed (`state: "CLOSED"`) tickets.
+- For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `gh issue view <number> --json body` (and native dependency edges if present per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract)).
+- Check blocker issue states via `gh issue view <blocker-id> --json state`. A ticket is **unblocked** if it has no blockers (or "None") or every blocker referenced in its `## Blocked by` tasklist has `state: "CLOSED"`.
+- Take whichever unblocked, unclaimed ticket is earliest in sequence.
 
 Each query above already asks for `labels`, so read them off the same
 response rather than issuing a follow-up call: `ship-it:validated` on a map,
