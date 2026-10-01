@@ -40,7 +40,7 @@ Before evaluating the diff against standards and spec, inspect the evidence for 
   Inspect the commit history (`git log <fixed-point>..HEAD --oneline`) and the issue thread or handoff comment (`gh issue view <number> --comments` or `gh issue view`) for verification evidence (such as test runner output, test commit refs, or terminal traces). Evaluate whether verification was appropriate for the change: where tests were written or modified, confirm they pass and verify the acceptance criteria. Do not automatically reject diffs solely over missing terminal failure logs if the tests and implementation cleanly verify the requirements.
 
 - **Where automated tests are not viable or needed**:
-  Confirm that the handoff report or issue thread documents domain-appropriate acceptance criteria verification (such as linting, typechecking, build compilation, manual inspection, CLI/browser verification, or schema validation) as specified in [references/implement.md](implement.md). Do not require artificial mock harnesses or brittle string tests.
+  Confirm that the handoff report or issue thread documents domain-appropriate acceptance criteria verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 
 ### 3. Identify the spec source
 
@@ -89,12 +89,9 @@ restating it).
 - **Refused Bequest**: a subclass or implementer ignoring most of what it
   inherits → drop the inheritance, use composition.
 - **Ticket-Named Artifacts**: test files, test suites, or source files named after
-  tickets or issue numbers (e.g., `ticket-18.test.js`, `test_issue_23.py`) rather
-  than domain, module, or feature seams → rename to reflect domain ownership.
-- **Over-Architected Test Ceremonies**: ad-hoc mock test harnesses, invented test
-  runners, or brittle string-matching assertions created purely to simulate test
-  coverage where no framework exists → replace with domain-appropriate direct
-  verification (linting, typechecking, build, inspection) or genuine domain tests.
+  tickets rather than domain seams → rename per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
+- **Over-Architected Test Ceremonies**: ad-hoc mock test harnesses or invented runners
+  simulating coverage → replace with direct verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 
 ### 5. Run both passes
 

@@ -28,8 +28,7 @@ Break the work into tracer-bullet tickets:
   slice of just one layer.
 - Incorporate natural verification into each slice: where automated test suites
   exist, tests are written to verify the slice's acceptance criteria and organized
-  strictly by domain, module, or feature seam (never name test files after tickets,
-  e.g., strictly prohibit `ticket-18.test.js`). Where automated tests are not
+  by domain, module, or feature seam per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition). Where automated tests are not
   viable or needed, define clear acceptance criteria that can be verified directly
   (linting, typechecking, build, manual/CLI inspection).
 - A completed slice is demoable or verifiable on its own.
@@ -129,8 +128,7 @@ Not a layer-by-layer implementation list.
 Acceptance criteria should state verifiable outcomes that naturally incorporate
 verification. Avoid file paths or code snippets here too, for the same reason
 as the spec: they go stale. The same prototype exception applies. Likewise,
-never mandate or introduce ticket-named test files (e.g., `ticket-18.test.js`);
-automated tests must live in domain- or module-aligned test files.
+automated test files must adhere to the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
 
 Don't close the parent spec or rewrite its body while child tickets are in progress;
 it stays as the record of intent, tickets are the record of execution. Child tickets link

@@ -25,7 +25,7 @@ don't turn this into a full grilling session; that already happened upstream
    the highest seam you can, the fewest number across the codebase, ideally one.
    If the repository lacks automated tests or the change is non-executable (e.g.
    documentation, configuration, skills), outline direct verification methods
-   instead of inventing ad-hoc mock test harnesses. Confirm these match the
+   per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm these match the
    user's expectations before moving on; a spec built on the wrong seam is
    expensive to unwind later.
 
@@ -85,8 +85,8 @@ don't turn this into a full grilling session; that already happened upstream
     domain modules or feature seams get tested, and any prior art elsewhere in the
     codebase. For areas lacking test suites or where automated tests are not
     viable or needed, state the domain-appropriate direct verification (linting,
-    typechecking, build compilation, CLI/browser verification) instead of
-    inventing ad-hoc test harnesses.
+    typechecking, build compilation, CLI/browser verification) per the
+    [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 
     ## Out of Scope
 

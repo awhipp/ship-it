@@ -74,7 +74,7 @@ Autonomous coding agents present a frustrating dilemma:
 | **1. Plan** | Chart architectural decisions when requirements are foggy. | Interactive 1-question-per-turn discovery dialogue. | Decision Map (`[slug] Map: ...`) | [`plan.md`](skills/ship-it/references/plan.md) |
 | **2. Spec** | Define problem statement, acceptance criteria, and test seams. | Fresh-context adversarial audit before tickets. | Feature Spec (`[slug] Spec: ...`) | [`spec.md`](skills/ship-it/references/spec.md) |
 | **3. Tickets** | Decompose spec into session-sized, vertical slices. | Explicit developer sign-off on ticket DAG & blockers. | Vertical Tickets (`[slug] Ticket: ...`) | [`tickets.md`](skills/ship-it/references/tickets.md) |
-| **4. Implement** | Build one ticket test-first in a fresh session. | Red-phase failure proof followed by green pass. | Git Diff & Commit | [`implement.md`](skills/ship-it/references/implement.md) |
+| **4. Implement** | Build one ticket test-first in a fresh session. | Recommended Red-Green cycle; green suite or verified criteria. | Git Diff & Commit | [`implement.md`](skills/ship-it/references/implement.md) |
 | **5. Review** | Independent review across Standards and Spec Fidelity. | Two-axis review report with zero findings. | Review Verdict & Label | [`review.md`](skills/ship-it/references/review.md) |
 
 ### How Phases Work
@@ -82,7 +82,7 @@ Autonomous coding agents present a frustrating dilemma:
 1. **Plan (Map)**: Used only when a feature is ambiguous or broad. Maps decisions one question at a time across the frontier of the unknown. Well-scoped features skip directly to Spec.
 2. **Spec**: Synthesizes requirements, architecture, and test seams into an unambiguous spec issue. Passes an adversarial audit gate ([`validate.md`](skills/ship-it/references/validate.md)) in an isolated context before ticketing.
 3. **Tickets**: Splits the validated spec into small, self-contained vertical slices with clear acceptance criteria and `## Blocked by` dependency tasklists.
-4. **Implement**: Executes one unblocked ticket on a dedicated branch. Requires proof of test failure (Red) before writing implementation code (Green). The authoring session never reviews its own work.
+4. **Implement**: Executes one unblocked ticket on a dedicated branch. Strongly recommends test-first Red-Green where automated test suites exist, or direct acceptance verification where they do not. The authoring session never reviews its own work.
 5. **Review**: Audits the diff under the 2-Tier Context Isolation Protocol (isolated subagent or fresh session). Evaluates **Coding Standards** (Martin Fowler refactoring baseline) and **Spec Fidelity** along two independent axes.
 
 ---
@@ -91,7 +91,7 @@ Autonomous coding agents present a frustrating dilemma:
 
 - **Zero Proprietary State**: No SaaS lock-in or local runtime state. GitHub is the state machine—tracked via native issues, markdown tasklists, `ship-it:*` labels, branches, and commits.
 - **Context Hygiene as a Feature**: LLMs degrade as context history bloats. `ship-it` enforces fresh sessions between phases and tickets, eliminating hallucination loops and confirmation bias.
-- **Test-First Red-Green Discipline**: Implementation requires concrete, verifiable proof of test failure before code can be authored.
+- **Test-First Red-Green Discipline**: Recommends test-first Red-Green discipline where automated test suites exist, with domain-aligned verification for non-code changes.
 - **Two-Axis Non-Collapsing Review**: Code quality cannot mask missing requirements. Standards and Spec Fidelity are audited independently.
 - **Harness & Model Agnostic**: Fully compliant with the open `agentskills.io` standard across Windows, macOS, and Linux.
 
