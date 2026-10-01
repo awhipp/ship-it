@@ -24,8 +24,14 @@ one ticket up front that reshapes the code before the feature tickets land.
 Break the work into tracer-bullet tickets:
 
 - Each slice cuts a narrow but **complete** path through every layer it
-  touches (schema, API, UI, tests), vertical, never a horizontal slice of just
-  one layer.
+  touches (schema, API, UI, verification/tests), vertical, never a horizontal
+  slice of just one layer.
+- Incorporate natural verification into each slice: where automated test suites
+  exist, tests are written to verify the slice's acceptance criteria and organized
+  strictly by domain, module, or feature seam (never name test files after tickets,
+  e.g., strictly prohibit `ticket-18.test.js`). Where automated tests are not
+  viable or needed, define clear acceptance criteria that can be verified directly
+  (linting, typechecking, build, manual/CLI inspection).
 - A completed slice is demoable or verifiable on its own.
 - Each slice fits in a single fresh context window.
 - Any prefactoring happens first, as its own ticket, blocking the rest.
@@ -120,8 +126,11 @@ Not a layer-by-layer implementation list.
 
 (If unblocked, state `None (can start immediately).` under `## Blocked by`.)
 
-Avoid file paths or code snippets here too, for the same reason as the spec:
-they go stale. The same prototype exception applies.
+Acceptance criteria should state verifiable outcomes that naturally incorporate
+verification. Avoid file paths or code snippets here too, for the same reason
+as the spec: they go stale. The same prototype exception applies. Likewise,
+never mandate or introduce ticket-named test files (e.g., `ticket-18.test.js`);
+automated tests must live in domain- or module-aligned test files.
 
 Don't close the parent spec or rewrite its body while child tickets are in progress;
 it stays as the record of intent, tickets are the record of execution. Child tickets link

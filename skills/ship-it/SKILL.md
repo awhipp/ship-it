@@ -32,7 +32,7 @@ Review—establishes explicit verification gates at each handoff:
 
 - Specs are verified against user requirements and adversarially audited before breaking into tickets.
 - Ticket breakdowns require explicit user validation before creation.
-- Implementation demands test-first proof (Red before Green).
+- Implementation incorporates pragmatic, domain-aligned verification (recommending test-first Red-Green where automated test suites exist, or direct acceptance verification where they do not).
 - Review evaluates diffs independently without the author's internal rationalizations.
 
 This skill does not try to run the whole loop in a single reply. Each time you
@@ -159,5 +159,5 @@ When the final ticket of a spec is closed and reviewed:
 | [references/spec.md](references/spec.md)           | Turning a settled idea into a spec                                         |
 | [references/validate.md](references/validate.md)   | Adversarially auditing a published spec, ticket set, or map before build   |
 | [references/tickets.md](references/tickets.md)     | Splitting a spec into buildable, session-sized slices                      |
-| [references/implement.md](references/implement.md) | Building a ticket or a small spec, test-first                              |
+| [references/implement.md](references/implement.md) | Building a ticket or a small spec with domain-aligned verification        |
 | [references/review.md](references/review.md)       | A diff exists and needs checking against standards and spec, fresh session |
