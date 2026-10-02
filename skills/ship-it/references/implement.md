@@ -16,7 +16,11 @@ Work on a dedicated feature branch rather than `main` (or the default branch)—
 Tailor the verification strategy to the nature of the change and repository:
 
 - **Detect workspace test conventions first**:
-  Before writing any test or implementation code, inspect the repository to identify existing test frameworks, runners, and conventions (e.g., `npm test`, `pytest`, `cargo test`, `go test`, `vitest`, `jest`, and directories such as `tests/`, `__tests__/`, `spec/`, or co-located `*.test.ts`). If an established test runner and structure exist, abide by them as the primary default.
+  Before writing any test or implementation code, inspect the repository to identify existing test frameworks, runners, and conventions (e.g., `npm test`, `pytest`, `cargo test`, `go test`, `vitest`, `jest`, and directories such as `tests/`, `__tests__/`, `spec/`, or co-located `*.test.ts`). If an established test runner and structure exist, abide by them as the primary default. If the repository defines explicit testing tiers or conventions (e.g., rules specifying which change categories require which verification levels), honor those rather than re-deriving a verification strategy from scratch.
+
+- **Explore codebase (optional, for multi-file tickets)**:
+  For tickets touching multiple modules or layers, where the harness supports subagent execution, offload initial codebase exploration to an isolated subagent before starting implementation (trivial single-file tickets should skip this). The subagent should return a session-scoped ephemeral map (minimal file set, key symbols, relevant test files) directly into the session conversation context. This map must never be written to disk, workspace files, or persisted in tickets. Note that this is a starting point, not a complete analysis—cross-cutting concerns may still surface during implementation, and the final sweep (see step 3) acts as the backstop.
+
 
 - **Recommended test-first practice (Red-Green)**:
   Where an automated test suite exists and unit/slice testing is viable and meaningful, practicing test-first Red-Green is strongly recommended to clarify design seams and guard against regressions:
@@ -40,6 +44,8 @@ For documentation, markdown skill definitions, configuration files, visual/asset
 ### 3. Check as you go, not just at the end
 
 Run typechecking and the relevant single test file regularly through the build, not only once everything's written. Run the full test suite once, at the end, before calling the ticket done.
+
+For codebase-wide negative invariants (e.g., "no callers of deprecated X remain"), run a targeted final sweep (such as grep, a targeted subagent pass, or equivalent) after the implementation is complete, rather than attempting to scan the entire codebase before writing code.
 
 ### 4. Stop drifting from the acceptance criteria
 

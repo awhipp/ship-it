@@ -121,7 +121,7 @@ Not a layer-by-layer implementation list.
 (If unblocked, state `None (can start immediately).` under `## Blocked by`.)
 
 Acceptance criteria should state verifiable outcomes that naturally incorporate
-verification. Avoid file paths or code snippets here too, for the same reason
+verification. Phrase negative invariants (e.g., "no X remains") as visibly distinct final-check criteria, so implementers recognize them as sweep-at-the-end rather than scan-before-you-start. Avoid file paths or code snippets here too, for the same reason
 as the spec: they go stale. The same prototype exception applies. Likewise,
 automated test files must adhere to the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
 
