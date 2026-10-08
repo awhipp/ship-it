@@ -176,6 +176,7 @@ function initCliTerminalSimulation() {
     implement: {
       command: '/ship-it Implement #19',
       lines: [
+        { type: 'log', icon: 'ℹ️', text: '<span class="sim-purple sim-bold">Workflow Context:</span> Ticket #19 illustrates an example of an automated test suite workflow (recommended Red-Green)' },
         { type: 'log', icon: '🔒', text: '<span class="sim-cyan">Claiming ticket #19:</span> <code>gh issue edit 19 --add-assignee "@me"</code>' },
         { type: 'log', icon: '🌿', text: 'Switched to dedicated feature branch: <span class="sim-bold">gh-pages</span>' },
         { type: 'log', icon: '🔴', text: '<span class="sim-red sim-bold">Red Phase:</span> Writing test suite for acceptance criteria...' },

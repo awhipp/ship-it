@@ -121,6 +121,15 @@ describe('Marketing Site Architecture & Domains', () => {
         }
       });
     });
+
+    it('should synchronize gh-pages README.md with root README.md containing pragmatic testing guarantees', () => {
+      const readmePath = path.join(ROOT_DIR, 'README.md');
+      const readme = fs.readFileSync(readmePath, 'utf8');
+      expect(readme).toContain('pragmatic, domain-aligned verification');
+      expect(readme).toContain('ad-hoc test harness prohibition');
+      expect(readme).toContain('Spec #34');
+      expect(readme).toContain('Spec #36');
+    });
   });
 
   // =========================================================================
@@ -143,6 +152,13 @@ describe('Marketing Site Architecture & Domains', () => {
 
       expect(ctaQuickstart, 'Quickstart CTA button must exist').not.toBeNull();
       expect(ctaQuickstart.getAttribute('href')).toBe('#quickstart');
+    });
+
+    it('should reflect domain-aligned verification in hero description without absolute test-first claims', () => {
+      const heroDesc = document.querySelector('#hero-description');
+      expect(heroDesc).not.toBeNull();
+      expect(heroDesc.textContent).toMatch(/domain-aligned verification/i);
+      expect(heroDesc.textContent).not.toMatch(/test-first verification/i);
     });
   });
 
@@ -217,6 +233,31 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(planTab.classList.contains('active')).toBe(true);
       expect(planTab.getAttribute('aria-selected')).toBe('true');
       expect(planPanel.classList.contains('active')).toBe(true);
+    });
+
+    it('should label tab 4 with Domain-Aligned or Verification subtitle', () => {
+      const tab4Subtitle = document.querySelector('#btn-tab-implement .tab-subtitle');
+      expect(tab4Subtitle).not.toBeNull();
+      expect(tab4Subtitle.textContent).toMatch(/Domain-Aligned|Verification/i);
+    });
+
+    it('should present domain-aligned verification, ad-hoc runner prohibition, and ephemeral discovery in panel 4', () => {
+      const panel4 = document.querySelector('#panel-explorer-implement');
+      expect(panel4).not.toBeNull();
+      const text = panel4.textContent;
+      expect(text).toMatch(/domain-aligned verification/i);
+      expect(text).toMatch(/ad-hoc (test )?runner prohibition|ad-hoc (test )?harness prohibition/i);
+      expect(text).toMatch(/ephemeral subagent (discovery|exploration)/i);
+      expect(text).toMatch(/negative invariants/i);
+      expect(text).toMatch(/Red-Green/i);
+    });
+
+    it('should include Testing Decisions in panel 2 and verified acceptance criteria proof in panel 5', () => {
+      const panel2 = document.querySelector('#panel-explorer-spec');
+      expect(panel2.textContent).toMatch(/Testing Decisions/i);
+
+      const panel5 = document.querySelector('#panel-explorer-review');
+      expect(panel5.textContent).toMatch(/verified acceptance criteria proof/i);
     });
   });
 
@@ -378,6 +419,13 @@ describe('Marketing Site Architecture & Domains', () => {
       // Trigger Review simulation
       btnReview.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
       expect(terminalScreen.textContent).toMatch(/two-axis|standards|spec/i);
+    });
+
+    it('should frame Ticket #19 as an automated test suite workflow in the terminal simulator', () => {
+      const btnImplement = document.querySelector('[data-sim-step="implement"]');
+      const terminalScreen = document.querySelector('#terminal-screen, .terminal-screen-output');
+      btnImplement.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      expect(terminalScreen.textContent).toMatch(/automated test suite workflow|automated test suite verification/i);
     });
   });
 

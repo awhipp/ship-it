@@ -1,158 +1,142 @@
 # ship-it
 
-`ship-it` is an agentic skill that conducts a feature through a full build
-loop, one phase at a time, across however many sessions it takes:
+[![Live Site](https://img.shields.io/badge/Live_Site-awhipp.github.io%2Fship--it-2563eb?style=flat-square&logo=githubpages&logoColor=white)](https://awhipp.github.io/ship-it/)
+[![Standard](https://img.shields.io/badge/agentskills.io-compliant-10b981?style=flat-square)](https://agentskills.io)
+
+**The Autonomous Conductor for Software Engineering.** Put developers back in the driver's seat of the SDLC with strict phase gates, 2-tier context isolation, and pragmatic, domain-aligned verification.
 
 ```txt
-Plan → Spec → Tickets → Implement → Review
+Plan ──▶ Spec ──▶ Tickets ──▶ Implement ──▶ Review
 ```
 
-It tracks everything as GitHub issues in whatever repo you run it in. Each
-time you invoke it, it looks at what already exists for the feature (a map,
-a spec, tickets, a diff awaiting review), does one phase's worth of work, and
-tells you the exact next thing to run. Run it again, whenever, to keep going.
+*One bounded phase at a time. Verified gates at every seam. Zero agent drift.*
 
-It's self-contained: everything it needs lives in this folder, and the only
-thing it writes into a repo is the GitHub issues it creates. It conforms to the
-open agent skill standard (`agentskills.io`), making it copyable into any global
-or project skills directory and usable across any compatible agent harness.
+---
 
-> [!TIP]
->
-> ### Example Walkthrough: Distributed Rate Limiting
->
-> Here is how `ship-it` conducts a realistic feature through all five phases:
->
-> 1. **Plan** (`[rate-limiting] Map: distributed rate limiter`): An interactive session maps open architectural questions—settling on a Redis sliding-window algorithm while ruling client-side throttling out of scope.
-> 2. **Spec** (`[rate-limiting] Spec: sliding-window rate limiter with Redis`): Synthesizes user stories, API rate limit headers (`X-RateLimit-*`), HTTP 429 response contracts, and test seams before requesting user sign-off.
-> 3. **Validate**: An outside skeptic in an isolated context audits the spec against requirements, catching an unhandled Redis connection timeout before any code is written.
-> 4. **Tickets**: Slices the approved spec into buildable vertical tickets:
->    - Ticket #101: `[rate-limiting] Ticket: Redis sliding-window algorithm` (Blocked by: None)
->    - Ticket #102: `[rate-limiting] Ticket: Express middleware and HTTP 429 handling` (Blocked by: #101)
-> 5. **Implement & Review**: Ticket #101 is built test-first with verifiable proof of test failure, then reviewed across independent Standards and Spec fidelity axes in an isolated session.
+## Quickstart
 
-## Prior art
+Get up and running with `ship-it` in under two minutes:
 
-`ship-it` builds on two existing bodies of work and layers its own ideas on
-top of them. This section credits ideas, not code — `ship-it` doesn't invoke
-either project.
+### 1. Prerequisites
 
-### Matt Pocock's Wayfinder
+Ensure standard `git` and the GitHub CLI (`gh`) are installed and authenticated:
 
-- YouTube walkthrough: <https://www.youtube.com/watch?v=F3lL98Pj90o>
-- Original skill: <https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder>
+```bash
+gh auth status
+```
 
-`wayfinder` is the planning phase of a longer chain: it charts
-a map of decision tickets, then hands off to separate skills (`to-spec`,
-`to-tickets`, `implement`, `code-review`) to carry the work from spec through
-to a reviewed diff. Each of those is its own skill, and the chain supports
-several issue trackers (GitHub, GitLab, Linear, Jira, or local markdown
-files), configured per repo by a separate setup skill. `ship-it` takes the
-five-phase shape and, in the Plan phase especially, the vocabulary: the map,
-decision tickets, the four ticket types, fog of war, the frontier.
+### 2. Installation
 
-### Spec-First Protocol (SFP)
+Install `ship-it` into your project or global agent harness:
 
-- Project: <https://github.com/awhipp/spec-first-protocol>
+```bash
+# Recommended: Install via agentskills standard
+npx skills install awhipp/ship-it
+```
 
-SFP is an upstream spec-creation pipeline: a structured discovery interview,
-an adversarial audit, an incremental refine loop, then a locked spec. It
-stops there by design — it doesn't plan, scaffold, or implement.
+*Alternatively, copy `skills/ship-it` directly into your workspace (`.agents/skills/ship-it`) or global harness directory (Antigravity, Cursor, or Claude Code).*
 
-`ship-it` takes two principles from it. First, the adversarial audit gate: an
-outside skeptic reads an artifact against the original requirements in a
-fresh context window and tries to break it before anyone builds on it.
-Second, context clearing between phases as a feature rather than a
-limitation — a fresh reviewer must not carry the author's reasoning, because
-that reasoning is exactly what would bias the check.
+### 3. Run
 
-### What `ship-it` adds
+Invoke `ship-it` inside any git repo using natural language or slash commands:
 
-Neither parent runs a full plan-through-review loop that also checks itself
-at every seam, and that gap is where most of `ship-it`'s own ideas live.
+```txt
+/ship-it
+```
 
-- **Conductor with zero internal memory**: `ship-it` carries no internal state.
-  Each run re-derives where a feature stands by reading the trail of work
-  already on record: the map, the spec, the tickets, the diff. That same trail
-  lets separate sessions work the same feature without colliding, since each one
-  claims only the piece nobody else has picked up yet.
-- **Open standard schema alignment**: Conforms strictly to the `agentskills.io`
-  specification with schema-compliant metadata and explicit negative triggers to
-  prevent unprompted autonomous activations.
-- **2-Tier Context Isolation Protocol**: In-context persona switching within an
-  unbroken authoring session is strictly prohibited due to inherent confirmation
-  bias. `ship-it` establishes a two-tier context isolation architecture:
-  - **Tier 1 (Isolated Subagent)**: For harnesses supporting subagent execution
-    (e.g., Antigravity, Claude Code subagents), spawning an isolated subagent
-    with a restricted prompt containing only the target artifact and upstream requirements.
-  - **Tier 2 (Fresh Session / Window)**: Universal protocol for single-agent or
-    manual harnesses (Cursor, Aider, terminal CLI), running each validation or
-    review in a fresh conversation tab.
-- **Test-first Red-Green verification gates**: Where automated tests apply, implementers
-  build in test-first slices: write a test capturing the next behavior, demonstrate
-  concrete proof of failure (natural test runner output, terminal logs, or a test commit),
-  implement the minimal code to pass, and verify green. Rigid ceremony (forced commit prefixes
-  or mandatory HTML tags) is avoided. For non-code changes (documentation, configuration),
-  changes are verified directly against acceptance criteria.
-- **Direct canonical `gh` CLI commands**: Direct, portable GitHub CLI commands with
-  cross-platform safety (quoted `"@me"` assignees, `--body-file` for multi-line content)
-  without speculative tool mappings or artificial meta-vocabularies.
-- **Cross-platform shell compatibility**: All commands and scripts operate
-  identically on Windows PowerShell/CMD and Unix/macOS shells without bash-specific
-  assumptions.
-- **Markdown relationship fallbacks**: Parent-child hierarchies (`Part of #<id>`)
-  and blocking dependency graphs (`## Blocked by` tasklists) work natively on all
-  GitHub plans without requiring preview sub-issue API access.
-- **Two-axis independent review**: Standards and spec-fidelity run as two
-  separate passes that never collapse into one verdict, alongside verification
-  of test failure proof or acceptance criteria.
+`ship-it` automatically queries your GitHub repository to determine the active feature and current phase, executes exactly one bounded slice of work, verifies the gate, and stops with the next step.
 
-- The Pragmatic Programmer: <https://www.oreilly.com/library/view/the-pragmatic-programmer/9780135956977/>
-- Parallel Change: <https://martinfowler.com/bliki/ParallelChange.html>
-- Working Effectively with Legacy Code: <https://www.oreilly.com/library/view/working-effectively-with/0131177052/>
+Need to verify repo setup or label provisioning? Run:
 
-### Why combine them
+```bash
+/ship-it preflight
+```
 
-`wayfinder` reaches all the way to a reviewed diff but treats verification
-as a downstream hand-off. SFP's adversarial, cleared-context rigor is real
-but stops at the spec. `ship-it` applies SFP's fresh-context skepticism to
-every `wayfinder` handoff: a Validate audit gates any map, spec, or ticket
-set before it gets built on, and Review checks the diff in a session that
-never saw the code get written. `wayfinder`'s full plan-through-review reach
-and SFP's verification rigor at each seam: neither parent does both alone,
-and holding that loop together end to end needed something neither had, a
-conductor that orients itself from whatever already exists instead of
-carrying state, and a Review built so its two checks can't blur into one.
+*(See [`preflight.md`](skills/ship-it/references/preflight.md) for automated checks).*
 
-## The flow
+---
 
-| Phase         | Produces                                                                                                                                                                                                                           |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Plan**      | A map (a GitHub issue) charting the open decisions for an effort too big or too foggy to spec directly, using strict one-question-per-turn dialogue. Only needed when the destination genuinely isn't clear yet.                      |
-| **Spec**      | A GitHub issue synthesizing what's been decided into a Problem Statement, Solution, User Stories, Implementation Decisions, Testing Decisions, and Out of Scope. Adversarially audited via fresh context before tickets.         |
-| **Tickets**   | Vertical-slice GitHub issues splitting the spec into session-sized, independently buildable pieces, each declaring what blocks it. Gated by explicit user confirmation before creation.                                          |
-| **Implement** | A test-first build of one ticket (or the whole spec, if it fits in one sitting) following the Red-Green cycle with verified proof of failure (or acceptance criteria verification), ending in a diff ready for review.              |
-| **Review**    | A two-axis check of that diff in an isolated fresh context (Tier 1 subagent or Tier 2 session): does it follow the repo's coding standards, does it faithfully implement what was asked, and is verification proof established? |
+## Why ship-it?
 
-## Setup and requirements
+Autonomous coding agents present a frustrating dilemma:
 
-`ship-it` needs, per repo:
+- **Unchecked Agent Drift**: Giving an agent a loose prompt and massive context leads to hallucinated APIs, ignored constraints, and unreviewable 1,500-line mega-PRs.
+- **Babysitting Fatigue**: Micro-prompting an agent line-by-line destroys velocity.
 
-- GitHub issue access via the `gh` CLI (installed and authenticated)
-- A `github.com` remote
-- Issues enabled on the repo, with write access
-- A cross-platform shell (PowerShell on Windows, or bash/zsh on macOS/Linux)
+`ship-it` solves this by introducing **bounded lifecycle phases** with **verifiable gates**. Instead of trying to write an entire feature in one runaway context window, `ship-it` works one phase at a time, stores state natively in GitHub issues, and enforces hard verification before moving forward.
 
-`ship-it` assumes all of this is already in place and doesn't check it on a
-normal run. If an issue tool call fails, or you request preflight (e.g., via
-`ship-it preflight`, `/ship-it preflight`, or prompt), it runs the checklist,
-fixes what it can (like a missing `ready-for-agent` label), and reports the rest
-instead of guessing or stopping partway through. See
-[skills/ship-it/references/preflight.md](skills/ship-it/references/preflight.md) for the full checklist.
+---
 
-## Using it
+## The 5-Phase Lifecycle
 
-Invoke `ship-it` using your environment's preferred method—via natural language prompt,
-slash command (`/ship-it`), or terminal execution. It figures out which feature and phase
-you mean (asking if it isn't obvious), does one phase's worth of work, and ends with one line
-telling you what it did and what to run next.
+| Phase | Purpose | Checkpoint & Verification Gate | Primary Artifact | Reference |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Plan** | Chart architectural decisions when requirements are foggy. | Interactive 1-question-per-turn discovery dialogue. | Decision Map (`[slug] Map: ...`) | [`plan.md`](skills/ship-it/references/plan.md) |
+| **2. Spec** | Define problem statement, acceptance criteria, and test seams. | Fresh-context adversarial audit before tickets. | Feature Spec (`[slug] Spec: ...`) | [`spec.md`](skills/ship-it/references/spec.md) |
+| **3. Tickets** | Decompose spec into session-sized, vertical slices. | Explicit developer sign-off on ticket DAG & blockers. | Vertical Tickets (`[slug] Ticket: ...`) | [`tickets.md`](skills/ship-it/references/tickets.md) |
+| **4. Implement** | Build one ticket with domain-aligned verification in a fresh session. | Recommended Red-Green cycle; green suite or verified criteria. | Git Diff & Commit | [`implement.md`](skills/ship-it/references/implement.md) |
+| **5. Review** | Independent review across Standards and Spec Fidelity. | Two-axis review report with zero findings. | Review Verdict & Label | [`review.md`](skills/ship-it/references/review.md) |
+
+### How Phases Work
+
+1. **Plan (Map)**: Used only when a feature is ambiguous or broad. Maps decisions one question at a time across the frontier of the unknown. Well-scoped features skip directly to Spec.
+2. **Spec**: Synthesizes requirements, architecture, and test seams into an unambiguous spec issue. Passes an adversarial audit gate ([`validate.md`](skills/ship-it/references/validate.md)) in an isolated context before ticketing.
+3. **Tickets**: Splits the validated spec into small, self-contained vertical slices with clear acceptance criteria and `## Blocked by` dependency tasklists.
+4. **Implement**: Executes one unblocked ticket on a dedicated branch. Strongly recommends test-first Red-Green where automated test suites exist, or direct acceptance verification where they do not. The authoring session never reviews its own work.
+5. **Review**: Audits the diff under the 2-Tier Context Isolation Protocol (isolated subagent or fresh session). Evaluates **Coding Standards** (Martin Fowler refactoring baseline) and **Spec Fidelity** along two independent axes.
+
+---
+
+## Core Guarantees
+
+- **Zero Proprietary State**: No SaaS lock-in or local runtime state. GitHub is the state machine—tracked via native issues, markdown tasklists, `ship-it:*` labels, branches, and commits.
+- **Context Hygiene as a Feature**: LLMs degrade as context history bloats. `ship-it` enforces fresh sessions between phases and tickets, eliminating hallucination loops and confirmation bias. Highlights lean implement discovery (ephemeral subagent exploration for multi-file tickets) and targeted final sweeps for negative invariants to prevent context bloat.
+- **Domain-Aligned Verification**: Defers to established repository test runners, frameworks, and testing tiers. Strongly recommends test-first Red-Green discipline where automated test suites exist, while strictly prohibiting brittle ad-hoc test harnesses for documentation, markdown skills, or configuration in favor of direct acceptance verification.
+- **Two-Axis Non-Collapsing Review**: Code quality cannot mask missing requirements. Standards and Spec Fidelity are audited independently.
+- **Harness & Model Agnostic**: Fully compliant with the open `agentskills.io` standard across Windows, macOS, and Linux.
+
+---
+
+## Dogfooded: Built by ship-it
+
+`ship-it` builds itself. The marketing site, interactive documentation, core skills, and this repository structure were planned, ticketed, and implemented using `ship-it`'s own protocol:
+
+- **Marketing Experience & Site Foundation**: [Spec #16](https://github.com/awhipp/ship-it/issues/16) sliced into Tickets [#17](https://github.com/awhipp/ship-it/issues/17), [#18](https://github.com/awhipp/ship-it/issues/18), [#19](https://github.com/awhipp/ship-it/issues/19), and [#20](https://github.com/awhipp/ship-it/issues/20), built and reviewed in isolated sessions landing in PR [#22](https://github.com/awhipp/ship-it/pull/22).
+- **Pragmatic Testing Guidelines**: [Spec #21](https://github.com/awhipp/ship-it/issues/21) established domain-aligned verification, repository testing-tier deference, and the ad-hoc test harness prohibition, landing in PR [#26](https://github.com/awhipp/ship-it/pull/26).
+- **Skill File DRY/SSOT Audit**: [Spec #27](https://github.com/awhipp/ship-it/issues/27) audited all ship-it reference files to eliminate duplicate prose and align with canonical commands, landing in PR [#32](https://github.com/awhipp/ship-it/pull/32).
+- **Lean Implement Discovery**: [Spec #34](https://github.com/awhipp/ship-it/issues/34) established ephemeral subagent exploration for multi-file tickets and targeted final sweeps for negative invariants, landing in PR [#35](https://github.com/awhipp/ship-it/pull/35).
+- **Fast-Path Resolution**: [Spec #36](https://github.com/awhipp/ship-it/issues/36) introduced in-place fast-path remediation for minor review and validation findings, landing in PR [#37](https://github.com/awhipp/ship-it/pull/37).
+- **Agnostic Harness Support**: Validated via merged PR [#8](https://github.com/awhipp/ship-it/pull/8).
+
+---
+
+## Developing ship-it (For Contributors)
+
+When developing `ship-it` inside this repository:
+
+- **Source of Truth**: The canonical skill definition tracked by Git lives in [`skills/ship-it/`](skills/ship-it/).
+- **Agent Discovery**: Agent harnesses (e.g., Antigravity, Cursor) discover workspace customizations in `.agents/skills/`, which is ignored by Git (`.gitignore`).
+
+To ensure your local agent runs your active edits without duplicating files or confusing the repo skill with the agent skill, link `.agents/skills` to `skills/`:
+
+**Windows (PowerShell — NTFS Junction, no admin required):**
+
+```powershell
+New-Item -ItemType Junction -Path ".agents\skills" -Target (Resolve-Path "skills")
+```
+
+**macOS / Linux:**
+
+```bash
+mkdir -p .agents && ln -s ../skills .agents/skills
+```
+
+---
+
+## Prior Art & Attribution
+
+`ship-it` stands on the shoulders of foundational work in agentic workflows and software engineering:
+
+- **Matt Pocock's [Wayfinder](https://github.com/mattpocock/skills/tree/main/skills/engineering/wayfinder)**: Inspired the 5-phase lifecycle, decision maps, and mapping the frontier.
+- **[Spec-First Protocol (SFP)](https://github.com/awhipp/spec-first-protocol)**: Origin of adversarial audits and context clearing as architectural features.
+- **Classic Literature**: Rooted in practices from Hunt & Thomas (*The Pragmatic Programmer*), Martin Fowler (*Refactoring*, *Parallel Change*), and Michael Feathers (*Working Effectively with Legacy Code*).

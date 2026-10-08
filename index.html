@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ship-it | The Autonomous Conductor for Software Engineering</title>
   <meta name="description"
-    content="The autonomous conductor that keeps developers in the driver's seat. Break features into bite-sized tasks, test before building, and clear context between steps." />
+    content="The autonomous conductor that keeps developers in the driver's seat. Break features into bite-sized tasks, verify with domain-aligned verification, and clear context between steps." />
   <meta name="theme-color" content="#07090e" />
 
   <!-- Favicon -->
@@ -79,7 +79,7 @@
 
         <p class="hero-description" id="hero-description">
           <strong>ship-it</strong> helps build software with AI assistants without losing your grasp on the codebase
-          by coordinating feature planning, specifications, testing, and review directly inside
+          by coordinating feature planning, specifications, domain-aligned verification, and review directly inside
           your GitHub repository.
         </p>
 
@@ -161,7 +161,7 @@
               <span class="tab-step">04</span>
               <span class="tab-info">
                 <span class="tab-title">Implement</span>
-                <span class="tab-subtitle">Test-First</span>
+                <span class="tab-subtitle">Domain-Aligned</span>
               </span>
               <span class="tab-active-dot" aria-hidden="true"></span>
             </button>
@@ -334,7 +334,7 @@
                 </div>
                 <p class="breakdown-text">
                   Translates broad goals into concrete, verifiable requirements. Documents user stories, designated test
-                  seams, and intentionally excluded features to prevent scope creep.
+                  seams, testing decisions, and intentionally excluded features to prevent scope creep.
                 </p>
               </div>
 
@@ -412,7 +412,7 @@
                   </div>
                   <div class="contract-section">
                     <span class="contract-badge">Part 3</span>
-                    <span class="contract-name">Implementation Decisions & Test Seams</span>
+                    <span class="contract-name">Implementation Decisions & Testing Decisions</span>
                   </div>
                   <div class="contract-section">
                     <span class="contract-badge">Part 4</span>
@@ -560,10 +560,10 @@
                 <span class="phase-number-badge">Phase 04</span>
                 <span class="phase-cli-badge"><code>gh issue edit &lt;num&gt; --add-assignee "@me"</code></span>
               </div>
-              <h3 class="panel-headline">Build with Test-First Discipline</h3>
+              <h3 class="panel-headline">Build with Domain-Aligned Verification</h3>
               <p class="panel-summary">
-                Tackle one ticket at a time in a focused session, using Red-Green test cycles to prove each requirement
-                works.
+                Tackle one ticket at a time in a focused session with domain-aligned verification—recommending Red-Green
+                test cycles for automated suites, or direct acceptance verification where suites do not exist.
               </p>
             </div>
 
@@ -580,8 +580,10 @@
                   <h4 class="breakdown-title">What this step does</h4>
                 </div>
                 <p class="breakdown-text">
-                  Applies test-driven development to build the feature. The assistant creates an automated test
-                  reproducing the ticket criteria, confirms it fails, and then writes the minimal code to pass.
+                  Applies domain-aligned verification tailored to the codebase. Strongly recommends test-first Red-Green
+                  cycles where automated test suites exist, while enforcing the ad-hoc test runner prohibition for
+                  documentation, configs, or markdown skills in favor of direct acceptance verification. Offloads
+                  codebase exploration to ephemeral subagents for multi-file tickets to preserve context hygiene.
                 </p>
               </div>
 
@@ -598,11 +600,13 @@
                 <div class="io-list">
                   <div class="io-group">
                     <span class="io-label">Inputs:</span>
-                    <span class="io-val">The unblocked ticket, its acceptance criteria, and the working branch</span>
+                    <span class="io-val">The unblocked ticket, acceptance criteria, dedicated branch, and optional
+                      ephemeral subagent exploration</span>
                   </div>
                   <div class="io-group">
                     <span class="io-label">Outputs:</span>
-                    <span class="io-val">A recorded test failure log, passing test suite, and minimal code diff</span>
+                    <span class="io-val">A passing automated test suite (or recorded direct acceptance criteria
+                      verification), post-build targeted final sweep for negative invariants, and focused commit diff</span>
                   </div>
                 </div>
               </div>
@@ -636,30 +640,31 @@
                   <h4 class="breakdown-title">Keeping on track</h4>
                 </div>
                 <p class="breakdown-text">
-                  <strong>Preventing Drift:</strong> Demonstrating test failure before implementation ensures the test
-                  is genuinely validating the required behavior and prevents false passes.
+                  <strong>Preventing Drift:</strong> Recommended Red-Green cycles confirm automated tests catch missing
+                  behavior before code is written, while the ad-hoc test runner prohibition stops brittle synthetic test
+                  scaffolding. Targeted final sweeps verify negative invariants across the entire codebase.
                 </p>
               </div>
             </div>
 
             <div class="explorer-artifact-preview">
               <div class="artifact-preview-header">
-                <span class="artifact-tag">Artifact Preview: Test-First Development Cycle</span>
-                <span class="artifact-status">State: Tests Passing</span>
+                <span class="artifact-tag">Artifact Preview: Domain-Aligned Verification</span>
+                <span class="artifact-status">State: Tests & Acceptance Verified</span>
               </div>
               <div class="artifact-preview-body">
                 <div class="redgreen-box">
                   <div class="rg-log red">
-                    <span class="log-tag">Step 1: Write Failing Test</span>
+                    <span class="log-tag">Path A: Automated Suites (Red-Green)</span>
                     <code
-                      class="log-code">FAIL tests/explorer.test.js &gt; Explorer navigation controls (1 failed)</code>
-                    <span class="log-note">Confirm the test catches missing behavior before writing code</span>
+                      class="log-code">FAIL tests/marketing.test.js &gt; Red phase: verify test catches missing behavior</code>
+                    <span class="log-note">Confirm test failure before implementing minimal code to reach green</span>
                   </div>
                   <div class="rg-divider">➔</div>
                   <div class="rg-log green">
-                    <span class="log-tag">Step 2: Implement & Pass</span>
-                    <code class="log-code">PASS tests/explorer.test.js &gt; All tests passed (0 errors)</code>
-                    <span class="log-note">Write the minimal code needed to satisfy the test, then commit</span>
+                    <span class="log-tag">Path B: Direct Acceptance & Sweeps</span>
+                    <code class="log-code">VERIFIED criteria &gt; targeted final sweeps confirm zero negative invariants</code>
+                    <span class="log-note">Ad-hoc test runner prohibition: verify directly against criteria</span>
                   </div>
                 </div>
               </div>
@@ -711,12 +716,12 @@
                 <div class="io-list">
                   <div class="io-group">
                     <span class="io-label">Inputs:</span>
-                    <span class="io-val">The branch diff, team conventions, and ticket acceptance criteria</span>
+                    <span class="io-val">The branch diff, team conventions, ticket acceptance criteria, and verified acceptance criteria proof</span>
                   </div>
                   <div class="io-group">
                     <span class="io-label">Outputs:</span>
-                    <span class="io-val">A two-axis review scorecard with clear findings and a merge
-                      recommendation</span>
+                    <span class="io-val">A two-axis review scorecard with verified acceptance criteria proof, clear
+                      findings, and a merge recommendation</span>
                   </div>
                 </div>
               </div>
@@ -779,7 +784,7 @@
                       <span class="axis-verdict-pill pass">All Criteria Met</span>
                     </div>
                     <ul class="axis-check-list">
-                      <li>✓ All acceptance tests pass</li>
+                      <li>✓ Verified acceptance criteria proof (test runner or domain evidence)</li>
                       <li>✓ No unintended changes or scope creep</li>
                       <li>✓ Production build compiles cleanly</li>
                     </ul>
