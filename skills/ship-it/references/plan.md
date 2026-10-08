@@ -1,140 +1,88 @@
 # Plan: chart a map of decision tickets
 
-For an effort too big or too foggy for one session: the way from here to the
-destination isn't visible yet. This phase charts that way as a map, then
-resolves it one decision at a time until the route is clear. It produces
-**decisions**, not built features; building happens later, in Implement.
+Chart a map when an effort is too large or ambiguous for a single session. This phase charts the path as a map, then resolves open questions one decision at a time. It produces **decisions**, not code. Implementation occurs later in the Implement phase.
 
 ## Is this actually needed?
 
-Before charting anything, check the escape hatch: fan out breadth-first across
-the whole space (see step 2 below) and see whether it turns up any real fog. If
-it doesn't, if the whole thing is already clear enough to write a spec
-directly, stop here and go straight to `spec.md` instead. Charting a map for
-something that doesn't need one is pure overhead.
+Before charting, check the escape hatch. Fan out across the domain breadth-first (see step 2 below) to locate genuine uncertainty. If the path is clear enough to write a spec directly, stop here and advance to [spec.md](spec.md). Charting a map for a clear effort adds unnecessary overhead.
 
 ## The map
 
-The map is a single GitHub issue titled `[<slug>] Map: <destination gist>`
-and labelled `ship-it:map`, with this body:
+The map is a single GitHub issue titled `[<slug>] Map: <destination gist>` and labelled `ship-it:map`, with this body:
 
 ```markdown
     ## Destination
 
     <What reaching the end of this map looks like: usually "a spec ready to hand to
-    spec.md (via ship-it or /ship-it)." One or two lines.>
+    spec.md (via ship-it or /ship-it)." Write one or two concise lines adhering to
+    [writing.md](writing.md).>
 
     ## Notes
 
-    <Domain context; standing preferences for this effort.>
+    <Domain context and standing preferences for this effort. Write concise paragraphs
+    following [writing.md](writing.md).>
 
     ## Decisions so far
 
-    <!-- One line per resolved ticket: enough to judge relevance, with a link to the
-    ticket for the full detail. Never restate the decision here, just gist and link. -->
+    <!-- One line per resolved ticket: gist and issue link adhering to [writing.md](writing.md).
+    Provide enough detail to judge relevance. Never restate full decision text here. -->
 
     ## Not yet specified
 
-    <!-- Fog: questions you can tell are coming but can't yet phrase precisely.
+    <!-- Fog: questions you can anticipate but cannot yet phrase precisely.
     See "Fog of war" below. -->
 
     ## Out of scope
 
-    <!-- Work ruled beyond the destination. Never graduates into a ticket. -->
+    <!-- Work ruled beyond the destination. Out-of-scope work never graduates into a ticket. -->
 ```
 
-Each **ticket** is a child issue of the map (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) for the
-sub-issues and dependency APIs), titled `[<slug>] <ticket type>: <question gist>` and
-labelled with its type below (`ship-it:research`, `ship-it:prototype`,
-`ship-it:grilling`, or `ship-it:task`), with a body of just the question:
+Each **ticket** is a child issue of the map (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) for sub-issues and dependency APIs). Title each ticket `[<slug>] <ticket type>: <question gist>` and label it with its type (`ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`). Format the body with the question adhering to [writing.md](writing.md):
 
 ```markdown
     ## Question
 
-    <The decision or investigation this ticket resolves.>
+    <The decision or investigation this ticket resolves. Phrase as a clear, single-sentence question adhering to writing.md.>
 ```
 
 ## Refer by name
 
-In anything the user reads, refer to the map and its tickets by their issue
-title, not a bare `#42`. The title carries the meaning; the number only helps
-`gh` find the thing. Link the title to the issue where a link is possible, and
-let the number ride inside that link rather than stand on its own in prose.
+Refer to the map and its tickets by issue title in all user-facing communication, not by a bare number like `#42`. The title conveys meaning, while the number only assists `gh`. Link the title to the issue whenever possible. Place the issue number inside the markdown link rather than standing alone in prose.
 
 ## Ticket types
 
-- **Research**: a fact a decision is waiting on, findable by reading
-  docs/APIs/code. Resolve it yourself, in this session, by actually reading
-  the source rather than guessing.
-- **Prototype**: the question is about how something should look or behave,
-  and needs a cheap, rough, concrete artifact to react to before it can be
-  answered in prose. Build the smallest throwaway version that answers the
-  question, show it, capture the answer.
-- **Grilling**: a conversation with the user is the only way to resolve it,
-  because it's a decision only they can make. This is the default case. Ask
-  sharp questions, strictly one question per turn during clarification; never
-  batch multiple questions into a single turn or answer on their behalf.
-- **Task**: something must merely be _done_, not decided, before a decision
-  can be made (provisioning access, moving data so its shape becomes visible).
-  Do the work if you can; if only the user can do it, leave them a precise
-  checklist and record what changed once it's done.
+- **Research**: A fact required for a decision, discoverable in documentation, APIs, or source code. Resolve this ticket in the active session by inspecting the source directly.
+- **Prototype**: An open question about appearance or behavior requiring a quick, concrete artifact before deciding in prose. Build the minimal throwaway prototype that answers the question, demonstrate it, and record the answer.
+- **Grilling**: A decision requiring user input. This is the default ticket type. Ask sharp questions, strictly one question per turn during clarification. Never batch questions into a single turn or answer on behalf of the user.
+- **Task**: Concrete work that must be completed before making a decision (such as provisioning access or migrating data). Perform the work directly if possible. If only the user can perform it, provide a concise checklist and record the resulting state.
 
 ## Fog of war
 
-The map is deliberately incomplete. Beyond the live tickets lies the fog:
-questions you can tell are coming but can't yet state precisely, because they
-hang on other questions still open. Resolving a ticket clears fog ahead of it;
-whatever becomes specifiable graduates into a fresh ticket.
+The map is deliberately incomplete. Beyond active tickets lies the fog: questions anticipated but not yet stateable with precision because they depend on open decisions. Resolving a ticket clears fog. When an item becomes specifiable, graduate it into a fresh ticket.
 
-The test for ticket vs. fog: can you state the question precisely **right
-now**, whether or not you can act on it yet? If yes, it's a ticket, even if
-it's blocked. If you can only gesture at the area, it's fog: write it into
-"Not yet specified," coarser than a ticket, without pre-slicing it.
+The test for ticket versus fog: can you state the question precisely right now? If yes, create a ticket even if blocked. If you can only identify the general topic, record it in "Not yet specified" without premature slicing.
 
 ## Out of scope
 
-The destination fixes the scope. Work beyond it isn't fog and doesn't belong
-in "Not yet specified": it gets its own line in "Out of scope," with the gist
-and why. If an existing ticket turns out to sit past the destination, close it
-and move its gist here rather than resolving it on the route. Out-of-scope
-work never graduates; it returns only as a fresh effort if the destination
-itself changes.
+The destination sets the project boundaries. Work beyond the destination is not fog and does not belong in "Not yet specified". Record out-of-scope items under "Out of scope" with a brief rationale following [writing.md](writing.md). If an existing ticket falls outside the destination, close the ticket and move its summary here. Out-of-scope items never graduate into tickets during this effort.
 
 ## Working the map, one session at a time
 
 **Charting** (first time through, no map exists yet):
 
-1. Grill the user to name the destination: the spec, decision, or change this
-   map is finding its way to. Settle this first; it fixes the scope. Ask strictly
-   one question per turn during clarification—never batch or barrage multiple
-   questions into a single turn.
-2. Grill again, breadth-first this time: fan out across the whole space rather
-   than deep on one thread, surfacing open decisions and what's takeable now.
-   Continue strictly one question per turn.
-3. Write the map: destination and notes filled in, decisions-so-far empty, fog
-   sketched into "Not yet specified."
-4. Create whatever tickets you can specify now (`gh issue create`; see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions)), then wire their blocking
-   edges (markdown tasklist under `## Blocked by`). Everything else stays in the fog.
-5. Stop. Charting is its own session's work; it resolves nothing.
+1. Grill the user to name the destination: the spec, decision, or change this map targets. Settle this first; it fixes the scope. Ask strictly one question per turn during clarification—never batch multiple questions into a single turn.
+2. Grill again, breadth-first this time: fan out across the domain rather than exploring one thread deeply. Surface open decisions and actionable items. Continue strictly one question per turn.
+3. Write the map: fill in destination and notes, leave decisions-so-far empty, and record fog in "Not yet specified". Ensure all sections follow [writing.md](writing.md).
+4. Create tickets for currently specifiable questions (`gh issue create`; see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions)). Wire blocking edges in a markdown tasklist under `## Blocked by`. Leave remaining items in the fog.
+5. Stop. Charting is a complete session of work that resolves no tickets.
 
 **Resolving** (a map already exists):
 
-1. Read the map (the low-resolution body, not every ticket) via `gh issue view <number>`.
-2. Pick the ticket: whichever the user named, or the first unblocked,
-   unclaimed one (the frontier), in order.
-3. Claim it (`gh issue edit <number> --add-assignee "@me"`) before doing any work per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions), so
-   a concurrent session skips it.
-4. Resolve it: work the ticket per its type above. For grilling tickets, ask
-   strictly one question per turn during clarification.
-5. Record the resolution: post the answer (`gh issue comment <number> --body "<text>"`), close the ticket
-   (`gh issue close <number> --comment "<text>"`), append a
-   one-line gisted pointer to the map's "Decisions so far" (`gh issue edit <map-number>`).
-6. Graduate any fog the answer just made specifiable into fresh tickets
-   (create via `gh issue create`, then wire blocking edges under `## Blocked by`),
-   clearing it out of "Not yet specified." If the answer reveals a ticket sits
-   beyond the destination, rule it out of scope instead of resolving it.
+1. Read the map body via `gh issue view <number>`.
+2. Pick the ticket: select the ticket named by the user, or take the earliest unblocked, unclaimed ticket on the frontier.
+3. Claim the ticket (`gh issue edit <number> --add-assignee "@me"`) before starting work per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).
+4. Resolve the ticket according to its type. For grilling tickets, ask strictly one question per turn during clarification.
+5. Record the resolution: post the answer (`gh issue comment <number> --body "<text>"`), and close the ticket (`gh issue close <number> --comment "<text>"`). Append a one-line summary pointer to the map's "Decisions so far" (`gh issue edit <map-number>`) following [writing.md](writing.md).
+6. Graduate newly specifiable fog into fresh tickets (`gh issue create`, then wire blocking edges under `## Blocked by`). Remove graduated items from "Not yet specified". If an answer shows that a ticket lies outside the destination, move it to "Out of scope".
 
-Resolve **at most one ticket per session** (research tickets are the
-exception; several can run in a batch since they need no back-and-forth).
-When no tickets remain and nothing is left in the fog, the map is clear: hand
-off to `spec.md` (or run `ship-it` or `/ship-it`).
+Resolve **at most one ticket per session** (research tickets are the exception; several can run in a batch since they need no user interaction). When no tickets remain and "Not yet specified" is empty, the map is clear: hand off to [spec.md](spec.md) (or run `ship-it` or `/ship-it`).

@@ -94,27 +94,29 @@ avoid holding up the build; the tier is what unblocks or doesn't.
 
 Post the findings as a comment on the artifact's issue
 (`gh issue comment <number> --body-file <file>`), so they're visible to
-whoever reads it next, in this session or a later one:
+whoever reads it next, in this session or a later one. Format all report
+findings, in-place resolutions, and summaries as concise statements adhering
+to [writing.md](writing.md):
 
 ```markdown
 ## Validation: <artifact type>
 
-<One line: overall read on the artifact's shape and readiness.>
+<One line: overall read on the artifact's shape and readiness adhering to writing.md.>
 
 ### Blockers
-- **B-1** [<section>]: <what's wrong, one sentence on why it blocks>
+- **B-1** [<section>]: <what's wrong, one sentence on why it blocks adhering to writing.md>
 - *(or "None")*
 
 ### Warnings
-- **W-1** [<section>]: <what's underspecified, one sentence on the guess it forces>
+- **W-1** [<section>]: <what's underspecified, one sentence on the guess it forces adhering to writing.md>
 - *(or "None")*
 
 ### Nits
-- **N-1** [<section>]: <the improvement, one sentence>
+- **N-1** [<section>]: <the improvement, one sentence adhering to writing.md>
 - *(or "None")*
 
 ### In-place Resolutions
-- **R-1** [<section>]: <minor typo, phrasing clarification, or formatting fix patched in issue body>
+- **R-1** [<section>]: <minor typo, phrasing clarification, or formatting fix patched in issue body adhering to writing.md>
 - *(or "None")*
 
 ### Traceability

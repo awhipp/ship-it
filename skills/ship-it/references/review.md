@@ -113,13 +113,26 @@ If there's no spec source, skip this pass and say so.
 
 ### 6. Report
 
-Present both under `## Standards` and `## Spec` headings, unmerged. When minor
-findings are remediated via the fast-path, document them under an
-`### In-place Resolutions` heading detailing the patched hunks, rationale, and
-the distinct commit hash. Close with a one-line summary: total findings per axis
-(and in-place resolutions), plus the worst outstanding issue **within** each axis,
-if any. Don't declare a single overall winner across the two axes; that's exactly
-the reranking the separation exists to prevent.
+Present both passes under `## Standards` and `## Spec` headings, unmerged. Format all findings, in-place resolutions, and summaries as concise statements adhering to [writing.md](writing.md):
+
+```markdown
+## Standards
+
+<Findings citing file, rule, and hunk, formatted as concise statements following writing.md. Under 400 words. Or "None".>
+
+## Spec
+
+<Findings citing spec requirement and implementation divergence, formatted as concise statements following writing.md. Under 400 words. Or "None".>
+
+### In-place Resolutions
+
+- **R-1** [<file>#L<lines>]: <Concise description of the fix, rationale, and commit hash following writing.md>
+- *(or "None")*
+
+**Summary**: <One-line summary of findings per axis and worst issue within each axis, if any.>
+```
+
+When minor findings are remediated via the fast-path, document them under `### In-place Resolutions` detailing the patched hunks, rationale, and the distinct commit hash. Close with a one-line summary: total findings per axis (and in-place resolutions), plus the worst outstanding issue **within** each axis, if any. Don't declare a single overall winner across the two axes; that's exactly the reranking the separation exists to prevent.
 
 ## Outcome
 

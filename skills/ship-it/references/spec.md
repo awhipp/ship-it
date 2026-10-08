@@ -1,42 +1,20 @@
-# Spec: synthesize what's already been decided
+# Spec: synthesize what has already been decided
 
-Turn a settled idea, whether from a map's resolved decisions, a conversation,
-or both, into a spec published as a GitHub issue. This is **synthesis, not
-interview**: by the time this phase runs, the open questions should already be
-answered. If something genuinely still needs the user's input, ask it, but
-don't turn this into a full grilling session; that already happened upstream
-(in `plan.md`, or earlier in the conversation).
+Turn a settled idea into a spec published as a GitHub issue. Source requirements from resolved map decisions, user conversation, or both. This phase is **synthesis, not interview**. Resolve open questions before entering this phase. If you need user input on a minor point, ask directly. Do not conduct an extensive grilling session; grilling belongs upstream in [plan.md](plan.md).
 
 ## Process
 
-1. **Gather what's already settled.** If a map exists for this feature, read
-   its "Decisions so far" via `gh issue view <map-number>` and zoom into any
-   ticket whose detail matters. Otherwise, work from the conversation.
+1. **Gather settled context.** If a map exists for this feature, read "Decisions so far" via `gh issue view <map-number>`. Inspect any ticket details that matter. Otherwise, synthesize context from the conversation.
 
-2. **Explore the codebase**, if you haven't already, to ground the spec in
-   what's actually there. Use the project's own vocabulary throughout (its
-   glossary, its existing terms for things), and respect any architecture
-   decision records in the area you're touching, rather than re-deciding
-   something already settled.
+2. **Explore the codebase.** Ground the spec in active code. Use the project's established vocabulary and respect existing Architecture Decision Records (ADRs).
 
-3. **Sketch the test seams and verification strategy**: identify where and how
-   you'll verify this feature works, aligned with existing workspace test
-   conventions and directory structures. Prefer existing seams to new ones, and
-   the highest seam you can, the fewest number across the codebase, ideally one.
-   If the repository lacks automated tests or the change is non-executable (e.g.
-   documentation, configuration, skills), outline direct verification methods
-   per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm these match the
-   user's expectations before moving on; a spec built on the wrong seam is
-   expensive to unwind later.
+3. **Define test seams and verification strategy.** Determine where and how to verify the feature, aligning with existing test conventions and directories. Prefer existing seams over new ones. Choose high-level seams with minimal touchpoints across the codebase. For non-executable changes or repositories without automated tests, define direct verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm verification seams with the user before drafting.
 
-4. **Draft the spec** using the template below, presenting it to the user.
+4. **Draft the spec.** Draft the specification using the template below. Ensure all sections follow the standards in [writing.md](writing.md).
 
-   **Approval Checkpoint**: You MUST pause here and obtain explicit user confirmation
-   before creating any GitHub issue. Do not autonomously publish the spec without
-   user review and sign-off on the scope and decisions. Iterate until confirmed.
+   **Approval Checkpoint**: Pause here and obtain explicit user confirmation before creating any GitHub issue. Never publish the spec without explicit user review and approval of scope and decisions. Iterate until confirmed.
 
-5. **Publish the spec.** Once explicitly approved, publish the spec as a GitHub
-   issue titled `[<slug>] Spec: <gist>` using `--body-file` per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions) (see also [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands)):
+5. **Publish the spec.** Once approved, publish the spec as a GitHub issue titled `[<slug>] Spec: <gist>`. Use `--body-file` per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions) (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands)):
 
    ```shell
    gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec,ready-for-agent"
@@ -47,60 +25,49 @@ don't turn this into a full grilling session; that already happened upstream
 ```markdown
     ## Problem Statement
 
-    The problem the user is facing, from the user's perspective.
+    Describe the user problem from the user perspective. Follow sentence brevity and
+    clarity rules in [writing.md](writing.md).
 
     ## Solution
 
-    The solution to the problem, from the user's perspective.
+    Describe the proposed solution from the user perspective. Follow sentence brevity
+    and clarity rules in [writing.md](writing.md).
 
     ## User Stories
 
-    A long, numbered list. Each one:
+    Numbered list covering the complete feature surface area. Format every story to
+    follow [writing.md](writing.md):
 
     1. As a <actor>, I want <feature>, so that <benefit>
 
-    Example: "As a mobile bank customer, I want to see the balance on my accounts,
-    so that I can make better-informed decisions about my spending."
-
-    Cover the feature extensively here; this list is the surface area the rest of
-    the build works against.
+    Example: "As an account holder, I want to view my account balance, so that I can track spending."
 
     ## Implementation Decisions
 
-    What will be built or modified: modules, their interfaces, technical
-    clarifications, architectural decisions, schema changes, API contracts,
-    specific interactions.
+    Technical clarifications, architectural decisions, module interfaces, schema
+    updates, and API contracts. Follow the 6 core rules in [writing.md](writing.md).
 
-    Don't include file paths or code snippets; they go stale fast. Exception: if
-    a prototype produced a snippet that encodes a decision more precisely than
-    prose can (a state machine, a reducer, a schema shape), inline just the
-    decision-rich part and note it came from a prototype.
+    Omit file paths and transient code snippets to prevent stale references.
+    Exception: if a prototype established a concrete data structure, state machine,
+    or schema, include only the decision-critical snippet and note its prototype origin.
 
     ## Testing Decisions
 
-    How this feature will be verified, aligned with the workspace's established
-    test framework, runners, and directory conventions where they exist. What
-    makes a good test here (external behavior, not implementation details), which
-    domain modules or feature seams get tested, and any prior art elsewhere in the
-    codebase. For areas lacking test suites or where automated tests are not
-    viable or needed, state the domain-appropriate direct verification (linting,
-    typechecking, build compilation, CLI/browser verification) per the
-    [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+    Verification strategy aligned with workspace conventions and existing test runners.
+    Define which domain modules and seams receive test coverage. For non-executable
+    changes or projects lacking automated tests, state domain-appropriate direct
+    verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+    Follow [writing.md](writing.md).
 
     ## Out of Scope
 
-    What this spec deliberately does not cover.
+    Explicitly excluded capabilities. Follow [writing.md](writing.md).
 
     ## Further Notes
 
-    Anything else worth recording.
+    Additional context or operational constraints. Follow [writing.md](writing.md).
 ```
 
-Once published, this spec is what `tickets.md`, `implement.md`, and
-`review.md` all read (`gh issue view <spec-number>`) to know what's being built.
+Once published, child phases ([tickets.md](tickets.md), [implement.md](implement.md), and [review.md](review.md)) read this spec via `gh issue view <spec-number>` to know what to build.
 
-Recommended next step: [references/validate.md](validate.md) audits this spec
-adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol)
-before anyone splits it into tickets or builds from it directly. Worth running on anything that spans more than one
-session — treat skipping it as the exception, reserved for a small feature where a
-missed gap would surface (and get fixed) just as cheaply during the build itself.
+Recommended next step: [validate.md](validate.md) audits this spec adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol) before anyone splits it into tickets or builds from it directly. Run validation for any multi-session build. Treat skipping validation as a rare exception for trivial features.
