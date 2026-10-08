@@ -3,7 +3,7 @@
 [![Live Site](https://img.shields.io/badge/Live_Site-awhipp.github.io%2Fship--it-2563eb?style=flat-square&logo=githubpages&logoColor=white)](https://awhipp.github.io/ship-it/)
 [![Standard](https://img.shields.io/badge/agentskills.io-compliant-10b981?style=flat-square)](https://agentskills.io)
 
-**The Autonomous Conductor for Software Engineering.** Put developers back in the driver's seat of the SDLC with strict phase gates, 2-tier context isolation, and test-first verification.
+**The Autonomous Conductor for Software Engineering.** Put developers back in the driver's seat of the SDLC with strict phase gates, 2-tier context isolation, and pragmatic, domain-aligned verification.
 
 ```txt
 Plan ──▶ Spec ──▶ Tickets ──▶ Implement ──▶ Review
@@ -74,7 +74,7 @@ Autonomous coding agents present a frustrating dilemma:
 | **1. Plan** | Chart architectural decisions when requirements are foggy. | Interactive 1-question-per-turn discovery dialogue. | Decision Map (`[slug] Map: ...`) | [`plan.md`](skills/ship-it/references/plan.md) |
 | **2. Spec** | Define problem statement, acceptance criteria, and test seams. | Fresh-context adversarial audit before tickets. | Feature Spec (`[slug] Spec: ...`) | [`spec.md`](skills/ship-it/references/spec.md) |
 | **3. Tickets** | Decompose spec into session-sized, vertical slices. | Explicit developer sign-off on ticket DAG & blockers. | Vertical Tickets (`[slug] Ticket: ...`) | [`tickets.md`](skills/ship-it/references/tickets.md) |
-| **4. Implement** | Build one ticket test-first in a fresh session. | Recommended Red-Green cycle; green suite or verified criteria. | Git Diff & Commit | [`implement.md`](skills/ship-it/references/implement.md) |
+| **4. Implement** | Build one ticket with domain-aligned verification in a fresh session. | Recommended Red-Green cycle; green suite or verified criteria. | Git Diff & Commit | [`implement.md`](skills/ship-it/references/implement.md) |
 | **5. Review** | Independent review across Standards and Spec Fidelity. | Two-axis review report with zero findings. | Review Verdict & Label | [`review.md`](skills/ship-it/references/review.md) |
 
 ### How Phases Work
@@ -90,8 +90,8 @@ Autonomous coding agents present a frustrating dilemma:
 ## Core Guarantees
 
 - **Zero Proprietary State**: No SaaS lock-in or local runtime state. GitHub is the state machine—tracked via native issues, markdown tasklists, `ship-it:*` labels, branches, and commits.
-- **Context Hygiene as a Feature**: LLMs degrade as context history bloats. `ship-it` enforces fresh sessions between phases and tickets, eliminating hallucination loops and confirmation bias.
-- **Test-First Red-Green Discipline**: Recommends test-first Red-Green discipline where automated test suites exist, with domain-aligned verification for non-code changes.
+- **Context Hygiene as a Feature**: LLMs degrade as context history bloats. `ship-it` enforces fresh sessions between phases and tickets, eliminating hallucination loops and confirmation bias. Highlights lean implement discovery (ephemeral subagent exploration for multi-file tickets) and targeted final sweeps for negative invariants to prevent context bloat.
+- **Domain-Aligned Verification**: Defers to established repository test runners, frameworks, and testing tiers. Strongly recommends test-first Red-Green discipline where automated test suites exist, while strictly prohibiting brittle ad-hoc test harnesses for documentation, markdown skills, or configuration in favor of direct acceptance verification.
 - **Two-Axis Non-Collapsing Review**: Code quality cannot mask missing requirements. Standards and Spec Fidelity are audited independently.
 - **Harness & Model Agnostic**: Fully compliant with the open `agentskills.io` standard across Windows, macOS, and Linux.
 
@@ -99,11 +99,13 @@ Autonomous coding agents present a frustrating dilemma:
 
 ## Dogfooded: Built by ship-it
 
-`ship-it` builds itself. The marketing site, interactive documentation, and this repository structure were planned, ticketed, and implemented using `ship-it`'s own protocol:
+`ship-it` builds itself. The marketing site, interactive documentation, core skills, and this repository structure were planned, ticketed, and implemented using `ship-it`'s own protocol:
 
-- **Spec**: [Spec #16](https://github.com/awhipp/ship-it/issues/16) (Marketing Experience & Documentation)
-- **Tickets**: Sliced into Tickets [#17](https://github.com/awhipp/ship-it/issues/17), [#18](https://github.com/awhipp/ship-it/issues/18), [#19](https://github.com/awhipp/ship-it/issues/19), and [#20](https://github.com/awhipp/ship-it/issues/20) with strict dependency ordering.
-- **Traceability**: Each slice was built with Red-Green test verification and reviewed in isolated sessions before landing in PR [#22](https://github.com/awhipp/ship-it/pull/22).
+- **Marketing Experience & Site Foundation**: [Spec #16](https://github.com/awhipp/ship-it/issues/16) sliced into Tickets [#17](https://github.com/awhipp/ship-it/issues/17), [#18](https://github.com/awhipp/ship-it/issues/18), [#19](https://github.com/awhipp/ship-it/issues/19), and [#20](https://github.com/awhipp/ship-it/issues/20), built and reviewed in isolated sessions landing in PR [#22](https://github.com/awhipp/ship-it/pull/22).
+- **Pragmatic Testing Guidelines**: [Spec #21](https://github.com/awhipp/ship-it/issues/21) established domain-aligned verification, repository testing-tier deference, and the ad-hoc test harness prohibition, landing in PR [#26](https://github.com/awhipp/ship-it/pull/26).
+- **Skill File DRY/SSOT Audit**: [Spec #27](https://github.com/awhipp/ship-it/issues/27) audited all ship-it reference files to eliminate duplicate prose and align with canonical commands, landing in PR [#32](https://github.com/awhipp/ship-it/pull/32).
+- **Lean Implement Discovery**: [Spec #34](https://github.com/awhipp/ship-it/issues/34) established ephemeral subagent exploration for multi-file tickets and targeted final sweeps for negative invariants, landing in PR [#35](https://github.com/awhipp/ship-it/pull/35).
+- **Fast-Path Resolution**: [Spec #36](https://github.com/awhipp/ship-it/issues/36) introduced in-place fast-path remediation for minor review and validation findings, landing in PR [#37](https://github.com/awhipp/ship-it/pull/37).
 - **Agnostic Harness Support**: Validated via merged PR [#8](https://github.com/awhipp/ship-it/pull/8).
 
 ---
