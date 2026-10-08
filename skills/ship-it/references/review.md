@@ -113,17 +113,34 @@ If there's no spec source, skip this pass and say so.
 
 ### 6. Report
 
-Present both under `## Standards` and `## Spec` headings, unmerged. Close with
-a one-line summary: total findings per axis, and the worst issue **within**
-each axis, if any. Don't declare a single overall winner across the two axes;
-that's exactly the reranking the separation exists to prevent.
+Present both under `## Standards` and `## Spec` headings, unmerged. When minor
+findings are remediated via the fast-path, document them under an
+`### In-place Resolutions` heading detailing the patched hunks, rationale, and
+the distinct commit hash. Close with a one-line summary: total findings per axis
+(and in-place resolutions), plus the worst outstanding issue **within** each axis,
+if any. Don't declare a single overall winner across the two axes; that's exactly
+the reranking the separation exists to prevent.
 
 ## Outcome
 
-- **Verification evidence missing or either axis has findings**: post findings to the ticket
-  (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"`) and hand back to a fresh
-  `implement.md` session to address. The ticket stays open, unreviewed; do not apply
-  `ship-it:reviewed` on a report that has anything outstanding or lacks appropriate verification evidence.
+- **Major findings or missing verification evidence**: Architectural defects,
+  missing acceptance criteria, behavioral redesigns, multi-file refactoring, or
+  missing verification evidence cannot be patched in review. Post findings to the
+  ticket (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"`)
+  and hand back to a fresh `implement.md` session to address under the
+  [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol).
+  The ticket stays open, unreviewed; do not apply `ship-it:reviewed` on a report
+  that has anything outstanding or lacks appropriate verification evidence.
+- **Minor findings (fast-path)**: When findings meet the minor threshold—strictly
+  limited to self-contained cosmetic fixes, lint/formatting nits, small naming adjustments,
+  typos, or trivial 1–2 line fixes that do not alter architecture or core behavior—the
+  reviewer may remediate them directly within the active context window:
+  1. Patch the files in-place.
+  2. Commit the changes as a distinct commit (e.g. `git commit -m "style: address review nits"`).
+  3. Re-run the full verification suite (or domain-appropriate checks) to confirm all checks pass.
+  4. Document the remediations under `### In-place Resolutions` in the review report.
+  5. Apply `ship-it:reviewed` (`gh issue edit <number> --add-label "ship-it:reviewed"`),
+     post the review report comment, and proceed directly to close-out without a session hop.
 - **Verification evidence verified and both axes clean**: apply `ship-it:reviewed`
   (`gh issue edit <number> --add-label "ship-it:reviewed"`), then close out. The
   work-in-progress commit is already on the branch from `implement.md`, so comment

@@ -57,7 +57,7 @@ Once the ticket's behavior is built and the full suite is green (or acceptance c
 
 ### 6. Report and hand off
 
-Tell the user the ticket is implemented and waiting on independent review under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol), and that the next step is an isolated review session running `review.md` against this diff (e.g., via `ship-it review`, `/ship-it review`, or the equivalent in conversation). Include the verification summary (e.g., test runner output, test commit ref, or domain-appropriate acceptance criteria verification) in the handoff report and issue comment. Don't run review yourself, even as a "quick check" before stopping; in-context persona simulation is strictly prohibited.
+Tell the user the ticket is implemented and waiting on independent review under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol), and that the next step is an isolated review session running `review.md` against this diff (e.g., via `ship-it review`, `/ship-it review`, or the equivalent in conversation). (Note that minor review findings—such as typos, formatting nits, or trivial 1–2 line fixes—may be remediated directly in-place by the review session via the fast-path, whereas major issues will route back to a fresh implementation session.) Include the verification summary (e.g., test runner output, test commit ref, or domain-appropriate acceptance criteria verification) in the handoff report and issue comment. Don't run review yourself, even as a "quick check" before stopping; in-context persona simulation is strictly prohibited.
 
 ## When there's no ticket (small, single-session feature)
 

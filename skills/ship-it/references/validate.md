@@ -113,6 +113,10 @@ whoever reads it next, in this session or a later one:
 - **N-1** [<section>]: <the improvement, one sentence>
 - *(or "None")*
 
+### In-place Resolutions
+- **R-1** [<section>]: <minor typo, phrasing clarification, or formatting fix patched in issue body>
+- *(or "None")*
+
 ### Traceability
 | Requirement | Where it lands | |
 | --- | --- | --- |
@@ -125,17 +129,29 @@ A clean pass still writes this comment in full, stating plainly that nothing
 was found; a silent "looks fine" thumbs-up isn't a record anyone can check
 later, and can't be told apart from an audit that didn't actually happen.
 
-Findings only, no rewrites: this phase names what's wrong and hands it back;
-fixing the spec belongs to `spec.md`, fixing tickets to `tickets.md`, fixing
-the map to `plan.md`. Resolving that way, in the phase that owns the artifact,
-keeps this audit an outside check rather than a second author.
+## Findings and remediation: major handoff vs. minor fast-path
+
+Major structural defects, missing requirements, scope creep, or architectural blockers
+cannot be rewritten by the validator: fixing the spec belongs to `spec.md`, fixing
+tickets to `tickets.md`, fixing the map to `plan.md`. Resolving major issues that way,
+in the phase that owns the artifact, keeps this audit an outside check rather than a
+second author.
+
+**Minor findings (fast-path)**: For minor findings meeting the threshold—typos,
+formatting nits, phrasing clarifications, or trivial omissions that do not alter
+architecture, scope, or core decisions—the validator may patch the artifact issue body
+directly in-place (`gh issue edit <number> --body "<updated-body>"`). The validator
+records each in-place fix under `### In-place Resolutions` in the validation comment
+report. If zero blockers remain after in-place remediation, the artifact is unblocked.
 
 ## Verdict and the label
 
-- **Any Blocker** → do not apply `ship-it:validated`. The artifact goes back to
-  the phase that owns it, read in a fresh session (Tier 2) or isolated subagent (Tier 1),
-  so the fix isn't written by the same context the audit just caught out.
+- **Any remaining Blocker** → do not apply `ship-it:validated`. Major structural defects
+  or unresolvable blockers route back to the phase that owns the artifact, read in a fresh
+  session (Tier 2) or isolated subagent (Tier 1), so the fix isn't written by the same
+  context the audit just caught out.
 - **Zero Blockers** → apply `ship-it:validated`
-  (`gh issue edit <number> --add-label "ship-it:validated"`). Warnings and Nits are
-  on record in the comment; the user decides whether to fold them in now or
-  carry them forward, they don't hold up the label.
+  (`gh issue edit <number> --add-label "ship-it:validated"`). If minor findings were
+  resolved in-place via the fast-path, confirm the updated artifact issue body is saved
+  and documented in the report. Warnings and Nits are on record in the comment; the user
+  decides whether to fold them in now or carry them forward, they don't hold up the label.

@@ -120,7 +120,7 @@ all means the feature hasn't started.
 | Tickets exist and at least one is unblocked and unclaimed                            | Read `references/implement.md`, claim and build that ticket. Start a **fresh session** for it (see Context hygiene).  |
 | A ticket is implemented (assigned, still open) and lacks `ship-it:reviewed`          | Read `references/review.md` in a **fresh session**, separate from whatever session implemented it.                    |
 | A ticket carries `ship-it:reviewed`                                                  | Close out: comment resolution, close the ticket, open the PR or merge, per how the user works. If this is the final ticket of the spec, execute the [Feature Close-Out Protocol](#feature-close-out-protocol).     |
-| Review found issues                                                                  | Route back to `references/implement.md`, in a fresh session, to address them, then back to `references/review.md`.    |
+| Review found issues                                                                  | If minor (fast-path): resolve in-place, re-verify, apply `ship-it:reviewed`, and proceed to close-out. If major: route back to `references/implement.md`, in a fresh session, to address them, then back to `references/review.md`. |
 | Tickets exist but none are unblocked and unclaimed                                  | Report status (blocked or in-flight tickets) and stop.                                                                |
 
 ### 3. Report and stop
@@ -146,7 +146,7 @@ When the final ticket of a spec is closed and reviewed:
   self-contained by construction (see `references/tickets.md`), ensuring each
   slice is built strictly to its self-contained acceptance criteria and
   preventing context pollution and confirmation bias from earlier tickets.
-- **Validate and review** strictly mandate the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol) rather than the authoring context; in-context persona simulation within an authoring session is strictly prohibited.
+- **Validate and review** strictly mandate the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol) rather than the authoring context; in-context persona simulation within an authoring session is strictly prohibited. However, in-context remediation of minor findings (cosmetic fixes, typos, linter nits, trivial 1–2 line fixes) by an already-isolated reviewer or validator does not compromise context isolation, as the reviewer/validator is already independent and explicitly re-verifies the resulting state before applying the completion label. Major architectural, multi-file, or behavioral issues must always route back to a fresh session of the authoring phase.
 - If a session's context is growing large before a natural stopping point,
   that's the signal to wrap up and hand off, not to push through with degraded
   reasoning.
