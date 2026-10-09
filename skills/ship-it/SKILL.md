@@ -8,157 +8,141 @@ metadata:
 
 # Ship It
 
-Conduct a feature through the full build loop, one phase at a time, across
-however many sessions it takes: **Plan → Spec → Tickets → Implement → Review**
+Conduct a feature through the full build loop, one phase at a time: **Plan → Spec → Tickets → Implement → Review**
 
-This skill is self-contained and tracks work as GitHub issues: everything it
-needs lives in this folder and in the files it writes into the repo you run it
-in. It doesn't call out to any other skill.
+This skill is self-contained and tracks work using GitHub issues.
+All reference guides live in this folder and in the files written into the repository.
+The skill does not invoke external skills.
 
 ## Invocation & Harness Configuration
 
-`ship-it` is designed as a manual-only workflow and should not be invoked automatically by models without explicit user request.
+Run `ship-it` only when the user explicitly requests it (e.g. `ship-it` or `/ship-it`).
+Do not invoke this skill automatically.
 
-## Why a conductor, not one pass
+## Why a Conductor, Not One Pass
 
-A feature big enough to need all five phases requires rigorous separation of
-concerns to prevent confirmation bias and enforce objective verification gates.
-When a single session authors, implements, and reviews its own work in one
-unbroken pass, it naturally suffers from authoring bias: rationalizing its own
-assumptions, skipping verification, and confirming its own design choices.
+Large features require separation of concerns to prevent confirmation bias and enforce objective verification gates.
+A single session that authors, implements, and reviews its own work suffers from authoring bias.
+The authoring session rationalizes its assumptions, skips verification, and overlooks its own blind spots.
 
-Dividing the build loop into discrete phases—Plan, Spec, Tickets, Implement,
-Review—establishes explicit verification gates at each handoff:
+Dividing the build loop into discrete phases establishes explicit verification gates at each handoff:
 
-- Specs are verified against user requirements and adversarially audited before breaking into tickets.
-- Ticket breakdowns require explicit user validation before creation.
-- Implementation incorporates pragmatic, domain-aligned verification (recommending test-first Red-Green where automated test suites exist, or direct acceptance verification where they do not).
-- Review evaluates diffs independently without the author's internal rationalizations.
+- **Plan**: Chart decision destinations and resolve architecture forks before writing specs.
+- **Spec**: Adversarially audit specifications against user requirements before creating tickets.
+- **Tickets**: Validate slice breakdowns before starting implementation.
+- **Implement**: Apply domain-aligned verification using test-first Red-Green for code or direct acceptance verification for assets.
+- **Review**: Evaluate diffs independently without author rationalizations.
 
-This skill does not try to run the whole loop in a single reply. Each time you
-run it, it works out where the feature currently stands and does **one** phase's
-worth of work, then stops and tells you the next command. Run it again,
-whenever, to keep going.
+This skill executes exactly one phase per invocation.
+It identifies the current status of the feature, completes that phase, and reports the next command.
+Run the skill again to continue.
 
-## Preflight, only when needed
+## Preflight, Only When Needed
 
-`ship-it` assumes the repo is already set up: `gh` installed and
-authenticated, a `github.com` remote, Issues enabled with write access, and
-the `ready-for-agent` label and the `ship-it:*` type labels present (see
-[references/preflight.md](references/preflight.md)). Normal runs don't check
-any of this — skip straight to "Every run" below.
+`ship-it` assumes a configured repository: `gh` installed and authenticated, a `github.com` remote, Issues enabled with write access, and required labels present.
+Consult [references/preflight.md](references/preflight.md) for setup requirements.
+Standard runs skip preflight checks and proceed directly to [Every run](#every-run).
 
-Run the checklist in [references/preflight.md](references/preflight.md) only
-when the user explicitly asks (`ship-it preflight`, `/ship-it preflight`, or the equivalent in
-conversation), or when an issue tool call during Orient or a phase fails in a way that
-checklist covers (auth, rate limits, 403/500 errors, network errors, permissions, missing label, disabled Issues). Fix what's fixable, report the rest.
+Execute the checklist in [references/preflight.md](references/preflight.md) only when:
+- The user explicitly requests preflight (e.g. `ship-it preflight` or `/ship-it preflight`).
+- A `gh` command fails during Orient or a phase execution with an environmental error (such as auth failure, rate limits, 403/500 errors, or missing labels).
 
 ## Every run
 
-### 1. Orient: which feature, which phase
+### 1. Orient: Which Feature, Which Phase
 
-If it isn't obvious from the conversation which feature is in play (the repo
-may have several going at once), ask, and settle on that feature's **slug**: a
-short, consistent identifier every issue for it carries in its title (e.g.
-`auth-rewrite`, giving titles like `[auth-rewrite] Spec: ...`). A fresh
-session with no conversation history just asks for the slug directly.
+Determine the feature **slug** first.
+The slug is a short, consistent identifier included in every issue title for the feature (e.g. `auth-rewrite`, yielding titles like `[auth-rewrite] Spec: ...`).
+If the conversation does not specify the feature, ask the user for the slug directly.
 
-Once you have the slug, run one query per artifact type, in this order, and
-take whichever comes back furthest along:
+Once you have the slug, query GitHub issues in this order and select the state furthest along:
 
-1. **Map**, not fully resolved:
+1. **Map (open and unresolved)**:
    `gh issue list --label "ship-it:map" --search "<slug> in:title" --state open --json number,title,labels,state`
-   (see [references/plan.md](references/plan.md))
+   (Consult [references/plan.md](references/plan.md).)
 2. **Published spec**:
    `gh issue list --label "ship-it:spec" --search "<slug> in:title" --state open --json number,title,labels,state`
-   (see [references/spec.md](references/spec.md))
-3. **Tickets** generated from that spec:
-   Query tickets for the feature:
+   (Consult [references/spec.md](references/spec.md).)
+3. **Tickets generated from the spec**:
    `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
-   and find the earliest unblocked, unclaimed ticket per the [Orient Discovery Algorithm](#orient-discovery-algorithm).
-4. **An implementation in progress**, or a diff that hasn't been reviewed yet:
-   check for an open PR referencing the slug or a matching branch, and for a
-   ticket from step 3 that's assigned but still open (see
-   [references/implement.md](references/implement.md) and
-   [references/review.md](references/review.md))
+   Locate the earliest unblocked, unclaimed ticket using the [Orient Discovery Algorithm](#orient-discovery-algorithm).
+4. **Implementation in progress or unreviewed diff**:
+   Check for an assigned ticket from step 3, a matching branch, or an open PR referencing the slug.
+   (Consult [references/implement.md](references/implement.md) and [references/review.md](references/review.md).)
 
 #### Orient Discovery Algorithm
 
-Find the earliest unblocked, unclaimed ticket:
+Select the earliest unblocked, unclaimed ticket:
 
-- Filter out claimed (`assignees` non-empty) and closed (`state: "CLOSED"`) tickets.
-- For open, unclaimed tickets, inspect each ticket's `## Blocked by` tasklist via `gh issue view <number> --json body` (and native dependency edges if present per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract)).
-- Check blocker issue states via `gh issue view <blocker-id> --json state`. A ticket is **unblocked** if it has no blockers (or "None") or every blocker referenced in its `## Blocked by` tasklist has `state: "CLOSED"`.
-- Take whichever unblocked, unclaimed ticket is earliest in sequence.
+1. Filter out claimed tickets (`assignees` non-empty) and closed tickets (`state: "CLOSED"`).
+2. For open, unclaimed tickets, inspect the `## Blocked by` tasklist in each issue body via `gh issue view <number> --json body` (and native dependency links per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract)).
+3. Check blocker issue status via `gh issue view <blocker-id> --json state`.
+4. A ticket is **unblocked** if it lists no blockers (or "None"), or if every blocker in its `## Blocked by` list has `state: "CLOSED"`.
+5. Select the earliest unblocked, unclaimed ticket in sequence.
 
-Each query above already asks for `labels`, so read them off the same
-response rather than issuing a follow-up call: `ship-it:validated` on a map,
-spec, or ticket set means it already passed the adversarial audit in
-[references/validate.md](references/validate.md); `ship-it:reviewed` on a
-ticket means its diff already passed independent review. Its **absence** on a
-spec or ticket set that spans more than one session is the signal to validate
-next — don't read a published artifact with no `ship-it:validated` label as
-license to route straight past the audit into tickets or implementation.
+Read labels directly from the initial query output:
+- `ship-it:validated` on a map, spec, or ticket set confirms it passed the adversarial audit in [references/validate.md](references/validate.md).
+- `ship-it:reviewed` on a ticket confirms its diff passed independent review in [references/review.md](references/review.md).
+- The **absence** of `ship-it:validated` on a multi-session artifact requires validation next. Never skip validation to jump directly to tickets or implementation.
 
-Whichever of these is furthest along tells you the phase. Nothing existing at
-all means the feature hasn't started.
+The furthest artifact along determines the active phase.
+If no artifacts exist, the feature has not started.
 
-**Orient error-recovery**: If any `gh` query fails during Orient (e.g. rate limit, 403, 500, network or authentication error), do **not** assume "nothing exists" or restart the feature from scratch—falsely assuming absence risks duplicating specs or tickets. Instead, treat the failure as an error and route to preflight ([references/preflight.md](references/preflight.md)) to diagnose and fix the environment before re-running Orient.
+**Orient Error Recovery**: If a `gh` query fails during Orient (due to rate limits, 403/500 errors, or network drops), do not assume artifacts are missing.
+Do not restart the feature.
+Treat the failure as an environmental error and route to [references/preflight.md](references/preflight.md) to diagnose and resolve the issue before re-running Orient.
 
-### 2. Route to the one next step
+### 2. Route to the One Next Step
 
-| Current state                                                                        | Next step                                                                                                             |
-| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| Nothing exists; the feature is well-scoped enough to hold in one session             | Read `references/spec.md`, write the spec directly. No map needed.                                                    |
-| Nothing exists; the effort is genuinely too big or too foggy to scope in one sitting | Read `references/plan.md`, chart the map. Use the test in that file, not a guess, to decide "foggy" vs "well-scoped." |
-| A map exists and isn't resolved                                                      | Read `references/plan.md`, resolve the next ticket on the map. One ticket per session.                                |
-| The map is resolved (or planning was skipped) and no spec exists                     | Read `references/spec.md`.                                                                                            |
-| A spec exists, lacks `ship-it:validated`, and the build spans more than one session  | Read `references/validate.md` and audit the spec before splitting it into tickets. This is the recommended default here, not a parallel option to skip in favor of speed; skip only for a genuinely small, well-scoped spec. |
-| A spec exists, no tickets yet, and the build needs more than one session             | Read `references/tickets.md`.                                                                                         |
-| A spec exists and the whole build fits in one sitting                                | Read `references/implement.md` directly against the spec; skip ticket-splitting. Validation (`references/validate.md`) is recommended even here unless the spec is trivially small. |
-| Tickets exist, lack `ship-it:validated`, and haven't started                         | Read `references/validate.md` and audit the ticket set before anyone starts building. Recommended default whenever the set is big enough that a bad slice would surface mid-implementation; skip only for a small, obviously-right set. |
-| Tickets exist and at least one is unblocked and unclaimed                            | Read `references/implement.md`, claim and build that ticket. Start a **fresh session** for it (see Context hygiene).  |
-| A ticket is implemented (assigned, still open) and lacks `ship-it:reviewed`          | Read `references/review.md` in a **fresh session**, separate from whatever session implemented it.                    |
-| A ticket carries `ship-it:reviewed`                                                  | Close out: comment resolution, close the ticket, open the PR or merge, per how the user works. If this is the final ticket of the spec, execute the [Feature Close-Out Protocol](#feature-close-out-protocol).     |
-| Review found issues                                                                  | If minor (fast-path): resolve in-place, re-verify, apply `ship-it:reviewed`, and proceed to close-out. If major: route back to `references/implement.md`, in a fresh session, to address them, then back to `references/review.md`. |
-| Tickets exist but none are unblocked and unclaimed                                  | Report status (blocked or in-flight tickets) and stop.                                                                |
+| Current State | Next Step |
+| :--- | :--- |
+| Nothing exists; feature is well-scoped for one session | Read [references/spec.md](references/spec.md) and write the spec directly. Omit the map. |
+| Nothing exists; effort is too large or foggy for one session | Read [references/plan.md](references/plan.md) and chart the map. Use the criteria in `plan.md` to assess scope. |
+| A map exists and remains unresolved | Read [references/plan.md](references/plan.md) and resolve the next decision on the map. Resolve one ticket per session. |
+| Map is resolved (or planning skipped) and no spec exists | Read [references/spec.md](references/spec.md) and draft the feature specification. |
+| Spec exists, lacks `ship-it:validated`, and build spans multiple sessions | Read [references/validate.md](references/validate.md) and audit the spec before splitting tickets. Skip audit only for trivial specs. |
+| Spec exists, no tickets exist, and build requires multiple sessions | Read [references/tickets.md](references/tickets.md) and break the spec into vertical tickets. |
+| Spec exists and entire build fits in one session | Read [references/implement.md](references/implement.md) and build directly against the spec. |
+| Tickets exist, lack `ship-it:validated`, and have not started | Read [references/validate.md](references/validate.md) and audit the ticket set. Skip audit only for small, trivial ticket sets. |
+| Tickets exist and at least one is unblocked and unclaimed | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
+| Ticket is implemented (assigned, open) and lacks `ship-it:reviewed` | Read [references/review.md](references/review.md) in a fresh session separate from the implementation session. |
+| Ticket carries `ship-it:reviewed` | Close out the ticket: comment resolution, close issue, and open PR. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
+| Review found minor issues (fast-path) | Resolve in-place, re-verify tests, apply `ship-it:reviewed`, and proceed to close-out. |
+| Review found major issues | Route back to [references/implement.md](references/implement.md) in a fresh session to address findings, then return to review. |
+| Tickets exist but none are unblocked and unclaimed | Report status for blocked or in-flight tickets and stop. |
 
-### 3. Report and stop
+### 3. Report and Stop
 
-End every run with one line: which phase you worked, what you did, and, if
-the feature isn't finished, the exact next thing to run. Don't silently chain
-into the next phase in the same reply unless the user explicitly asked for the
-whole loop at once.
+Conclude each run with a concise summary:
+1. State the completed phase.
+2. Summarize the actions taken.
+3. State the exact command to run next.
+
+Do not chain into the next phase in the same response unless the user explicitly requests the entire loop at once.
 
 ### Feature Close-Out Protocol
 
-When the final ticket of a spec is closed and reviewed:
+When the final ticket of a spec is reviewed and closed:
 
-1. Close the parent spec issue (and map, if one exists) with a resolution comment summarizing what was shipped (`gh issue close <spec-id> --comment "<text>"`).
-2. Reference `Closes #<spec-id>` in the pull request description so merging the PR auto-closes the spec issue.
+1. Close the parent spec issue (and map issue, if present) with a summary comment (`gh issue close <spec-id> --comment "<text>"`).
+2. Reference `Closes #<spec-id>` in the pull request description so merging the PR automatically closes the spec issue.
 
-## Context hygiene
+## Context Hygiene
 
-- **Plan → Spec → Tickets** benefit from staying in one unbroken conversation
-  once planning has produced a clear destination: the thinking compounds. Not
-  a hard rule, just worth naming if you're about to lose the thread.
-- **Implement** should start in a **fresh session per ticket**. A ticket is
-  self-contained by construction (see `references/tickets.md`), ensuring each
-  slice is built strictly to its self-contained acceptance criteria and
-  preventing context pollution and confirmation bias from earlier tickets.
-- **Validate and review** strictly mandate the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol) rather than the authoring context; in-context persona simulation within an authoring session is strictly prohibited. However, in-context remediation of minor findings (cosmetic fixes, typos, linter nits, trivial 1–2 line fixes) by an already-isolated reviewer or validator does not compromise context isolation, as the reviewer/validator is already independent and explicitly re-verifies the resulting state before applying the completion label. Major architectural, multi-file, or behavioral issues must always route back to a fresh session of the authoring phase.
-- If a session's context is growing large before a natural stopping point,
-  that's the signal to wrap up and hand off, not to push through with degraded
-  reasoning.
+- **Plan → Spec → Tickets**: Maintain one continuous conversation when possible. Shared context helps compound design thinking.
+- **Implement**: Start a fresh session for each ticket. Tickets are self-contained by design (see [references/tickets.md](references/tickets.md)). Fresh sessions prevent context contamination and authoring bias.
+- **Validate and Review**: Enforce the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol). In-context persona simulation within an authoring session is strictly prohibited. An isolated validator or reviewer may remediate minor findings (typos, linter nits, trivial 1–2 line fixes) directly via the fast-path. Route major architectural or behavioral issues back to a fresh implementation session.
+- **Context Size**: Wrap up and hand off work if context grows large before a phase ends. Do not continue with degraded reasoning.
 
-## Reference index
+## Reference Index
 
-| File                                               | Read it when                                                               |
-| -------------------------------------------------- | -------------------------------------------------------------------------- |
-| [references/preflight.md](references/preflight.md) | A `gh` call fails, or the user asks to preflight the repo                  |
-| [references/plan.md](references/plan.md)           | The effort is too big or foggy for one session                             |
-| [references/spec.md](references/spec.md)           | Turning a settled idea into a spec                                         |
-| [references/validate.md](references/validate.md)   | Adversarially auditing a published spec, ticket set, or map before build   |
-| [references/tickets.md](references/tickets.md)     | Splitting a spec into buildable, session-sized slices                      |
-| [references/implement.md](references/implement.md) | Building a ticket or a small spec with domain-aligned verification        |
-| [references/review.md](references/review.md)       | A diff exists and needs checking against standards and spec, fresh session |
+| File | Read it when |
+| :--- | :--- |
+| [references/writing.md](references/writing.md) | Authoring or auditing text against clarity, brevity, and formatting rules |
+| [references/preflight.md](references/preflight.md) | A `gh` command fails, or the user requests repository preflight |
+| [references/plan.md](references/plan.md) | The effort is too large or unclear for a single session |
+| [references/spec.md](references/spec.md) | Turning settled requirements into a feature specification |
+| [references/validate.md](references/validate.md) | Adversarially auditing a published spec, ticket set, or map |
+| [references/tickets.md](references/tickets.md) | Splitting a specification into buildable, vertical tickets |
+| [references/implement.md](references/implement.md) | Building a ticket or small spec using domain-aligned verification |
+| [references/review.md](references/review.md) | Evaluating a diff against coding standards and specification requirements |
