@@ -1,66 +1,109 @@
 # Implement: build, test-first, one ticket at a time
 
-Build the work described by a ticket (or, for a small feature with no
-ticket-splitting, directly against the spec). Each run of this phase should be
-a fresh session: a ticket is self-contained by construction, so old context
-from prior tickets rarely helps and often just costs tokens.
+Build the work described by a ticket following [writing.md](writing.md).
+For small single-session features lacking tickets, implement directly against the spec.
+Execute each run of this phase in a fresh session.
+Tickets are self-contained by design.
+Prior session context adds minimal value and consumes tokens.
 
 ## Process
 
 ### 1. Branch and claim the ticket
 
-Work on a dedicated feature branch rather than `main` (or the default branch)—create the feature branch if starting the feature, or switch to the existing feature branch—ensuring `review.md`'s three-dot diff (`git diff <fixed-point>...HEAD`) has a valid merge-base. Claim the ticket (`gh issue edit <number> --add-assignee "@me"`) before writing anything, so a concurrent session doesn't pick up the same one (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions)).
+Work on a dedicated feature branch rather than the default branch.
+Create the feature branch when starting the feature, or switch to an existing feature branch.
+This branch provides a valid merge-base for the three-dot diff (`git diff <fixed-point>...HEAD`) in [review.md](review.md).
+Claim the ticket before writing code to prevent concurrent work:
+
+```shell
+gh issue edit <number> --add-assignee "@me"
+```
+
+Always quote `"@me"` per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).
+Consult [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) for command syntax.
 
 ### 2. Execute the verification cycle
 
-Tailor the verification strategy to the nature of the change and repository:
+Tailor verification to the repository and the change type:
 
 - **Detect workspace test conventions first**:
-  Before writing any test or implementation code, inspect the repository to identify existing test frameworks, runners, and conventions (e.g., `npm test`, `pytest`, `cargo test`, `go test`, `vitest`, `jest`, and directories such as `tests/`, `__tests__/`, `spec/`, or co-located `*.test.ts`). If an established test runner and structure exist, abide by them as the primary default. If the repository defines explicit testing tiers or conventions (e.g., rules specifying which change categories require which verification levels), honor those rather than re-deriving a verification strategy from scratch.
+  Inspect the repository for existing test runners and frameworks before authoring code.
+  Check for runners such as `npm test`, `pytest`, `cargo test`, `go test`, `vitest`, or `jest`.
+  Inspect directories such as `tests/`, `__tests__/`, `spec/`, or co-located test files.
+  Abide by established test conventions as the primary default.
+  Honor explicit repository testing tiers rather than creating new verification workflows.
 
-- **Explore codebase (optional, for multi-file tickets)**:
-  For tickets touching multiple modules or layers, where the harness supports subagent execution, offload initial codebase exploration to an isolated subagent before starting implementation (trivial single-file tickets should skip this). The subagent should return a session-scoped ephemeral map (minimal file set, key symbols, relevant test files) directly into the session conversation context. This map must never be written to disk, workspace files, or persisted in tickets. Note that this is a starting point, not a complete analysis—cross-cutting concerns may still surface during implementation, and the final sweep (see step 3) acts as the backstop.
-
+- **Explore codebase (optional for multi-file tickets)**:
+  Offload initial exploration to an isolated subagent for tickets touching multiple modules.
+  Skip subagent exploration for single-file tickets.
+  The subagent returns a session-scoped ephemeral map containing key symbols and relevant files.
+  Never persist this exploration map to disk, workspace files, or tickets.
+  Treat this map as a starting point; the final sweep acts as the backstop.
 
 - **Recommended test-first practice (Red-Green)**:
-  Where an automated test suite exists and unit/slice testing is viable and meaningful, practicing test-first Red-Green is strongly recommended to clarify design seams and guard against regressions:
-  - **Red step**: Write a test capturing the next unit of behavior or acceptance criterion. Run the test and observe it fail.
-  - **Green step**: Write the minimal code necessary to make the test pass. Run the test and observe it pass.
-  - Repeat this cycle for each slice or acceptance criterion. Use the seams the spec already settled on (see `spec.md`); introducing a new seam mid-implementation is a sign the spec's seam choice needs revisiting, not a reason to route around it quietly.
-  - Reframe Red-Green as a recommended software engineering discipline for building confidence, rather than a rigid bureaucratic gate or mandatory rejection threat. Failure logs or intermediate Red commits are valuable verification evidence when available, but absence of terminal failure logs should not block progress when the implementation and tests cleanly verify the acceptance criteria.
+  Practice test-first Red-Green when an automated suite exists and unit testing is meaningful.
+  This discipline clarifies design seams and guards against regressions:
+  - **Red step**: Write a test capturing the next unit of behavior. Run the test and observe failure.
+  - **Green step**: Write the minimal code necessary to pass the test. Run the test and observe success.
+  Repeat this cycle for each slice or acceptance criterion.
+  Use the seams settled during specification in [spec.md](spec.md).
+  Treat Red-Green as a recommended engineering discipline to build confidence.
+  Intermediate Red failure logs provide valuable verification evidence.
+  Do not block progress if tests cleanly verify acceptance criteria without failure logs.
 
 #### Ticket-naming prohibition
 
-Never name test files, test suites, or source files after tickets or issue numbers (e.g., strictly prohibit `ticket-18.test.js`, `test_issue_23.py`, or similar ticket-bound artifacts). Tests outlive transient issue tracking; naming them after tickets creates technical debt and obscures domain ownership. Automated tests must live in domain- or module-aligned test files organized strictly by **domain, module, or feature seam** (e.g., `tests/marketing.test.js`, `tests/auth.test.ts`, `src/conductor.test.ts`).
+Never name test files, suites, or source files after issue numbers (e.g., `ticket-18.test.js` or `test_issue_23.py`).
+Tests outlive transient issue tracking.
+Naming tests after tickets creates technical debt and obscures domain ownership.
+Organize automated tests by **domain, module, or feature seam** (e.g., `tests/marketing.test.js`, `tests/auth.test.ts`, `src/conductor.test.ts`).
 
 #### Ad-hoc test harness prohibition
 
-For documentation, markdown skill definitions, configuration files, visual/asset changes, or repositories lacking test infrastructure:
+For documentation, markdown skills, configuration files, visual assets, or repositories lacking test runners:
 
-- Do not force over-architected test ceremonies, invent ad-hoc test runners, or write brittle string-matching mock tests simply to simulate test coverage.
-- Verify requirements directly against acceptance criteria using domain-appropriate verification (such as linting, typechecking, build compilation, manual inspection, CLI/browser verification, or schema validation).
+- Avoid inventing ad-hoc test runners or brittle string-matching tests to simulate coverage.
+- Verify requirements directly against acceptance criteria using domain-appropriate methods.
+- Use linting, typechecking, build compilation, manual inspection, CLI checks, or schema validation.
 - Record this verification evidence in the handoff report and issue comment.
 
 ### 3. Check as you go, not just at the end
 
-Run typechecking and the relevant single test file regularly through the build, not only once everything's written. Run the full test suite once, at the end, before calling the ticket done.
-
-For codebase-wide negative invariants (e.g., "no callers of deprecated X remain"), run a targeted final sweep (such as grep, a targeted subagent pass, or equivalent) after the implementation is complete, rather than attempting to scan the entire codebase before writing code.
+Run typechecking and targeted test files regularly throughout development.
+Run the full test suite once before marking the ticket complete.
+Run a targeted final sweep (e.g., grep or a subagent pass) for codebase-wide negative invariants.
+Execute this sweep after completing implementation rather than scanning the entire codebase upfront.
 
 ### 4. Stop drifting from the acceptance criteria
 
-If something in the ticket turns out to be wrong or the acceptance criteria don't fit what you're learning mid-build, don't silently reinterpret it: say so, and either edit the issue (`gh issue edit <number>`) or flag it in a comment (`gh issue comment <number> --body "<text>"`), rather than quietly building something else.
+Halt work if acceptance criteria prove incorrect or conflict with findings during implementation.
+Do not silently reinterpret ticket requirements.
+Update the issue with corrected criteria (`gh issue edit <number>`).
+Alternatively, flag discrepancies in an issue comment (`gh issue comment <number> --body "<text>"`).
 
 ### 5. Commit and stop
 
-Once the ticket's behavior is built and the full suite is green (or acceptance criteria verified for non-code changes), commit the work-in-progress to the feature branch so the diff exists and survives past this session. Don't self-review and don't close the ticket here: the session that just wrote this code is the worst-positioned session to check it, it's carrying every rationalization it made along the way. Leave the ticket assigned and open; that "implemented, awaiting review" state is what a fresh session picks up next.
+Commit the work-in-progress to the feature branch once implementation passes verification.
+Ensure the diff exists on the branch for subsequent review.
+Do not self-review this work.
+The authoring session carries confirmation bias and cannot provide objective review.
+Leave the ticket assigned and open.
+This open state signals that the ticket awaits review.
 
 ### 6. Report and hand off
 
-Tell the user the ticket is implemented and waiting on independent review under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol), and that the next step is an isolated review session running `review.md` against this diff (e.g., via `ship-it review`, `/ship-it review`, or the equivalent in conversation). (Note that minor review findings—such as typos, formatting nits, or trivial 1–2 line fixes—may be remediated directly in-place by the review session via the fast-path, whereas major issues will route back to a fresh implementation session.) Include the verification summary (e.g., test runner output, test commit ref, or domain-appropriate acceptance criteria verification) in the handoff report and issue comment. Don't run review yourself, even as a "quick check" before stopping; in-context persona simulation is strictly prohibited.
+Notify the user that the ticket is implemented and awaits review.
+Review occurs in an isolated session under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol).
+The next step is an independent review session executing [review.md](review.md) against this diff.
+The review session may resolve minor findings (typos, linter nits, one-line fixes) via the fast-path.
+Major issues route back to a fresh implementation session.
+Include the verification summary in the handoff report and issue comment.
+Never run the review yourself; in-context persona simulation is strictly prohibited.
 
-## When there's no ticket (small, single-session feature)
+## When there is no ticket (small, single-session feature)
 
-Same process, just working directly from the spec's User Stories and Implementation Decisions
-instead of a ticket's acceptance criteria, still on a dedicated feature branch. The spec issue itself is the record; there's nothing
-separate to claim (`gh issue edit <number> --add-assignee "@me"`) or close (`gh issue close <number>`).
+Follow this same process for small features built directly from a specification.
+Work on a dedicated feature branch.
+Build directly from the User Stories and Implementation Decisions in [spec.md](spec.md).
+The spec issue serves as the tracking record.
+Do not claim or close tickets separately.

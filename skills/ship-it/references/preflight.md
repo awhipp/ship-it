@@ -1,44 +1,36 @@
-# Preflight: verify the repo is set up, only when needed
+# Preflight: verify repository setup, only when needed
 
-`ship-it` assumes, by default, that a repo it's asked to work in already has
-what it needs: the `gh` CLI installed and authenticated, a `github.com`
-remote, and Issues enabled with write access. Normal runs don't check any of
-this — they go straight into orienting on the feature and doing the next
-phase's work.
+`ship-it` assumes that the target repository provides necessary tools by default.
+Required setup includes an installed and authenticated `gh` CLI, a `github.com` remote, and writable issues.
+Standard runs bypass preflight checks to orient on the feature directly.
 
-Run the checklist below in exactly two situations:
+Execute the checklist below only in two situations:
 
-- The user explicitly asks (`ship-it preflight`, `/ship-it preflight`, or the equivalent in
-  conversation).
-- An issue tool call during a normal phase fails in a way that matches one of the
-  checks below (auth error, repo/remote not found, permission denied, Issues
-  disabled, missing label). Don't guess at the fix or retry blindly — run the
-  relevant check, confirm what's actually wrong, and go from there.
+- The user explicitly requests preflight (`ship-it preflight` or `/ship-it preflight`).
+- An issue command during a phase fails with an environmental error.
+
+Environmental errors include authentication failures, missing remotes, permission errors, disabled issues, or missing labels.
+Run the checklist to identify the underlying failure before retrying.
 
 ## The checklist
 
-Run every check below before reporting anything, and collect every failure
-rather than stopping at the first one: a user who fixes one blocker, re-runs,
-and immediately hits the next spends more time than a user handed the whole
-list up front.
+Execute every check below before reporting findings.
+Collect all failures rather than halting on the first error.
+Reporting all failures at once saves user time.
 
-- **`gh` installed**: `gh --version`. Missing → "Install the GitHub CLI:
-  <https://cli.github.com>".
-- **GitHub remote**: `git remote -v` includes a `github.com` URL. Missing →
-  "`ship-it` tracks specs and tickets as GitHub issues; this repo needs a
-  github.com remote."
-- **Authenticated**: `gh auth status`. Not logged in → "Run `gh auth login`."
+- **`gh` installed**: Run `gh --version`.
+  If missing, report: "Install the GitHub CLI: <https://cli.github.com>".
+- **GitHub remote**: Verify that `git remote -v` contains a `github.com` URL.
+  If missing, report: "`ship-it` tracks specs and tickets as GitHub issues; this repository requires a github.com remote."
+- **Authenticated**: Run `gh auth status`.
+  If not logged in, report: "Run `gh auth login`."
 
-The next two checks need the first three to pass (they call the GitHub API),
-so only run them if nothing above failed:
+The remaining checks call the GitHub API and require the initial checks to pass:
 
-- **Issues enabled and writable**: `gh repo view --json hasIssuesEnabled,viewerPermission`.
-  - `hasIssuesEnabled` false → "Enable Issues for this repo (Settings → General
-    → Features → Issues)."
-  - `viewerPermission` isn't one of `WRITE`, `MAINTAIN`, `ADMIN` → "You need
-    write access to open issues here, or point `ship-it` at a fork you can
-    write to."
-- **Labels exist**: `gh label list`, checked against the full set below.
+- **Issues enabled and writable**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`.
+  - If `hasIssuesEnabled` is false, report: "Enable Issues for this repository (Settings → General → Features → Issues)."
+  - If `viewerPermission` is not `WRITE`, `MAINTAIN`, or `ADMIN`, report: "You require write access to open issues, or point `ship-it` to a writable fork."
+- **Labels exist**: Run `gh label list` and verify against the required label set below.
 
 ## Harness & Invocation Configuration
 
@@ -46,33 +38,30 @@ See [Invocation & Harness Configuration](../SKILL.md#invocation-harness-configur
 
 ## The label set
 
-Every label `ship-it` uses, across all phases. **Type labels** mark what an
-issue _is_ (mutually exclusive — one per issue); **status labels** mark
-something orthogonal to type — pickable, audited, reviewed — and any number
-of them can sit on one issue alongside its type label.
+Every label used across `ship-it` phases appears below.
+**Type labels** identify issue types; apply at most one type label per issue.
+**Status labels** mark issue states (such as pickable, audited, or reviewed).
+Apply any number of status labels alongside the type label.
 
-| Label               | Kind   | Applied to                                                                                               |
-| ------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
-| `ship-it:map`       | type   | the feature map issue (`plan.md`)                                                                        |
-| `ship-it:spec`      | type   | a published spec issue (`spec.md`)                                                                       |
-| `ship-it:ticket`    | type   | a build ticket (`tickets.md`)                                                                            |
-| `ship-it:research`  | type   | a research decision ticket, child of a map                                                               |
-| `ship-it:prototype` | type   | a prototype decision ticket, child of a map                                                              |
-| `ship-it:grilling`  | type   | a grilling decision ticket, child of a map                                                               |
-| `ship-it:task`      | type   | a task decision ticket, child of a map                                                                   |
-| `ready-for-agent`   | status | anything pickable by an agent, any type                                                                  |
-| `ship-it:validated` | status | a spec, ticket set, or map that passed a fresh-context adversarial audit (`validate.md`), zero blockers  |
-| `ship-it:reviewed`  | status | a ticket whose diff passed independent review (`review.md`); required before close-out                   |
+| Label | Kind | Applied to |
+| --- | --- | --- |
+| `ship-it:map` | type | Feature map issue ([plan.md](plan.md)) |
+| `ship-it:spec` | type | Published spec issue ([spec.md](spec.md)) |
+| `ship-it:ticket` | type | Build ticket ([tickets.md](tickets.md)) |
+| `ship-it:research` | type | Research decision ticket, child of a map |
+| `ship-it:prototype` | type | Prototype decision ticket, child of a map |
+| `ship-it:grilling` | type | Grilling decision ticket, child of a map |
+| `ship-it:task` | type | Task decision ticket, child of a map |
+| `ready-for-agent` | status | Work item ready for agent pickup |
+| `ship-it:validated` | status | Spec, ticket set, or map passed adversarial audit ([validate.md](validate.md)) |
+| `ship-it:reviewed` | status | Ticket diff passed independent review ([review.md](review.md)) |
 
-## Fix what's fixable, report the rest
+## Fix what is fixable, report the rest
 
-Most failures need the user to act (install `gh`, log in, add a remote,
-change repo settings) — report those as the checklist above states them.
-
-Missing labels are safe to fix automatically. Create each one missing from
-the set above, with a description and a consistent color per kind, then
-retry whatever action originally failed rather than just reporting the label
-was missing:
+Most configuration failures require user intervention.
+Prompt the user to install `gh`, log in, add a remote, or adjust repository permissions.
+Missing labels are safe to create automatically.
+Create missing labels using the specified descriptions and colors:
 
 ```shell
 gh label create "ready-for-agent" --description "Ready for an agent to pick up" --color "0E8A16"
@@ -87,15 +76,15 @@ gh label create "ship-it:validated" --description "Artifact passed fresh-context
 gh label create "ship-it:reviewed" --description "Diff passed independent review; ready to close out" --color "0E8A16"
 ```
 
-If every check passes and the failure that triggered this still doesn't make
-sense, say so plainly rather than guessing further.
+Retry the failed operation after creating missing labels.
+Report the failure clearly if all checks pass and errors persist.
 
 ## Canonical `gh` CLI Commands
 
-The following table summarizes the canonical, cross-platform `gh` CLI commands used across `ship-it` phases:
+The table below outlines canonical `gh` CLI commands across `ship-it` phases:
 
 | Action | Purpose | `gh` CLI Command |
-| ------ | ------- | ---------------- |
+| --- | --- | --- |
 | Query issues | Search and list issues by state, label, and slug | `gh issue list --label "<label>" --search "<slug> in:title" --json number,title,labels,assignees,state` |
 | View issue | Fetch full issue details, metadata, and comments | `gh issue view <number> --comments` or `gh issue view <number> --json number,title,body,labels,assignees,state,comments` |
 | Create issue | Create a new map, spec, or ticket | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
@@ -108,13 +97,14 @@ The following table summarizes the canonical, cross-platform `gh` CLI commands u
 
 ## Cross-Platform Shell Conventions
 
-All shell snippets and automated commands must follow these cross-platform rules:
+Follow these cross-platform rules for all shell commands:
 
-- **Multi-line bodies**: Do not use Bash heredoc syntax or redirection blocks, as they fail under Windows PowerShell and non-POSIX environments. Use `--body-file <path>` (writing the body to a temporary or artifact file first) or `--body "<content>"` with properly escaped strings.
-- **Assignee argument quoting**: Always quote `"@me"` when claiming tickets (`gh issue edit <number> --add-assignee "@me"`). In PowerShell, an unquoted `@me` is treated as an array subexpression and causes an execution error.
-- **Single number space**: GitHub issues and pull requests share a single number space within a repository. Resolve a bare `#42` with `gh pr view 42`, falling back to `gh issue view 42`.
-- **Feature slug**: Every issue for a feature carries a consistent slug in its title, e.g. `[auth-rewrite] Spec: ...`.
+- **Multi-line bodies**: Avoid Bash heredocs or redirection blocks, which fail under Windows PowerShell. Use `--body-file <path>` or `--body "<content>"` with properly escaped strings.
+- **Assignee argument quoting**: Always quote `"@me"` when claiming tickets (`gh issue edit <number> --add-assignee "@me"`). Unquoted `@me` acts as an array expression in PowerShell and fails.
+- **Single number space**: GitHub issues and pull requests share a single number namespace. Resolve bare issue numbers with `gh pr view <number>`, then fall back to `gh issue view <number>`.
+- **Feature slug**: Include a consistent feature slug in all issue titles (e.g., `[auth-rewrite] Spec: ...`).
 
 ## Markdown Relationship Contract
 
-See the [Markdown Relationship Contract](tickets.md#markdown-relationship-contract) for universal issue relationships and dependency edges across all repository tiers, and the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm) for frontier resolution.
+Consult the [Markdown Relationship Contract](tickets.md#markdown-relationship-contract) for dependency relationships across repository tiers.
+See the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm) for frontier resolution.

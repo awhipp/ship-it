@@ -34,7 +34,7 @@ Inspect evidence for the verification strategy required by [references/implement
 - **Automated test suites (where applicable)**:
   Inspect commit history (`git log <fixed-point>..HEAD --oneline`) and the issue thread (`gh issue view <number> --comments` or `gh issue view`). Verify that automated tests exist and pass when expected. Confirm that tests verify acceptance criteria. Do not reject diffs solely over missing terminal failure logs when tests and code verify requirements cleanly.
 
-- **Where automated tests are not viable or needed**:
+- **Non-automated verification**:
   Confirm that the handoff report or issue thread documents domain-appropriate acceptance criteria verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 
 ### 3. Identify the spec source

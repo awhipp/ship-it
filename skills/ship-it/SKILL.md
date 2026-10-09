@@ -67,7 +67,7 @@ Once you have the slug, query GitHub issues in this order and select the state f
    `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
    Locate the earliest unblocked, unclaimed ticket using the [Orient Discovery Algorithm](#orient-discovery-algorithm).
 4. **Implementation in progress or unreviewed diff**:
-   Check for an assigned, open ticket from step 3, a matching branch, or an open pull request referencing the slug.
+   Check for an assigned ticket from step 3, a matching branch, or an open PR referencing the slug.
    (Consult [references/implement.md](references/implement.md) and [references/review.md](references/review.md).)
 
 #### Orient Discovery Algorithm
