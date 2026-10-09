@@ -55,6 +55,7 @@ Apply any number of status labels alongside the type label.
 | `ready-for-agent` | status | Work item ready for agent pickup |
 | `ship-it:validated` | status | Spec, ticket set, or map passed adversarial audit ([validate.md](validate.md)) |
 | `ship-it:reviewed` | status | Ticket diff passed independent review ([review.md](review.md)) |
+| `ship-it:changes-requested` | status | Artifact or diff has unresolved validation blockers or review findings ([validate.md](validate.md), [review.md](review.md)) |
 
 ## Fix what is fixable, report the rest
 
@@ -74,6 +75,7 @@ gh label create "ship-it:grilling" --description "Map decision ticket: resolved 
 gh label create "ship-it:task" --description "Map decision ticket: resolved by doing the work" --color "1D76DB"
 gh label create "ship-it:validated" --description "Artifact passed fresh-context adversarial audit (zero blockers)" --color "0E8A16"
 gh label create "ship-it:reviewed" --description "Diff passed independent review; ready to close out" --color "0E8A16"
+gh label create "ship-it:changes-requested" --description "Artifact or diff has unresolved validation blockers or review findings" --color "D93F0B"
 ```
 
 Retry the failed operation after creating missing labels.
@@ -91,6 +93,8 @@ The table below outlines canonical `gh` CLI commands across `ship-it` phases:
 | Edit issue | Update issue title, body, or labels | `gh issue edit <number> --title "<title>" --body-file <file> --add-label "<label>"` |
 | Comment on issue | Add a comment to an existing issue | `gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"` |
 | Claim ticket | Claim a ticket to prevent concurrent work | `gh issue edit <number> --add-assignee "@me"` |
+| Unclaim ticket | Release a ticket for remediation | `gh issue edit <number> --remove-assignee "<assignee>"` |
+| Remove status label | Clear a status label after remediation | `gh issue edit <number> --remove-label "<label>"` |
 | Close issue | Close an issue with resolution comment | `gh issue close <number> --comment "<text>"` |
 | Link dependency | Link an issue as blocked by another | `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (or markdown fallback) |
 | Link parent/child | Link a ticket to a parent spec or map | `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (or markdown fallback) |
@@ -100,7 +104,7 @@ The table below outlines canonical `gh` CLI commands across `ship-it` phases:
 Follow these cross-platform rules for all shell commands:
 
 - **Multi-line bodies**: Avoid Bash heredocs or redirection blocks, which fail under Windows PowerShell. Use `--body-file <path>` or `--body "<content>"` with properly escaped strings.
-- **Assignee argument quoting**: Always quote `"@me"` when claiming tickets (`gh issue edit <number> --add-assignee "@me"`). Unquoted `@me` acts as an array expression in PowerShell and fails.
+- **Assignee argument quoting**: Always quote `"@me"` and assignee names when claiming or unclaiming tickets (`gh issue edit <number> --add-assignee "@me"`, `gh issue edit <number> --remove-assignee "<assignee>"`). Unquoted `@me` acts as an array expression in PowerShell and fails.
 - **Single number space**: GitHub issues and pull requests share a single number namespace. Resolve bare issue numbers with `gh pr view <number>`, then fall back to `gh issue view <number>`.
 - **Feature slug**: Include a consistent feature slug in all issue titles (e.g., `[auth-rewrite] Spec: ...`).
 

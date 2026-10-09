@@ -113,7 +113,7 @@ Do not declare a single overall winner across the two axes; that reranking defea
 
 ## Outcome
 
-- **Major findings or missing verification evidence**: Architectural defects, missing acceptance criteria, behavioral redesigns, multi-file refactoring, or missing verification evidence cannot be patched in review. Post findings to the ticket (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"`) and hand back to a fresh `implement.md` session to address under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol). The ticket stays open and unreviewed. Do not apply `ship-it:reviewed` to a diff with outstanding major findings or missing verification evidence.
+- **Major findings or missing verification evidence**: Reviewers cannot patch architectural defects, missing acceptance criteria, behavioral redesigns, multi-file refactoring, or missing verification evidence in review. Post findings to the ticket (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"`). Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`) and remove the assignee (`gh issue edit <number> --remove-assignee "<assignee>"`). Never apply `ship-it:reviewed`, and hand the unassigned ticket back to a fresh `implement.md` session under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol).
 - **Minor findings (fast-path)**: Minor findings include cosmetic fixes, formatting nits, typos, or trivial 1–2 line fixes without architectural changes.
   The reviewer may remediate them directly within the active context window:
   1. Patch the files in-place.
