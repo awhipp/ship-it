@@ -45,7 +45,7 @@ Standard runs skip preflight checks and proceed directly to [Every run](#every-r
 
 Execute the checklist in [references/preflight.md](references/preflight.md) only when:
 - The user explicitly requests preflight (e.g. `ship-it preflight` or `/ship-it preflight`).
-- A `gh` command fails during Orient or a phase execution with an environmental error (such as auth failure, rate limits, 403/500 errors, or missing labels).
+- A `gh` command fails with an environmental error (such as auth failure, rate limits, 403/500 errors, or missing labels).
 
 ## Every run
 
@@ -75,7 +75,7 @@ Once you have the slug, query GitHub issues in this order and select the state f
 Select the earliest unblocked, unclaimed ticket:
 
 1. Filter out claimed tickets (`assignees` non-empty) and closed tickets (`state: "CLOSED"`).
-2. For open, unclaimed tickets, inspect the `## Blocked by` tasklist in each issue body via `gh issue view <number> --json body` (and native dependency links per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract)).
+2. For open, unclaimed tickets, inspect the `## Blocked by` tasklist in each issue body via `gh issue view <number> --json body`. Check native dependency links per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract).
 3. Check blocker issue status via `gh issue view <blocker-id> --json state`.
 4. A ticket is **unblocked** if it lists no blockers (or "None"), or if every blocker in its `## Blocked by` list has `state: "CLOSED"`.
 5. Select the earliest unblocked, unclaimed ticket in sequence.
@@ -83,12 +83,15 @@ Select the earliest unblocked, unclaimed ticket:
 Read labels directly from the initial query output:
 - `ship-it:validated` on a map, spec, or ticket set confirms it passed the adversarial audit in [references/validate.md](references/validate.md).
 - `ship-it:reviewed` on a ticket confirms its diff passed independent review in [references/review.md](references/review.md).
-- The **absence** of `ship-it:validated` on a multi-session artifact requires validation next. Never skip validation to jump directly to tickets or implementation.
+- `ship-it:changes-requested` on a map, spec, or ticket confirms unresolved validation blockers or review findings requiring rework.
+- The **absence** of `ship-it:validated` and `ship-it:changes-requested` on a multi-session artifact requires validation next. Never skip validation to jump directly to tickets or implementation.
+- The presence of `ship-it:changes-requested` routes directly to the owning remediation phase before validation or review.
 
 The furthest artifact along determines the active phase.
 If no artifacts exist, the feature has not started.
 
-**Orient Error Recovery**: If a `gh` query fails during Orient (due to rate limits, 403/500 errors, or network drops), do not assume artifacts are missing.
+**Orient Error Recovery**: If a `gh` query fails during Orient, do not assume artifacts are missing.
+Transient errors include rate limits, 403/500 errors, or network drops.
 Do not restart the feature.
 Treat the failure as an environmental error and route to [references/preflight.md](references/preflight.md) to diagnose and resolve the issue before re-running Orient.
 
@@ -98,17 +101,21 @@ Treat the failure as an environmental error and route to [references/preflight.m
 | :--- | :--- |
 | Nothing exists; feature is well-scoped for one session | Read [references/spec.md](references/spec.md) and write the spec directly. Omit the map. |
 | Nothing exists; effort is too large or foggy for one session | Read [references/plan.md](references/plan.md) and chart the map. Use the criteria in `plan.md` to assess scope. |
-| A map exists and remains unresolved | Read [references/plan.md](references/plan.md) and resolve the next decision on the map. Resolve one ticket per session. |
+| Map carries `ship-it:changes-requested` | Read [references/plan.md](references/plan.md) and remediate reported map blockers. Resolve findings, update the map, post a comment, and remove the label. |
+| A map exists, lacks `ship-it:changes-requested`, and remains unresolved | Read [references/plan.md](references/plan.md) and resolve the next decision on the map. Resolve one ticket per session. |
 | Map is resolved (or planning skipped) and no spec exists | Read [references/spec.md](references/spec.md) and draft the feature specification. |
-| Spec exists, lacks `ship-it:validated`, and build spans multiple sessions | Read [references/validate.md](references/validate.md) and audit the spec before splitting tickets. Skip audit only for trivial specs. |
+| Spec carries `ship-it:changes-requested` | Read [references/spec.md](references/spec.md) and remediate reported spec blockers. Resolve findings, update the spec, post a comment, and remove the label. |
+| Spec exists, lacks `ship-it:validated` and `ship-it:changes-requested`, and build spans multiple sessions | Read [references/validate.md](references/validate.md) and audit the spec before splitting tickets. Skip audit only for trivial specs. |
 | Spec exists, no tickets exist, and build requires multiple sessions | Read [references/tickets.md](references/tickets.md) and break the spec into vertical tickets. |
 | Spec exists and entire build fits in one session | Read [references/implement.md](references/implement.md) and build directly against the spec. |
-| Tickets exist, lack `ship-it:validated`, and have not started | Read [references/validate.md](references/validate.md) and audit the ticket set. Skip audit only for small, trivial ticket sets. |
-| Tickets exist and at least one is unblocked and unclaimed | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
-| Ticket is implemented (assigned, open) and lacks `ship-it:reviewed` | Read [references/review.md](references/review.md) in a fresh session separate from the implementation session. |
+| Ticket set carries `ship-it:changes-requested` | Read [references/tickets.md](references/tickets.md) and remediate reported ticket breakdown blockers. Resolve findings, update tickets, post a comment, and remove the label. |
+| Tickets exist, lack `ship-it:validated` and `ship-it:changes-requested`, and have not started | Read [references/validate.md](references/validate.md) and audit the ticket set. Skip audit only for small, trivial ticket sets. |
+| Ticket carries `ship-it:changes-requested` | Read [references/implement.md](references/implement.md). Claim the ticket, execute the rework workflow, commit fixes, post a comment, and remove the label. |
+| Tickets exist, lack `ship-it:changes-requested`, and at least one is unblocked and unclaimed | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
+| Ticket is implemented (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Read [references/review.md](references/review.md) in a fresh session separate from the implementation session. |
 | Ticket carries `ship-it:reviewed` | Close out the ticket: comment resolution, close issue, and open PR. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
 | Review found minor issues (fast-path) | Resolve in-place, re-verify tests, apply `ship-it:reviewed`, and proceed to close-out. |
-| Review found major issues | Route back to [references/implement.md](references/implement.md) in a fresh session to address findings, then return to review. |
+| Review found major issues | Apply `ship-it:changes-requested`, remove the assignee, and route back to [references/implement.md](references/implement.md) in a fresh session. |
 | Tickets exist but none are unblocked and unclaimed | Report status for blocked or in-flight tickets and stop. |
 
 ### 3. Report and Stop
@@ -131,7 +138,7 @@ When the final ticket of a spec is reviewed and closed:
 
 - **Plan → Spec → Tickets**: Maintain one continuous conversation when possible. Shared context helps compound design thinking.
 - **Implement**: Start a fresh session for each ticket. Tickets are self-contained by design (see [references/tickets.md](references/tickets.md)). Fresh sessions prevent context contamination and authoring bias.
-- **Validate and Review**: Enforce the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol). In-context persona simulation within an authoring session is strictly prohibited. An isolated validator or reviewer may remediate minor findings (typos, linter nits, trivial 1–2 line fixes) directly via the fast-path. Route major architectural or behavioral issues back to a fresh implementation session.
+- **Validate and Review**: Enforce the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol). In-context persona simulation within an authoring session is strictly prohibited. An isolated validator or reviewer may remediate minor findings (typos, linter nits, trivial 1–2 line fixes) directly via the fast-path. For major findings, apply `ship-it:changes-requested` and route back to a fresh rework session.
 - **Context Size**: Wrap up and hand off work if context grows large before a phase ends. Do not continue with degraded reasoning.
 
 ## Reference Index

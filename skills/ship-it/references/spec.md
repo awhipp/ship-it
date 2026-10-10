@@ -68,9 +68,9 @@ Turn a settled idea into a spec published as a GitHub issue. Source requirements
     Additional context or operational constraints. Follow [writing.md](writing.md).
 ```
 
-Once published, child phases ([tickets.md](tickets.md), [implement.md](implement.md), and [review.md](review.md)) read this spec via `gh issue view <spec-number>` to know what to build.
+Once published, child phases ([tickets.md](tickets.md), [implement.md](implement.md), and [review.md](review.md)) read this spec via `gh issue view <spec-number>`. These phases inspect the spec to know what to build.
 
-Recommended next step: [validate.md](validate.md) audits this spec adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol) before anyone splits it into tickets or builds from it directly. Run validation for any multi-session build. Treat skipping validation as a rare exception for trivial features.
+Recommended next step: [validate.md](validate.md) audits this spec adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol). Audit the spec before splitting tickets or building directly. Run validation for any multi-session build. Treat skipping validation as a rare exception for trivial features.
 
 ## Spec remediation
 

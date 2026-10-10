@@ -29,7 +29,7 @@ The remaining checks call the GitHub API and require the initial checks to pass:
 
 - **Issues enabled and writable**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`.
   - If `hasIssuesEnabled` is false, report: "Enable Issues for this repository (Settings → General → Features → Issues)."
-  - If `viewerPermission` is not `WRITE`, `MAINTAIN`, or `ADMIN`, report: "You require write access to open issues, or point `ship-it` to a writable fork."
+  - If `viewerPermission` lacks `WRITE`, `MAINTAIN`, or `ADMIN`, report: "Request write access, or point `ship-it` to a writable fork."
 - **Labels exist**: Run `gh label list` and verify against the required label set below.
 
 ## Harness & Invocation Configuration
