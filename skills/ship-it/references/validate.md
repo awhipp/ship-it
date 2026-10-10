@@ -110,5 +110,5 @@ If zero blockers remain after in-place remediation, the artifact is unblocked.
 
 ## Verdict and the label
 
-- **Any remaining Blocker**: Do not apply `ship-it:validated`. Major structural defects or unresolvable blockers route back to the owning phase in a fresh session (Tier 2) or isolated subagent (Tier 1). This ensures the fix is not written by the context that introduced the defect.
+- **Any remaining Blocker**: Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`). Do not apply `ship-it:validated`. Route major structural defects or unresolvable blockers back to the owning phase in a fresh session (Tier 2) or isolated subagent (Tier 1). This separation ensures the context that introduced the defect does not author the fix.
 - **Zero Blockers**: Apply `ship-it:validated` (`gh issue edit <number> --add-label "ship-it:validated"`). If minor findings were resolved in-place via the fast-path, confirm the updated artifact issue body is saved and documented in the report. Warnings and Nits remain on record in the comment. The user decides whether to address them immediately or carry them forward; they do not block the label.

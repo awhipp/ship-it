@@ -68,6 +68,19 @@ Turn a settled idea into a spec published as a GitHub issue. Source requirements
     Additional context or operational constraints. Follow [writing.md](writing.md).
 ```
 
-Once published, child phases ([tickets.md](tickets.md), [implement.md](implement.md), and [review.md](review.md)) read this spec via `gh issue view <spec-number>` to know what to build.
+Once published, child phases ([tickets.md](tickets.md), [implement.md](implement.md), and [review.md](review.md)) read this spec via `gh issue view <spec-number>`. These phases inspect the spec to know what to build.
 
-Recommended next step: [validate.md](validate.md) audits this spec adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol) before anyone splits it into tickets or builds from it directly. Run validation for any multi-session build. Treat skipping validation as a rare exception for trivial features.
+Recommended next step: [validate.md](validate.md) audits this spec adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol). Audit the spec before splitting tickets or building directly. Run validation for any multi-session build. Treat skipping validation as a rare exception for trivial features.
+
+## Spec remediation
+
+When adversarial validation applies `ship-it:changes-requested` to a specification, resolve reported blockers before proceeding to tickets or implementation:
+
+1. **Review audit findings**: Inspect the validation report in the issue comments via `gh issue view <spec-number> --comments`.
+2. **Remediate blockers**: Update the problem statement, solution, user stories, or implementation decisions in the issue body (`gh issue edit <spec-number> --body-file <file>`). Resolve contradictions, eliminate untestable criteria, and restore traceability.
+3. **Confirm scope adjustments**: Obtain explicit user approval if remediation alters feature scope or architectural boundaries.
+4. **Post resolution comment**: Post a comment detailing how each blocker was resolved (`gh issue comment <spec-number> --body "<text>"`).
+5. **Remove status label**: Remove `ship-it:changes-requested` via `gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`.
+
+Removing `ship-it:changes-requested` returns the spec to the validation queue.
+Submit the updated specification for re-audit under [validate.md](validate.md) in a fresh session.

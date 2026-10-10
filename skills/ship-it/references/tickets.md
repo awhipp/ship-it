@@ -40,7 +40,7 @@ Present the breakdown as a numbered list. For each ticket, state the title, bloc
 
 ### 5. Publish
 
-After explicit user approval, publish tickets as GitHub issues in dependency order (blockers first) so child issues can reference created blocker numbers. Title each issue `[<slug>] Ticket: <gist>` and apply the `ship-it:ticket` and `ready-for-agent` labels (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions)).
+After explicit user approval, publish tickets as GitHub issues in dependency order (blockers first) so child issues can reference created blocker numbers. Title each issue `[<slug>] Ticket: <gist>`. Apply the `ship-it:ticket` and `ready-for-agent` labels per [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).
 
 #### Markdown Relationship Contract
 
@@ -95,3 +95,16 @@ Format every acceptance criterion as a single-sentence imperative check adhering
 Do not close the parent spec or edit its body while child tickets remain open. The spec records intent, while tickets record execution. Child tickets link to the spec via `Part of #<spec-id>`. Close the parent spec and map only during the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol) after the final ticket passes review.
 
 Recommended next step: [validate.md](validate.md) audits the ticket breakdown in a fresh context before implementation begins. Audit any ticket set where a flawed slice risks derailment during implementation.
+
+## Ticket set remediation
+
+When adversarial validation applies `ship-it:changes-requested` to tickets, resolve reported blockers before starting implementation:
+
+1. **Review audit findings**: Inspect the validation report in the issue comments via `gh issue view <ticket-number> --comments`.
+2. **Remediate blockers**: Correct horizontal slices, broken dependency edges, missing parent links, or vague acceptance criteria. Update ticket bodies using `gh issue edit <ticket-number> --body-file <file>`. Create missing slices or close invalid tickets when necessary.
+3. **Confirm breakdown adjustments**: Obtain explicit user approval if slice adjustments alter scope boundaries or sequencing order.
+4. **Post resolution comment**: Post a comment detailing how each blocker was addressed (`gh issue comment <ticket-number> --body "<text>"`).
+5. **Remove status label**: Remove `ship-it:changes-requested` via `gh issue edit <ticket-number> --remove-label "ship-it:changes-requested"`.
+
+Removing `ship-it:changes-requested` returns the ticket set to the validation queue.
+Submit the updated ticket set for re-audit under [validate.md](validate.md) in a fresh session.

@@ -85,4 +85,16 @@ The destination sets the project boundaries. Work beyond the destination is not 
 5. Record the resolution: post the answer (`gh issue comment <number> --body "<text>"`), and close the ticket (`gh issue close <number> --comment "<text>"`). Append a one-line summary pointer to the map's "Decisions so far" (`gh issue edit <map-number>`) following [writing.md](writing.md).
 6. Graduate newly specifiable fog into fresh tickets (`gh issue create`, then wire blocking edges under `## Blocked by`). Remove graduated items from "Not yet specified". If an answer shows that a ticket lies outside the destination, move it to "Out of scope".
 
-Resolve **at most one ticket per session** (research tickets are the exception; several can run in a batch since they need no user interaction). When no tickets remain and "Not yet specified" is empty, the map is clear: hand off to [spec.md](spec.md) (or run `ship-it` or `/ship-it`).
+Resolve **at most one ticket per session** (research tickets are the exception; several can run in a batch since they need no user interaction). When no tickets remain and "Not yet specified" is empty, the map is clear. Hand off to [spec.md](spec.md) (or run `ship-it` or `/ship-it`).
+
+## Map remediation
+
+When adversarial validation applies `ship-it:changes-requested` to a map, resolve reported blockers before proceeding:
+
+1. **Review audit findings**: Inspect the validation report in the issue comments via `gh issue view <map-number> --comments`.
+2. **Remediate blockers**: Update the map destination, notes, tickets, or fog items in the issue body (`gh issue edit <map-number> --body-file <file>`). Resolve contradictions and clarify ambiguous scope.
+3. **Post resolution comment**: Post a comment detailing how each blocker was addressed (`gh issue comment <map-number> --body "<text>"`).
+4. **Remove status label**: Remove `ship-it:changes-requested` via `gh issue edit <map-number> --remove-label "ship-it:changes-requested"`.
+
+Removing `ship-it:changes-requested` returns the map to the validation queue.
+Submit the updated map for re-audit under [validate.md](validate.md) in a fresh session.
