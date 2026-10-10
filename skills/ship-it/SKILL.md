@@ -58,14 +58,14 @@ If the conversation does not specify the feature, ask the user for the slug dire
 
 Once you have the slug, query GitHub issues in this order and select the state furthest along:
 
-1. **Map (open and unresolved)**:
-   `gh issue list --label "ship-it:map" --search "<slug> in:title" --state open --json number,title,labels,state`
+1. **Map**:
+   `gh issue list --label "ship-it:map" --search "<slug> in:title" --state all --json number,title,labels,state`
    (Consult [references/plan.md](references/plan.md).)
 2. **Published spec**:
-   `gh issue list --label "ship-it:spec" --search "<slug> in:title" --state open --json number,title,labels,state`
+   `gh issue list --label "ship-it:spec" --search "<slug> in:title" --state all --json number,title,labels,state`
    (Consult [references/spec.md](references/spec.md).)
 3. **Tickets generated from the spec**:
-   `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --json number,title,labels,assignees,state`
+   `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --state all --json number,title,labels,assignees,state`
    Locate the earliest unblocked, unclaimed ticket using the [Orient Discovery Algorithm](#orient-discovery-algorithm).
 4. **Implementation in progress or unreviewed diff**:
    Check for an assigned ticket from step 3, a matching branch, or an open PR referencing the slug.
@@ -89,7 +89,9 @@ Read labels directly from the initial query output:
 - The **absence** of `ship-it:validated` and `ship-it:changes-requested` on a multi-session artifact requires validation next. Never skip validation to jump directly to tickets or implementation.
 - The presence of `ship-it:changes-requested` routes directly to the owning remediation phase before validation or review.
 
-The furthest artifact along determines the active phase.
+If only closed maps exist and no specification exists, treat planning as resolved and route to specification.
+If all tickets and specifications are closed, treat the feature as complete.
+The furthest active artifact along determines the active phase.
 If no artifacts exist, the feature has not started.
 
 **Orient Error Recovery**: If a `gh` query fails during Orient, do not assume artifacts are missing.
@@ -115,9 +117,14 @@ Treat the failure as an environmental error and route to [references/preflight.m
 | Ticket carries `ship-it:changes-requested` (branch/PR exists) | Read [references/implement.md](references/implement.md). Claim the ticket, execute the rework workflow, commit fixes, post a comment, and remove the label. |
 | Tickets exist, lack `ship-it:changes-requested`, and at least one is unblocked and unclaimed | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
 | Ticket is implemented (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Read [references/review.md](references/review.md) in a fresh session separate from the implementation session. |
-| Ticket carries `ship-it:reviewed` | Close out the ticket: comment resolution, close issue, and open PR. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
+| Ticket carries `ship-it:reviewed` | Post resolution comment, close the ticket, and commit reviewed changes. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
 | Review found minor issues (fast-path) | Resolve in-place, re-verify tests, apply `ship-it:reviewed`, and proceed to close-out. |
 | Review found major issues | Apply `ship-it:changes-requested`, remove the assignee, and route back to [references/implement.md](references/implement.md) in a fresh session. |
+| Single-session spec carries `ship-it:reviewed` with open PR | Report that the specification awaits pull request merge and stop. |
+| Single-session spec carries `ship-it:reviewed` without open PR | Instruct opening a pull request referencing `Closes #<spec-id>` and stop. |
+| All tickets are closed, spec is open, and open PR exists | Report that all tickets are closed and the feature awaits pull request merge. |
+| All tickets are closed, spec is open, and no PR exists | Instruct opening a pull request referencing `Closes #<spec-id>` and stop. |
+| All tickets and specifications are closed | Report that the feature is complete and stop. |
 | Tickets exist but none are unblocked and unclaimed | Report status for blocked or in-flight tickets and stop. |
 
 ### 3. Report and Stop
