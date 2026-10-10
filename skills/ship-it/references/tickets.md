@@ -49,6 +49,8 @@ Maintain universal compatibility across GitHub repository tiers without relying 
 1. **Parent-Child Linkage (`Part of #<spec-id>`)**:
    - Record `Part of #<spec-id>` as the first line of each ticket body.
    - Keep the parent spec body immutable once child tickets exist.
+   - Child tickets close upon review completion as point-in-time slices.
+   - Parent specifications remain open until pull request merge via `Closes #<spec-id>`.
    - Link via the GitHub sub-issues API if available, retaining markdown linkage as the primary contract.
    - Execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol) upon completing the final ticket.
 
@@ -65,7 +67,8 @@ Maintain universal compatibility across GitHub repository tiers without relying 
    - Link via the GitHub issue-dependencies API if available, retaining markdown tasklists as the primary contract.
 
 3. **Frontier Resolution & Orient Discovery**:
-   - Work tickets on the frontier where all blockers are closed.
+   - Work tickets on the frontier where all blockers have `state: "CLOSED"`.
+   - Closed blockers unblock dependent child tickets immediately.
    - Discover unblocked tickets using the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm).
 
 Ticket body:
@@ -92,7 +95,10 @@ Follow [writing.md](writing.md). Not a layer-by-layer implementation list.
 
 Format every acceptance criterion as a single-sentence imperative check adhering to [writing.md](writing.md). State verifiable outcomes incorporating verification. Phrase negative invariants (such as "no callers of deprecated API remain") as distinct final-check criteria. Implementers sweep them at the end rather than scanning upfront. Avoid file paths and transient code snippets. Adhere to the [ticket-naming prohibition](implement.md#ticket-naming-prohibition) for all automated test artifacts.
 
-Do not close the parent spec or edit its body while child tickets remain open. The spec records intent, while tickets record execution. Child tickets link to the spec via `Part of #<spec-id>`. Close the parent spec and map only during the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol) after the final ticket passes review.
+Child tickets represent point-in-time slices and close upon review completion.
+Parent specifications remain open throughout implementation until pull request merge via `Closes #<spec-id>`.
+Keep the parent specification body immutable while child tickets exist.
+Execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol) after the final ticket passes review.
 
 Recommended next step: [validate.md](validate.md) audits the ticket breakdown in a fresh context before implementation begins. Audit any ticket set where a flawed slice risks derailment during implementation.
 

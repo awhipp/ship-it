@@ -96,6 +96,8 @@ The table below outlines canonical `gh` CLI commands across `ship-it` phases:
 | Unclaim ticket | Release a ticket for remediation | `gh issue edit <number> --remove-assignee "<assignee>"` |
 | Remove status label | Clear a status label after remediation | `gh issue edit <number> --remove-label "<label>"` |
 | Close issue | Close an issue with resolution comment | `gh issue close <number> --comment "<text>"` |
+| Create pull request | Open a pull request with spec closing directive | `gh pr create --title "<title>" --body "Closes #<spec-id>"` |
+| View pull request | Inspect pull request details and status | `gh pr view` or `gh pr view <number>` |
 | Link dependency | Link an issue as blocked by another | `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (or markdown fallback) |
 | Link parent/child | Link a ticket to a parent spec or map | `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (or markdown fallback) |
 
