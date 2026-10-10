@@ -40,6 +40,7 @@ Inspect evidence for the verification strategy required by [references/implement
 ### 3. Identify the spec source
 
 Locate the source specification in this priority order:
+
 1. The ticket or spec issue (`gh issue view <number> --json number,title,body`).
 2. Issue references in commit messages (such as `#123` or `Closes #45`).
 3. An explicit path or issue number provided by the user.

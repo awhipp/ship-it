@@ -44,6 +44,7 @@ Consult [references/preflight.md](references/preflight.md) for setup requirement
 Standard runs skip preflight checks and proceed directly to [Every run](#every-run).
 
 Execute the checklist in [references/preflight.md](references/preflight.md) only when:
+
 - The user explicitly requests preflight (e.g. `ship-it preflight` or `/ship-it preflight`).
 - A `gh` command fails with an environmental error (such as auth failure, rate limits, 403/500 errors, or missing labels).
 
@@ -81,6 +82,7 @@ Select the earliest unblocked, unclaimed ticket:
 5. Select the earliest unblocked, unclaimed ticket in sequence.
 
 Read labels directly from the initial query output:
+
 - `ship-it:validated` on a map, spec, or ticket set confirms it passed the adversarial audit in [references/validate.md](references/validate.md).
 - `ship-it:reviewed` on a ticket confirms its diff passed independent review in [references/review.md](references/review.md).
 - `ship-it:changes-requested` on a map, spec, or ticket confirms unresolved validation blockers or review findings requiring rework.
@@ -121,6 +123,7 @@ Treat the failure as an environmental error and route to [references/preflight.m
 ### 3. Report and Stop
 
 Conclude each run with a concise summary:
+
 1. State the completed phase.
 2. Summarize the actions taken.
 3. State the exact command to run next.
