@@ -134,8 +134,8 @@ Do not chain into the next phase in the same response unless the user explicitly
 
 When the final ticket of a spec is reviewed and closed:
 
-1. Close the parent spec issue (and map issue, if present) with a summary comment (`gh issue close <spec-id> --comment "<text>"`).
-2. Reference `Closes #<spec-id>` in the pull request description so merging the PR automatically closes the spec issue.
+1. Post a completion comment on the parent specification documenting ticket completion (`gh issue comment <spec-id> --body "<text>"`). Prohibit manual issue closure on the parent specification.
+2. Open or update the pull request referencing `Closes #<spec-id>` in the description. Merging the pull request automatically closes the parent specification.
 
 ## Context Hygiene
 
