@@ -21,6 +21,7 @@ gh issue edit <number> --add-assignee "@me"
 
 Always quote `"@me"` per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).
 Consult [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) for command syntax.
+Claim tickets carrying `ship-it:changes-requested` using this same command to begin rework.
 
 ### 2. Execute the verification cycle
 
@@ -89,6 +90,7 @@ Do not self-review this work.
 The authoring session carries confirmation bias and cannot provide objective review.
 Leave the ticket assigned and open.
 This open state signals that the ticket awaits review.
+For tickets carrying `ship-it:changes-requested`, execute the rework workflow below before stopping.
 
 ### 6. Report and hand off
 
@@ -99,6 +101,20 @@ The review session may resolve minor findings (typos, linter nits, one-line fixe
 Major issues route back to a fresh implementation session.
 Include the verification summary in the handoff report and issue comment.
 Never run the review yourself; in-context persona simulation is strictly prohibited.
+
+## Rework workflow
+
+When a review rejection applies `ship-it:changes-requested`, execute this rework workflow in a fresh session:
+
+1. **Claim the ticket**: Claim the unassigned ticket via `gh issue edit <number> --add-assignee "@me"`.
+2. **Inspect review feedback**: Read the review findings recorded in the ticket comments via `gh issue view <number> --comments`.
+3. **Address findings**: Apply domain verification to fix reported defects. Add regression tests or direct checks covering every finding.
+4. **Commit fixes**: Commit all remediations directly to the feature branch.
+5. **Post resolution comment**: Post a comment detailing how each finding was resolved (`gh issue comment <number> --body "<text>"`).
+6. **Remove status label**: Remove `ship-it:changes-requested` via `gh issue edit <number> --remove-label "ship-it:changes-requested"`.
+
+Leave the ticket assigned and open to signal readiness for re-review.
+Hand off to an independent review session under [review.md](review.md).
 
 ## When there is no ticket (small, single-session feature)
 
