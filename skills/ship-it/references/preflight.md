@@ -98,8 +98,92 @@ The table below outlines canonical `gh` CLI commands across `ship-it` phases:
 | Close issue | Close an issue with resolution comment | `gh issue close <number> --comment "<text>"` |
 | Create pull request | Open a pull request with spec closing directive | `gh pr create --title "<title>" --body "Closes #<spec-id>"` |
 | View pull request | Inspect pull request details and status | `gh pr view` or `gh pr view <number>` |
-| Link dependency | Link an issue as blocked by another | `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (or markdown fallback) |
-| Link parent/child | Link a ticket to a parent spec or map | `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (or markdown fallback) |
+| Create sub-issue | Create a ticket linked to a parent spec | `gh issue create --parent <parent-number>` |
+| Add sub-issue | Link an existing child issue to a parent spec | `gh issue edit <parent-number> --add-sub-issue <child-number>` |
+| Remove sub-issue | Detach a child issue from a parent spec | `gh issue edit <parent-number> --remove-sub-issue <child-number>` |
+| Create with blocker | Create a ticket blocked by another issue | `gh issue create --blocked-by <blocker-numbers>` |
+| Add blocker | Mark an issue blocked by another issue | `gh issue edit <child-number> --add-blocked-by <blocker-number>` |
+| Remove blocker | Remove a dependency blocker from an issue | `gh issue edit <child-number> --remove-blocked-by <blocker-number>` |
+
+## REST and GraphQL Fallback Commands
+
+GitHub CLI versions 2.93.0 and earlier lack native relationship flags. Manage relationships through REST endpoints or GraphQL mutations on earlier CLI versions.
+
+### REST API Fallbacks
+
+REST endpoints require internal database IDs rather than issue numbers. Fetch database IDs with `gh issue view <number> --json id --jq .id`.
+
+| Action | HTTP Method and Endpoint | Payload / Flags |
+| :--- | :--- | :--- |
+| List sub-issues | `GET /repos/{owner}/{repo}/issues/{parent}/sub_issues` | None |
+| Add sub-issue | `POST /repos/{owner}/{repo}/issues/{parent}/sub_issues` | `-F sub_issue_id=<child-database-id>` |
+| Remove sub-issue | `DELETE /repos/{owner}/{repo}/issues/{parent}/sub_issue` | `-f sub_issue_id=<child-database-id>` |
+| List blockers | `GET /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by` | None |
+| Add blocker | `POST /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by` | `-F issue_id=<blocker-database-id>` |
+| Remove blocker | `DELETE /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by/{blocker_id}` | None |
+
+### GraphQL API Fallbacks
+
+GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh issue view <number> --json id,node_id`.
+
+#### Add Sub-Issue
+
+Execute the mutation through `gh api graphql`:
+
+```graphql
+mutation($parentId: ID!, $childId: ID!) {
+  addSubIssue(input: { issueId: $parentId, subIssueId: $childId }) {
+    issue { number }
+    subIssue { number }
+  }
+}
+```
+
+#### Remove Sub-Issue
+
+```graphql
+mutation($parentId: ID!, $childId: ID!) {
+  removeSubIssue(input: { issueId: $parentId, subIssueId: $childId }) {
+    issue { number }
+    subIssue { number }
+  }
+}
+```
+
+#### Add Blocked-By Dependency
+
+```graphql
+mutation($childId: ID!, $blockerId: ID!) {
+  addBlockedBy(input: { issueId: $childId, blockingIssueId: $blockerId }) {
+    blockingIssue { number }
+  }
+}
+```
+
+#### Remove Blocked-By Dependency
+
+```graphql
+mutation($childId: ID!, $blockerId: ID!) {
+  removeBlockedBy(input: { issueId: $childId, blockingIssueId: $blockerId }) {
+    blockingIssue { number }
+  }
+}
+```
+
+#### Query Status and Summaries
+
+```graphql
+query($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $number) {
+      subIssuesSummary { total completed percentCompleted }
+      subIssues(first: 100) { nodes { number state } }
+      issueDependenciesSummary { blockedBy totalBlockedBy }
+      blockedBy(first: 50) { nodes { number state } }
+    }
+  }
+}
+```
 
 ## Cross-Platform Shell Conventions
 
@@ -110,7 +194,8 @@ Follow these cross-platform rules for all shell commands:
 - **Single number space**: GitHub issues and pull requests share a single number namespace. Resolve bare issue numbers with `gh pr view <number>`, then fall back to `gh issue view <number>`.
 - **Feature slug**: Include a consistent feature slug in all issue titles (e.g., `[auth-rewrite] Spec: ...`).
 
-## Markdown Relationship Contract
+## Dual-Channel Relationship Contract
 
-Consult the [Markdown Relationship Contract](tickets.md#markdown-relationship-contract) for dependency relationships across repository tiers.
+<a id="markdown-relationship-contract"></a>
+Consult the [Dual-Channel Relationship Contract](tickets.md#dual-channel-relationship-contract) for dependency relationships across repository tiers.
 See the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm) for frontier resolution.

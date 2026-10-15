@@ -41,13 +41,26 @@ Pause and obtain explicit user confirmation of slice boundaries and dependencies
 
 After explicit user approval, publish tickets as GitHub issues in dependency order (blockers first) so child issues can reference created blocker numbers. Title each issue `[<slug>] Ticket: <gist>`. Apply the `ship-it:ticket` and `ready-for-agent` labels per [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).
 
-#### Markdown Relationship Contract
+#### Dual-Channel Relationship Contract
 
-Maintain universal compatibility across GitHub repository tiers:
+<a id="markdown-relationship-contract"></a>
+Maintain universal compatibility across GitHub repository tiers through dual-channel relationship management:
 
-1. **Parent linkage**: Record `Part of #<spec-id>` on the first line of each ticket body. Link native sub-issues when supported.
-2. **Dependency edges**: Declare blockers in a markdown tasklist under `## Blocked by` (or state `None (can start immediately).`). Link native dependencies when supported.
-3. **Frontier resolution**: Discover unblocked frontier tickets using the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm). Tickets become unblocked when all listed blockers reach `state: "CLOSED"`.
+- **Dual-write on ticket creation**:
+  Record `Part of #<spec-id>` on the first line of each ticket body.
+  Declare blockers in a markdown tasklist under `## Blocked by` (or state `None (can start immediately).`).
+  Concurrently attempt native relationship linking via CLI flags (`--parent`, `--blocked-by`) or API calls.
+- **Silent error handling**:
+  Ignore errors when native relationship operations fail on unsupported repository tiers or older CLI versions.
+  Continue ticket creation without interrupting the workflow.
+  Markdown pointers maintain relationship tracking when native operations fail.
+- **Dual-read dependency resolution**:
+  Inspect native issue dependencies first during Orient.
+  Query native blockers through GitHub CLI or GraphQL APIs.
+  Fall back to parsing the markdown `## Blocked by` tasklist when native relationships are absent.
+  A ticket becomes unblocked when all listed blockers reach `state: "CLOSED"`.
+- **Frontier resolution**:
+  Discover unblocked frontier tickets using the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm).
 
 Ticket body:
 
