@@ -92,7 +92,7 @@ The table below outlines canonical `gh` CLI commands across `ship-it` phases:
 | Create issue | Create a new map, spec, or ticket | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
 | Edit issue | Update issue title, body, or labels | `gh issue edit <number> --title "<title>" --body-file <file> --add-label "<label>"` |
 | Comment on issue | Add a comment to an existing issue | `gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"` |
-| Claim ticket | Claim a ticket to prevent concurrent work | `gh issue edit <number> --add-assignee "@me"` |
+| Claim ticket | Claim a ticket to prevent concurrent work | `gh issue edit <number> --add-assignee "@me" --remove-label "ready-for-agent"` |
 | Unclaim ticket | Release a ticket for remediation | `gh issue edit <number> --remove-assignee "<assignee>"` |
 | Remove status label | Clear a status label after remediation | `gh issue edit <number> --remove-label "<label>"` |
 | Close issue | Close an issue with resolution comment | `gh issue close <number> --comment "<text>"` |
@@ -126,13 +126,13 @@ REST endpoints require internal database IDs rather than issue numbers. Fetch da
 
 GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh issue view <number> --json id --jq .id`.
 
-Use the provided scripts in `skills/ship-it/scripts/` to manage relationships via GraphQL. Run the `.sh` versions on Mac/Linux or the `.ps1` versions on Windows from the repository root:
+Use the provided scripts in the skill's `scripts/` directory to manage relationships via GraphQL. Run the `.sh` versions on Mac/Linux or the `.ps1` versions on Windows:
 
-- **Add Sub-Issue**: `skills/ship-it/scripts/`[`add-sub-issue.sh`](../scripts/add-sub-issue.sh) (or [`.ps1`](../scripts/add-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
-- **Remove Sub-Issue**: `skills/ship-it/scripts/`[`remove-sub-issue.sh`](../scripts/remove-sub-issue.sh) (or [`.ps1`](../scripts/remove-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
-- **Add Blocked-By Dependency**: `skills/ship-it/scripts/`[`add-blocked-by.sh`](../scripts/add-blocked-by.sh) (or [`.ps1`](../scripts/add-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
-- **Remove Blocked-By Dependency**: `skills/ship-it/scripts/`[`remove-blocked-by.sh`](../scripts/remove-blocked-by.sh) (or [`.ps1`](../scripts/remove-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
-- **Query Status and Summaries**: `skills/ship-it/scripts/`[`query-dependencies.sh`](../scripts/query-dependencies.sh) (or [`.ps1`](../scripts/query-dependencies.ps1)) `<owner> <repo> <issue-number>`
+- **Add Sub-Issue**: [`scripts/add-sub-issue.sh`](../scripts/add-sub-issue.sh) (or [`scripts/add-sub-issue.ps1`](../scripts/add-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
+- **Remove Sub-Issue**: [`scripts/remove-sub-issue.sh`](../scripts/remove-sub-issue.sh) (or [`scripts/remove-sub-issue.ps1`](../scripts/remove-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
+- **Add Blocked-By Dependency**: [`scripts/add-blocked-by.sh`](../scripts/add-blocked-by.sh) (or [`scripts/add-blocked-by.ps1`](../scripts/add-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
+- **Remove Blocked-By Dependency**: [`scripts/remove-blocked-by.sh`](../scripts/remove-blocked-by.sh) (or [`scripts/remove-blocked-by.ps1`](../scripts/remove-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
+- **Query Status and Summaries**: [`scripts/query-dependencies.sh`](../scripts/query-dependencies.sh) (or [`scripts/query-dependencies.ps1`](../scripts/query-dependencies.ps1)) `<owner> <repo> <issue-number>`
 
 ## Cross-Platform Shell Conventions
 

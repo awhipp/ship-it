@@ -102,7 +102,7 @@ Evaluate the active frontier ticket across three deterministic states:
    If the ticket lacks `ship-it:changes-requested` and `ship-it:reviewed`, route to review per [references/review.md](references/review.md) using the [2-Tier Context Isolation Protocol](references/isolation.md).
 3. **Unstarted**:
    The frontier ticket is unassigned and unblocked.
-   Claim the ticket (`gh issue edit <number> --add-assignee "@me"`) and route to implementation per [references/implement.md](references/implement.md).
+   Claim the ticket (`gh issue edit <number> --add-assignee "@me" --remove-label "ready-for-agent"`) and route to implementation per [references/implement.md](references/implement.md).
    If the frontier ticket is blocked by dependencies, report blocker status and stop.
 
 Read labels directly from the initial query output:
@@ -110,7 +110,7 @@ Read labels directly from the initial query output:
 - `ship-it:validated` on a map, spec, or ticket set confirms it passed the adversarial audit in [references/validate.md](references/validate.md).
 - `ship-it:reviewed` on a ticket confirms its diff passed independent review in [references/review.md](references/review.md).
 - `ship-it:changes-requested` on a map, spec, or ticket confirms unresolved validation blockers or review findings requiring rework.
-- `ready-for-agent` on an artifact indicates readiness for agent pickup in manual fallback or initial ticket claiming.
+- `ready-for-agent` on an artifact indicates it awaits agent pickup in queue (for initial implementation or for isolated manual validation/review).
 - The **absence** of `ship-it:validated` and `ship-it:changes-requested` on a multi-session artifact requires validation next. Never skip validation to jump directly to tickets or implementation.
 - The presence of `ship-it:changes-requested` routes directly to the owning remediation phase before validation or review.
 
@@ -143,11 +143,12 @@ Treat the failure as an environmental error and route to [references/preflight.m
 | Frontier ticket is Unstarted (unclaimed and unblocked) | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
 | Frontier ticket is Unstarted but blocked by dependencies | Report blocker status for the frontier ticket and stop. |
 | Frontier ticket is In-Progress (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Review the diff per [references/review.md](references/review.md) using the [2-Tier Context Isolation Protocol](references/isolation.md). |
+| Frontier ticket carries `ready-for-agent` in fresh review session | Review the diff directly per [references/review.md](references/review.md). |
 | Frontier ticket is Reviewed (carries `ship-it:reviewed`) | Post resolution comment, close the ticket, and commit reviewed changes. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
 | Review or validation subagent detects minor issues (fast-path) | Resolve in-place, re-verify tests, apply appropriate status label, and proceed. |
-| Validation subagent detects major issues (blockers) | Apply `ship-it:changes-requested`, post findings comment, and route back to authoring phase in a fresh session. |
-| Review subagent detects major issues | Apply `ship-it:changes-requested`, remove the assignee, and route back to [references/implement.md](references/implement.md) in a fresh session. |
-| Subagent tools absent during validation or review (Tier 2) | Apply `ready-for-agent` label, output the fresh session command, and pause execution per [Manual Fallback Protocol](references/isolation.md#manual-fallback-protocol-tier-2). |
+| Validation subagent reports major issues (blockers) | Report findings summary to user and route back to authoring phase in a fresh session. |
+| Review subagent reports major issues | Report findings summary to user and route back to [references/implement.md](references/implement.md) in a fresh session. |
+| Subagent tools absent in authoring session during validation or review (Tier 2) | Apply `ready-for-agent` label, output the fresh session command, and pause execution per [Manual Fallback Protocol](references/isolation.md#manual-fallback-protocol-tier-2). |
 | Single-session spec carries `ship-it:reviewed` with open PR | Report that the specification awaits pull request merge and stop. |
 | Single-session spec carries `ship-it:reviewed` without open PR | Instruct opening a pull request referencing `Closes #<spec-id>` and stop. |
 | All tickets are closed, spec is open, and open PR exists | Report that all tickets are closed and the feature awaits pull request merge. |

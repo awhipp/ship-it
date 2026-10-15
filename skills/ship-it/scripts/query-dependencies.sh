@@ -5,7 +5,7 @@ set -e
 
 OWNER=$1
 REPO=$2
-NUMBER=$3
+NUMBER="${3#\#}"
 
 if [ -z "$OWNER" ] || [ -z "$REPO" ] || [ -z "$NUMBER" ]; then
   echo "Usage: $0 <owner> <repo> <issue_number>"

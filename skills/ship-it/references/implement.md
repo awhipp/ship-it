@@ -16,7 +16,7 @@ This branch provides a valid merge-base for the three-dot diff (`git diff <fixed
 Claim the ticket before writing code to prevent concurrent work:
 
 ```shell
-gh issue edit <number> --add-assignee "@me"
+gh issue edit <number> --add-assignee "@me" --remove-label "ready-for-agent"
 ```
 
 Always quote `"@me"` per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).

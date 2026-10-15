@@ -1,12 +1,14 @@
 param(
     [Parameter(Mandatory=$true)][string]$Owner,
     [Parameter(Mandatory=$true)][string]$Repo,
-    [Parameter(Mandatory=$true)][int]$Number
+    [Parameter(Mandatory=$true)][string]$Number
 )
 
 $ErrorActionPreference = 'Stop'
 
-gh api graphql -F owner="$Owner" -F repo="$Repo" -F number="$Number" -f query='
+$CleanNumber = [int]($Number.TrimStart('#'))
+
+gh api graphql -F owner="$Owner" -F repo="$Repo" -F number=$CleanNumber -f query='
 query($owner: String!, $repo: String!, $number: Int!) {
   repository(owner: $owner, name: $repo) {
     issue(number: $number) {

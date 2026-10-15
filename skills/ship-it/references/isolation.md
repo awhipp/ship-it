@@ -25,6 +25,18 @@ When subagent tools exist, execute validation and review autonomously without ma
 
 When subagent tools are absent, execute manual fallback across separate sessions:
 
+### 1. Authoring Session Handoff
+
+When an authoring session requires validation or review:
+
 1. **Apply status label**: Add the `ready-for-agent` status label to the target artifact issue (`gh issue edit <number> --add-label "ready-for-agent"`).
 2. **Output fresh session command**: Print the explicit command for the user to execute in a fresh session (such as `/ship-it validate <number>` or `/ship-it review <number>`).
 3. **Pause execution**: Stop the conductor run immediately. Prohibit in-context persona simulation.
+
+### 2. Standalone Verification Execution
+
+When running in a fresh session dedicated to validation or review (or picking up an artifact carrying `ready-for-agent`):
+
+1. **Execute verification directly**: Inspect the target artifact and source requirements directly per [validate.md](validate.md) or [review.md](review.md). Do not pause or re-trigger Tier 2 fallback.
+2. **Post findings and update labels**: Post the full report comment to the issue, apply outcome labels (`ship-it:validated`, `ship-it:reviewed`, or `ship-it:changes-requested`), and remove `ready-for-agent`.
+3. **Conclude review or validation**: For reviews, close the ticket with a resolution comment if clean, and execute feature close-out if final. Report the outcome to the user.
