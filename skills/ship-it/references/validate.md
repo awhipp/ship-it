@@ -11,7 +11,6 @@ Skipping is a deliberate exception rather than the default workflow.
 
 ## 2-Tier Context Isolation Protocol
 
-<a id="2-tier-context-isolation-protocol"></a>
 Validate artifacts through the [2-Tier Context Isolation Protocol](../SKILL.md#2-tier-context-isolation-protocol).
 Never simulate an outside skeptic within the authoring session context.
 Inspect the harness environment dynamically before delegating validation tasks:

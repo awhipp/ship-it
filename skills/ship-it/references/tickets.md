@@ -43,7 +43,6 @@ After explicit user approval, publish tickets as GitHub issues in dependency ord
 
 #### Dual-Channel Relationship Contract
 
-<a id="markdown-relationship-contract"></a>
 Maintain universal compatibility across GitHub repository tiers through dual-channel relationship management:
 
 - **Dual-write on ticket creation**:

@@ -76,7 +76,7 @@ Once you have the slug, query GitHub issues in this order and select the state f
 Select the earliest unblocked, unclaimed ticket:
 
 1. Filter out claimed tickets (`assignees` non-empty) and closed tickets (`state: "CLOSED"`).
-2. For open, unclaimed tickets, inspect the `## Blocked by` tasklist in each issue body via `gh issue view <number> --json body`. Check native dependency links per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract).
+2. For open, unclaimed tickets, inspect the `## Blocked by` tasklist in each issue body via `gh issue view <number> --json body`. Check native dependency links per the [Dual-Channel Relationship Contract](references/tickets.md#dual-channel-relationship-contract).
 3. Check blocker issue status via `gh issue view <blocker-id> --json state`.
 4. A ticket is **unblocked** if it lists no blockers (or "None"), or if every blocker in its `## Blocked by` list has `state: "CLOSED"`.
 5. Select the earliest unblocked, unclaimed ticket in sequence.
@@ -147,7 +147,6 @@ When the final ticket of a spec is reviewed and closed:
 
 ## 2-Tier Context Isolation Protocol
 
-<a id="2-tier-context-isolation-protocol"></a>
 Enforce context isolation during validation and review to prevent authoring bias.
 Never simulate an adversarial validator or reviewer within the authoring session context.
 Select the execution tier by inspecting the environment dynamically before delegating tasks.

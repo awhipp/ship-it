@@ -1,6 +1,5 @@
 # Review: two-axis check of the diff
 
-<a id="2-tier-context-isolation-protocol"></a>
 Review strictly enforces the [2-Tier Context Isolation Protocol](../SKILL.md#2-tier-context-isolation-protocol).
 In-context persona simulation within an authoring session is strictly prohibited.
 Inspect the harness environment dynamically before delegating review:

@@ -196,6 +196,5 @@ Follow these cross-platform rules for all shell commands:
 
 ## Dual-Channel Relationship Contract
 
-<a id="markdown-relationship-contract"></a>
 Consult the [Dual-Channel Relationship Contract](tickets.md#dual-channel-relationship-contract) for dependency relationships across repository tiers.
 See the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm) for frontier resolution.
