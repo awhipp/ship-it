@@ -48,14 +48,14 @@ Maintain universal compatibility across GitHub repository tiers through dual-cha
 - **Dual-write on ticket creation**:
   Record `Part of #<spec-id>` on the first line of each ticket body.
   Declare blockers in a markdown tasklist under `## Blocked by` (or state `None (can start immediately).`).
-  Concurrently attempt native relationship linking via CLI flags (`--parent`, `--blocked-by`) or API calls.
+  Concurrently attempt native relationship linking via CLI flags (`--parent`, `--blocked-by`).
 - **Silent error handling**:
-  Ignore errors when native relationship operations fail on unsupported repository tiers or older CLI versions.
+  Ignore errors when native relationship operations fail on unsupported repository tiers.
   Continue ticket creation without interrupting the workflow.
   Markdown pointers maintain relationship tracking when native operations fail.
 - **Dual-read dependency resolution**:
   Inspect native issue dependencies first during Orient.
-  Query native blockers through GitHub CLI or GraphQL APIs.
+  Query native blockers through GitHub CLI (`gh issue view <number> --json blockedBy`).
   Fall back to parsing the markdown `## Blocked by` tasklist when native relationships are absent.
   A ticket becomes unblocked when all listed blockers reach `state: "CLOSED"`.
 - **Frontier resolution**:

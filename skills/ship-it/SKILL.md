@@ -82,7 +82,7 @@ Isolate evaluation to the lowest-numbered open ticket:
    Isolate evaluation and routing strictly to this single frontier ticket.
 2. **Query dependencies**:
    Inspect native issue dependencies for the frontier ticket before reading markdown bodies per the [Dual-Channel Relationship Contract](references/tickets.md#dual-channel-relationship-contract).
-   Query native blockers via GitHub CLI or GraphQL APIs.
+   Query native blockers via GitHub CLI (`gh issue view <number> --json blockedBy`).
    Fall back to parsing the markdown `## Blocked by` tasklist from the issue body when native relationships are absent.
 3. **Verify blocker status**:
    Inspect blocker issue status via `gh issue view <blocker-id> --json state`.
