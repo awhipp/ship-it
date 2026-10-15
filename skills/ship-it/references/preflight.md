@@ -126,13 +126,13 @@ REST endpoints require internal database IDs rather than issue numbers. Fetch da
 
 GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh issue view <number> --json id,node_id`.
 
-Use the provided scripts in the `scripts/` directory to manage relationships via GraphQL:
+Use the provided scripts in the `scripts/` directory to manage relationships via GraphQL. Run the `.sh` versions on Mac/Linux or the `.ps1` versions on Windows:
 
-- **Add Sub-Issue**: `../scripts/add-sub-issue.sh <parent-node-id> <child-node-id>`
-- **Remove Sub-Issue**: `../scripts/remove-sub-issue.sh <parent-node-id> <child-node-id>`
-- **Add Blocked-By Dependency**: `../scripts/add-blocked-by.sh <child-node-id> <blocker-node-id>`
-- **Remove Blocked-By Dependency**: `../scripts/remove-blocked-by.sh <child-node-id> <blocker-node-id>`
-- **Query Status and Summaries**: `../scripts/query-dependencies.sh <owner> <repo> <issue-number>`
+- **Add Sub-Issue**: `../scripts/add-sub-issue.sh` (or `.ps1`) `<parent-node-id> <child-node-id>`
+- **Remove Sub-Issue**: `../scripts/remove-sub-issue.sh` (or `.ps1`) `<parent-node-id> <child-node-id>`
+- **Add Blocked-By Dependency**: `../scripts/add-blocked-by.sh` (or `.ps1`) `<child-node-id> <blocker-node-id>`
+- **Remove Blocked-By Dependency**: `../scripts/remove-blocked-by.sh` (or `.ps1`) `<child-node-id> <blocker-node-id>`
+- **Query Status and Summaries**: `../scripts/query-dependencies.sh` (or `.ps1`) `<owner> <repo> <issue-number>`
 
 ## Cross-Platform Shell Conventions
 
