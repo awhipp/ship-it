@@ -32,9 +32,9 @@ The remaining checks call the GitHub API and require the initial checks to pass:
   - If `viewerPermission` lacks `WRITE`, `MAINTAIN`, or `ADMIN`, report: "Request write access, or point `ship-it` to a writable fork."
 - **Labels exist**: Run `gh label list` and verify against the required label set below.
 
-## Harness & Invocation Configuration
+## Harness and Invocation Configuration
 
-See [Invocation & Harness Configuration](../SKILL.md#invocation-harness-configuration) for the manual-only invocation policy.
+See [Invocation and Harness Configuration](../SKILL.md#invocation-and-harness-configuration) for the manual-only invocation policy.
 
 ## The label set
 
@@ -92,14 +92,47 @@ The table below outlines canonical `gh` CLI commands across `ship-it` phases:
 | Create issue | Create a new map, spec, or ticket | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
 | Edit issue | Update issue title, body, or labels | `gh issue edit <number> --title "<title>" --body-file <file> --add-label "<label>"` |
 | Comment on issue | Add a comment to an existing issue | `gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"` |
-| Claim ticket | Claim a ticket to prevent concurrent work | `gh issue edit <number> --add-assignee "@me"` |
+| Claim ticket | Claim a ticket to prevent concurrent work | `gh issue edit <number> --add-assignee "@me" --remove-label "ready-for-agent"` |
 | Unclaim ticket | Release a ticket for remediation | `gh issue edit <number> --remove-assignee "<assignee>"` |
 | Remove status label | Clear a status label after remediation | `gh issue edit <number> --remove-label "<label>"` |
 | Close issue | Close an issue with resolution comment | `gh issue close <number> --comment "<text>"` |
 | Create pull request | Open a pull request with spec closing directive | `gh pr create --title "<title>" --body "Closes #<spec-id>"` |
 | View pull request | Inspect pull request details and status | `gh pr view` or `gh pr view <number>` |
-| Link dependency | Link an issue as blocked by another | `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>` (or markdown fallback) |
-| Link parent/child | Link a ticket to a parent spec or map | `gh api --method POST repos/<owner>/<repo>/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>` (or markdown fallback) |
+| Create sub-issue | Create a ticket linked to a parent spec | `gh issue create --parent <parent-number>` |
+| Add sub-issue | Link an existing child issue to a parent spec | `gh issue edit <parent-number> --add-sub-issue <child-number>` |
+| Remove sub-issue | Detach a child issue from a parent spec | `gh issue edit <parent-number> --remove-sub-issue <child-number>` |
+| Create with blocker | Create a ticket blocked by another issue | `gh issue create --blocked-by <blocker-numbers>` |
+| Add blocker | Mark an issue blocked by another issue | `gh issue edit <child-number> --add-blocked-by <blocker-number>` |
+| Remove blocker | Remove a dependency blocker from an issue | `gh issue edit <child-number> --remove-blocked-by <blocker-number>` |
+
+## REST and GraphQL Fallback Commands
+
+GitHub CLI versions 2.93.0 and earlier lack native relationship flags. Manage relationships through REST endpoints or GraphQL mutations on earlier CLI versions.
+
+### REST API Fallbacks
+
+REST endpoints require internal database IDs rather than issue numbers. Fetch database IDs with `gh api repos/{owner}/{repo}/issues/<number> --jq .id`.
+
+| Action | HTTP Method and Endpoint | Payload / Flags |
+| :--- | :--- | :--- |
+| List sub-issues | `GET /repos/{owner}/{repo}/issues/{parent}/sub_issues` | None |
+| Add sub-issue | `POST /repos/{owner}/{repo}/issues/{parent}/sub_issues` | `-F sub_issue_id=<child-database-id>` |
+| Remove sub-issue | `DELETE /repos/{owner}/{repo}/issues/{parent}/sub_issue` | `-f sub_issue_id=<child-database-id>` |
+| List blockers | `GET /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by` | None |
+| Add blocker | `POST /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by` | `-F issue_id=<blocker-database-id>` |
+| Remove blocker | `DELETE /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by/{blocker_id}` | None |
+
+### GraphQL API Fallbacks
+
+GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh issue view <number> --json id --jq .id`.
+
+Use the provided scripts in the skill's `scripts/` directory to manage relationships via GraphQL. Run the `.sh` versions on Mac/Linux or the `.ps1` versions on Windows:
+
+- **Add Sub-Issue**: [`scripts/add-sub-issue.sh`](../scripts/add-sub-issue.sh) (or [`scripts/add-sub-issue.ps1`](../scripts/add-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
+- **Remove Sub-Issue**: [`scripts/remove-sub-issue.sh`](../scripts/remove-sub-issue.sh) (or [`scripts/remove-sub-issue.ps1`](../scripts/remove-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
+- **Add Blocked-By Dependency**: [`scripts/add-blocked-by.sh`](../scripts/add-blocked-by.sh) (or [`scripts/add-blocked-by.ps1`](../scripts/add-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
+- **Remove Blocked-By Dependency**: [`scripts/remove-blocked-by.sh`](../scripts/remove-blocked-by.sh) (or [`scripts/remove-blocked-by.ps1`](../scripts/remove-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
+- **Query Status and Summaries**: [`scripts/query-dependencies.sh`](../scripts/query-dependencies.sh) (or [`scripts/query-dependencies.ps1`](../scripts/query-dependencies.ps1)) `<owner> <repo> <issue-number>`
 
 ## Cross-Platform Shell Conventions
 
@@ -110,7 +143,7 @@ Follow these cross-platform rules for all shell commands:
 - **Single number space**: GitHub issues and pull requests share a single number namespace. Resolve bare issue numbers with `gh pr view <number>`, then fall back to `gh issue view <number>`.
 - **Feature slug**: Include a consistent feature slug in all issue titles (e.g., `[auth-rewrite] Spec: ...`).
 
-## Markdown Relationship Contract
+## Dual-Channel Relationship Contract
 
-Consult the [Markdown Relationship Contract](tickets.md#markdown-relationship-contract) for dependency relationships across repository tiers.
+Consult the [Dual-Channel Relationship Contract](tickets.md#dual-channel-relationship-contract) for dependency relationships across repository tiers.
 See the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm) for frontier resolution.

@@ -14,7 +14,7 @@ This skill is self-contained and tracks work using GitHub issues.
 All reference guides live in this folder and in the files written into the repository.
 The skill does not invoke external skills.
 
-## Invocation & Harness Configuration
+## Invocation and Harness Configuration
 
 Run `ship-it` only when the user explicitly requests it (e.g. `ship-it` or `/ship-it`).
 Do not invoke this skill automatically.
@@ -66,26 +66,51 @@ Once you have the slug, query GitHub issues in this order and select the state f
    (Consult [references/spec.md](references/spec.md).)
 3. **Tickets generated from the spec**:
    `gh issue list --label "ship-it:ticket" --search "<slug> in:title" --state all --json number,title,labels,assignees,state`
-   Locate the earliest unblocked, unclaimed ticket using the [Orient Discovery Algorithm](#orient-discovery-algorithm).
-4. **Implementation in progress or unreviewed diff**:
-   Check for an assigned ticket from step 3, a matching branch, or an open PR referencing the slug.
+   Locate the active frontier ticket using the [Orient Discovery Algorithm](#orient-discovery-algorithm).
+4. **Frontier ticket evaluation**:
+   Evaluate the active frontier ticket across three states using [3-State Orient Routing](#3-state-orient-routing).
    (Consult [references/implement.md](references/implement.md) and [references/review.md](references/review.md).)
 
 #### Orient Discovery Algorithm
 
-Select the earliest unblocked, unclaimed ticket:
+Isolate evaluation to the lowest-numbered open ticket:
 
-1. Filter out claimed tickets (`assignees` non-empty) and closed tickets (`state: "CLOSED"`).
-2. For open, unclaimed tickets, inspect the `## Blocked by` tasklist in each issue body via `gh issue view <number> --json body`. Check native dependency links per the [Markdown Relationship Contract](references/tickets.md#markdown-relationship-contract).
-3. Check blocker issue status via `gh issue view <blocker-id> --json state`.
-4. A ticket is **unblocked** if it lists no blockers (or "None"), or if every blocker in its `## Blocked by` list has `state: "CLOSED"`.
-5. Select the earliest unblocked, unclaimed ticket in sequence.
+1. **Frontier ticket selection**:
+   Filter out closed tickets (`state: "CLOSED"`).
+   Sort open tickets ascending by issue number.
+   Select the lowest-numbered open ticket as the active **frontier ticket**.
+   Isolate evaluation and routing strictly to this single frontier ticket.
+2. **Query dependencies**:
+   Inspect native issue dependencies for the frontier ticket before reading markdown bodies per the [Dual-Channel Relationship Contract](references/tickets.md#dual-channel-relationship-contract).
+   Query native blockers via GitHub CLI or GraphQL APIs.
+   Fall back to parsing the markdown `## Blocked by` tasklist from the issue body when native relationships are absent.
+3. **Verify blocker status**:
+   Inspect blocker issue status via `gh issue view <blocker-id> --json state`.
+   A ticket is **unblocked** if it lists no blockers (or "None") or if every blocker has `state: "CLOSED"`.
+
+#### 3-State Orient Routing
+
+Evaluate the active frontier ticket across three deterministic states:
+
+1. **Reviewed**:
+   The frontier ticket carries `ship-it:reviewed`.
+   Post a resolution comment, close the ticket (`gh issue close <number> --comment "<text>"`), and commit reviewed changes.
+   If this is the final ticket for the spec, execute the [Feature Close-Out Protocol](#feature-close-out-protocol).
+2. **In-Progress**:
+   The frontier ticket has an assignee, an active feature branch, or an unreviewed diff.
+   If the ticket carries `ship-it:changes-requested`, claim the ticket and execute rework in [references/implement.md](references/implement.md).
+   If the ticket lacks `ship-it:changes-requested` and `ship-it:reviewed`, route to review per [references/review.md](references/review.md) using the [2-Tier Context Isolation Protocol](references/isolation.md).
+3. **Unstarted**:
+   The frontier ticket is unassigned and unblocked.
+   Claim the ticket (`gh issue edit <number> --add-assignee "@me" --remove-label "ready-for-agent"`) and route to implementation per [references/implement.md](references/implement.md).
+   If the frontier ticket is blocked by dependencies, report blocker status and stop.
 
 Read labels directly from the initial query output:
 
 - `ship-it:validated` on a map, spec, or ticket set confirms it passed the adversarial audit in [references/validate.md](references/validate.md).
 - `ship-it:reviewed` on a ticket confirms its diff passed independent review in [references/review.md](references/review.md).
 - `ship-it:changes-requested` on a map, spec, or ticket confirms unresolved validation blockers or review findings requiring rework.
+- `ready-for-agent` on an artifact indicates it awaits agent pickup in queue (for initial implementation or for isolated manual validation/review).
 - The **absence** of `ship-it:validated` and `ship-it:changes-requested` on a multi-session artifact requires validation next. Never skip validation to jump directly to tickets or implementation.
 - The presence of `ship-it:changes-requested` routes directly to the owning remediation phase before validation or review.
 
@@ -109,23 +134,26 @@ Treat the failure as an environmental error and route to [references/preflight.m
 | A map exists, lacks `ship-it:changes-requested`, and remains unresolved | Read [references/plan.md](references/plan.md) and resolve the next decision on the map. Resolve one ticket per session. |
 | Map is resolved (or planning skipped) and no spec exists | Read [references/spec.md](references/spec.md) and draft the feature specification. |
 | Spec carries `ship-it:changes-requested` | Read [references/spec.md](references/spec.md) and remediate reported spec blockers. Resolve findings, update the spec, post a comment, and remove the label. |
-| Spec exists, lacks `ship-it:validated` and `ship-it:changes-requested`, and build spans multiple sessions | Read [references/validate.md](references/validate.md) and audit the spec before splitting tickets. Skip audit only for trivial specs. |
+| Spec exists, lacks `ship-it:validated` and `ship-it:changes-requested`, and build spans multiple sessions | Audit the spec per [references/validate.md](references/validate.md) using the [2-Tier Context Isolation Protocol](references/isolation.md). Skip audit only for trivial specs. |
 | Spec exists, no tickets exist, and build requires multiple sessions | Read [references/tickets.md](references/tickets.md) and break the spec into vertical tickets. |
 | Spec exists and entire build fits in one session | Read [references/implement.md](references/implement.md) and build directly against the spec. |
-| Ticket carries `ship-it:changes-requested` (no branch/PR exists) | Read [references/tickets.md](references/tickets.md) and remediate reported ticket breakdown blockers. Resolve findings, update tickets, post a comment, and remove the label. |
-| Tickets exist, lack `ship-it:validated` and `ship-it:changes-requested`, and have not started | Read [references/validate.md](references/validate.md) and audit the ticket set. Skip audit only for small, trivial ticket sets. |
-| Ticket carries `ship-it:changes-requested` (branch/PR exists) | Read [references/implement.md](references/implement.md). Claim the ticket, execute the rework workflow, commit fixes, post a comment, and remove the label. |
-| Tickets exist, lack `ship-it:changes-requested`, and at least one is unblocked and unclaimed | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
-| Ticket is implemented (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Read [references/review.md](references/review.md) in a fresh session separate from the implementation session. |
-| Ticket carries `ship-it:reviewed` | Post resolution comment, close the ticket, and commit reviewed changes. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
-| Review found minor issues (fast-path) | Resolve in-place, re-verify tests, apply `ship-it:reviewed`, and proceed to close-out. |
-| Review found major issues | Apply `ship-it:changes-requested`, remove the assignee, and route back to [references/implement.md](references/implement.md) in a fresh session. |
+| Ticket breakdown carries `ship-it:changes-requested` (no branch/PR exists) | Read [references/tickets.md](references/tickets.md) and remediate reported ticket breakdown blockers. Resolve findings, update tickets, post a comment, and remove the label. |
+| Tickets exist, lack `ship-it:validated` and `ship-it:changes-requested`, and have not started | Audit the ticket set per [references/validate.md](references/validate.md) using the [2-Tier Context Isolation Protocol](references/isolation.md). Skip audit only for small, trivial ticket sets. |
+| Frontier ticket carries `ship-it:changes-requested` (branch/PR exists) | Read [references/implement.md](references/implement.md). Claim the ticket, execute the rework workflow, commit fixes, post a comment, and remove the label. |
+| Frontier ticket is Unstarted (unclaimed and unblocked) | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
+| Frontier ticket is Unstarted but blocked by dependencies | Report blocker status for the frontier ticket and stop. |
+| Frontier ticket is In-Progress (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Review the diff per [references/review.md](references/review.md) using the [2-Tier Context Isolation Protocol](references/isolation.md). |
+| Frontier ticket carries `ready-for-agent` in fresh review session | Review the diff directly per [references/review.md](references/review.md). |
+| Frontier ticket is Reviewed (carries `ship-it:reviewed`) | Post resolution comment, close the ticket, and commit reviewed changes. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
+| Review or validation subagent detects minor issues (fast-path) | Resolve in-place, re-verify tests, apply appropriate status label, and proceed. |
+| Validation subagent reports major issues (blockers) | Report findings summary to user and route back to authoring phase in a fresh session. |
+| Review subagent reports major issues | Report findings summary to user and route back to [references/implement.md](references/implement.md) in a fresh session. |
+| Subagent tools absent in authoring session during validation or review (Tier 2) | Apply `ready-for-agent` label, output the fresh session command, and pause execution per [Manual Fallback Protocol](references/isolation.md#manual-fallback-protocol-tier-2). |
 | Single-session spec carries `ship-it:reviewed` with open PR | Report that the specification awaits pull request merge and stop. |
 | Single-session spec carries `ship-it:reviewed` without open PR | Instruct opening a pull request referencing `Closes #<spec-id>` and stop. |
 | All tickets are closed, spec is open, and open PR exists | Report that all tickets are closed and the feature awaits pull request merge. |
 | All tickets are closed, spec is open, and no PR exists | Instruct opening a pull request referencing `Closes #<spec-id>` and stop. |
 | All tickets and specifications are closed | Report that the feature is complete and stop. |
-| Tickets exist but none are unblocked and unclaimed | Report status for blocked or in-flight tickets and stop. |
 
 ### 3. Report and Stop
 
@@ -148,7 +176,7 @@ When the final ticket of a spec is reviewed and closed:
 
 - **Plan → Spec → Tickets**: Maintain one continuous conversation when possible. Shared context helps compound design thinking.
 - **Implement**: Start a fresh session for each ticket. Tickets are self-contained by design (see [references/tickets.md](references/tickets.md)). Fresh sessions prevent context contamination and authoring bias.
-- **Validate and Review**: Enforce the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol). In-context persona simulation within an authoring session is strictly prohibited. An isolated validator or reviewer may remediate minor findings (typos, linter nits, trivial 1–2 line fixes) directly via the fast-path. For major findings, apply `ship-it:changes-requested` and route back to a fresh rework session.
+- **Validate and Review**: Enforce the [2-Tier Context Isolation Protocol](references/isolation.md). In-context persona simulation within an authoring session is strictly prohibited. Spawn isolated child agents autonomously under Tier 1 when subagent tools exist. Apply the `ready-for-agent` status label and pause execution for Tier 2 manual fallback when subagent tools are absent. An isolated validator or reviewer may remediate minor findings directly via the fast-path. Route major findings back to a fresh rework session via `ship-it:changes-requested`.
 - **Context Size**: Wrap up and hand off work if context grows large before a phase ends. Do not continue with degraded reasoning.
 
 ## Reference Index
@@ -157,6 +185,7 @@ When the final ticket of a spec is reviewed and closed:
 | :--- | :--- |
 | [references/writing.md](references/writing.md) | Authoring or auditing text against clarity, brevity, and formatting rules |
 | [references/preflight.md](references/preflight.md) | A `gh` command fails, or the user requests repository preflight |
+| [references/isolation.md](references/isolation.md) | Executing validation or review via Tier 1 subagent dispatch or Tier 2 manual fallback |
 | [references/plan.md](references/plan.md) | The effort is too large or unclear for a single session |
 | [references/spec.md](references/spec.md) | Turning settled requirements into a feature specification |
 | [references/validate.md](references/validate.md) | Adversarially auditing a published spec, ticket set, or map |

@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  linux:
+    name: Linux (Bash & POSIX Checks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Bash Scripts
+        run: bash .github/scripts/validate-bash.sh
+
+  windows:
+    name: Windows (PowerShell & Markdown Checks)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate PowerShell Scripts
+        shell: pwsh
+        run: pwsh .github/scripts/validate-powershell.ps1
+
+      - name: Verify Markdown Links and Anchors
+        shell: pwsh
+        run: pwsh .github/scripts/validate-markdown.ps1
