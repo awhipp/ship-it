@@ -11,11 +11,13 @@ Skipping is a deliberate exception rather than the default workflow.
 
 ## 2-Tier Context Isolation Protocol
 
-Never simulate an outside skeptic within the authoring session.
-Inspect the environment dynamically to select the execution tier:
+<a id="2-tier-context-isolation-protocol"></a>
+Validate artifacts through the [2-Tier Context Isolation Protocol](../SKILL.md#2-tier-context-isolation-protocol).
+Never simulate an outside skeptic within the authoring session context.
+Inspect the harness environment dynamically before delegating validation tasks:
 
-- **Tier 1 (Subagent execution)**: When subagent dispatch tools (`invoke_subagent` or `Agent`) exist, spawn an isolated child subagent with zero parent context. Pass only the target artifact and upstream requirements.
-- **Tier 2 (Manual session fallback)**: When subagent tools are absent, apply `ready-for-agent` and stop. Instruct the user to run the audit command in a fresh session.
+- **Tier 1 (Dynamic subagent dispatch)**: When subagent dispatch tools (`invoke_subagent`, `Agent`, or equivalent harness primitives) exist, spawn an isolated child agent with zero parent context. Pass only the target artifact issue number, upstream requirements, and audit instructions. Direct the child agent to audit the artifact and return a concise verdict summary directly to the parent conductor.
+- **Tier 2 (Manual fallback)**: When subagent tools are absent, apply the `ready-for-agent` status label (`gh issue edit <number> --add-label "ready-for-agent"`). Output the explicit audit command for a fresh session and pause execution. A fresh session claims the issue, conducts the audit, applies outcome labels, and removes `ready-for-agent`.
 
 ## What "requirements" means, per artifact
 
@@ -76,5 +78,5 @@ Post the full report comment even for clean passes to maintain an audit trail.
 
 Evaluate findings under a binary outcome:
 
-- **Blockers detected**: Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`). Do not apply `ship-it:validated`. Validators must not rewrite major structural defects or missing requirements. Route the artifact back to its authoring phase for rework.
-- **Clean pass or in-place fixes**: Apply `ship-it:validated` (`gh issue edit <number> --add-label "ship-it:validated"`). Validators may resolve minor typos, phrasing nits, or formatting fixes directly in the issue body. Record these fixes under `### In-place Resolutions`. Warnings and nits do not block the label.
+- **Blockers detected**: Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`). Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`). Do not apply `ship-it:validated`. Validators must not rewrite major structural defects or missing requirements. Route the artifact back to its authoring phase for rework.
+- **Clean pass or in-place fixes**: Apply `ship-it:validated` (`gh issue edit <number> --add-label "ship-it:validated"`). Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`). Validators may resolve minor typos, phrasing nits, or formatting fixes directly in the issue body. Record these fixes under `### In-place Resolutions`. Warnings and nits do not block the label.

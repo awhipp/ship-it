@@ -86,6 +86,7 @@ Read labels directly from the initial query output:
 - `ship-it:validated` on a map, spec, or ticket set confirms it passed the adversarial audit in [references/validate.md](references/validate.md).
 - `ship-it:reviewed` on a ticket confirms its diff passed independent review in [references/review.md](references/review.md).
 - `ship-it:changes-requested` on a map, spec, or ticket confirms unresolved validation blockers or review findings requiring rework.
+- `ready-for-agent` on an artifact indicates readiness for agent pickup in manual fallback or initial ticket claiming.
 - The **absence** of `ship-it:validated` and `ship-it:changes-requested` on a multi-session artifact requires validation next. Never skip validation to jump directly to tickets or implementation.
 - The presence of `ship-it:changes-requested` routes directly to the owning remediation phase before validation or review.
 
@@ -109,14 +110,14 @@ Treat the failure as an environmental error and route to [references/preflight.m
 | A map exists, lacks `ship-it:changes-requested`, and remains unresolved | Read [references/plan.md](references/plan.md) and resolve the next decision on the map. Resolve one ticket per session. |
 | Map is resolved (or planning skipped) and no spec exists | Read [references/spec.md](references/spec.md) and draft the feature specification. |
 | Spec carries `ship-it:changes-requested` | Read [references/spec.md](references/spec.md) and remediate reported spec blockers. Resolve findings, update the spec, post a comment, and remove the label. |
-| Spec exists, lacks `ship-it:validated` and `ship-it:changes-requested`, and build spans multiple sessions | Read [references/validate.md](references/validate.md) and audit the spec before splitting tickets. Skip audit only for trivial specs. |
+| Spec exists, lacks `ship-it:validated` and `ship-it:changes-requested`, and build spans multiple sessions | Audit the spec per [references/validate.md](references/validate.md) using the [2-Tier Context Isolation Protocol](#2-tier-context-isolation-protocol). Skip audit only for trivial specs. |
 | Spec exists, no tickets exist, and build requires multiple sessions | Read [references/tickets.md](references/tickets.md) and break the spec into vertical tickets. |
 | Spec exists and entire build fits in one session | Read [references/implement.md](references/implement.md) and build directly against the spec. |
 | Ticket carries `ship-it:changes-requested` (no branch/PR exists) | Read [references/tickets.md](references/tickets.md) and remediate reported ticket breakdown blockers. Resolve findings, update tickets, post a comment, and remove the label. |
-| Tickets exist, lack `ship-it:validated` and `ship-it:changes-requested`, and have not started | Read [references/validate.md](references/validate.md) and audit the ticket set. Skip audit only for small, trivial ticket sets. |
+| Tickets exist, lack `ship-it:validated` and `ship-it:changes-requested`, and have not started | Audit the ticket set per [references/validate.md](references/validate.md) using the [2-Tier Context Isolation Protocol](#2-tier-context-isolation-protocol). Skip audit only for small, trivial ticket sets. |
 | Ticket carries `ship-it:changes-requested` (branch/PR exists) | Read [references/implement.md](references/implement.md). Claim the ticket, execute the rework workflow, commit fixes, post a comment, and remove the label. |
 | Tickets exist, lack `ship-it:changes-requested`, and at least one is unblocked and unclaimed | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
-| Ticket is implemented (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Read [references/review.md](references/review.md) in a fresh session separate from the implementation session. |
+| Ticket is implemented (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Review the diff per [references/review.md](references/review.md) using the [2-Tier Context Isolation Protocol](#2-tier-context-isolation-protocol). |
 | Ticket carries `ship-it:reviewed` | Post resolution comment, close the ticket, and commit reviewed changes. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
 | Review found minor issues (fast-path) | Resolve in-place, re-verify tests, apply `ship-it:reviewed`, and proceed to close-out. |
 | Review found major issues | Apply `ship-it:changes-requested`, remove the assignee, and route back to [references/implement.md](references/implement.md) in a fresh session. |
@@ -144,11 +145,43 @@ When the final ticket of a spec is reviewed and closed:
 1. Post a completion comment on the parent specification documenting ticket completion (`gh issue comment <spec-id> --body "<text>"`). Prohibit manual issue closure on the parent specification.
 2. Open or update the pull request referencing `Closes #<spec-id>` in the description. Merging the pull request automatically closes the parent specification.
 
+## 2-Tier Context Isolation Protocol
+
+<a id="2-tier-context-isolation-protocol"></a>
+Enforce context isolation during validation and review to prevent authoring bias.
+Never simulate an adversarial validator or reviewer within the authoring session context.
+Select the execution tier by inspecting the environment dynamically before delegating tasks.
+
+### Dynamic Tool Inspection
+
+Inspect the runtime harness environment for subagent execution primitives before delegating tasks.
+Check for available dispatch tools such as `invoke_subagent`, `Agent`, or equivalent harness primitives.
+Execute Tier 1 when subagent dispatch tools exist.
+Execute Tier 2 when subagent dispatch tools are absent.
+
+### Autonomous Protocol (Tier 1)
+
+When subagent tools exist, execute validation and review autonomously without manual session restarts:
+
+1. **Spawn isolated child agent**: Launch a fresh child agent with zero parent conversation context.
+2. **Pass task inputs only**: Pass only the target issue number, requirements, and reference instructions ([references/validate.md](references/validate.md) or [references/review.md](references/review.md)).
+3. **Execute verification**: Direct the child agent to execute the evaluation independently, post the full report comment to the GitHub issue, and apply appropriate labels.
+4. **Return verdict summary**: Direct the child agent to return a concise verdict summary directly to the parent conductor.
+5. **Resume conductor flow**: Ingest the verdict summary, report results to the user, and proceed or stop per the reported outcome.
+
+### Manual Fallback Protocol (Tier 2)
+
+When subagent tools are absent, execute manual fallback across separate sessions:
+
+1. **Apply status label**: Add the `ready-for-agent` status label to the target artifact issue (`gh issue edit <number> --add-label "ready-for-agent"`).
+2. **Output fresh session command**: Print the explicit command for the user to execute in a fresh session (such as `/ship-it validate <number>` or `/ship-it review <number>`).
+3. **Pause execution**: Stop the conductor run immediately. Prohibit in-context persona simulation.
+
 ## Context Hygiene
 
 - **Plan → Spec → Tickets**: Maintain one continuous conversation when possible. Shared context helps compound design thinking.
 - **Implement**: Start a fresh session for each ticket. Tickets are self-contained by design (see [references/tickets.md](references/tickets.md)). Fresh sessions prevent context contamination and authoring bias.
-- **Validate and Review**: Enforce the [2-Tier Context Isolation Protocol](references/validate.md#2-tier-context-isolation-protocol). In-context persona simulation within an authoring session is strictly prohibited. An isolated validator or reviewer may remediate minor findings (typos, linter nits, trivial 1–2 line fixes) directly via the fast-path. For major findings, apply `ship-it:changes-requested` and route back to a fresh rework session.
+- **Validate and Review**: Enforce the [2-Tier Context Isolation Protocol](#2-tier-context-isolation-protocol). In-context persona simulation within an authoring session is strictly prohibited. Spawn isolated child agents autonomously under Tier 1 when subagent tools exist. Apply the `ready-for-agent` status label and pause execution for Tier 2 manual fallback when subagent tools are absent. An isolated validator or reviewer may remediate minor findings directly via the fast-path. Route major findings back to a fresh rework session via `ship-it:changes-requested`.
 - **Context Size**: Wrap up and hand off work if context grows large before a phase ends. Do not continue with degraded reasoning.
 
 ## Reference Index
