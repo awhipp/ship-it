@@ -75,15 +75,15 @@ Once you have the slug, query GitHub issues in this order and select the state f
 
 Isolate evaluation to the lowest-numbered open ticket:
 
-1. **Query native dependencies first**:
-   Inspect native issue dependencies before reading markdown bodies per the [Dual-Channel Relationship Contract](references/tickets.md#dual-channel-relationship-contract).
-   Query native blockers via GitHub CLI or GraphQL APIs.
-   Fall back to parsing the markdown `## Blocked by` tasklist from the issue body when native relationships are absent.
-2. **Frontier ticket selection**:
+1. **Frontier ticket selection**:
    Filter out closed tickets (`state: "CLOSED"`).
    Sort open tickets ascending by issue number.
    Select the lowest-numbered open ticket as the active **frontier ticket**.
    Isolate evaluation and routing strictly to this single frontier ticket.
+2. **Query dependencies**:
+   Inspect native issue dependencies for the frontier ticket before reading markdown bodies per the [Dual-Channel Relationship Contract](references/tickets.md#dual-channel-relationship-contract).
+   Query native blockers via GitHub CLI or GraphQL APIs.
+   Fall back to parsing the markdown `## Blocked by` tasklist from the issue body when native relationships are absent.
 3. **Verify blocker status**:
    Inspect blocker issue status via `gh issue view <blocker-id> --json state`.
    A ticket is **unblocked** if it lists no blockers (or "None") or if every blocker has `state: "CLOSED"`.
@@ -141,6 +141,7 @@ Treat the failure as an environmental error and route to [references/preflight.m
 | Tickets exist, lack `ship-it:validated` and `ship-it:changes-requested`, and have not started | Audit the ticket set per [references/validate.md](references/validate.md) using the [2-Tier Context Isolation Protocol](references/isolation.md). Skip audit only for small, trivial ticket sets. |
 | Frontier ticket carries `ship-it:changes-requested` (branch/PR exists) | Read [references/implement.md](references/implement.md). Claim the ticket, execute the rework workflow, commit fixes, post a comment, and remove the label. |
 | Frontier ticket is Unstarted (unclaimed and unblocked) | Read [references/implement.md](references/implement.md). Claim and build that ticket in a fresh session per [Context hygiene](#context-hygiene). |
+| Frontier ticket is Unstarted but blocked by dependencies | Report blocker status for the frontier ticket and stop. |
 | Frontier ticket is In-Progress (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Review the diff per [references/review.md](references/review.md) using the [2-Tier Context Isolation Protocol](references/isolation.md). |
 | Frontier ticket is Reviewed (carries `ship-it:reviewed`) | Post resolution comment, close the ticket, and commit reviewed changes. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
 | Review or validation subagent detects minor issues (fast-path) | Resolve in-place, re-verify tests, apply appropriate status label, and proceed. |
@@ -152,7 +153,6 @@ Treat the failure as an environmental error and route to [references/preflight.m
 | All tickets are closed, spec is open, and open PR exists | Report that all tickets are closed and the feature awaits pull request merge. |
 | All tickets are closed, spec is open, and no PR exists | Instruct opening a pull request referencing `Closes #<spec-id>` and stop. |
 | All tickets and specifications are closed | Report that the feature is complete and stop. |
-| Frontier ticket is Unstarted but blocked by dependencies | Report blocker status for the frontier ticket and stop. |
 
 ### 3. Report and Stop
 

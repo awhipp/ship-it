@@ -12,3 +12,4 @@ mutation($parentId: ID!, $childId: ID!) {
     subIssue { number }
   }
 }'
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

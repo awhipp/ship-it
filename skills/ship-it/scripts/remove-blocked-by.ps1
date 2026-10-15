@@ -11,3 +11,4 @@ mutation($childId: ID!, $blockerId: ID!) {
     blockingIssue { number }
   }
 }'
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

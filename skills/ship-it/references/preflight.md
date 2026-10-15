@@ -111,7 +111,7 @@ GitHub CLI versions 2.93.0 and earlier lack native relationship flags. Manage re
 
 ### REST API Fallbacks
 
-REST endpoints require internal database IDs rather than issue numbers. Fetch database IDs with `gh issue view <number> --json id --jq .id`.
+REST endpoints require internal database IDs rather than issue numbers. Fetch database IDs with `gh api repos/{owner}/{repo}/issues/<number> --jq .id`.
 
 | Action | HTTP Method and Endpoint | Payload / Flags |
 | :--- | :--- | :--- |
@@ -124,15 +124,15 @@ REST endpoints require internal database IDs rather than issue numbers. Fetch da
 
 ### GraphQL API Fallbacks
 
-GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh issue view <number> --json id,node_id`.
+GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh issue view <number> --json id --jq .id`.
 
-Use the provided scripts in the `scripts/` directory to manage relationships via GraphQL. Run the `.sh` versions on Mac/Linux or the `.ps1` versions on Windows:
+Use the provided scripts in `skills/ship-it/scripts/` to manage relationships via GraphQL. Run the `.sh` versions on Mac/Linux or the `.ps1` versions on Windows from the repository root:
 
-- **Add Sub-Issue**: [`add-sub-issue.sh`](../scripts/add-sub-issue.sh) (or [`.ps1`](../scripts/add-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
-- **Remove Sub-Issue**: [`remove-sub-issue.sh`](../scripts/remove-sub-issue.sh) (or [`.ps1`](../scripts/remove-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
-- **Add Blocked-By Dependency**: [`add-blocked-by.sh`](../scripts/add-blocked-by.sh) (or [`.ps1`](../scripts/add-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
-- **Remove Blocked-By Dependency**: [`remove-blocked-by.sh`](../scripts/remove-blocked-by.sh) (or [`.ps1`](../scripts/remove-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
-- **Query Status and Summaries**: [`query-dependencies.sh`](../scripts/query-dependencies.sh) (or [`.ps1`](../scripts/query-dependencies.ps1)) `<owner> <repo> <issue-number>`
+- **Add Sub-Issue**: `skills/ship-it/scripts/`[`add-sub-issue.sh`](../scripts/add-sub-issue.sh) (or [`.ps1`](../scripts/add-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
+- **Remove Sub-Issue**: `skills/ship-it/scripts/`[`remove-sub-issue.sh`](../scripts/remove-sub-issue.sh) (or [`.ps1`](../scripts/remove-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
+- **Add Blocked-By Dependency**: `skills/ship-it/scripts/`[`add-blocked-by.sh`](../scripts/add-blocked-by.sh) (or [`.ps1`](../scripts/add-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
+- **Remove Blocked-By Dependency**: `skills/ship-it/scripts/`[`remove-blocked-by.sh`](../scripts/remove-blocked-by.sh) (or [`.ps1`](../scripts/remove-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
+- **Query Status and Summaries**: `skills/ship-it/scripts/`[`query-dependencies.sh`](../scripts/query-dependencies.sh) (or [`.ps1`](../scripts/query-dependencies.ps1)) `<owner> <repo> <issue-number>`
 
 ## Cross-Platform Shell Conventions
 

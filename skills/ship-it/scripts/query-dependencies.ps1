@@ -17,3 +17,4 @@ query($owner: String!, $repo: String!, $number: Int!) {
     }
   }
 }'
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

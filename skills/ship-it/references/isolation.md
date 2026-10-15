@@ -16,7 +16,7 @@ Execute Tier 2 when subagent dispatch tools are absent.
 When subagent tools exist, execute validation and review autonomously without manual session restarts:
 
 1. **Spawn isolated child agent**: Launch a fresh child agent with zero parent conversation context.
-2. **Pass task inputs only**: Pass only the target issue number, requirements, and reference instructions ([validate.md](validate.md) or [review.md](review.md)).
+2. **Pass task inputs only**: Pass only the target issue number, diff fixed-point or branch ref (for reviews), requirements, and reference instructions ([validate.md](validate.md) or [review.md](review.md)).
 3. **Execute verification**: Direct the child agent to execute the evaluation independently, post the full report comment to the GitHub issue, and apply appropriate labels.
 4. **Return verdict summary**: Direct the child agent to return a concise verdict summary directly to the parent conductor.
 5. **Resume conductor flow**: Ingest the verdict summary, report results to the user, and proceed or stop per the reported outcome.
