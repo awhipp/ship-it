@@ -37,7 +37,7 @@ The map is a single GitHub issue titled `[<slug>] Map: <destination gist>` and l
     <!-- Work ruled beyond the destination. Out-of-scope work never graduates into a ticket. -->
 ```
 
-Each **ticket** is a child issue of the map (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) for sub-issues and dependency APIs). Title each ticket `[<slug>] <ticket type>: <question gist>` and label it with its type (`ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`). Format the body with the question adhering to [writing.md](writing.md):
+Each **ticket** is a child issue of the map (see [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) for sub-issues and dependency commands). Title each ticket `[<slug>] <ticket type>: <question gist>` and label it with its type (`ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`). Format the body with the question adhering to [writing.md](writing.md):
 
 ```markdown
     ## Question

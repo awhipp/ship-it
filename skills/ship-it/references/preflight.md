@@ -18,8 +18,10 @@ Execute every check below before reporting findings.
 Collect all failures rather than halting on the first error.
 Reporting all failures at once saves user time.
 
-- **`gh` installed**: Run `gh --version`.
-  If missing, report: "Install the GitHub CLI: <https://cli.github.com>".
+- **`gh` installed and updated**: Run `gh --version`.
+  `ship-it` requires GitHub CLI version `2.94.0` or later for native sub-issue and issue relationship flags (`--parent`, `--add-sub-issue`, `--remove-sub-issue`, `--blocked-by`, `--add-blocked-by`, `--remove-blocked-by`, and JSON fields `subIssues`, `blockedBy`).
+  - If missing, report: "Install the GitHub CLI (v2.94.0 or later): <https://cli.github.com>".
+  - If version is below 2.94.0, report: "Update the GitHub CLI to v2.94.0 or later using your OS package manager (e.g. `winget upgrade GitHub.cli`, `brew upgrade gh`, `sudo apt install gh`) or download from <https://cli.github.com>. Older versions lack native sub-issue and relationship flags."
 - **GitHub remote**: Verify that `git remote -v` contains a `github.com` URL.
   If missing, report: "`ship-it` tracks specs and tickets as GitHub issues; this repository requires a github.com remote."
 - **Authenticated**: Run `gh auth status`.
@@ -104,35 +106,7 @@ The table below outlines canonical `gh` CLI commands across `ship-it` phases:
 | Create with blocker | Create a ticket blocked by another issue | `gh issue create --blocked-by <blocker-numbers>` |
 | Add blocker | Mark an issue blocked by another issue | `gh issue edit <child-number> --add-blocked-by <blocker-number>` |
 | Remove blocker | Remove a dependency blocker from an issue | `gh issue edit <child-number> --remove-blocked-by <blocker-number>` |
-
-## REST and GraphQL Fallback Commands
-
-GitHub CLI versions 2.93.0 and earlier lack native relationship flags. Manage relationships through REST endpoints or GraphQL mutations on earlier CLI versions.
-
-### REST API Fallbacks
-
-REST endpoints require internal database IDs rather than issue numbers. Fetch database IDs with `gh api repos/{owner}/{repo}/issues/<number> --jq .id`.
-
-| Action | HTTP Method and Endpoint | Payload / Flags |
-| :--- | :--- | :--- |
-| List sub-issues | `GET /repos/{owner}/{repo}/issues/{parent}/sub_issues` | None |
-| Add sub-issue | `POST /repos/{owner}/{repo}/issues/{parent}/sub_issues` | `-F sub_issue_id=<child-database-id>` |
-| Remove sub-issue | `DELETE /repos/{owner}/{repo}/issues/{parent}/sub_issue` | `-f sub_issue_id=<child-database-id>` |
-| List blockers | `GET /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by` | None |
-| Add blocker | `POST /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by` | `-F issue_id=<blocker-database-id>` |
-| Remove blocker | `DELETE /repos/{owner}/{repo}/issues/{child}/dependencies/blocked_by/{blocker_id}` | None |
-
-### GraphQL API Fallbacks
-
-GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh issue view <number> --json id --jq .id`.
-
-Use the provided scripts in the skill's `scripts/` directory to manage relationships via GraphQL. Run the `.sh` versions on Mac/Linux or the `.ps1` versions on Windows:
-
-- **Add Sub-Issue**: [`scripts/add-sub-issue.sh`](../scripts/add-sub-issue.sh) (or [`scripts/add-sub-issue.ps1`](../scripts/add-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
-- **Remove Sub-Issue**: [`scripts/remove-sub-issue.sh`](../scripts/remove-sub-issue.sh) (or [`scripts/remove-sub-issue.ps1`](../scripts/remove-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
-- **Add Blocked-By Dependency**: [`scripts/add-blocked-by.sh`](../scripts/add-blocked-by.sh) (or [`scripts/add-blocked-by.ps1`](../scripts/add-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
-- **Remove Blocked-By Dependency**: [`scripts/remove-blocked-by.sh`](../scripts/remove-blocked-by.sh) (or [`scripts/remove-blocked-by.ps1`](../scripts/remove-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
-- **Query Status and Summaries**: [`scripts/query-dependencies.sh`](../scripts/query-dependencies.sh) (or [`scripts/query-dependencies.ps1`](../scripts/query-dependencies.ps1)) `<owner> <repo> <issue-number>`
+| Query issue dependencies | Fetch native blockers and parent relationship | `gh issue view <number> --json blockedBy,parent,subIssues` |
 
 ## Cross-Platform Shell Conventions
 
