@@ -15,7 +15,7 @@ Validate artifacts through the [2-Tier Context Isolation Protocol](../SKILL.md#2
 Never simulate an outside skeptic within the authoring session context.
 Inspect the harness environment dynamically before delegating validation tasks:
 
-- **Tier 1 (Dynamic subagent dispatch)**: When subagent dispatch tools (`invoke_subagent`, `Agent`, or equivalent harness primitives) exist, spawn an isolated child agent with zero parent context. Pass only the target artifact issue number, upstream requirements, and audit instructions. Direct the child agent to audit the artifact and return a concise verdict summary directly to the parent conductor.
+- **Tier 1 (Dynamic subagent dispatch)**: When subagent dispatch tools (`invoke_subagent`, `Agent`, or equivalent harness primitives) exist, spawn an isolated child agent with zero parent context. Pass only the target artifact issue number, upstream requirements, and audit instructions. Direct the child agent to audit the artifact, post the full report comment to the GitHub issue, and apply appropriate labels before returning a concise verdict summary directly to the parent conductor.
 - **Tier 2 (Manual fallback)**: When subagent tools are absent, apply the `ready-for-agent` status label (`gh issue edit <number> --add-label "ready-for-agent"`). Output the explicit audit command for a fresh session and pause execution. A fresh session claims the issue, conducts the audit, applies outcome labels, and removes `ready-for-agent`.
 
 ## What "requirements" means, per artifact
