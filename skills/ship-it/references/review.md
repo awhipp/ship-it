@@ -53,6 +53,10 @@ If the user confirms no spec exists, skip the Spec pass and record this omission
 Inspect repository documentation for coding rules: `CODING_STANDARDS.md`, `CONTRIBUTING.md`, style guides, or linter configurations.
 Skip issues handled by automated linters.
 
+Enforce these architectural baselines when repository standards are absent:
+
+- **Baseline Smells**: Flag duplicated logic, mysterious names, speculative generality (unused abstractions), primitive obsession, and shotgun surgery. Recommend standard refactoring (extracting helpers, wrapping primitives, consolidating changes). Skip if handled by linters.
+
 Enforce these ship-it specific standards across all diffs:
 
 - **Ticket-Named Artifacts**: Test or source files named after tickets rather than domain seams. Rename files per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
