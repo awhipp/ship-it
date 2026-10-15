@@ -1,6 +1,7 @@
 # Review: two-axis check of the diff
 
-Review strictly enforces the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol); in-context persona simulation is strictly prohibited.
+Review strictly enforces the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol).
+In-context persona simulation is strictly prohibited.
 
 Review diffs along two independent axes, reported side by side without merging or reranking:
 
@@ -9,13 +10,8 @@ Review diffs along two independent axes, reported side by side without merging o
 
 ## Why two axes, not one
 
-A diff can pass one axis and fail the other:
-
-- Follows every standard, but builds the wrong thing → Standards pass, Spec fail.
-- Implements requirements faithfully, but breaks conventions → Spec pass, Standards fail.
-
-Combining these into one score allows a strong result on one axis to mask failures on the other.
-Keep the axes separate.
+A diff can follow standards yet implement the wrong behavior, or implement requirements faithfully while violating coding standards.
+Evaluating both axes independently prevents strong performance on one axis from masking critical defects on the other.
 
 ## Process
 
@@ -51,41 +47,24 @@ If the user confirms no spec exists, skip the Spec pass and record this omission
 ### 4. Identify the standards sources
 
 Inspect repository documentation for coding rules: `CODING_STANDARDS.md`, `CONTRIBUTING.md`, style guides, or linter configurations.
+Skip issues handled by automated linters.
 
-Also apply this baseline smell catalog (Fowler, *Refactoring*, ch. 3).
-Documented repository standards override this baseline.
-Every smell is a judgment call rather than a hard failure.
-Skip issues already handled by automated linters.
+Enforce these ship-it specific standards across all diffs:
 
-- **Mysterious Name**: A name does not reveal what it holds or does → rename it.
-- **Duplicated Code**: Identical logic appears in multiple places → extract shared logic into a helper.
-- **Feature Envy**: A function accesses another module's data more than its own → move the function to the data.
-- **Data Clumps**: Multiple fields or parameters always appear together → bundle them into a type.
-- **Primitive Obsession**: Primitives represent domain concepts needing validation → wrap them in a dedicated type.
-- **Repeated Switches**: Identical conditionals repeat across functions → use polymorphism or lookup tables.
-- **Shotgun Surgery**: A single logical change requires scattered edits across many files → consolidate related code into one module.
-- **Divergent Change**: One module changes for multiple unrelated reasons → split the module by responsibility.
-- **Speculative Generality**: Code adds unused hooks or abstractions → remove unused abstractions and inline them.
-- **Message Chains**: Chained method calls navigate object graphs → encapsulate the traversal in a dedicated method.
-- **Middle Man**: A function delegates all work to another function → remove the middle layer and call the target directly.
-- **Refused Bequest**: A subclass ignores inherited behavior → replace inheritance with composition.
-- **Ticket-Named Artifacts**: Test or source files named after tickets rather than domain seams → rename per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
-- **Over-Architected Test Ceremonies**: Mock harnesses simulate coverage for non-code changes → replace with direct verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
-- **Unclear Prose / Dense Phrasing**: Text violates [writing.md](writing.md) with dense noun clusters, long sentences, or passive phrasing → rewrite for brevity.
+- **Ticket-Named Artifacts**: Test or source files named after tickets rather than domain seams. Rename files per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
+- **Over-Architected Test Ceremonies**: Ad-hoc harnesses simulating coverage for non-code changes. Verify acceptance criteria directly per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+- **Unclear Prose or Dense Phrasing**: Documentation or skills violating [writing.md](writing.md). Rewrite sentences exceeding 25 words or dense noun clusters.
 
 ### 5. Run both passes
 
-**Standards pass**: Evaluate the diff, commit list, and identified standards sources against the baseline smell catalog.
-Report every breach of documented standards and any baseline smells.
+**Standards pass**: Evaluate the diff, commit list, and identified standards sources.
+Report every breach of documented standards or ship-it prohibitions.
 Cite specific files and line numbers.
-Keep this section under 400 words.
 
 **Spec pass**: Evaluate the diff and commit list against the spec or ticket.
 Report missing requirements, partial implementations, unintended scope creep, or incorrect behavior.
 Quote the relevant spec line for each finding.
-Keep this section under 400 words.
-
-If no spec exists, skip the Spec pass and state that no spec was provided.
+If no spec exists, skip the Spec pass and record that no spec was provided.
 
 ### 6. Report
 
@@ -94,11 +73,11 @@ Present both passes under `## Standards` and `## Spec` headings, unmerged. Forma
 ```markdown
 ## Standards
 
-<Findings citing file, rule, and hunk, formatted as concise statements following writing.md. Under 400 words. Or "None".>
+<Findings citing file, rule, and hunk, formatted as concise statements following writing.md. Or "None".>
 
 ## Spec
 
-<Findings citing spec requirement and implementation divergence, formatted as concise statements following writing.md. Under 400 words. Or "None".>
+<Findings citing spec requirement and implementation divergence, formatted as concise statements following writing.md. Or "None".>
 
 ### In-place Resolutions
 
@@ -108,23 +87,14 @@ Present both passes under `## Standards` and `## Spec` headings, unmerged. Forma
 **Summary**: <One-line summary of findings per axis and worst issue within each axis, if any.>
 ```
 
-When minor findings are remediated via the fast-path, document them under `### In-place Resolutions` detailing the patched hunks, rationale, and the distinct commit hash.
-Close with a one-line summary: total findings per axis (and in-place resolutions), plus the worst outstanding issue **within** each axis, if any.
+When minor findings are remediated via the fast-path, document them under `### In-place Resolutions` detailing patched hunks and rationale.
+Close with a one-line summary: total findings per axis plus the worst outstanding issue within each axis.
 Do not declare a single overall winner across the two axes; that reranking defeats the two-axis separation.
 
 ## Outcome
 
-- **Major findings or missing verification evidence**: Reviewers cannot patch architectural defects, missing acceptance criteria, behavioral redesigns, multi-file refactoring, or missing verification evidence in review. Post findings to the ticket (`gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"`). Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`). Remove the assignee (`gh issue edit <number> --remove-assignee "<assignee>"`). Do not apply `ship-it:reviewed`. Hand the unassigned ticket back to a fresh `implement.md` session under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol).
-- **Minor findings (fast-path)**: Minor findings include cosmetic fixes, formatting nits, typos, or trivial 1–2 line fixes without architectural changes.
-  The reviewer may remediate them directly within the active context window:
-  1. Patch the files in-place.
-  2. Commit the changes as a distinct commit (e.g. `git commit -m "style: address review nits"`).
-  3. Re-run the full verification suite (or domain-appropriate checks) to confirm all checks pass.
-  4. Document the remediations under `### In-place Resolutions` in the review report.
-  5. Commit reviewed changes to the feature branch before closing child tickets.
-  6. Apply `ship-it:reviewed` (`gh issue edit <number> --add-label "ship-it:reviewed"`).
-  7. Post the review report comment (`gh issue comment <number> --body "<text>"`).
-  8. Close child tickets upon in-place remediation with a resolution comment (`gh issue close <number> --comment "<text>"`).
-  9. Open or update the pull request, executing the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol) for the final ticket.
-- **Verification evidence verified and both axes clean**: Apply `ship-it:reviewed` (`gh issue edit <number> --add-label "ship-it:reviewed"`) and post the review report comment (`gh issue comment <number> --body "<text>"`). Commit reviewed changes to the feature branch before closing child tickets. Close child tickets upon review completion with a resolution comment (`gh issue close <number> --comment "<text>"`). Open or update the pull request, executing the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol) for the final ticket.
-- **Single-session specifications**: Reviewed single-session specifications receive `ship-it:reviewed` without issue closure (`gh issue edit <spec-id> --add-label "ship-it:reviewed"`). Post the review report comment while keeping the specification issue open (`gh issue comment <spec-id> --body "<text>"`). Direct reviewers of single-session specifications to open or update pull requests referencing `Closes #<spec-id>` so merging closes the specification.
+Route the review into one of three unified outcomes:
+
+- **Major findings or missing verification evidence**: Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`) and remove the assignee (`gh issue edit <number> --remove-assignee "@me"`). Post findings in an issue comment. Return the ticket to an implementation session for rework.
+- **Minor findings or clean pass**: Apply `ship-it:reviewed` (`gh issue edit <number> --add-label "ship-it:reviewed"`). For minor nits or typos, patch files in-place, commit fixes, and document them under `### In-place Resolutions`. Post the review report comment. Close the ticket with a resolution comment (`gh issue close <number> --comment "<text>"`). If this is the final ticket, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).
+- **Single-session specifications**: Apply `ship-it:reviewed` to the spec issue (`gh issue edit <spec-id> --add-label "ship-it:reviewed"`). Post the review report comment while keeping the specification open. Instruct the user to open or update a pull request referencing `Closes #<spec-id>`.
