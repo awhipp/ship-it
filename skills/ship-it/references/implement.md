@@ -2,7 +2,8 @@
 
 Build the work described by a ticket following [writing.md](writing.md).
 For small single-session features lacking tickets, implement directly against the spec.
-Execute each run of this phase in a fresh session.
+Tier 1 environments dispatch isolated implementation subagents per [isolation.md](isolation.md).
+Tier 2 environments execute each run of this phase in a fresh session.
 Tickets are self-contained by design.
 Prior session context adds minimal value and consumes tokens.
 
@@ -95,24 +96,39 @@ For tickets carrying `ship-it:changes-requested`, execute the rework workflow be
 
 ### 6. Report and hand off
 
-Notify the user that the ticket is implemented and awaits review.
-Review occurs in an isolated session under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol).
-The next step is an independent review session executing [review.md](review.md) against this diff.
-The review session may resolve minor findings (typos, linter nits, one-line fixes) via the fast-path.
-Major issues route back to a fresh implementation session.
-Include the verification summary in the handoff report and issue comment.
-Never run the review yourself; in-context persona simulation is strictly prohibited.
+Handoff procedures depend on the execution tier:
+
+- **Tier 1 autonomous execution**:
+  The implementation subagent returns a concise verdict summary directly to the parent conductor.
+  The summary details modified files, commit hashes, and verification evidence.
+  Never run review within the implementation subagent.
+  - In autonomous loop mode, the conductor chains into review subagent dispatch per [isolation.md](isolation.md).
+  - In step-by-step mode, the conductor prompts for confirmation before downstream dispatch.
+
+- **Tier 2 manual execution**:
+  Notify the user that the ticket is implemented and awaits review.
+  Add the `ready-for-agent` label to the ticket (`gh issue edit <number> --add-label "ready-for-agent"`).
+  Print the command for an independent review session executing [review.md](review.md) against this diff.
+  Stop the conductor run immediately.
+  Never run review yourself; in-context persona simulation is strictly prohibited.
 
 ## Rework workflow
 
-When a review rejection applies `ship-it:changes-requested`, execute this rework workflow in a fresh session:
+When a review rejection applies `ship-it:changes-requested`, execute rework based on the execution tier:
 
-1. **Claim the ticket**: Claim the unassigned ticket via `gh issue edit <number> --add-assignee "@me"`.
-2. **Inspect review feedback**: Read the review findings recorded in the ticket comments via `gh issue view <number> --comments`.
-3. **Address findings**: Apply domain verification to fix reported defects. Add regression tests or direct checks covering every finding.
-4. **Commit fixes**: Commit all remediations directly to the feature branch.
-5. **Post resolution comment**: Post a comment detailing how each finding was resolved (`gh issue comment <number> --body "<text>"`).
-6. **Remove status label**: Remove `ship-it:changes-requested` via `gh issue edit <number> --remove-label "ship-it:changes-requested"`.
+- **Tier 1 environments**:
+  The conductor executes the Autonomous Rework Protocol in [isolation.md](isolation.md).
+  An isolated remediation subagent claims the ticket, addresses review feedback, commits fixes, and returns a verdict.
+  Rework is bounded to a maximum of two retry attempts before developer escalation.
+
+- **Tier 2 environments**:
+  Execute this rework workflow in a fresh manual session:
+  1. **Claim the ticket**: Claim the unassigned ticket via `gh issue edit <number> --add-assignee "@me"`.
+  2. **Inspect review feedback**: Read the review findings recorded in the ticket comments via `gh issue view <number> --comments`.
+  3. **Address findings**: Apply domain verification to fix reported defects. Add regression tests or direct checks covering every finding.
+  4. **Commit fixes**: Commit all remediations directly to the feature branch.
+  5. **Post resolution comment**: Post a comment detailing how each finding was resolved (`gh issue comment <number> --body "<text>"`).
+  6. **Remove status label**: Remove `ship-it:changes-requested` via `gh issue edit <number> --remove-label "ship-it:changes-requested"`.
 
 Leave the ticket assigned and open to signal readiness for re-review.
 Hand off to an independent review session under [review.md](review.md).
