@@ -44,7 +44,14 @@ Invoke `ship-it` inside any git repo using natural language or slash commands:
 /ship-it
 ```
 
-`ship-it` automatically queries your GitHub repository to determine the active feature and current phase, executes exactly one bounded slice of work, verifies the gate, and stops with the next step.
+`ship-it` automatically queries your GitHub repository to determine the active feature and current phase.
+When interactive prompt tools exist, `ship-it` prompts the developer to select an execution mode:
+
+- **Autonomous loop mode**: Orchestrates isolated child subagents across implementation, review, and ticket progression until completing the specification.
+- **Step-by-step mode**: Executes one phase at a time and prompts for interactive confirmation before downstream work.
+
+When interactive prompt tools are absent, `ship-it` defaults to step-by-step mode.
+In step-by-step mode, the conductor executes exactly one bounded slice of work, verifies the gate, and reports the next step.
 
 Need to verify repo setup or label provisioning? Run:
 
@@ -74,7 +81,7 @@ Autonomous coding agents present a frustrating dilemma:
 | **1. Plan** | Chart architectural decisions when requirements are foggy. | Interactive 1-question-per-turn discovery dialogue. | Decision Map (`[slug] Map: ...`) | [`plan.md`](skills/ship-it/references/plan.md) |
 | **2. Spec** | Define problem statement, acceptance criteria, and test seams. | Fresh-context adversarial audit before tickets. | Feature Spec (`[slug] Spec: ...`) | [`spec.md`](skills/ship-it/references/spec.md) |
 | **3. Tickets** | Decompose spec into session-sized, vertical slices. | Explicit developer sign-off on ticket DAG & blockers. | Vertical Tickets (`[slug] Ticket: ...`) | [`tickets.md`](skills/ship-it/references/tickets.md) |
-| **4. Implement** | Build one ticket with domain-aligned verification in a fresh session. | Recommended Red-Green cycle; green suite or verified criteria. | Git Diff & Commit | [`implement.md`](skills/ship-it/references/implement.md) |
+| **4. Implement** | Build one ticket with domain-aligned verification. | Isolated subagent (Tier 1) or fresh session (Tier 2). | Git Diff & Commit | [`implement.md`](skills/ship-it/references/implement.md) |
 | **5. Review** | Independent review across Standards and Spec Fidelity. | Two-axis review report with zero findings. | Review Verdict & Label | [`review.md`](skills/ship-it/references/review.md) |
 
 ### How Phases Work
@@ -82,15 +89,54 @@ Autonomous coding agents present a frustrating dilemma:
 1. **Plan (Map)**: Used only when a feature is ambiguous or broad. Maps decisions one question at a time across the frontier of the unknown. Well-scoped features skip directly to Spec.
 2. **Spec**: Synthesizes requirements, architecture, and test seams into an unambiguous spec issue. Passes an adversarial audit gate ([`validate.md`](skills/ship-it/references/validate.md)) in an isolated context before ticketing.
 3. **Tickets**: Splits the validated spec into small, self-contained vertical slices. Links tickets natively via GitHub sub-issues and dependencies (`--parent`, `--blocked-by`) with dual-channel markdown tasklist fallback.
-4. **Implement**: Executes the active frontier ticket on a dedicated branch using deterministic 3-state routing (Reviewed, In-Progress, Unstarted). Strongly recommends test-first Red-Green where automated test suites exist, or direct acceptance verification where they do not. The authoring session never reviews its own work.
-5. **Review**: Audits the diff under the 2-Tier Context Isolation Protocol. Spawns isolated child agents autonomously when subagent tools exist, or pauses with `ready-for-agent` when absent. Evaluates **Coding Standards** (Martin Fowler refactoring baseline) and **Spec Fidelity** along two independent axes.
+4. **Implement**: Executes the active frontier ticket on a dedicated branch using deterministic 3-state routing (Reviewed, In-Progress, Unstarted). Under Tier 1, the conductor dispatches an isolated implementation subagent per the [Autonomous Implementation Protocol](skills/ship-it/references/isolation.md#autonomous-implementation-protocol-tier-1) with zero parent context. Under Tier 2, the conductor preserves manual fallback by applying `ready-for-agent` and prompting for a fresh session. Strongly recommends test-first Red-Green where automated test suites exist, or direct acceptance verification where they do not. The authoring session never reviews its own work.
+5. **Review**: Audits the diff under the [2-Tier Context Isolation Protocol](skills/ship-it/references/isolation.md). Spawns isolated review subagents autonomously under Tier 1, or pauses with `ready-for-agent` under Tier 2. Evaluates **Coding Standards** (Martin Fowler refactoring baseline) and **Spec Fidelity** along two independent axes. When review requests changes, autonomous loop mode triggers remediation subagents with bounded retries before developer escalation.
+
+### Conductor Orchestration and Execution Modes
+
+`ship-it` orchestrates feature delivery across two distinct execution modes:
+
+- **Autonomous loop mode**: The conductor drives continuous subagent build loops across the entire specification. It dispatches implementation subagents, verifies commits, dispatches review subagents, closes approved tickets, and advances the frontier autonomously until completing the specification.
+- **Step-by-step mode**: The conductor executes exactly one bounded slice of work per invocation. It requests interactive confirmation before executing downstream phases, keeping developers in full control of every transition.
+
+When interactive prompt tools exist (`ask_question`, `prompt`), `ship-it` prompts the developer to select the execution mode at the start of every run.
+When interactive tools are absent, the conductor defaults to step-by-step mode.
+
+### Autonomous Implementation and Continuous Build Loop (Tier 1)
+
+In environments with subagent primitives (`invoke_subagent`, `Agent`), the conductor executes the [Autonomous Implementation Protocol](skills/ship-it/references/isolation.md#autonomous-implementation-protocol-tier-1):
+
+- **Zero-Context Isolation**: The conductor dispatches unstarted tickets to isolated child subagents with zero parent conversation context. This practice prevents context bloat and eliminates authoring confirmation bias.
+- **Continuous Phase Chaining**: Upon receiving a clean implementation verdict summary, the conductor immediately verifies commit generation and dispatches an isolated review subagent.
+- **Autonomous Frontier Progression**: When the review subagent approves the diff, the conductor posts a resolution comment, closes the ticket, and advances immediately to the next unstarted ticket.
+- **Feature Close-Out Protocol**: When the final ticket of a specification closes, the conductor posts a completion comment to the parent specification and instructs opening or updating the pull request.
+
+### Autonomous Rework Routing with Bounded Retries
+
+When a review subagent rejects a diff and applies `ship-it:changes-requested`, `ship-it` initiates the [Autonomous Rework Protocol](skills/ship-it/references/isolation.md#autonomous-rework-protocol-tier-1):
+
+- **Remediation Dispatch**: The conductor launches an isolated remediation subagent with the review feedback, ticket requirements, and feature branch name.
+- **Remediation Verification**: The remediation subagent fixes reported defects, executes verification, and commits fixes directly to the branch.
+- **Re-Verification**: The conductor dispatches a fresh review subagent to audit the remediated diff.
+- **Bounded Retry Limit**: Rework routing enforces a strict limit of at most two remediation attempts per ticket. If review rejection persists after two attempts, the conductor alerts the developer and halts execution.
+
+### Tier 2 Manual Fallback Preservation
+
+In environments lacking subagent primitives, `ship-it` preserves full manual fallback without compromising rigor:
+
+- **Authoring Session Handoff**: The conductor applies the `ready-for-agent` status label, prints the explicit command for a fresh session, and stops execution. In-context persona simulation is strictly prohibited.
+- **Fresh Session Execution**: Developers or agents execute implementation, validation, and review in dedicated, fresh sessions per the reference guides.
+- **Manual Rework Workflow**: When a review requests changes, a fresh manual session claims the ticket, resolves findings, commits remediations, posts an explanatory comment, and removes the `ship-it:changes-requested` label for re-review.
 
 ---
 
 ## Core Guarantees
 
 - **Zero Proprietary State**: No SaaS lock-in or local runtime state. GitHub is the state machine—tracked via native issues, markdown tasklists, `ship-it:*` labels, branches, and commits.
-- **Autonomous Subagent Execution**: Conductor detects harness subagent primitives dynamically. When present, it runs validation and review in isolated child contexts without manual session restarts. When absent, it gracefully pauses with `ready-for-agent` and prints the exact command.
+- **Continuous Subagent Build Loop**: In autonomous loop mode under Tier 1, the conductor continuously chains implementation subagents, review subagents, and ticket frontier progression until completing the specification.
+- **Autonomous Subagent Execution**: Conductor detects harness subagent primitives dynamically. It runs implementation, validation, and review in isolated child contexts with zero parent conversation context.
+- **Bounded Autonomous Rework Routing**: When a review requests changes, the conductor routes tickets to isolated remediation subagents with retries bounded to at most two attempts before escalating to the developer.
+- **Preserved Tier 2 Manual Fallback**: When subagent tools are absent, the conductor applies `ready-for-agent`, prints the exact command for a fresh session, and pauses execution without simulating personas in-context.
 - **Dual-Channel Issue Relationships**: Connects issues natively with GitHub sub-issues and dependencies (`--parent`, `--blocked-by`). Transparently falls back to markdown pointers (`Part of #<spec-id>`, `## Blocked by`) across unsupported repository tiers.
 - **Deterministic 3-State Orient Routing**: Isolates ticket evaluation to the lowest-numbered open ticket on the specification frontier. Routes deterministically across Reviewed, In-Progress, and Unstarted states without sequence confusion.
 - **Context Hygiene as a Feature**: LLMs degrade as context history bloats. `ship-it` enforces fresh sessions between phases and tickets, eliminating hallucination loops and confirmation bias. Highlights lean implement discovery (ephemeral subagent exploration for multi-file tickets) and targeted final sweeps for negative invariants to prevent context bloat.
