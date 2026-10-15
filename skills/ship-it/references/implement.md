@@ -98,11 +98,12 @@ For tickets carrying `ship-it:changes-requested`, execute the rework workflow be
 
 Handoff procedures depend on the execution tier:
 
-- **Tier 1 autonomous loop execution**:
+- **Tier 1 autonomous execution**:
   The implementation subagent returns a concise verdict summary directly to the parent conductor.
   The summary details modified files, commit hashes, and verification evidence.
-  The conductor immediately chains into review subagent dispatch per [isolation.md](isolation.md).
   Never run review within the implementation subagent.
+  - In autonomous loop mode, the conductor chains into review subagent dispatch per [isolation.md](isolation.md).
+  - In step-by-step mode, the conductor prompts for confirmation before downstream dispatch.
 
 - **Tier 2 manual execution**:
   Notify the user that the ticket is implemented and awaits review.
