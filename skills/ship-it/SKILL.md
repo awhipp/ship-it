@@ -14,7 +14,7 @@ This skill is self-contained and tracks work using GitHub issues.
 All reference guides live in this folder and in the files written into the repository.
 The skill does not invoke external skills.
 
-## Invocation & Harness Configuration
+## Invocation and Harness Configuration
 
 Run `ship-it` only when the user explicitly requests it (e.g. `ship-it` or `/ship-it`).
 Do not invoke this skill automatically.
@@ -144,6 +144,7 @@ Treat the failure as an environmental error and route to [references/preflight.m
 | Frontier ticket is In-Progress (assigned, open), lacks `ship-it:changes-requested`, and lacks `ship-it:reviewed` | Review the diff per [references/review.md](references/review.md) using the [2-Tier Context Isolation Protocol](references/isolation.md). |
 | Frontier ticket is Reviewed (carries `ship-it:reviewed`) | Post resolution comment, close the ticket, and commit reviewed changes. If final ticket, execute [Feature Close-Out Protocol](#feature-close-out-protocol). |
 | Review or validation subagent detects minor issues (fast-path) | Resolve in-place, re-verify tests, apply appropriate status label, and proceed. |
+| Validation subagent detects major issues (blockers) | Apply `ship-it:changes-requested`, post findings comment, and route back to authoring phase in a fresh session. |
 | Review subagent detects major issues | Apply `ship-it:changes-requested`, remove the assignee, and route back to [references/implement.md](references/implement.md) in a fresh session. |
 | Subagent tools absent during validation or review (Tier 2) | Apply `ready-for-agent` label, output the fresh session command, and pause execution per [Manual Fallback Protocol](references/isolation.md#manual-fallback-protocol-tier-2). |
 | Single-session spec carries `ship-it:reviewed` with open PR | Report that the specification awaits pull request merge and stop. |
@@ -170,6 +171,10 @@ When the final ticket of a spec is reviewed and closed:
 1. Post a completion comment on the parent specification documenting ticket completion (`gh issue comment <spec-id> --body "<text>"`). Prohibit manual issue closure on the parent specification.
 2. Open or update the pull request referencing `Closes #<spec-id>` in the description. Merging the pull request automatically closes the parent specification.
 
+## Context Hygiene
+
+- **Plan → Spec → Tickets**: Maintain one continuous conversation when possible. Shared context helps compound design thinking.
+- **Implement**: Start a fresh session for each ticket. Tickets are self-contained by design (see [references/tickets.md](references/tickets.md)). Fresh sessions prevent context contamination and authoring bias.
 - **Validate and Review**: Enforce the [2-Tier Context Isolation Protocol](references/isolation.md). In-context persona simulation within an authoring session is strictly prohibited. Spawn isolated child agents autonomously under Tier 1 when subagent tools exist. Apply the `ready-for-agent` status label and pause execution for Tier 2 manual fallback when subagent tools are absent. An isolated validator or reviewer may remediate minor findings directly via the fast-path. Route major findings back to a fresh rework session via `ship-it:changes-requested`.
 - **Context Size**: Wrap up and hand off work if context grows large before a phase ends. Do not continue with degraded reasoning.
 
@@ -179,6 +184,7 @@ When the final ticket of a spec is reviewed and closed:
 | :--- | :--- |
 | [references/writing.md](references/writing.md) | Authoring or auditing text against clarity, brevity, and formatting rules |
 | [references/preflight.md](references/preflight.md) | A `gh` command fails, or the user requests repository preflight |
+| [references/isolation.md](references/isolation.md) | Executing validation or review via Tier 1 subagent dispatch or Tier 2 manual fallback |
 | [references/plan.md](references/plan.md) | The effort is too large or unclear for a single session |
 | [references/spec.md](references/spec.md) | Turning settled requirements into a feature specification |
 | [references/validate.md](references/validate.md) | Adversarially auditing a published spec, ticket set, or map |

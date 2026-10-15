@@ -32,9 +32,9 @@ The remaining checks call the GitHub API and require the initial checks to pass:
   - If `viewerPermission` lacks `WRITE`, `MAINTAIN`, or `ADMIN`, report: "Request write access, or point `ship-it` to a writable fork."
 - **Labels exist**: Run `gh label list` and verify against the required label set below.
 
-## Harness & Invocation Configuration
+## Harness and Invocation Configuration
 
-See [Invocation & Harness Configuration](../SKILL.md#invocation-harness-configuration) for the manual-only invocation policy.
+See [Invocation and Harness Configuration](../SKILL.md#invocation-and-harness-configuration) for the manual-only invocation policy.
 
 ## The label set
 
@@ -128,11 +128,11 @@ GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh 
 
 Use the provided scripts in the `scripts/` directory to manage relationships via GraphQL. Run the `.sh` versions on Mac/Linux or the `.ps1` versions on Windows:
 
-- **Add Sub-Issue**: `../scripts/add-sub-issue.sh` (or `.ps1`) `<parent-node-id> <child-node-id>`
-- **Remove Sub-Issue**: `../scripts/remove-sub-issue.sh` (or `.ps1`) `<parent-node-id> <child-node-id>`
-- **Add Blocked-By Dependency**: `../scripts/add-blocked-by.sh` (or `.ps1`) `<child-node-id> <blocker-node-id>`
-- **Remove Blocked-By Dependency**: `../scripts/remove-blocked-by.sh` (or `.ps1`) `<child-node-id> <blocker-node-id>`
-- **Query Status and Summaries**: `../scripts/query-dependencies.sh` (or `.ps1`) `<owner> <repo> <issue-number>`
+- **Add Sub-Issue**: [`add-sub-issue.sh`](../scripts/add-sub-issue.sh) (or [`.ps1`](../scripts/add-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
+- **Remove Sub-Issue**: [`remove-sub-issue.sh`](../scripts/remove-sub-issue.sh) (or [`.ps1`](../scripts/remove-sub-issue.ps1)) `<parent-node-id> <child-node-id>`
+- **Add Blocked-By Dependency**: [`add-blocked-by.sh`](../scripts/add-blocked-by.sh) (or [`.ps1`](../scripts/add-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
+- **Remove Blocked-By Dependency**: [`remove-blocked-by.sh`](../scripts/remove-blocked-by.sh) (or [`.ps1`](../scripts/remove-blocked-by.ps1)) `<child-node-id> <blocker-node-id>`
+- **Query Status and Summaries**: [`query-dependencies.sh`](../scripts/query-dependencies.sh) (or [`.ps1`](../scripts/query-dependencies.ps1)) `<owner> <repo> <issue-number>`
 
 ## Cross-Platform Shell Conventions
 

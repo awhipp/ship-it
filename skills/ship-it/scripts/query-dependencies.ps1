@@ -1,8 +1,10 @@
 param(
     [Parameter(Mandatory=$true)][string]$Owner,
     [Parameter(Mandatory=$true)][string]$Repo,
-    [Parameter(Mandatory=$true)][string]$Number
+    [Parameter(Mandatory=$true)][int]$Number
 )
+
+$ErrorActionPreference = 'Stop'
 
 gh api graphql -F owner="$Owner" -F repo="$Repo" -F number="$Number" -f query='
 query($owner: String!, $repo: String!, $number: Int!) {
