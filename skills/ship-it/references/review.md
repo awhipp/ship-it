@@ -1,11 +1,7 @@
 # Review: two-axis check of the diff
 
-Review strictly enforces the [2-Tier Context Isolation Protocol](../SKILL.md#2-tier-context-isolation-protocol).
+Review strictly enforces the [2-Tier Context Isolation Protocol](isolation.md).
 In-context persona simulation within an authoring session is strictly prohibited.
-Inspect the harness environment dynamically before delegating review:
-
-- **Tier 1 (Dynamic subagent dispatch)**: When subagent dispatch tools (`invoke_subagent`, `Agent`, or equivalent harness primitives) exist, spawn an isolated child agent with zero parent context. Pass the diff fixed-point, ticket or spec requirements, and standards sources. Direct the child agent to evaluate both axes, post the full report comment to the GitHub issue, and apply appropriate labels before returning a concise verdict summary directly to the parent conductor.
-- **Tier 2 (Manual fallback)**: When subagent tools are absent, apply the `ready-for-agent` status label (`gh issue edit <number> --add-label "ready-for-agent"`). Output the explicit review command for a fresh session and pause execution. A fresh session executes review independently, applies outcome labels, and removes `ready-for-agent`.
 
 Review diffs along two independent axes, reported side by side without merging or reranking:
 

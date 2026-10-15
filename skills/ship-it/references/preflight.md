@@ -126,64 +126,13 @@ REST endpoints require internal database IDs rather than issue numbers. Fetch da
 
 GraphQL operations require global node IDs (`node_id`). Fetch node IDs with `gh issue view <number> --json id,node_id`.
 
-#### Add Sub-Issue
+Use the provided scripts in the `scripts/` directory to manage relationships via GraphQL:
 
-Execute the mutation through `gh api graphql`:
-
-```graphql
-mutation($parentId: ID!, $childId: ID!) {
-  addSubIssue(input: { issueId: $parentId, subIssueId: $childId }) {
-    issue { number }
-    subIssue { number }
-  }
-}
-```
-
-#### Remove Sub-Issue
-
-```graphql
-mutation($parentId: ID!, $childId: ID!) {
-  removeSubIssue(input: { issueId: $parentId, subIssueId: $childId }) {
-    issue { number }
-    subIssue { number }
-  }
-}
-```
-
-#### Add Blocked-By Dependency
-
-```graphql
-mutation($childId: ID!, $blockerId: ID!) {
-  addBlockedBy(input: { issueId: $childId, blockingIssueId: $blockerId }) {
-    blockingIssue { number }
-  }
-}
-```
-
-#### Remove Blocked-By Dependency
-
-```graphql
-mutation($childId: ID!, $blockerId: ID!) {
-  removeBlockedBy(input: { issueId: $childId, blockingIssueId: $blockerId }) {
-    blockingIssue { number }
-  }
-}
-```
-
-#### Query Status and Summaries
-
-```graphql
-query($owner: String!, $repo: String!, $number: Int!) {
-  repository(owner: $owner, name: $repo) {
-    issue(number: $number) {
-      subIssuesSummary { total completed percentCompleted }
-      subIssues(first: 100) { nodes { number state } }
-      issueDependenciesSummary { blockedBy totalBlockedBy }
-      blockedBy(first: 50) { nodes { number state } }
-    }
-  }
-}
-```
+- **Add Sub-Issue**: `../scripts/add-sub-issue.sh <parent-node-id> <child-node-id>`
+- **Remove Sub-Issue**: `../scripts/remove-sub-issue.sh <parent-node-id> <child-node-id>`
+- **Add Blocked-By Dependency**: `../scripts/add-blocked-by.sh <child-node-id> <blocker-node-id>`
+- **Remove Blocked-By Dependency**: `../scripts/remove-blocked-by.sh <child-node-id> <blocker-node-id>`
+- **Query Status and Summaries**: `../scripts/query-dependencies.sh <owner> <repo> <issue-number>`
 
 ## Cross-Platform Shell Conventions
 
