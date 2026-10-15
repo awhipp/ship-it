@@ -112,8 +112,8 @@ Evaluate the active frontier ticket across three deterministic states:
    The frontier ticket carries `ship-it:reviewed`.
    Post a resolution comment, close the ticket (`gh issue close <number> --comment "<text>"`), and commit reviewed changes.
    If this is the final ticket for the spec, execute the [Feature Close-Out Protocol](#feature-close-out-protocol).
-   In autonomous loop mode, execute autonomous frontier progression: locate the next unstarted ticket via the [Orient Discovery Algorithm](#orient-discovery-algorithm) and continue the build loop.
-   In step-by-step mode, report the closed ticket and stop, or prompt for confirmation before starting the next ticket.
+   - In autonomous loop mode, execute autonomous frontier progression: locate the next unstarted ticket via the [Orient Discovery Algorithm](#orient-discovery-algorithm) and continue the build loop.
+   - In step-by-step mode, report the closed ticket and stop, or prompt for confirmation before starting the next ticket.
 2. **In-Progress**:
    The frontier ticket has an assignee, an active feature branch, or an unreviewed diff.
    If the ticket carries `ship-it:changes-requested`:
@@ -127,9 +127,8 @@ Evaluate the active frontier ticket across three deterministic states:
    Claim the ticket (`gh issue edit <number> --add-assignee "@me" --remove-label "ready-for-agent"`).
    - Under Tier 1 environments:
      Dispatch an isolated implementation subagent per the [Autonomous Implementation Protocol](references/isolation.md#autonomous-implementation-protocol-tier-1).
-     When running in autonomous loop mode, execute continuous phase chaining: ingest the implementation verdict summary, confirm commit generation, and immediately dispatch an isolated review subagent per the [Autonomous Verification Protocol](references/isolation.md#autonomous-verification-protocol-tier-1).
-     When review approves the diff, route directly to State 1 (Reviewed) to close the ticket and advance the frontier autonomously.
-     When running in step-by-step mode, present interactive confirmation prompts before dispatching the review subagent or advancing to downstream work.
+     - In autonomous loop mode, execute continuous phase chaining: ingest the implementation verdict summary, confirm commit generation, and dispatch an isolated review subagent per the [Autonomous Verification Protocol](references/isolation.md#autonomous-verification-protocol-tier-1). Route directly to State 1 (Reviewed) when review approves the diff to close the ticket and advance the frontier autonomously.
+     - In step-by-step mode, present interactive confirmation prompts before dispatching the review subagent or advancing to downstream work.
    - Under Tier 2 environments:
      Preserve manual fallback per [references/isolation.md](references/isolation.md#manual-fallback-protocol-tier-2).
      Build the ticket in a fresh session per [references/implement.md](references/implement.md).
@@ -194,7 +193,7 @@ Conclude each run with a clear report based on the execution mode:
   1. State the completed phase.
   2. Summarize the actions taken.
   3. State the exact command to run next, or present an interactive confirmation prompt before proceeding to downstream work.
-  Do not chain into the next phase without developer confirmation.
+  Require developer confirmation before chaining into the next phase.
 
 - **Autonomous loop mode**:
   Maintain continuous execution across implementation, review, and ticket progression.
