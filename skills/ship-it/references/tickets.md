@@ -71,7 +71,7 @@ Follow [writing.md](writing.md). Not a layer-by-layer implementation list.
 
 (If unblocked, state `None (can start immediately).` under `## Blocked by`.)
 
-Format every acceptance criterion as a single-sentence imperative check adhering to [writing.md](writing.md). State verifiable outcomes incorporating verification. Phrase negative invariants (such as "no callers of deprecated API remain") as distinct final-check criteria. Implementers sweep them at the end rather than scanning upfront. Avoid file paths and transient code snippets. Adhere to the [ticket-naming prohibition](implement.md#ticket-naming-prohibition) for all automated test artifacts.
+Format every acceptance criterion as a single-sentence imperative check adhering to [writing.md](writing.md). State verifiable outcomes incorporating verification. Avoid quantitative sentence-length criteria that encourage automated word-counting scripts. Phrase negative invariants (such as "no callers of deprecated API remain") as distinct final-check criteria. Implementers sweep them at the end rather than scanning upfront. Avoid file paths and transient code snippets. Adhere to the [ticket-naming prohibition](implement.md#ticket-naming-prohibition) for all automated test artifacts.
 
 Recommended next step: [validate.md](validate.md) audits the ticket breakdown in a fresh context before implementation begins.
 Audit any ticket set where a flawed slice risks derailment during implementation.

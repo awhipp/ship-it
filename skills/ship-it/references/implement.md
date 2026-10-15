@@ -64,6 +64,7 @@ Organize automated tests by **domain, module, or feature seam** (e.g., `tests/ma
 For documentation, markdown skills, configuration files, visual assets, or repositories lacking test runners:
 
 - Avoid inventing ad-hoc test runners or brittle string-matching tests to simulate coverage.
+- Never generate scripts to count words, parse sentence lengths, or measure prose metrics; evaluate writing quality qualitatively.
 - Verify requirements directly against acceptance criteria using domain-appropriate methods.
 - Use linting, typechecking, build compilation, manual inspection, CLI checks, or schema validation.
 - Record this verification evidence in the handoff report and issue comment.

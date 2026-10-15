@@ -53,7 +53,7 @@ Enforce these ship-it specific standards across all diffs:
 
 - **Ticket-Named Artifacts**: Test or source files named after tickets rather than domain seams. Rename files per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
 - **Over-Architected Test Ceremonies**: Ad-hoc harnesses simulating coverage for non-code changes. Verify acceptance criteria directly per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
-- **Unclear Prose or Dense Phrasing**: Documentation or skills violating [writing.md](writing.md). Rewrite sentences exceeding 25 words or dense noun clusters.
+- **Unclear Prose or Dense Phrasing**: Documentation or skills violating [writing.md](writing.md). Rewrite wandering compound sentences, passive phrasing, or dense noun clusters. Evaluate brevity qualitatively without running word-counting scripts.
 
 ### 5. Run both passes
 

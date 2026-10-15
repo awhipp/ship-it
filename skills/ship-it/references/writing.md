@@ -6,7 +6,7 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 
 | Rule | Requirement | Example |
 | :--- | :--- | :--- |
-| **1. Sentence Brevity** | Keep sentences to 25 words or fewer. Express at most one idea or instruction per sentence. Count inline code spans, commands, and URLs as single terms. | *Good*: Run the test suite before submitting the pull request. |
+| **1. Sentence Brevity** | Express at most one idea or instruction per sentence. Keep phrasing tight, focused, and natural without wandering compound clauses. Do not count words or build scripts to measure sentence lengths. | *Good*: Run the test suite before submitting the pull request. |
 | **2. Voice and Mood** | Use imperative mood for instructions and procedures. Use active voice for descriptive statements. | *Good*: Inspect the diff for unhandled errors. The test runner executes tests. |
 | **3. Noun Clusters** | Restrict consecutive noun strings to at most three words. Break longer chains with prepositions. | *Good*: Protocol to prevent context leakage (*not* session context token leakage prevention protocol). |
 | **4. Affirmative Phrasing** | State what to do directly. Avoid double negatives and negative constructions when an affirmative instruction exists. | *Good*: Retain existing comments (*not* do not fail to avoid deleting existing comments). |
@@ -16,3 +16,4 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 ## Application Across Artifacts
 
 Apply these six rules across all `ship-it` documentation, maps, specs, tickets, validation reports, and reviews.
+Evaluate clarity and brevity qualitatively through direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics.
