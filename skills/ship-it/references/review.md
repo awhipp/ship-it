@@ -97,8 +97,27 @@ Do not declare a single overall winner across the two axes; that reranking defea
 
 ## Outcome
 
-Route the review into one of three unified outcomes:
+Route the review into one of three unified outcomes based on findings and execution tier:
 
-- **Major findings or missing verification evidence**: Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`) and remove the assignee (`gh issue edit <number> --remove-assignee "<assignee>"`). Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`). Post findings in an issue comment. Return the ticket to an implementation session for rework.
-- **Minor findings or clean pass**: Apply `ship-it:reviewed` (`gh issue edit <number> --add-label "ship-it:reviewed"`). Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`). For minor nits or typos, patch files in-place, commit fixes, and document them under `### In-place Resolutions`. Post the review report comment. In standalone Tier 2 reviews, close the ticket with a resolution comment (`gh issue close <number> --comment "<text>"`). In Tier 1 subagent reviews, return the verdict to let conductor Orient State 1 handle ticket closure and close-out protocol. If this is the final ticket in a standalone review, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).
-- **Single-session specifications**: Apply `ship-it:reviewed` to the spec issue (`gh issue edit <spec-id> --add-label "ship-it:reviewed"`). Remove `ready-for-agent` if present (`gh issue edit <spec-id> --remove-label "ready-for-agent"`). Post the review report comment while keeping the specification open. Instruct the user to open or update a pull request referencing `Closes #<spec-id>`.
+- **Major findings or missing verification evidence**:
+  Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`) and remove the assignee (`gh issue edit <number> --remove-assignee "<assignee>"`).
+  Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`).
+  Post findings in an issue comment.
+  In Tier 1 autonomous loop mode, return the rejection verdict summary directly to the parent conductor to trigger autonomous rework.
+  In Tier 2 environments, output the command for a fresh implementation rework session and stop.
+
+- **Minor findings or clean pass**:
+  Apply `ship-it:reviewed` (`gh issue edit <number> --add-label "ship-it:reviewed"`).
+  Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`).
+  For minor nits or typos, patch files in-place, commit fixes, and document them under `### In-place Resolutions`.
+  Post the review report comment.
+  In Tier 1 autonomous loop mode, return the approval verdict summary directly to the parent conductor to let conductor Orient State 1 handle ticket closure and frontier progression.
+  In Tier 2 standalone reviews, close the ticket directly with a resolution comment (`gh issue close <number> --comment "<text>"`).
+  If this is the final ticket in a Tier 2 standalone review, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).
+
+- **Single-session specifications**:
+  Apply `ship-it:reviewed` to the spec issue (`gh issue edit <spec-id> --add-label "ship-it:reviewed"`).
+  Remove `ready-for-agent` if present (`gh issue edit <spec-id> --remove-label "ready-for-agent"`).
+  Post the review report comment while keeping the specification open.
+  In Tier 1 mode, return the verdict summary directly to the parent conductor.
+  In Tier 2 mode, instruct the user to open or update a pull request referencing `Closes #<spec-id>`.
