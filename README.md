@@ -81,15 +81,18 @@ Autonomous coding agents present a frustrating dilemma:
 
 1. **Plan (Map)**: Used only when a feature is ambiguous or broad. Maps decisions one question at a time across the frontier of the unknown. Well-scoped features skip directly to Spec.
 2. **Spec**: Synthesizes requirements, architecture, and test seams into an unambiguous spec issue. Passes an adversarial audit gate ([`validate.md`](skills/ship-it/references/validate.md)) in an isolated context before ticketing.
-3. **Tickets**: Splits the validated spec into small, self-contained vertical slices with clear acceptance criteria and `## Blocked by` dependency tasklists.
-4. **Implement**: Executes one unblocked ticket on a dedicated branch. Strongly recommends test-first Red-Green where automated test suites exist, or direct acceptance verification where they do not. The authoring session never reviews its own work.
-5. **Review**: Audits the diff under the 2-Tier Context Isolation Protocol (isolated subagent or fresh session). Evaluates **Coding Standards** (Martin Fowler refactoring baseline) and **Spec Fidelity** along two independent axes.
+3. **Tickets**: Splits the validated spec into small, self-contained vertical slices. Links tickets natively via GitHub sub-issues and dependencies (`--parent`, `--blocked-by`) with dual-channel markdown tasklist fallback.
+4. **Implement**: Executes the active frontier ticket on a dedicated branch using deterministic 3-state routing (Reviewed, In-Progress, Unstarted). Strongly recommends test-first Red-Green where automated test suites exist, or direct acceptance verification where they do not. The authoring session never reviews its own work.
+5. **Review**: Audits the diff under the 2-Tier Context Isolation Protocol. Spawns isolated child agents autonomously when subagent tools exist, or pauses with `ready-for-agent` when absent. Evaluates **Coding Standards** (Martin Fowler refactoring baseline) and **Spec Fidelity** along two independent axes.
 
 ---
 
 ## Core Guarantees
 
 - **Zero Proprietary State**: No SaaS lock-in or local runtime state. GitHub is the state machine—tracked via native issues, markdown tasklists, `ship-it:*` labels, branches, and commits.
+- **Autonomous Subagent Execution**: Conductor detects harness subagent primitives dynamically. When present, it runs validation and review in isolated child contexts without manual session restarts. When absent, it gracefully pauses with `ready-for-agent` and prints the exact command.
+- **Dual-Channel Issue Relationships**: Connects issues natively with GitHub sub-issues and dependencies (`--parent`, `--blocked-by`). Transparently falls back to markdown pointers (`Part of #<spec-id>`, `## Blocked by`) across older CLI versions or repository tiers.
+- **Deterministic 3-State Orient Routing**: Isolates ticket evaluation to the lowest-numbered open ticket on the specification frontier. Routes deterministically across Reviewed, In-Progress, and Unstarted states without sequence confusion.
 - **Context Hygiene as a Feature**: LLMs degrade as context history bloats. `ship-it` enforces fresh sessions between phases and tickets, eliminating hallucination loops and confirmation bias. Highlights lean implement discovery (ephemeral subagent exploration for multi-file tickets) and targeted final sweeps for negative invariants to prevent context bloat.
 - **Domain-Aligned Verification**: Defers to established repository test runners, frameworks, and testing tiers. Strongly recommends test-first Red-Green discipline where automated test suites exist, while strictly prohibiting brittle ad-hoc test harnesses for documentation, markdown skills, or configuration in favor of direct acceptance verification.
 - **Two-Axis Non-Collapsing Review**: Code quality cannot mask missing requirements. Standards and Spec Fidelity are audited independently.
