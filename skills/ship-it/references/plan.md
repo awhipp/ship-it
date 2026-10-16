@@ -6,6 +6,16 @@ Chart a map when an effort is too large or ambiguous for a single session. This 
 
 Before charting, check the escape hatch. Fan out across the domain breadth-first (see step 2 below) to locate genuine uncertainty. If the path is clear enough to write a spec directly, stop here and advance to [spec.md](spec.md). Charting a map for a clear effort adds unnecessary overhead.
 
+## Automation Boundary 1: Mapping
+
+Boundary 1 encapsulates the mapping phase within the autonomous build loop:
+
+- **Boundary entry**: Boundary 1 begins when initiating an unmapped feature or picking up an unresolved map.
+- **Execution scope**: Covers map drafting, sub-issue ticket creation, and decision ticket resolution.
+- **Child subagent delegation**: Under Tier 1 environments, dispatch research, prototype, and task tickets to isolated child subagents with zero parent conversation context per [isolation.md](isolation.md#decision-ticket-protocol-tier-1).
+- **Interactive grilling pauses**: Grilling tickets require direct developer input. Pause the autonomous loop immediately and prompt the developer interactively with strictly one question per turn.
+- **Boundary exit pause**: The conductor halts when all decision tickets close and the map resolves. Report settled decisions, close the map issue with a resolution comment, and pause execution for human review before advancing to [spec.md](spec.md).
+
 ## The map
 
 The map is a single GitHub issue titled `[<slug>] Map: <destination gist>` and labelled `ship-it:map`, with this body:
@@ -51,10 +61,10 @@ Refer to the map and its tickets by issue title in all user-facing communication
 
 ## Ticket types
 
-- **Research**: A fact required for a decision, discoverable in documentation, APIs, or source code. Resolve this ticket in the active session by inspecting the source directly.
-- **Prototype**: An open question about appearance or behavior requiring a quick, concrete artifact before deciding in prose. Build the minimal throwaway prototype that answers the question, demonstrate it, and record the answer.
-- **Grilling**: A decision requiring user input. This is the default ticket type. Ask sharp questions, strictly one question per turn during clarification. Never batch questions into a single turn or answer on behalf of the user.
-- **Task**: Concrete work that must be completed before making a decision (such as provisioning access or migrating data). Perform the work directly if possible. If only the user can perform it, provide a concise checklist and record the resulting state.
+- **Research**: A fact required for a decision, discoverable in documentation, APIs, or source code. Under Tier 1 environments, dispatch to an isolated child subagent per [isolation.md](isolation.md#decision-ticket-protocol-tier-1). Under Tier 2 environments, resolve in the active session by inspecting the source directly.
+- **Prototype**: An open question about appearance or behavior requiring a quick, concrete artifact before deciding in prose. Under Tier 1 environments, dispatch to an isolated child subagent per [isolation.md](isolation.md#decision-ticket-protocol-tier-1). Under Tier 2 environments, build the minimal throwaway prototype that answers the question, demonstrate it, and record the answer.
+- **Grilling**: A decision requiring user input. This is the default ticket type. Pause autonomous execution and prompt the user interactively with strictly one question per turn during clarification. Never batch questions into a single turn or answer on behalf of the user.
+- **Task**: Concrete work that must be completed before making a decision (such as provisioning access or migrating data). Under Tier 1 environments, dispatch to an isolated child subagent per [isolation.md](isolation.md#decision-ticket-protocol-tier-1). Under Tier 2 environments, perform the work directly if possible. If only the user can perform it, provide a concise checklist and record the resulting state.
 
 ## Fog of war
 
@@ -81,11 +91,11 @@ The destination sets the project boundaries. Work beyond the destination is not 
 1. Read the map body via `gh issue view <number>`.
 2. Pick the ticket: select the ticket named by the user, or take the earliest unblocked, unclaimed ticket on the frontier.
 3. Claim the ticket (`gh issue edit <number> --add-assignee "@me"`) before starting work per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).
-4. Resolve the ticket according to its type. For grilling tickets, ask strictly one question per turn during clarification.
+4. Resolve the ticket according to its type. Under Tier 1 environments, dispatch research, prototype, and task tickets to isolated child subagents with zero parent conversation context per [isolation.md](isolation.md#decision-ticket-protocol-tier-1). For grilling tickets, pause autonomous execution and prompt the user interactively with strictly one question per turn.
 5. Record the resolution: post the answer (`gh issue comment <number> --body "<text>"`), and close the decision ticket directly with a summary comment (`gh issue close <number> --comment "<text>"`). Append a one-line summary pointer to the map's "Decisions so far" (`gh issue edit <map-number>`) following [writing.md](writing.md).
 6. Graduate newly specifiable fog into fresh tickets (`gh issue create`, then wire blocking edges under `## Blocked by`). Remove graduated items from "Not yet specified". If an answer shows that a ticket lies outside the destination, move it to "Out of scope".
 
-Resolve **at most one ticket per session** (research tickets are the exception; several can run in a batch since they need no user interaction). Planning completes when no tickets remain and "Not yet specified" is empty. Close the parent map issue with a summary comment (`gh issue close <map-number> --comment "<text>"`). Hand off to [spec.md](spec.md) (or run `ship-it` or `/ship-it`).
+Resolve **at most one ticket per session** in step-by-step mode (research tickets are the exception; several can run in a batch since they need no user interaction). In autonomous loop mode, continue resolving decision tickets until all tickets close. Planning completes when no open decision tickets remain and "Not yet specified" is empty. Close the parent map issue with a summary comment (`gh issue close <map-number> --comment "<text>"`). Conclude Boundary 1, report settled decisions, and pause for developer approval before proceeding to [spec.md](spec.md).
 
 ## Map remediation
 

@@ -2,6 +2,15 @@
 
 Break a spec, map, or conversation into **tickets**: tracer-bullet vertical slices, each declaring explicit blockers. Run this phase only when implementation spans multiple sessions. Single-session implementations proceed directly to [implement.md](implement.md).
 
+## Automation Boundary 2: Definition (Tickets)
+
+Boundary 2 encapsulates the definition phase within the autonomous build loop:
+
+- **Execution scope**: Covers vertical ticket slicing, dependency graph construction, issue publication, and ticket set validation.
+- **Child subagent delegation**: Under Tier 1 environments, dispatch ticket slicing to an isolated child subagent with zero parent conversation context per [isolation.md](isolation.md#ticket-slicing-protocol-tier-1). Passing only the specification verifies self-containment.
+- **Ticket set validation**: After ticket publication, audit the ticket breakdown adversarially per [validate.md](validate.md) under the [2-Tier Context Isolation Protocol](isolation.md#autonomous-verification-protocol-tier-1).
+- **Boundary exit pause**: Boundary 2 concludes when the ticket set passes validation and carries `ship-it:validated` and `ready-for-agent`. The conductor halts execution, reports the ticket breakdown, and pauses for human approval before advancing to implementation in [implement.md](implement.md).
+
 ## Process
 
 ### 1. Gather context
@@ -22,6 +31,7 @@ Break the work into tracer-bullet tickets:
 - Scope each slice to fit in a single fresh context window.
 - Sequence prefactoring first as a dedicated ticket that blocks subsequent slices.
 
+Under Tier 1 environments, delegate slice drafting to an isolated child subagent per [isolation.md](isolation.md#ticket-slicing-protocol-tier-1).
 Declare explicit **blocking edges** for each ticket. A ticket without blockers can start immediately.
 
 **Wide refactors are an exception.** When a mechanical refactor spans the entire codebase, sequence it using **expand → migrate → contract**:
@@ -87,6 +97,8 @@ Format every acceptance criterion as a single-sentence imperative check adhering
 
 Recommended next step: [validate.md](validate.md) audits the ticket breakdown in a fresh context before implementation begins.
 Audit any ticket set where a flawed slice risks derailment during implementation.
+Boundary 2 concludes when tickets pass validation and carry `ship-it:validated` and `ready-for-agent`.
+The conductor halts execution, reports the ticket breakdown, and pauses for developer approval before starting implementation.
 
 ## Ticket set remediation
 
