@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ship-it | The Autonomous Conductor for Software Engineering</title>
+  <title>ship-it | Structured Lifecycle Automation for Software Teams</title>
   <meta name="description"
-    content="The autonomous conductor that keeps developers in the driver's seat. Break features into bite-sized tasks, verify with domain-aligned verification, and clear context between steps." />
+    content="Keep developers in control. Coordinate feature delivery across GitHub issues using phase gates, fresh-session validation, and two-axis code reviews." />
   <meta name="theme-color" content="#07090e" />
 
   <!-- Favicon -->
@@ -15,17 +15,17 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://awhipp.github.io/ship-it/" />
-  <meta property="og:title" content="ship-it | The Autonomous Conductor for Software Engineering" />
+  <meta property="og:title" content="ship-it | Structured Lifecycle Automation for Software Teams" />
   <meta property="og:description"
-    content="Keep developers in the driver's seat. Orchestrate agentic workflows with strict phase gates, adversarial verification, two-axis reviews, and context hygiene." />
+    content="Keep developers in control. Coordinate feature delivery across GitHub issues using phase gates, fresh-session validation, and two-axis code reviews." />
   <meta property="og:image" content="./favicon.svg" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://awhipp.github.io/ship-it/" />
-  <meta name="twitter:title" content="ship-it | The Autonomous Conductor for Software Engineering" />
+  <meta name="twitter:title" content="ship-it | Structured Lifecycle Automation for Software Teams" />
   <meta name="twitter:description"
-    content="Keep developers in the driver's seat. Orchestrate agentic workflows with strict phase gates, adversarial verification, two-axis reviews, and context hygiene." />
+    content="Keep developers in control. Coordinate feature delivery across GitHub issues using phase gates, fresh-session validation, and two-axis code reviews." />
   <meta name="twitter:image" content="./favicon.svg" />
 
   <!-- Google Fonts Preconnect & Stylesheet -->
@@ -78,9 +78,9 @@
         </h1>
 
         <p class="hero-description" id="hero-description">
-          <strong>ship-it</strong> helps build software with AI assistants without losing your grasp on the codebase
-          by coordinating feature planning, specifications, domain-aligned verification, and review directly inside
-          your GitHub repository.
+          <strong>ship-it</strong> automates feature delivery inside your GitHub repository. The conductor coordinates
+          architecture maps, written specifications, pragmatic, domain-aligned verification, and two-axis code reviews
+          while you steer technical decisions.
         </p>
 
         <div class="hero-cta-group">
@@ -105,695 +105,19 @@
       </div>
     </section>
 
-    <!-- Interactive 5-Phase Lifecycle Explorer -->
+    <!-- Interactive Lifecycle Flow Visualizer -->
     <section class="lifecycle-explorer-section" id="lifecycle-explorer" aria-labelledby="explorer-title">
       <div class="container">
         <div class="section-header-centered">
           <h2 class="section-title" id="explorer-title">
-            <span class="gradient-explorer-text">Step-By-Step </span> Workflow
+            <span class="gradient-explorer-text">Step-By-Step</span> Workflow
           </h2>
           <p class="section-subtitle" id="explorer-subtitle">
-            Click through any step to see what information goes in, what comes out, when you step in to guide it, and
-            how the workflow keeps the assistant on track.
+            Inspect each phase to examine inputs, deliverables, human checkpoints, and validation safeguards.
           </p>
         </div>
 
-        <!-- Explorer Navigation Stepper -->
-        <div class="explorer-nav-wrapper">
-          <div class="explorer-nav-tabs" id="explorer-nav" data-explorer-nav role="tablist"
-            aria-label="5-Phase Lifecycle Tabs">
-            <!-- Tab 1: Plan -->
-            <button class="explorer-tab-btn active" id="btn-tab-plan" data-explorer-tab="plan" role="tab"
-              aria-selected="true" aria-controls="panel-explorer-plan">
-              <span class="tab-step">01</span>
-              <span class="tab-info">
-                <span class="tab-title">Plan</span>
-                <span class="tab-subtitle">Architecture</span>
-              </span>
-              <span class="tab-active-dot" aria-hidden="true"></span>
-            </button>
-
-            <!-- Tab 2: Spec -->
-            <button class="explorer-tab-btn" id="btn-tab-spec" data-explorer-tab="spec" role="tab" aria-selected="false"
-              aria-controls="panel-explorer-spec">
-              <span class="tab-step">02</span>
-              <span class="tab-info">
-                <span class="tab-title">Spec</span>
-                <span class="tab-subtitle">Requirements</span>
-              </span>
-              <span class="tab-active-dot" aria-hidden="true"></span>
-            </button>
-
-            <!-- Tab 3: Tickets -->
-            <button class="explorer-tab-btn" id="btn-tab-tickets" data-explorer-tab="tickets" role="tab"
-              aria-selected="false" aria-controls="panel-explorer-tickets">
-              <span class="tab-step">03</span>
-              <span class="tab-info">
-                <span class="tab-title">Tickets</span>
-                <span class="tab-subtitle">Work Units</span>
-              </span>
-              <span class="tab-active-dot" aria-hidden="true"></span>
-            </button>
-
-            <!-- Tab 4: Implement -->
-            <button class="explorer-tab-btn" id="btn-tab-implement" data-explorer-tab="implement" role="tab"
-              aria-selected="false" aria-controls="panel-explorer-implement">
-              <span class="tab-step">04</span>
-              <span class="tab-info">
-                <span class="tab-title">Implement</span>
-                <span class="tab-subtitle">Domain-Aligned</span>
-              </span>
-              <span class="tab-active-dot" aria-hidden="true"></span>
-            </button>
-
-            <!-- Tab 5: Review -->
-            <button class="explorer-tab-btn" id="btn-tab-review" data-explorer-tab="review" role="tab"
-              aria-selected="false" aria-controls="panel-explorer-review">
-              <span class="tab-step">05</span>
-              <span class="tab-info">
-                <span class="tab-title">Review</span>
-                <span class="tab-subtitle">Two-Axis Check</span>
-              </span>
-              <span class="tab-active-dot" aria-hidden="true"></span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Explorer Detail Panels Container -->
-        <div class="explorer-panels-container" id="explorer-panels">
-          <!-- Panel 1: Plan -->
-          <div class="explorer-panel active" id="panel-explorer-plan" data-explorer-panel="plan" role="tabpanel"
-            aria-labelledby="btn-tab-plan">
-            <div class="explorer-panel-header">
-              <div class="panel-meta-tag">
-                <span class="phase-number-badge">Phase 01</span>
-                <span class="phase-cli-badge"><code>gh issue list --label "ship-it:map"</code></span>
-              </div>
-              <h3 class="panel-headline">Explore Technical Trade-offs Upfront</h3>
-              <p class="panel-summary">
-                When a feature has multiple viable paths, map out architectural questions through structured
-                conversation before touching code.
-              </p>
-            </div>
-
-            <!-- 4-Grid Breakdown: Purpose, Inputs/Outputs, Human Checkpoint & Keeping on Track -->
-            <div class="explorer-grid-breakdown">
-              <!-- Purpose -->
-              <div class="breakdown-card card-purpose">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon purple-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                      <line x1="8" y1="2" x2="8" y2="18"></line>
-                      <line x1="16" y1="6" x2="16" y2="22"></line>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">What this step does</h4>
-                </div>
-                <p class="breakdown-text">
-                  Surfaces architectural decisions early. The assistant presents technical alternatives with trade-offs
-                  so choices like state management, schemas, or protocols are decided deliberately.
-                </p>
-              </div>
-
-              <!-- Inputs & Outputs -->
-              <div class="breakdown-card card-io">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon blue-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 17l6-6-6-6M12 19h8"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Inputs & Outputs</h4>
-                </div>
-                <div class="io-list">
-                  <div class="io-group">
-                    <span class="io-label">Inputs:</span>
-                    <span class="io-val">Feature goals, codebase constraints, and open technical trade-offs</span>
-                  </div>
-                  <div class="io-group">
-                    <span class="io-label">Outputs:</span>
-                    <span class="io-val">A decision map issue documenting settled choices and outstanding
-                      questions</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Human Checkpoint -->
-              <div class="breakdown-card card-checkpoint">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon amber-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Where you step in</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Technical direction:</strong> You review the trade-offs between patterns or tools and select
-                  the direction that matches your architecture.
-                </p>
-              </div>
-
-              <!-- Keeping on Track -->
-              <div class="breakdown-card card-antidrift">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon green-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Keeping on track</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Preventing Drift:</strong> Stops the assistant from quietly making assumptions that would be
-                  costly to undo later. Foundational decisions are settled before any code is generated.
-                </p>
-              </div>
-            </div>
-
-            <!-- Visual Artifact Mock -->
-            <div class="explorer-artifact-preview">
-              <div class="artifact-preview-header">
-                <span class="artifact-tag">Artifact Preview: Decision Map Issue</span>
-                <span class="artifact-status">Status: Settling Decisions</span>
-              </div>
-              <div class="artifact-preview-body">
-                <div class="map-frontier-visual">
-                  <div class="frontier-node node-done">
-                    <span class="f-icon">✓</span>
-                    <span class="f-title">Session Store</span>
-                    <span class="f-desc">Resolved: Redis Adapter</span>
-                  </div>
-                  <div class="frontier-connector active-pulse">➔</div>
-                  <div class="frontier-node node-current">
-                    <span class="f-icon">⚡</span>
-                    <span class="f-title">Token Rotation</span>
-                    <span class="f-desc">Active Decision Frontier</span>
-                  </div>
-                  <div class="frontier-connector">➔</div>
-                  <div class="frontier-node node-future">
-                    <span class="f-icon">🔒</span>
-                    <span class="f-title">Rate Limiting</span>
-                    <span class="f-desc">Deferred for Next Step</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel 2: Spec -->
-          <div class="explorer-panel" id="panel-explorer-spec" data-explorer-panel="spec" role="tabpanel"
-            aria-labelledby="btn-tab-spec">
-            <div class="explorer-panel-header">
-              <div class="panel-meta-tag">
-                <span class="phase-number-badge">Phase 02</span>
-                <span class="phase-cli-badge"><code>gh issue list --label "ship-it:spec"</code></span>
-              </div>
-              <h3 class="panel-headline">Establish the Behavioral Contract</h3>
-              <p class="panel-summary">
-                Define unambiguous user stories, acceptance criteria, and explicit boundaries before implementation
-                begins.
-              </p>
-            </div>
-
-            <div class="explorer-grid-breakdown">
-              <!-- Purpose -->
-              <div class="breakdown-card card-purpose">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon indigo-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                      <line x1="16" y1="13" x2="8" y2="13"></line>
-                      <line x1="16" y1="17" x2="8" y2="17"></line>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">What this step does</h4>
-                </div>
-                <p class="breakdown-text">
-                  Translates broad goals into concrete, verifiable requirements. Documents user stories, designated test
-                  seams, testing decisions, and intentionally excluded features to prevent scope creep.
-                </p>
-              </div>
-
-              <!-- Inputs & Outputs -->
-              <div class="breakdown-card card-io">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon blue-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 17l6-6-6-6M12 19h8"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Inputs & Outputs</h4>
-                </div>
-                <div class="io-list">
-                  <div class="io-group">
-                    <span class="io-label">Inputs:</span>
-                    <span class="io-val">Feature goals, settled architecture choices, and repository conventions</span>
-                  </div>
-                  <div class="io-group">
-                    <span class="io-label">Outputs:</span>
-                    <span class="io-val">A validated specification issue with verifiable user stories and an
-                      out-of-scope checklist</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Human Checkpoint -->
-              <div class="breakdown-card card-checkpoint">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon amber-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Where you step in</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Boundary sign-off:</strong> You confirm acceptance criteria reflect true user needs and verify
-                  the out-of-scope boundaries to keep the project focused.
-                </p>
-              </div>
-
-              <!-- Keeping on Track -->
-              <div class="breakdown-card card-antidrift">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon green-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Keeping on track</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Preventing Drift:</strong> A fresh-eyes review pass in an isolated context audits the
-                  specification for ambiguities, untested assumptions, or vague requirements before work begins.
-                </p>
-              </div>
-            </div>
-
-            <div class="explorer-artifact-preview">
-              <div class="artifact-preview-header">
-                <span class="artifact-tag">Artifact Preview: Feature Specification</span>
-                <span class="artifact-status">Label: ship-it:validated</span>
-              </div>
-              <div class="artifact-preview-body">
-                <div class="spec-contract-visual">
-                  <div class="contract-section">
-                    <span class="contract-badge">Part 1</span>
-                    <span class="contract-name">Problem Statement & Proposed Solution</span>
-                  </div>
-                  <div class="contract-section">
-                    <span class="contract-badge">Part 2</span>
-                    <span class="contract-name">User Stories & Acceptance Criteria Checklist</span>
-                  </div>
-                  <div class="contract-section">
-                    <span class="contract-badge">Part 3</span>
-                    <span class="contract-name">Implementation Decisions & Testing Decisions</span>
-                  </div>
-                  <div class="contract-section">
-                    <span class="contract-badge">Part 4</span>
-                    <span class="contract-name">Out of Scope & Clear Boundaries</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel 3: Tickets -->
-          <div class="explorer-panel" id="panel-explorer-tickets" data-explorer-panel="tickets" role="tabpanel"
-            aria-labelledby="btn-tab-tickets">
-            <div class="explorer-panel-header">
-              <div class="panel-meta-tag">
-                <span class="phase-number-badge">Phase 03</span>
-                <span class="phase-cli-badge"><code>gh issue list --label "ship-it:ticket"</code></span>
-              </div>
-              <h3 class="panel-headline">Deconstruct into Sequential Units of Work</h3>
-              <p class="panel-summary">
-                Break the specification into self-contained tasks with explicit dependency order so progress is steady
-                and predictable.
-              </p>
-            </div>
-
-            <div class="explorer-grid-breakdown">
-              <!-- Purpose -->
-              <div class="breakdown-card card-purpose">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon cyan-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="3" width="7" height="7"></rect>
-                      <rect x="14" y="3" width="7" height="7"></rect>
-                      <rect x="14" y="14" width="7" height="7"></rect>
-                      <rect x="3" y="14" width="7" height="7"></rect>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">What this step does</h4>
-                </div>
-                <p class="breakdown-text">
-                  Divides the feature into an ordered tasklist where each issue encapsulates one working increment with
-                  clear prerequisites and isolated acceptance tests.
-                </p>
-              </div>
-
-              <!-- Inputs & Outputs -->
-              <div class="breakdown-card card-io">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon blue-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 17l6-6-6-6M12 19h8"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Inputs & Outputs</h4>
-                </div>
-                <div class="io-list">
-                  <div class="io-group">
-                    <span class="io-label">Inputs:</span>
-                    <span class="io-val">The validated feature specification and its identified test seams</span>
-                  </div>
-                  <div class="io-group">
-                    <span class="io-label">Outputs:</span>
-                    <span class="io-val">A sequence of GitHub issues linked with markdown dependency checklists</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Human Checkpoint -->
-              <div class="breakdown-card card-checkpoint">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon amber-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Where you step in</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Task sequencing:</strong> You verify that each ticket represents a manageable unit of work
-                  with clear deliverables that can be reviewed independently.
-                </p>
-              </div>
-
-              <!-- Keeping on Track -->
-              <div class="breakdown-card card-antidrift">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon green-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Keeping on track</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Preventing Drift:</strong> Work only proceeds on tickets whose prerequisites have already been
-                  merged and verified, eliminating broken dependencies and chaotic branch merges.
-                </p>
-              </div>
-            </div>
-
-            <div class="explorer-artifact-preview">
-              <div class="artifact-preview-header">
-                <span class="artifact-tag">Artifact Preview: Task Sequence & Dependencies</span>
-                <span class="artifact-status">Order: Sequential Delivery</span>
-              </div>
-              <div class="artifact-preview-body">
-                <div class="ticket-dag-visual">
-                  <div class="dag-item dag-ready">
-                    <div class="dag-header">
-                      <span class="dag-badge ready">Ready</span>
-                      <span class="dag-id">Ticket #18</span>
-                    </div>
-                    <div class="dag-title">Lifecycle Explorer & Comparative Visuals</div>
-                    <div class="dag-blocker">Blockers: #17 (Finished ✓)</div>
-                  </div>
-                  <div class="dag-arrow">➔</div>
-                  <div class="dag-item dag-blocked">
-                    <div class="dag-header">
-                      <span class="dag-badge blocked">Next</span>
-                      <span class="dag-id">Ticket #19</span>
-                    </div>
-                    <div class="dag-title">Architecture Cards & Terminal Demo</div>
-                    <div class="dag-blocker">Prerequisite: Ticket #18</div>
-                  </div>
-                  <div class="dag-arrow">➔</div>
-                  <div class="dag-item dag-blocked">
-                    <div class="dag-header">
-                      <span class="dag-badge blocked">Queued</span>
-                      <span class="dag-id">Ticket #20</span>
-                    </div>
-                    <div class="dag-title">Root README.md Case Study Overhaul</div>
-                    <div class="dag-blocker">Prerequisite: Ticket #19</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel 4: Implement -->
-          <div class="explorer-panel" id="panel-explorer-implement" data-explorer-panel="implement" role="tabpanel"
-            aria-labelledby="btn-tab-implement">
-            <div class="explorer-panel-header">
-              <div class="panel-meta-tag">
-                <span class="phase-number-badge">Phase 04</span>
-                <span class="phase-cli-badge"><code>gh issue edit &lt;num&gt; --add-assignee "@me"</code></span>
-              </div>
-              <h3 class="panel-headline">Build with Domain-Aligned Verification</h3>
-              <p class="panel-summary">
-                Tackle one ticket at a time in a focused session with domain-aligned verification—recommending Red-Green
-                test cycles for automated suites, or direct acceptance verification where suites do not exist.
-              </p>
-            </div>
-
-            <div class="explorer-grid-breakdown">
-              <!-- Purpose -->
-              <div class="breakdown-card card-purpose">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon amber-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="16 18 22 12 16 6"></polyline>
-                      <polyline points="8 6 2 12 8 18"></polyline>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">What this step does</h4>
-                </div>
-                <p class="breakdown-text">
-                  Applies domain-aligned verification tailored to the codebase. Strongly recommends test-first Red-Green
-                  cycles where automated test suites exist, while enforcing the ad-hoc test runner prohibition for
-                  documentation, configs, or markdown skills in favor of direct acceptance verification. Offloads
-                  codebase exploration to ephemeral subagents for multi-file tickets to preserve context hygiene.
-                </p>
-              </div>
-
-              <!-- Inputs & Outputs -->
-              <div class="breakdown-card card-io">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon blue-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 17l6-6-6-6M12 19h8"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Inputs & Outputs</h4>
-                </div>
-                <div class="io-list">
-                  <div class="io-group">
-                    <span class="io-label">Inputs:</span>
-                    <span class="io-val">The unblocked ticket, acceptance criteria, dedicated branch, and optional
-                      ephemeral subagent exploration</span>
-                  </div>
-                  <div class="io-group">
-                    <span class="io-label">Outputs:</span>
-                    <span class="io-val">A passing automated test suite (or recorded direct acceptance criteria
-                      verification), post-build targeted final sweep for negative invariants, and focused commit diff</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Human Checkpoint -->
-              <div class="breakdown-card card-checkpoint">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon amber-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Where you step in</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Course correction:</strong> If implementation exposes an edge case or an unpredicted technical
-                  obstacle, the assistant pauses and asks you for guidance instead of inventing an undocumented
-                  workaround.
-                </p>
-              </div>
-
-              <!-- Keeping on Track -->
-              <div class="breakdown-card card-antidrift">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon green-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Keeping on track</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Preventing Drift:</strong> Recommended Red-Green cycles confirm automated tests catch missing
-                  behavior before code is written, while the ad-hoc test runner prohibition stops brittle synthetic test
-                  scaffolding. Targeted final sweeps verify negative invariants across the entire codebase.
-                </p>
-              </div>
-            </div>
-
-            <div class="explorer-artifact-preview">
-              <div class="artifact-preview-header">
-                <span class="artifact-tag">Artifact Preview: Domain-Aligned Verification</span>
-                <span class="artifact-status">State: Tests & Acceptance Verified</span>
-              </div>
-              <div class="artifact-preview-body">
-                <div class="redgreen-box">
-                  <div class="rg-log red">
-                    <span class="log-tag">Path A: Automated Suites (Red-Green)</span>
-                    <code
-                      class="log-code">FAIL tests/marketing.test.js &gt; Red phase: verify test catches missing behavior</code>
-                    <span class="log-note">Confirm test failure before implementing minimal code to reach green</span>
-                  </div>
-                  <div class="rg-divider">➔</div>
-                  <div class="rg-log green">
-                    <span class="log-tag">Path B: Direct Acceptance & Sweeps</span>
-                    <code class="log-code">VERIFIED criteria &gt; targeted final sweeps confirm zero negative invariants</code>
-                    <span class="log-note">Ad-hoc test runner prohibition: verify directly against criteria</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel 5: Review -->
-          <div class="explorer-panel" id="panel-explorer-review" data-explorer-panel="review" role="tabpanel"
-            aria-labelledby="btn-tab-review">
-            <div class="explorer-panel-header">
-              <div class="panel-meta-tag">
-                <span class="phase-number-badge">Phase 05</span>
-                <span class="phase-cli-badge"><code>gh issue view &lt;num&gt; --comments</code></span>
-              </div>
-              <h3 class="panel-headline">Audit the Diff from Two Perspectives</h3>
-              <p class="panel-summary">
-                Perform an independent review that evaluates code craft and functional correctness separately.
-              </p>
-            </div>
-
-            <div class="explorer-grid-breakdown">
-              <!-- Purpose -->
-              <div class="breakdown-card card-purpose">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon green-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">What this step does</h4>
-                </div>
-                <p class="breakdown-text">
-                  Evaluates branch changes on two independent axes: codebase standards (modularity, readability,
-                  conventions) and specification fidelity (ensuring all user stories pass without unintended changes).
-                </p>
-              </div>
-
-              <!-- Inputs & Outputs -->
-              <div class="breakdown-card card-io">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon blue-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M4 17l6-6-6-6M12 19h8"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Inputs & Outputs</h4>
-                </div>
-                <div class="io-list">
-                  <div class="io-group">
-                    <span class="io-label">Inputs:</span>
-                    <span class="io-val">The branch diff, team conventions, ticket acceptance criteria, and verified acceptance criteria proof</span>
-                  </div>
-                  <div class="io-group">
-                    <span class="io-label">Outputs:</span>
-                    <span class="io-val">A two-axis review scorecard with verified acceptance criteria proof, clear
-                      findings, and a merge recommendation</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Human Checkpoint -->
-              <div class="breakdown-card card-checkpoint">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon amber-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Where you step in</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Final merge sign-off:</strong> You inspect the findings from both review axes and make the
-                  final call to merge the pull request into your branch.
-                </p>
-              </div>
-
-              <!-- Keeping on Track -->
-              <div class="breakdown-card card-antidrift">
-                <div class="breakdown-card-header">
-                  <div class="breakdown-icon green-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                  </div>
-                  <h4 class="breakdown-title">Keeping on track</h4>
-                </div>
-                <p class="breakdown-text">
-                  <strong>Preventing Drift:</strong> Evaluating code structure and behavior separately ensures clean
-                  aesthetics don't mask missing logic, and working code doesn't excuse sloppy patterns.
-                </p>
-              </div>
-            </div>
-
-            <div class="explorer-artifact-preview">
-              <div class="artifact-preview-header">
-                <span class="artifact-tag">Artifact Preview: Independent Two-Axis Review</span>
-                <span class="artifact-status">Status: Ready to Merge</span>
-              </div>
-              <div class="artifact-preview-body">
-                <div class="review-scorecard-visual">
-                  <div class="scorecard-axis axis-standards">
-                    <div class="axis-header">
-                      <span class="axis-name">Axis 1: Code Standards</span>
-                      <span class="axis-verdict-pill pass">0 Issues Spotted</span>
-                    </div>
-                    <ul class="axis-check-list">
-                      <li>✓ Follows team conventions & formatting</li>
-                      <li>✓ Clean variable names & clear intent</li>
-                      <li>✓ Modular functions without hidden side effects</li>
-                    </ul>
-                  </div>
-                  <div class="scorecard-axis axis-spec">
-                    <div class="axis-header">
-                      <span class="axis-name">Axis 2: Ticket Requirements</span>
-                      <span class="axis-verdict-pill pass">All Criteria Met</span>
-                    </div>
-                    <ul class="axis-check-list">
-                      <li>✓ Verified acceptance criteria proof (test runner or domain evidence)</li>
-                      <li>✓ No unintended changes or scope creep</li>
-                      <li>✓ Production build compiles cleanly</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div id="flow-visualizer-root"></div>
       </div>
     </section>
 
@@ -805,8 +129,8 @@
             Value Gained at <span class="gradient-solution-text">Every Step</span>
           </h2>
           <p class="section-subtitle" id="comparison-subtitle">
-            When features expand beyond a single sitting, all-in-one prompts struggle with context and verification.
-            Here is how structured orchestration upgrades your day-to-day engineering flow.
+            Unguided prompts lose context and skip verification on large tasks. ship-it structures development into
+            verifiable steps with clear human gates.
           </p>
         </div>
 
@@ -814,7 +138,7 @@
           <!-- Card 1: Diff Scope -->
           <div class="bento-value-card" id="bento-card-diff-scope" data-dimension="diff-scope">
             <div class="bento-card-header">
-              <span class="bento-dimension-badge">01 / Diff Scope & PR Size</span>
+              <span class="bento-dimension-badge">01 / Diff Scope &amp; PR Size</span>
               <div class="bento-icon-box" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -828,8 +152,8 @@
             <div class="bento-card-body">
               <h3 class="bento-headline">Bite-Sized Vertical Slices</h3>
               <p class="bento-desc">
-                Features land as small, self-contained PRs that test themselves before hitting main. Easy to reason
-                about, quick to review, and safe to merge.
+                Features land as small, self-contained pull requests that verify behavior before merging. Each vertical
+                slice stays easy to reason about, quick to review, and safe to merge.
               </p>
             </div>
             <div class="bento-contrast-pill-box">
@@ -847,7 +171,7 @@
           <!-- Card 2: Context Hygiene -->
           <div class="bento-value-card" id="bento-card-context-hygiene" data-dimension="context-length">
             <div class="bento-card-header">
-              <span class="bento-dimension-badge">02 / Context Hygiene & Length</span>
+              <span class="bento-dimension-badge">02 / Context Hygiene &amp; Length</span>
               <div class="bento-icon-box" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -858,8 +182,8 @@
             <div class="bento-card-body">
               <h3 class="bento-headline">Fresh Session per Phase</h3>
               <p class="bento-desc">
-                Starting a fresh session for each phase prevents conversational bloat. The model stays focused on the
-                active task with zero memory rot.
+                Starting a fresh session for each phase prevents context degradation. Each agent focuses on a single
+                task with full reasoning capacity.
               </p>
             </div>
             <div class="bento-contrast-pill-box">
@@ -877,7 +201,7 @@
           <!-- Card 3: Review Quality -->
           <div class="bento-value-card" id="bento-card-review-quality" data-dimension="review-quality">
             <div class="bento-card-header">
-              <span class="bento-dimension-badge">03 / Review Quality & Verification</span>
+              <span class="bento-dimension-badge">03 / Review Quality &amp; Verification</span>
               <div class="bento-icon-box" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -888,8 +212,8 @@
             <div class="bento-card-body">
               <h3 class="bento-headline">Two-Axis Independent Verification</h3>
               <p class="bento-desc">
-                Diffs are audited across two independent axes—standards and spec fidelity—in an isolated session that
-                never saw the code get written.
+                Independent reviewers audit diffs across two distinct axes: coding standards and specification fidelity.
+                Reviewers evaluate changes without author bias.
               </p>
             </div>
             <div class="bento-contrast-pill-box">
@@ -907,7 +231,7 @@
           <!-- Card 4: Developer Agency -->
           <div class="bento-value-card" id="bento-card-developer-agency" data-dimension="developer-agency">
             <div class="bento-card-header">
-              <span class="bento-dimension-badge">04 / Developer Direction & Agency</span>
+              <span class="bento-dimension-badge">04 / Developer Direction &amp; Agency</span>
               <div class="bento-icon-box" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -919,8 +243,8 @@
             <div class="bento-card-body">
               <h3 class="bento-headline">Human Driver, Autonomous Conductor</h3>
               <p class="bento-desc">
-                You maintain total architectural control. You steer requirements, verify test seams, and approve
-                diffs—the assistant does the heavy typing.
+                You maintain complete technical authority. You steer requirements, verify test seams, and approve diffs
+                while automation executes routine tasks.
               </p>
             </div>
             <div class="bento-contrast-pill-box">
@@ -943,11 +267,10 @@
       <div class="container">
         <div class="section-header-centered">
           <h2 class="section-title" id="deep-dive-title">
-            Architectural <span class="gradient-deep-dive-text">Pillars & Principles</span>
+            Architectural <span class="gradient-deep-dive-text">Pillars &amp; Principles</span>
           </h2>
           <p class="section-subtitle" id="deep-dive-subtitle">
-            Built from first principles to keep autonomous agents bounded, truthful, and rigorously verified.
-            Four architectural guarantees that eliminate chaotic agent drift.
+            Four core engineering practices that keep automated workflows disciplined, repeatable, and verifiable.
           </p>
         </div>
 
@@ -969,10 +292,9 @@
               <h3 class="deep-dive-headline">Context Hygiene</h3>
               <p class="deep-dive-tagline">Clearing context as a core feature</p>
               <p class="deep-dive-desc">
-                Monolithic chats suffer from token bloat and severe reasoning degradation. ship-it treats context
-                clearing
-                as a fundamental engineering primitive: every phase and ticket slice starts in a clean, fresh session
-                anchored to the git merge-base, ensuring zero context rot and sustained model precision.
+                Long conversational threads suffer from token limits and reasoning degradation. ship-it treats clearing
+                context as a standard operational practice. Every phase and ticket begins in a fresh session anchored to
+                the git merge-base, eliminating context rot and preserving precision.
               </p>
             </div>
             <div class="deep-dive-footer">
@@ -1000,9 +322,9 @@
               <h3 class="deep-dive-headline">Adversarial Validation Gate</h3>
               <p class="deep-dive-tagline">Fresh-session pre-build auditing</p>
               <p class="deep-dive-desc">
-                When the same model session authors a spec and approves it, author confirmation bias masks hidden flaws.
-                ship-it enforces a 2-Tier Context Isolation Protocol: an independent auditor evaluates specs, maps, and
-                ticket DAGs in a fresh session before any implementation code is written.
+                When the same session writes and approves a specification, confirmation bias hides omissions. ship-it
+                dispatches an independent auditor in a fresh-session pre-build audit. The auditor validates
+                specifications and ticket dependencies before implementation begins.
               </p>
             </div>
             <div class="deep-dive-footer">
@@ -1029,15 +351,13 @@
               <h3 class="deep-dive-headline">Two-Axis Code Review</h3>
               <p class="deep-dive-tagline">Coding Standards vs. Spec Fidelity</p>
               <p class="deep-dive-desc">
-                Review verdicts must never collapse into a single subjective rubber-stamp. ship-it audits diffs along
-                two
-                orthogonal axes: Axis 1 inspects Fowler refactoring heuristics and architectural hygiene, while Axis 2
-                systematically validates line-by-line ticket acceptance criteria.
+                Code reviews evaluate changes along two explicit dimensions. Axis 1 checks coding standards, modularity,
+                and repository conventions. Axis 2 verifies spec fidelity against each ticket acceptance criterion.
               </p>
             </div>
             <div class="deep-dive-footer">
               <div class="deep-dive-tags">
-                <span class="tag-pill">Axis 1: Fowler Standards</span>
+                <span class="tag-pill">Axis 1: Coding Standards</span>
                 <span class="tag-pill">Axis 2: Spec Fidelity</span>
                 <span class="tag-pill">Dual-Verdict Gate</span>
               </div>
@@ -1062,11 +382,9 @@
               <h3 class="deep-dive-headline">GitHub-Native Traceability</h3>
               <p class="deep-dive-tagline">Issues as a transparent state machine</p>
               <p class="deep-dive-desc">
-                No proprietary SaaS, no external telemetry dashboards, and zero vendor lock-in. ship-it models the full
-                SDLC
-                directly inside GitHub: issues act as the state machine, tasklists form dependency DAGs, and standard
-                git
-                branches and pull requests house the verified audit trail.
+                Work requires zero proprietary SaaS, no external dashboards, and no vendor lock-in. ship-it models the
+                complete lifecycle directly in GitHub using issues as the state machine, tasklists for dependencies, and
+                pull requests for the permanent audit log.
               </p>
             </div>
             <div class="deep-dive-footer">
@@ -1085,10 +403,9 @@
     <section class="container quickstart-section" id="quickstart" aria-labelledby="quickstart-title">
       <div class="quickstart-card">
         <div class="quickstart-header">
-          <h2 class="quickstart-title" id="quickstart-title">Install & Run in Seconds</h2>
-          <br></br>
+          <h2 class="quickstart-title" id="quickstart-title">Install &amp; Run in Seconds</h2>
           <p class="quickstart-subtitle">
-            Add the ship-it skill directly to your workspace and experience disciplined agentic orchestration.
+            Add the ship-it skill to your workspace to guide feature development through structured phases.
           </p>
         </div>
 
@@ -1149,7 +466,7 @@
               <button class="sim-tab-btn active" id="btn-sim-orient" data-sim-step="orient" role="tab"
                 aria-selected="true" aria-controls="terminal-screen">
                 <span class="sim-step-num">01</span>
-                <span>Orient & Discovery</span>
+                <span>Orient &amp; Discovery</span>
               </button>
               <button class="sim-tab-btn" id="btn-sim-implement" data-sim-step="implement" role="tab"
                 aria-selected="false" aria-controls="terminal-screen">
@@ -1168,7 +485,7 @@
               <div class="terminal-sim-line command-line">
                 <div class="sim-cmd-left">
                   <span class="terminal-prompt">$</span>
-                  <code class="sim-command-text cmd-invocation" id="cmd-invoke">/ship-it</code>
+                  <code class="sim-command-text cmd-invocation" id="cmd-invoke">/ship-it marketing</code>
                 </div>
                 <button class="btn-copy btn-copy-invoke" id="btn-copy-invoke" aria-label="Copy invocation command"
                   title="Copy invocation command to clipboard">
@@ -1182,25 +499,26 @@
               </div>
               <div class="terminal-sim-output">
                 <div class="sim-log-row"><span class="sim-icon">🧭</span> <span class="sim-cyan">Orienting
-                    repository:</span> scanning GitHub issues and feature slugs...</div>
-                <div class="sim-log-row"><span class="sim-icon">📋</span> Found active spec: <span
+                    repository:</span> checking Map (<code>ship-it:map</code>) and Spec (<code>ship-it:spec</code>)
+                  state for slug <code>marketing</code>...</div>
+                <div class="sim-log-row"><span class="sim-icon">📋</span> Found validated spec: <span
                     class="sim-bold">[marketing] Spec: User-facing README refactor (#16)</span></div>
-                <div class="sim-log-row"><span class="sim-icon">🔍</span> Inspecting dependency DAG in markdown
-                  tasklist:</div>
-                <div class="sim-log-sub"><span class="sim-green">✔</span> Ticket #17: Setup build & pipeline &mdash;
+                <div class="sim-log-row"><span class="sim-icon">🔍</span> Inspecting ticket dependency list in Boundary
+                  3:</div>
+                <div class="sim-log-sub"><span class="sim-green">✔</span> Ticket #17: Setup build &amp; pipeline &mdash;
                   <span class="sim-badge closed">CLOSED</span>
                 </div>
-                <div class="sim-log-sub"><span class="sim-green">✔</span> Ticket #18: Explorer & SDLC Comparison &mdash;
-                  <span class="sim-badge closed">CLOSED</span>
+                <div class="sim-log-sub"><span class="sim-green">✔</span> Ticket #18: Explorer &amp; SDLC Comparison
+                  &mdash; <span class="sim-badge closed">CLOSED</span>
                 </div>
-                <div class="sim-log-sub"><span class="sim-purple">➜</span> Ticket #19: Architecture Deep-Dives & CLI
+                <div class="sim-log-sub"><span class="sim-purple">➜</span> Ticket #19: Architecture Deep-Dives &amp; CLI
                   &mdash; <span class="sim-badge unblocked">UNBLOCKED</span></div>
                 <div class="sim-log-row highlight-box">
                   <span class="sim-accent-star">★</span> <span class="sim-text">Earliest unblocked ticket discovered:
                     <strong>#19</strong></span>
                 </div>
-                <div class="sim-log-row"><span class="sim-icon">👉</span> <strong>Next step:</strong> Claim and build
-                  slice: <code>/ship-it Implement #19</code></div>
+                <div class="sim-log-row"><span class="sim-icon">👉</span> <strong>Next step:</strong> Dispatch
+                  <code>Subagent: implement</code> for Ticket #19</div>
               </div>
             </div>
           </div>
@@ -1228,8 +546,8 @@
             <span class="brand-text">ship-it</span>
           </div>
           <p class="footer-tagline">
-            The autonomous conductor that keeps developers in the driver's seat.
-            Disciplined agentic orchestration across GitHub.
+            Structured lifecycle automation that keeps developers in control. Coordinates planning, specifications,
+            tests, and reviews directly on GitHub.
           </p>
         </div>
 
@@ -1256,13 +574,13 @@
       </div>
 
       <div class="footer-bottom">
-        <span>&copy; 2026 ship-it. Crafted for disciplined agentic workflows.</span>
+        <span>&copy; 2026 ship-it. Structured lifecycle automation on GitHub.</span>
         <span>Open Source on GitHub</span>
       </div>
     </div>
   </footer>
 
-  <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/main.jsx"></script>
 </body>
 
 </html>

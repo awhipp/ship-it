@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
+import { act } from 'react';
 import fs from 'node:fs';
 import path from 'node:path';
 import yaml from 'js-yaml';
@@ -11,33 +12,65 @@ describe('Marketing Site Architecture & Domains', () => {
   let document;
   let window;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     const htmlPath = path.join(ROOT_DIR, 'index.html');
     expect(fs.existsSync(htmlPath), 'index.html must exist').toBe(true);
     const html = fs.readFileSync(htmlPath, 'utf8');
 
-    dom = new JSDOM(html, { runScripts: 'dangerously' });
+    dom = new JSDOM(html, { url: 'http://localhost:3000/' });
     document = dom.window.document;
     window = dom.window;
 
-    // Load and execute main.js in JSDOM
-    const jsPath = path.join(ROOT_DIR, 'src/main.js');
-    const jsCode = fs.readFileSync(jsPath, 'utf8');
-    window.eval(jsCode);
-    document.dispatchEvent(new window.Event('DOMContentLoaded'));
+    globalThis.window = window;
+    globalThis.document = document;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: window.navigator,
+      configurable: true,
+      writable: true,
+    });
+    globalThis.HTMLElement = window.HTMLElement;
+    globalThis.Element = window.Element;
+    globalThis.Node = window.Node;
+    globalThis.Event = window.Event;
+    globalThis.MouseEvent = window.MouseEvent;
+    globalThis.KeyboardEvent = window.KeyboardEvent;
+    globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+    const mainEntryPath = path.join(ROOT_DIR, 'src/main.jsx');
+    if (fs.existsSync(mainEntryPath)) {
+      const mainModule = await import('../src/main.jsx');
+      if (typeof mainModule.initMarketingApp === 'function') {
+        await mainModule.initMarketingApp(document, window);
+      }
+    }
   });
 
   // =========================================================================
   // DOMAIN: Infrastructure & Deployment Pipeline
   // =========================================================================
   describe('Domain: Infrastructure & Deployment Pipeline', () => {
-    it('should configure Vite with relative base path "./" for subpath hosting', async () => {
+    it('should configure package.json with React 19 and @vitejs/plugin-react without Mermaid dependencies', () => {
+      const pkgPath = path.join(ROOT_DIR, 'package.json');
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+
+      expect(pkg.dependencies?.react).toBe('^19.0.0');
+      expect(pkg.dependencies?.['react-dom']).toBe('^19.0.0');
+      expect(pkg.devDependencies?.['@vitejs/plugin-react']).toBe('^4.3.4');
+      expect(pkg.dependencies?.mermaid).toBeUndefined();
+      expect(pkg.devDependencies?.mermaid).toBeUndefined();
+    });
+
+    it('should configure Vite with react() plugin, relative base path "./", dist outDir, and assets assetsDir', async () => {
       const configPath = path.join(ROOT_DIR, 'vite.config.js');
       expect(fs.existsSync(configPath), 'vite.config.js must exist').toBe(true);
 
       const configModule = await import(configPath);
       const config = configModule.default;
       expect(config.base).toBe('./');
+      expect(config.build.outDir).toBe('dist');
+      expect(config.build.assetsDir).toBe('assets');
+      expect(Array.isArray(config.plugins)).toBe(true);
+      expect(config.plugins.length).toBeGreaterThan(0);
     });
 
     it('should configure GitHub Pages CI/CD workflow targeting gh-pages with appropriate permissions', () => {
@@ -65,8 +98,8 @@ describe('Marketing Site Architecture & Domains', () => {
   // DOMAIN: Document Metadata & Semantic Layout
   // =========================================================================
   describe('Domain: Document Metadata & Semantic Layout', () => {
-    it('should contain descriptive page title, SEO meta tags, Open Graph, and Twitter metadata', () => {
-      expect(document.title).toMatch(/ship-it/i);
+    it('should contain developer-focused page title, SEO meta tags, Open Graph, and Twitter metadata per Spec #98 §4', () => {
+      expect(document.title).toBe('ship-it | Structured Lifecycle Automation for Software Teams');
       const metaDesc = document.querySelector('meta[name="description"]');
       expect(metaDesc).not.toBeNull();
       expect(metaDesc.getAttribute('content').length).toBeGreaterThan(20);
@@ -78,11 +111,13 @@ describe('Marketing Site Architecture & Domains', () => {
       const twitterCard = document.querySelector('meta[name="twitter:card"]');
       const twitterTitle = document.querySelector('meta[name="twitter:title"]');
 
-      expect(ogTitle, 'og:title meta tag must exist').not.toBeNull();
-      expect(ogDesc, 'og:description meta tag must exist').not.toBeNull();
+      expect(ogTitle?.getAttribute('content')).toBe('ship-it | Structured Lifecycle Automation for Software Teams');
+      expect(ogDesc?.getAttribute('content')).toBe(
+        'Keep developers in control. Coordinate feature delivery across GitHub issues using phase gates, fresh-session validation, and two-axis code reviews.'
+      );
       expect(ogType, 'og:type meta tag must exist').not.toBeNull();
       expect(twitterCard, 'twitter:card meta tag must exist').not.toBeNull();
-      expect(twitterTitle, 'twitter:title meta tag must exist').not.toBeNull();
+      expect(twitterTitle?.getAttribute('content')).toBe('ship-it | Structured Lifecycle Automation for Software Teams');
     });
 
     it('should configure a valid favicon link referencing an existing asset', () => {
@@ -122,13 +157,25 @@ describe('Marketing Site Architecture & Domains', () => {
       });
     });
 
-    it('should synchronize gh-pages README.md with root README.md containing pragmatic testing guarantees', () => {
+    it('should synchronize gh-pages README.md with root README.md from #99', () => {
       const readmePath = path.join(ROOT_DIR, 'README.md');
       const readme = fs.readFileSync(readmePath, 'utf8');
+      expect(readme).toContain('**Disciplined feature delivery for engineering teams.**');
+      expect(readme).toContain('### Map vs. Spec');
+      expect(readme).toContain('Phase exit / Boundary halt');
+      expect(readme).toContain('View Boundary 1: Map Lifecycle Diagram');
+      expect(readme).toContain('View Boundary 2: Spec & Ticket Definition Diagram');
+      expect(readme).toContain('View Boundary 3: Ticket Loop & PR Close-Out Diagram');
       expect(readme).toContain('pragmatic, domain-aligned verification');
       expect(readme).toContain('ad-hoc test harness prohibition');
       expect(readme).toContain('Spec #34');
       expect(readme).toContain('Spec #36');
+    });
+
+    it('should exclude Mermaid diagram blocks from the marketing site application', () => {
+      const htmlPath = path.join(ROOT_DIR, 'index.html');
+      const html = fs.readFileSync(htmlPath, 'utf8');
+      expect(html).not.toMatch(/mermaid/i);
     });
   });
 
@@ -136,7 +183,7 @@ describe('Marketing Site Architecture & Domains', () => {
   // DOMAIN: Hero Section & Brand Navigation
   // =========================================================================
   describe('Domain: Hero Section & Brand Navigation', () => {
-    it('should render a single h1 element clearly communicating the value proposition', () => {
+    it('should render a single h1 element preserving "driver\'s seat"', () => {
       const h1s = document.querySelectorAll('h1');
       expect(h1s.length).toBe(1);
       expect(h1s[0].textContent.replace(/\s+/g, ' ').trim()).toMatch(/driver's seat/i);
@@ -154,110 +201,202 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(ctaQuickstart.getAttribute('href')).toBe('#quickstart');
     });
 
-    it('should reflect domain-aligned verification in hero description without absolute test-first claims', () => {
+    it('should render developer-focused hero description with pragmatic, domain-aligned verification per Spec #98 §4', () => {
       const heroDesc = document.querySelector('#hero-description');
       expect(heroDesc).not.toBeNull();
-      expect(heroDesc.textContent).toMatch(/domain-aligned verification/i);
-      expect(heroDesc.textContent).not.toMatch(/test-first verification/i);
+      const normalized = heroDesc.textContent.replace(/\s+/g, ' ').trim();
+      expect(normalized).toBe(
+        'ship-it automates feature delivery inside your GitHub repository. The conductor coordinates architecture maps, written specifications, pragmatic, domain-aligned verification, and two-axis code reviews while you steer technical decisions.'
+      );
+      expect(heroDesc.querySelector('strong')?.textContent).toBe('ship-it');
     });
   });
 
   // =========================================================================
-  // DOMAIN: Interactive 5-Phase Lifecycle Explorer
+  // DOMAIN: Interactive Flow Visualizer (#lifecycle-explorer)
   // =========================================================================
-  describe('Domain: Interactive 5-Phase Lifecycle Explorer', () => {
-    it('should have a dedicated lifecycle explorer section with semantic heading', () => {
+  describe('Domain: Interactive Flow Visualizer (#lifecycle-explorer)', () => {
+    it('should mount FlowVisualizer inside #flow-visualizer-root within #lifecycle-explorer with updated section header', () => {
       const section = document.querySelector('#lifecycle-explorer');
-      expect(section, 'Lifecycle Explorer section #lifecycle-explorer must exist').not.toBeNull();
-      const heading = section.querySelector('h2');
-      expect(heading).not.toBeNull();
-      expect(heading.textContent).toMatch(/Lifecycle|5-Phase|Explorer|Workflow|Step-By-Step/i);
+      expect(section).not.toBeNull();
+
+      const title = section.querySelector('#explorer-title');
+      const subtitle = section.querySelector('#explorer-subtitle');
+      expect(title?.textContent.replace(/\s+/g, ' ').trim()).toBe('Step-By-Step Workflow');
+      expect(subtitle?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Inspect each phase to examine inputs, deliverables, human checkpoints, and validation safeguards.'
+      );
+
+      const root = section.querySelector('#flow-visualizer-root');
+      expect(root, '#flow-visualizer-root must exist inside #lifecycle-explorer').not.toBeNull();
+      expect(root.children.length).toBeGreaterThan(0);
     });
 
-    it('should render tabbed navigation controls for all 5 phases: Plan, Spec, Tickets, Implement, Review', () => {
-      const navContainer = document.querySelector('#explorer-nav, [data-explorer-nav]');
-      expect(navContainer, 'Explorer navigation container must exist').not.toBeNull();
+    it('should render accessible flow selector tabs (Map Lifecycle and Spec Lifecycle) and display comparison summary and active flow blurb', () => {
+      const root = document.querySelector('#flow-visualizer-root');
+      const mapTab = root.querySelector('[data-flow-tab="map"]');
+      const specTab = root.querySelector('[data-flow-tab="spec"]');
 
-      const phases = ['Plan', 'Spec', 'Tickets', 'Implement', 'Review'];
-      for (const phase of phases) {
-        const tabEl = navContainer.querySelector(`[data-explorer-tab="${phase.toLowerCase()}"]`);
-        expect(tabEl, `Tab for phase "${phase}" must exist`).not.toBeNull();
-        expect(tabEl.textContent).toContain(phase);
-        expect(tabEl.getAttribute('role')).toBe('tab');
-      }
-    });
-
-    it('should provide detail panels for all 5 phases with structured breakdowns and artifact previews', () => {
-      const phases = ['plan', 'spec', 'tickets', 'implement', 'review'];
-      for (const phase of phases) {
-        const panel = document.querySelector(`[data-explorer-panel="${phase}"]`);
-        expect(panel, `Detail panel for phase "${phase}" must exist`).not.toBeNull();
-        expect(panel.getAttribute('role')).toBe('tabpanel');
-
-        // Check breakdown cards
-        expect(panel.querySelector('.explorer-grid-breakdown')).not.toBeNull();
-        expect(panel.querySelector('.explorer-artifact-preview')).not.toBeNull();
-
-        const panelText = panel.textContent;
-        expect(panelText).toMatch(/Purpose|Mission|What this step does/i);
-        expect(panelText).toMatch(/Input/i);
-        expect(panelText).toMatch(/Output/i);
-        expect(panelText).toMatch(/Human.*Checkpoint|Review.*Checkpoint|Where you step in/i);
-        expect(panelText).toMatch(/Anti-Drift|Guarantee|Keeping on track|Preventing Drift/i);
-      }
-    });
-
-    it('should switch active tab and display panel when a tab button is clicked', () => {
-      const specTab = document.querySelector('#btn-tab-spec');
-      const planTab = document.querySelector('#btn-tab-plan');
-      const specPanel = document.querySelector('#panel-explorer-spec');
-      const planPanel = document.querySelector('#panel-explorer-plan');
-
+      expect(mapTab).not.toBeNull();
       expect(specTab).not.toBeNull();
-      expect(specPanel).not.toBeNull();
+      expect(mapTab.getAttribute('role')).toBe('tab');
+      expect(specTab.getAttribute('role')).toBe('tab');
 
-      // Trigger click on spec tab
-      specTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      // Map tab is active by default
+      expect(mapTab.getAttribute('aria-selected')).toBe('true');
+      expect(specTab.getAttribute('aria-selected')).toBe('false');
+      expect(root.textContent).toContain('Resolve architectural uncertainty and choose a direction.');
+      expect(root.textContent).toContain('When a Map Occurs (Boundary 1: Mapping)');
+      expect(root.textContent).toContain('Boundary 1 Gate: All open decisions are settled.');
 
-      // Spec tab and panel should be active; Plan inactive
-      expect(specTab.classList.contains('active')).toBe(true);
+      // Switch to Spec tab
+      act(() => {
+        specTab.click();
+      });
       expect(specTab.getAttribute('aria-selected')).toBe('true');
-      expect(specPanel.classList.contains('active')).toBe(true);
+      expect(mapTab.getAttribute('aria-selected')).toBe('false');
+      expect(root.textContent).toContain('Deliver settled requirements through verified code.');
+      expect(root.textContent).toContain('When a Spec Occurs (Boundary 2: Definition & Boundary 3: Execution)');
+      expect(root.textContent).toContain('Boundary 3 Gate: All tickets pass two-axis review and final audit.');
 
-      expect(planTab.classList.contains('active')).toBe(false);
-      expect(planTab.getAttribute('aria-selected')).toBe('false');
-      expect(planPanel.classList.contains('active')).toBe(false);
-
-      // Click back to plan tab
-      planTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-      expect(planTab.classList.contains('active')).toBe(true);
-      expect(planTab.getAttribute('aria-selected')).toBe('true');
-      expect(planPanel.classList.contains('active')).toBe(true);
+      // Switch back to Map tab
+      act(() => {
+        mapTab.click();
+      });
+      expect(mapTab.getAttribute('aria-selected')).toBe('true');
     });
 
-    it('should label tab 4 with Domain-Aligned or Verification subtitle', () => {
-      const tab4Subtitle = document.querySelector('#btn-tab-implement .tab-subtitle');
-      expect(tab4Subtitle).not.toBeNull();
-      expect(tab4Subtitle.textContent).toMatch(/Domain-Aligned|Verification/i);
+    it('should render the 4-stage horizontal stepper in Map Lifecycle view with selectable decision ticket sub-cards and Boundary 1 Exit Gate', () => {
+      const root = document.querySelector('#flow-visualizer-root');
+      const mapTab = root.querySelector('[data-flow-tab="map"]');
+      act(() => {
+        mapTab.click();
+      });
+
+      const stageButtons = root.querySelectorAll('[data-stepper-stage]');
+      expect(stageButtons.length).toBe(4);
+
+      const stepperText = Array.from(stageButtons).map(b => b.textContent).join(' ');
+      expect(stepperText).toContain('Map Initialization');
+      expect(stepperText).toContain('ship-it:map');
+      expect(stepperText).toContain('Decision Ticket Types');
+      expect(stepperText).toContain('Resolution & Fog Loop');
+      expect(stepperText).toContain('Decisions so far');
+      expect(stepperText).toContain('Boundary 1 Exit Gate');
+      expect(stepperText).toContain('ship-it <slug>');
+
+      // Select Stage 2: Decision Ticket Types
+      const stage2Btn = root.querySelector('[data-stepper-stage="map-decision-tickets"]');
+      expect(stage2Btn).not.toBeNull();
+      act(() => {
+        stage2Btn.click();
+      });
+
+      const subCards = root.querySelectorAll('[data-decision-ticket]');
+      expect(subCards.length).toBe(4);
+      const subCardsText = Array.from(subCards).map(c => c.textContent).join(' ');
+      expect(subCardsText).toContain('ship-it:research');
+      expect(subCardsText).toContain('ship-it:prototype');
+      expect(subCardsText).toContain('ship-it:grilling');
+      expect(subCardsText).toContain('ship-it:task');
+      expect(subCardsText).toContain('Subagent: decide');
+      expect(subCardsText).toContain('Conductor: interactive');
+
+      // Clicking a decision ticket sub-card updates the inspector panel
+      const grillingCard = root.querySelector('[data-decision-ticket="grilling"]');
+      expect(grillingCard).not.toBeNull();
+      act(() => {
+        grillingCard.click();
+      });
+
+      const inspector = root.querySelector('[role="tabpanel"]');
+      expect(inspector).not.toBeNull();
+      expect(inspector.textContent).toContain('ship-it:grilling');
+      expect(inspector.textContent).toContain('Conductor: interactive');
+
+      // Select Stage 4: Boundary 1 Exit Gate
+      const stage4Btn = root.querySelector('[data-stepper-stage="map-exit-gate"]');
+      act(() => {
+        stage4Btn.click();
+      });
+      expect(inspector.textContent).toMatch(/Boundary 1 exit/i);
+      expect(inspector.textContent).toContain('ship-it <slug>');
     });
 
-    it('should present domain-aligned verification, ad-hoc runner prohibition, and ephemeral discovery in panel 4', () => {
-      const panel4 = document.querySelector('#panel-explorer-implement');
-      expect(panel4).not.toBeNull();
-      const text = panel4.textContent;
-      expect(text).toMatch(/domain-aligned verification/i);
-      expect(text).toMatch(/ad-hoc (test )?runner prohibition|ad-hoc (test )?harness prohibition/i);
-      expect(text).toMatch(/ephemeral subagent (discovery|exploration)/i);
-      expect(text).toMatch(/negative invariants/i);
-      expect(text).toMatch(/Red-Green/i);
-    });
+    it('should render the 5-stage horizontal stepper in Spec Lifecycle view and update the node inspector panel across all stages', () => {
+      const root = document.querySelector('#flow-visualizer-root');
+      const specTab = root.querySelector('[data-flow-tab="spec"]');
+      act(() => {
+        specTab.click();
+      });
 
-    it('should include Testing Decisions in panel 2 and verified acceptance criteria proof in panel 5', () => {
-      const panel2 = document.querySelector('#panel-explorer-spec');
-      expect(panel2.textContent).toMatch(/Testing Decisions/i);
+      const stageButtons = root.querySelectorAll('[data-stepper-stage]');
+      expect(stageButtons.length).toBe(5);
 
-      const panel5 = document.querySelector('#panel-explorer-review');
-      expect(panel5.textContent).toMatch(/verified acceptance criteria proof/i);
+      const stepperText = Array.from(stageButtons).map(b => b.textContent).join(' ');
+      expect(stepperText).toMatch(/Boundary 2.*Validation/i);
+      expect(stepperText).toContain('Stage 1: Implement with Verification');
+      expect(stepperText).toContain('Stage 2: Two-Axis Review');
+      expect(stepperText).toContain('Stage 3: Final Review');
+      expect(stepperText).toContain('Stage 4: Annotated PR & Close-Out');
+
+      const inspector = root.querySelector('[role="tabpanel"]');
+      expect(inspector).not.toBeNull();
+
+      // Verify each stage updates the inspector with Purpose, Inputs & Outputs, Human Checkpoint, Anti-Drift Guarantee, and Artifact Preview
+      for (const btn of stageButtons) {
+        act(() => {
+          btn.click();
+        });
+        const text = inspector.textContent;
+        expect(text).toContain('Purpose');
+        expect(text).toContain('Inputs & Outputs');
+        expect(text).toContain('Human Checkpoint');
+        expect(text).toContain('Anti-Drift Guarantee');
+        expect(text).toContain('Artifact Preview');
+      }
+
+      // Check specific stage content in Spec Lifecycle
+      const b2Btn = root.querySelector('[data-stepper-stage="spec-boundary-2"]');
+      act(() => {
+        b2Btn.click();
+      });
+      expect(inspector.textContent).toContain('Testing Decisions');
+      expect(inspector.textContent).toContain('Subagent: validate');
+      expect(inspector.textContent).toContain('Subagent: slice');
+      expect(inspector.textContent).toMatch(/Boundary 2 exit/i);
+
+      const s1Btn = root.querySelector('[data-stepper-stage="spec-stage-1"]');
+      act(() => {
+        s1Btn.click();
+      });
+      expect(inspector.textContent).toContain('Fixed point:');
+      expect(inspector.textContent).toMatch(/domain-aligned verification/i);
+      expect(inspector.textContent).toMatch(/ad-hoc test harness prohibition/i);
+      expect(inspector.textContent).toMatch(/ephemeral subagent exploration/i);
+      expect(inspector.textContent).toMatch(/negative invariants/i);
+      expect(inspector.textContent).toContain('Red-Green');
+
+      const s2Btn = root.querySelector('[data-stepper-stage="spec-stage-2"]');
+      act(() => {
+        s2Btn.click();
+      });
+      expect(inspector.textContent).toContain('Subagent: review');
+      expect(inspector.textContent).toContain('Subagent: rework');
+      expect(inspector.textContent).toMatch(/verified acceptance criteria proof/i);
+
+      const s3Btn = root.querySelector('[data-stepper-stage="spec-stage-3"]');
+      act(() => {
+        s3Btn.click();
+      });
+      expect(inspector.textContent).toContain('Subagent: final-review');
+
+      const s4Btn = root.querySelector('[data-stepper-stage="spec-stage-4"]');
+      act(() => {
+        s4Btn.click();
+      });
+      expect(inspector.textContent).toContain('Subagent: close-out');
+      expect(inspector.textContent).toMatch(/Boundary 3 exit/i);
     });
   });
 
@@ -307,7 +446,29 @@ describe('Marketing Site Architecture & Domains', () => {
 
       // Dimension 4: Developer Direction & Agency
       expect(text).toMatch(/lost.*control|hallucinated/i);
-      expect(text).toMatch(/architectural control|human.*driver/i);
+      expect(text).toMatch(/architectural control|human.*driver|technical authority/i);
+    });
+
+    it('should render the developer-focused SDLC comparison copy per Spec #98 §4', () => {
+      const subtitle = document.querySelector('#comparison-subtitle');
+      expect(subtitle?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Unguided prompts lose context and skip verification on large tasks. ship-it structures development into verifiable steps with clear human gates.'
+      );
+
+      const contextCard = document.querySelector('#bento-card-context-hygiene .bento-desc');
+      expect(contextCard?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Starting a fresh session for each phase prevents context degradation. Each agent focuses on a single task with full reasoning capacity.'
+      );
+
+      const reviewCard = document.querySelector('#bento-card-review-quality .bento-desc');
+      expect(reviewCard?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Independent reviewers audit diffs across two distinct axes: coding standards and specification fidelity. Reviewers evaluate changes without author bias.'
+      );
+
+      const devCard = document.querySelector('#bento-card-developer-agency .bento-desc');
+      expect(devCard?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'You maintain complete technical authority. You steer requirements, verify test seams, and approve diffs while automation executes routine tasks.'
+      );
     });
   });
 
@@ -336,27 +497,34 @@ describe('Marketing Site Architecture & Domains', () => {
       });
     });
 
-    it('should articulate the four core architectural pillars: Context Hygiene, Adversarial Validation Gate, Two-Axis Code Review, and GitHub-Native Traceability', () => {
+    it('should articulate the four core architectural pillars with developer-focused copy per Spec #98 §4', () => {
       const section = document.querySelector('#architecture-deep-dive');
       expect(section).not.toBeNull();
-      const text = section.textContent;
 
-      // Pillar 1: Context Hygiene
-      expect(text).toMatch(/Context Hygiene/i);
-      expect(text).toMatch(/reasoning degradation|context rot|clearing context|fresh session/i);
+      const subtitle = section.querySelector('#deep-dive-subtitle');
+      expect(subtitle?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Four core engineering practices that keep automated workflows disciplined, repeatable, and verifiable.'
+      );
 
-      // Pillar 2: Adversarial Validation Gate
-      expect(text).toMatch(/Adversarial Validation/i);
-      expect(text).toMatch(/fresh-session|confirmation bias|audit|pre-build/i);
+      const p1 = section.querySelector('#deep-dive-card-context-hygiene .deep-dive-desc');
+      expect(p1?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Long conversational threads suffer from token limits and reasoning degradation. ship-it treats clearing context as a standard operational practice. Every phase and ticket begins in a fresh session anchored to the git merge-base, eliminating context rot and preserving precision.'
+      );
 
-      // Pillar 3: Two-Axis Code Review
-      expect(text).toMatch(/Two-Axis.*Review|Coding Standards.*Spec Fidelity/i);
-      expect(text).toMatch(/standards/i);
-      expect(text).toMatch(/spec fidelity/i);
+      const p2 = section.querySelector('#deep-dive-card-adversarial-validation .deep-dive-desc');
+      expect(p2?.textContent.replace(/\s+/g, ' ').trim()).toMatch(
+        /^When the same session writes and approves a specification, confirmation bias hides omissions\. ship-it dispatches an independent auditor in a fresh-session pre-build audit\. The auditor validates specifications and ticket dependencies before (implementation begins|any implementation code is written)\.$/
+      );
 
-      // Pillar 4: GitHub-Native Traceability
-      expect(text).toMatch(/GitHub-Native Traceability|State Machine/i);
-      expect(text).toMatch(/issues as.*state machine|zero proprietary SaaS|no vendor lock-in|git-native/i);
+      const p3 = section.querySelector('#deep-dive-card-two-axis-review .deep-dive-desc');
+      expect(p3?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Code reviews evaluate changes along two explicit dimensions. Axis 1 checks coding standards, modularity, and repository conventions. Axis 2 verifies spec fidelity against each ticket acceptance criterion.'
+      );
+
+      const p4 = section.querySelector('#deep-dive-card-github-traceability .deep-dive-desc');
+      expect(p4?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Work requires zero proprietary SaaS, no external dashboards, and no vendor lock-in. ship-it models the complete lifecycle directly in GitHub using issues as the state machine, tasklists for dependencies, and pull requests for the permanent audit log.'
+      );
     });
   });
 
@@ -364,9 +532,19 @@ describe('Marketing Site Architecture & Domains', () => {
   // DOMAIN: Interactive CLI Terminal & Quickstart Onboarding
   // =========================================================================
   describe('Domain: Interactive CLI Terminal & Quickstart Onboarding', () => {
-    it('should render the Quickstart section with installation and invocation commands', () => {
+    it('should render the Quickstart section and footer with developer-focused copy per Spec #98 §4', () => {
       const quickstart = document.querySelector('#quickstart');
       expect(quickstart).not.toBeNull();
+
+      const qsSubtitle = quickstart.querySelector('.quickstart-subtitle');
+      expect(qsSubtitle?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Add the ship-it skill to your workspace to guide feature development through structured phases.'
+      );
+
+      const footerTagline = document.querySelector('.footer-tagline');
+      expect(footerTagline?.textContent.replace(/\s+/g, ' ').trim()).toBe(
+        'Structured lifecycle automation that keeps developers in control. Coordinates planning, specifications, tests, and reviews directly on GitHub.'
+      );
 
       const installCommand = document.querySelector('#cmd-install');
       expect(installCommand).not.toBeNull();
@@ -410,7 +588,7 @@ describe('Marketing Site Architecture & Domains', () => {
 
       // Trigger Orient simulation
       btnOrient.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-      expect(terminalScreen.textContent).toMatch(/orient|slug|unblocked|ticket/i);
+      expect(terminalScreen.textContent).toMatch(/orient|map|spec|slug|unblocked|ticket/i);
 
       // Trigger Implement simulation
       btnImplement.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
@@ -421,11 +599,13 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(terminalScreen.textContent).toMatch(/two-axis|standards|spec/i);
     });
 
-    it('should frame Ticket #19 as an automated test suite workflow in the terminal simulator', () => {
+    it('should frame Ticket #19 with workflow verification for the automated test suite in the terminal simulator', () => {
       const btnImplement = document.querySelector('[data-sim-step="implement"]');
       const terminalScreen = document.querySelector('#terminal-screen, .terminal-screen-output');
       btnImplement.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-      expect(terminalScreen.textContent).toMatch(/automated test suite workflow|automated test suite verification/i);
+      expect(terminalScreen.textContent).toMatch(
+        /workflow verification for the automated test suite|automated test suite workflow|automated test suite verification/i
+      );
     });
   });
 
