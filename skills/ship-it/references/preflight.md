@@ -63,7 +63,7 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 | Link sub-issue or blocker | `gh issue create --parent <parent> --blocked-by <blocker>` or `gh issue edit <n> --add-blocked-by <blocker>` |
 | Query dependencies | `gh issue view <n> --json blockedBy,parent,subIssues` |
 | Query pull requests | `gh pr list --head "<branch>" --state all --json number,state,url` |
-| Create pull request | `gh pr create --base <base> --head <branch> --title "<title>" --body-file <file>` |
+| Create pull request | `gh pr create --base <default-branch> --head <branch> --title "<title>" --body-file <file>` |
 | List pull request files | `gh pr diff <pr> --name-only` |
 | Get pull request head SHA | `gh pr view <pr> --json headRefOid --jq .headRefOid` |
 | Annotate pull request file (sole `gh api` exception) | `gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<sha> -f path=<file> -f subject_type=file -F body=@<file>` |

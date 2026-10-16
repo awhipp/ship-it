@@ -9,7 +9,6 @@ When a point remains unsettled, ask the user directly instead of guessing.
 1. **Gather settled context**: When a map exists for the feature, read "Decisions so far" via `gh issue view <map-number>` and inspect any referenced decision tickets. Otherwise, read the directive text or source issue from setup.
 2. **Explore the codebase**: Ground the specification in active code. Use the repository's vocabulary and respect existing Architecture Decision Records (ADRs).
 3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories. Prefer high-level seams with minimal touchpoints. When automated tests do not apply, define direct checks per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
-   Confirm the base branch at the same time; propose the default branch unless the change lives on another branch (such as `gh-pages`).
 4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Pause and obtain explicit user approval of the draft before creating the GitHub issue.
 5. **Publish the spec**: Create the issue with `--body-file`:
 
@@ -26,7 +25,6 @@ When a point remains unsettled, ask the user directly instead of guessing.
 - **Request**: > <directive text or issue #n body, verbatim>
 - **Map**: #<map-number> (or "None")
 - **Branch**: <type>/<slug>
-- **Base**: <branch the pull request targets; the default branch unless the user chooses otherwise>
 
 ## Problem Statement
 

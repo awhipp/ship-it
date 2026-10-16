@@ -107,7 +107,7 @@ End with exactly one next step:
 
 | Halt | Next step |
 | :--- | :--- |
-| Boundary 3 exit, or row 13 with an `OPEN` pull request | `Merge <pr-url> to complete the feature.` When the base is the default branch, add `No further ship-it run is needed.` Otherwise, add `Then run ship-it <slug> once to close the spec.` |
+| Boundary 3 exit, or row 13 with an `OPEN` pull request | `Merge <pr-url> to complete the feature. No further ship-it run is needed.` |
 | Row 3 | `Feature complete.` Print no command. |
 | Row 13 with a `CLOSED` pull request | The question to the user. Print no command. |
 | Any other halt | `ship-it <slug>` |
