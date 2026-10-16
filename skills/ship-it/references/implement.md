@@ -7,6 +7,16 @@ Tier 2 environments execute each run of this phase in a fresh session.
 Tickets are self-contained by design.
 Prior session context adds minimal value and consumes tokens.
 
+## Automation Boundary 3: Execution
+
+Boundary 3 encapsulates the implementation and review phase within the autonomous build loop:
+
+- **Boundary entry**: Boundary 3 begins after developer approval of Boundary 2, initiating implementation of the ticket frontier (or validated single-session spec).
+- **Execution scope**: Covers claiming tickets, isolated implementation, commit verification, diff review, autonomous rework up to two retries, and continuous frontier progression.
+- **Child subagent delegation**: Under Tier 1 environments, dispatch implementation, review, and remediation to isolated child subagents with zero parent conversation context per [isolation.md](isolation.md).
+- **Boundary exit pause**: The conductor halts when the final ticket closes, the spec completion comment posts, and the pull request opens.
+- **Prohibition of automated merging**: Automated pull request merging is strictly prohibited. The conductor halts execution and waits for human review and merge approval.
+
 ## Process
 
 ### 1. Branch and claim the ticket
@@ -112,6 +122,15 @@ Handoff procedures depend on the execution tier:
   Stop the conductor run immediately.
   Never run review yourself; in-context persona simulation is strictly prohibited.
 
+### 7. Feature close-out and boundary exit pause
+
+When the final ticket of a specification closes:
+
+1. **Document ticket completion**: Post a completion comment on the parent specification issue (`gh issue comment <spec-id> --body "<text>"`). Prohibit manual issue closure on the parent specification.
+2. **Open or update pull request**: Open or update the pull request targeting the default branch, referencing `Closes #<spec-id>` in the description. Merging the pull request automatically closes the parent specification.
+3. **Boundary exit halt**: Conclude Boundary 3 immediately. The conductor halts execution and reports the pull request link.
+4. **Prohibition of automated merge**: Automated pull request merging is strictly prohibited. Human reviewers must inspect diffs and approve pull request merges.
+
 ## Rework workflow
 
 When a review rejection applies `ship-it:changes-requested`, execute rework based on the execution tier:
@@ -127,7 +146,7 @@ When a review rejection applies `ship-it:changes-requested`, execute rework base
   2. **Inspect review feedback**: Read the review findings recorded in the ticket comments via `gh issue view <number> --comments`.
   3. **Address findings**: Apply domain verification to fix reported defects. Add regression tests or direct checks covering every finding.
   4. **Commit fixes**: Commit all remediations directly to the feature branch.
-  5. **Post resolution comment**: Post a comment detailing how each finding was resolved (`gh issue comment <number> --body "<text>"`).
+  5. **Post resolution comment**: Post a comment detailing how each blocker was resolved (`gh issue comment <number> --body "<text>"`).
   6. **Remove status label**: Remove `ship-it:changes-requested` via `gh issue edit <number> --remove-label "ship-it:changes-requested"`.
 
 Leave the ticket assigned and open to signal readiness for re-review.
@@ -140,3 +159,6 @@ Work on a dedicated feature branch.
 Build directly from the User Stories and Implementation Decisions in [spec.md](spec.md).
 The spec issue serves as the tracking record.
 Do not claim or close tickets separately.
+When diff review passes on a single-session spec, open the pull request referencing `Closes #<spec-id>`.
+Conclude Boundary 3 and halt execution.
+Automated pull request merging is strictly prohibited.

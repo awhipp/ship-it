@@ -2,6 +2,16 @@
 
 Turn a settled idea into a spec published as a GitHub issue. Source requirements from resolved map decisions, user conversation, or both. This phase is **synthesis, not interview**. Resolve open questions before entering this phase. If you need user input on a minor point, ask directly. Do not conduct an extensive grilling session; grilling belongs upstream in [plan.md](plan.md).
 
+## Automation Boundary 2: Definition (Spec)
+
+Boundary 2 encapsulates the definition phase within the autonomous build loop:
+
+- **Boundary entry**: Boundary 2 begins when map decisions resolve in [plan.md](plan.md) or when planning was skipped for a well-scoped feature.
+- **Synthesis scope**: Synthesize settled decisions, user conversation, and codebase conventions into a published specification. Resolve open questions upstream in Boundary 1 before entering this phase.
+- **Child subagent validation**: Under Tier 1 environments, dispatch adversarial validation to an isolated child subagent per [isolation.md](isolation.md#autonomous-verification-protocol-tier-1).
+- **Single-session exit pause**: For small features skipping tickets, Boundary 2 concludes when the specification passes adversarial validation and carries `ship-it:validated`. The conductor halts execution, reports the validated specification, and pauses for human review before proceeding to [implement.md](implement.md).
+- **Multi-session progression**: For multi-session features, the validated specification advances to vertical ticket slicing in [tickets.md](tickets.md) within Boundary 2.
+
 ## Process
 
 1. **Gather settled context.** If a map exists for this feature, read "Decisions so far" via `gh issue view <map-number>`. Inspect any ticket details that matter. Otherwise, synthesize context from the conversation.
@@ -70,7 +80,7 @@ Turn a settled idea into a spec published as a GitHub issue. Source requirements
 
 Once published, child phases ([tickets.md](tickets.md), [implement.md](implement.md), and [review.md](review.md)) read this spec via `gh issue view <spec-number>`. These phases inspect the spec to know what to build.
 
-Recommended next step: [validate.md](validate.md) audits this spec adversarially under the [2-Tier Context Isolation Protocol](validate.md#2-tier-context-isolation-protocol). Audit the spec before splitting tickets or building directly. Run validation for any multi-session build. Treat skipping validation as a rare exception for trivial features.
+Recommended next step: [validate.md](validate.md) audits this spec adversarially under the [2-Tier Context Isolation Protocol](isolation.md#autonomous-verification-protocol-tier-1). Audit the spec before splitting tickets or building directly. For single-session features, conclude Boundary 2 and pause for human review once validation passes. For multi-session features, proceed to [tickets.md](tickets.md) to draft vertical slices within Boundary 2.
 
 ## Spec remediation
 
