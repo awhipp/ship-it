@@ -7,8 +7,8 @@ The ticket, its parent spec, and their `## Answers` comments are the only requir
 
 ### 1. Branch and fixed point
 
-1. Read the branch name from the spec's `## Source` (`<type>/<slug>`).
-2. Run `git fetch origin`. Check out the branch when it exists on `origin`; otherwise create it from `origin/<default-branch>` and push it with `git push -u origin <branch>`.
+1. Read the branch name (`<type>/<slug>`) and the base from the spec's `## Source`. When `## Source` names no base, use the default branch.
+2. Run `git fetch origin`. Check out the branch when it exists on `origin`; otherwise create it from `origin/<base>` and push it with `git push -u origin <branch>`.
 3. Unless the ticket already has a `Fixed point:` comment, post one before the first change: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`.
 
 ### 2. Verify
@@ -75,12 +75,13 @@ Run after the final review approves the spec.
 1. Open the pull request:
 
    ```shell
-   gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
+   gh pr create --base <base> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
    ```
 
    The body lists each ticket by title and contains `Closes #<spec>`.
    Add `Closes #<issue>` when `## Source` names a request issue.
-   Merging the pull request closes the spec.
+   GitHub honors `Closes` only when `<base>` is the default branch.
+   On any other base, the next `ship-it <slug>` run after the merge closes the spec (`SKILL.md` row 3).
 
 2. Annotate every changed file with one file-level review comment:
 

@@ -15,7 +15,7 @@ Every run derives its next action from that state alone.
 
 1. **Never guess.** If a fact is not written in the directive, an issue, or a reference file, ask the user.
 2. **Never verify your own work.** Validation and review run in a fresh context per [isolation.md](references/isolation.md).
-3. **Run every boundary to its exit halt.** Keep looping through query, route, and action until the routing table specifies a halt or an action requires user input. The next invocation after a boundary exit is the developer's approval.
+3. **Run every boundary to its exit halt.** Keep looping through query, route, and action until the routing table specifies a halt or an action requires user input. After Boundaries 1 and 2, the developer approves by invoking `ship-it <slug>` again. After Boundary 3, the developer approves by merging the pull request.
 4. **Never merge a pull request.**
 5. **Write every artifact per [writing.md](references/writing.md).**
 
@@ -56,6 +56,7 @@ gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
 Run the pull request query only once a spec exists; the branch comes from the spec's `## Source`.
+A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`.
 A failed query is an environment error: run [preflight.md](references/preflight.md).
 Never read a failed query as "no artifacts".
 
@@ -69,7 +70,7 @@ Never treat an intermediate artifact (such as a newly published spec or freshly 
 | :-- | :--- | :--- | :--- |
 | 1 | No map and no spec | Chart the map ([plan.md](references/plan.md)) or draft and publish the spec ([spec.md](references/spec.md)), per the setup choice. | Query state and route again (hits row 2 or row 7). |
 | 2 | Map is open | Resolve the next decision ticket ([plan.md](references/plan.md)). When none remain, close the map. | While open decision tickets remain: query state and route again. When the map closes: **halt (Boundary 1 exit)**. |
-| 3 | Spec is closed | Report the feature complete. | **Stop.** |
+| 3 | Spec is closed, or a pull request for the branch is `MERGED` | Close the spec when open (`gh issue close <spec> --comment "Merged in <pr-url>"`), then report the feature complete. | **Stop.** |
 | 4 | No spec | Draft and publish the spec ([spec.md](references/spec.md)). | Query state and route again (hits row 7). |
 | 5 | Spec has `ship-it:changes-requested` and no tickets | Remediate the spec ([spec.md](references/spec.md#remediation)). | Query state and route again (hits row 7). |
 | 6 | Spec has `ship-it:changes-requested` and tickets exist | Remediate the ticket set ([tickets.md](references/tickets.md#remediation)). | Query state and route again (hits row 9). |
@@ -78,15 +79,15 @@ Never treat an intermediate artifact (such as a newly published spec or freshly 
 | 9 | An open ticket lacks `ship-it:validated` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)**. Otherwise: query state and route again (hits row 6 on blockers). |
 | 10 | An open ticket exists | Work the frontier ticket (below). | Query state and route again after each frontier step. |
 | 11 | Spec lacks `ship-it:reviewed` | Run the final review ([review.md](references/review.md#final-review)). | On `approved`: query state and route again (hits row 12). When the review creates fix tickets: **halt** for approval of the fix tickets. |
-| 12 | No open pull request | Close out ([implement.md](references/implement.md#close-out)). | **Halt (Boundary 3 exit).** |
-| 13 | A pull request is open | Report that the pull request awaits human review and merge. | **Stop.** |
+| 12 | No pull request exists for the branch | Close out ([implement.md](references/implement.md#close-out)). | **Halt (Boundary 3 exit).** |
+| 13 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and ask the user whether to reopen it. | **Stop.** |
 
-**Frontier ticket**: the lowest-numbered open ticket.
+**Frontier ticket**: the lowest-numbered open ticket whose blockers are all closed ([tickets.md](references/tickets.md#relationships)).
 Apply the first matching step:
 
-1. Any blocker is open ([tickets.md](references/tickets.md#relationships)): report the blocker and **halt**.
+1. No open ticket is unblocked: report each open ticket with its open blockers and **halt**.
 2. Has `ship-it:reviewed`: close the ticket (`gh issue close <n> --comment "<summary>"`), then query state and route again.
-3. Has `ship-it:changes-requested`: count the `**Verdict**: Changes requested` review comments on the ticket. **Halt** at three; otherwise dispatch rework, then query state and route again.
+3. Has `ship-it:changes-requested`: count the `**Verdict**: Changes requested` review comments posted after the latest `## Answers` comment on the ticket (or since creation when none exists). At three or more, **halt** and ask the user to post guidance as a `## Answers` comment on the ticket; otherwise dispatch rework, then query state and route again.
 4. Has an assignee: dispatch review, then query state and route again.
 5. Otherwise: create the branch named in `## Source` if missing, claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation, then query state and route again.
 
@@ -102,7 +103,14 @@ Run every action per [isolation.md](references/isolation.md):
 ## 5. Report at every halt
 
 State the boundary and link each changed issue by title.
-Print the exact next command: `ship-it <slug>`.
+End with exactly one next step:
+
+| Halt | Next step |
+| :--- | :--- |
+| Boundary 3 exit, or row 13 with an `OPEN` pull request | `Merge <pr-url> to complete the feature.` When the base is the default branch, add `No further ship-it run is needed.` Otherwise, add `Then run ship-it <slug> once to close the spec.` |
+| Row 3 | `Feature complete.` Print no command. |
+| Row 13 with a `CLOSED` pull request | The question to the user. Print no command. |
+| Any other halt | `ship-it <slug>` |
 
 ## Boundaries
 

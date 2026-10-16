@@ -13,7 +13,7 @@ Evaluating each axis separately keeps strength on one axis from masking defects 
 | Mode | Fixed point | Requirements |
 | :--- | :--- | :--- |
 | Ticket review | The `Fixed point: <sha>` comment on the ticket | The ticket, its parent spec, and every `## Answers` comment on both |
-| Final review | `git merge-base origin/<default-branch> HEAD` | The parent spec, every ticket, and every `## Answers` comment |
+| Final review | `git merge-base origin/<base> HEAD`, with `<base>` from the spec's `## Source` (default branch when absent) | The parent spec, every ticket, and every `## Answers` comment |
 
 Return `failed` when the fixed point is missing or does not resolve, or when the diff is empty.
 
