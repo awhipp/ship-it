@@ -79,4 +79,4 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 5. Once the ticket closes, update the map (`gh issue edit <map-number> --body-file <file>`):
    - Append a one-line summary and link under `## Decisions so far`.
    - Graduate newly specifiable items from `## Not yet specified` into new decision tickets, and move ruled-out items to `## Out of scope`.
-6. When no open decision tickets remain and `## Not yet specified` is empty, close the map (`gh issue close <map-number> --comment "<summary>"`).
+6. While open decision tickets remain or `## Not yet specified` is non-empty, return to `SKILL.md` § 2 (`Query state`) to resolve the next decision ticket. When neither remains, close the map (`gh issue close <map-number> --comment "<summary>"`) and halt at Boundary 1 exit.

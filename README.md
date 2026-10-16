@@ -52,13 +52,13 @@ A bare `/ship-it` halts immediately and asks for one of these four directives be
 Within each boundary, the conductor dispatches self-contained tasks to fresh, zero-context subagents (or fresh sessions in harnesses without subagents) and loops until the boundary exit checkpoint.
 At every boundary exit, the conductor halts for human review; your next `ship-it <slug>` invocation is your approval to enter the next boundary.
 
-| Boundary | Phase | What happens | Exit halt | Reference |
+| Boundary | Phase | What happens | Phase exit / Boundary halt | Reference |
 | :--- | :--- | :--- | :--- | :--- |
-| **1. Mapping** | **Plan** | Charts open decisions as a map and resolves research, prototype, task, and grilling tickets. | Map closes with all decisions settled. | [`plan.md`](skills/ship-it/references/plan.md) |
-| **2. Definition** | **Spec** | Synthesizes settled context into a spec (`## Source`, stories, decisions, test seams) and validates it. | Spec carries `ship-it:validated`. | [`spec.md`](skills/ship-it/references/spec.md), [`validate.md`](skills/ship-it/references/validate.md) |
-| **2. Definition** | **Tickets** | Slices the spec into vertical tracer-bullet tickets and validates the set. | Every ticket carries `ship-it:validated`. | [`tickets.md`](skills/ship-it/references/tickets.md), [`validate.md`](skills/ship-it/references/validate.md) |
-| **3. Execution** | **Implement & Review** | Builds each unblocked ticket on `<type>/<slug>`, reviews the diff along Standards and Spec axes, and closes approved tickets. | All tickets close. | [`implement.md`](skills/ship-it/references/implement.md), [`review.md`](skills/ship-it/references/review.md) |
-| **3. Execution** | **Final Review & PR** | Audits the full branch diff against the parent spec, opens the PR, and posts a per-file change and traceability comment on every changed file. | PR opens and awaits human merge. | [`review.md`](skills/ship-it/references/review.md#final-review), [`implement.md`](skills/ship-it/references/implement.md#close-out) |
+| **1. Mapping** | **Plan** | Charts open decisions as a map and resolves research, prototype, task, and grilling tickets. | **Halt (Boundary 1 exit)**: Map closes with all decisions settled. | [`plan.md`](skills/ship-it/references/plan.md) |
+| **2. Definition** | **Spec** | Synthesizes settled context into a spec (`## Source`, stories, decisions, test seams) and validates it. | **Continues to Tickets** once spec carries `ship-it:validated`. | [`spec.md`](skills/ship-it/references/spec.md), [`validate.md`](skills/ship-it/references/validate.md) |
+| **2. Definition** | **Tickets** | Slices the spec into vertical tracer-bullet tickets and validates the set. | **Halt (Boundary 2 exit)**: Every ticket carries `ship-it:validated`. | [`tickets.md`](skills/ship-it/references/tickets.md), [`validate.md`](skills/ship-it/references/validate.md) |
+| **3. Execution** | **Implement & Review** | Builds each unblocked ticket on `<type>/<slug>`, reviews the diff along Standards and Spec axes, and closes approved tickets. | **Continues to Final Review** once all tickets close. | [`implement.md`](skills/ship-it/references/implement.md), [`review.md`](skills/ship-it/references/review.md) |
+| **3. Execution** | **Final Review & PR** | Audits the full branch diff against the parent spec, opens the PR, and posts a per-file change and traceability comment on every changed file. | **Halt (Boundary 3 exit)**: PR opens and awaits human merge. | [`review.md`](skills/ship-it/references/review.md#final-review), [`implement.md`](skills/ship-it/references/implement.md#close-out) |
 
 ---
 

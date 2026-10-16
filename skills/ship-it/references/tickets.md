@@ -69,3 +69,4 @@ When ticket-set validation applies `ship-it:changes-requested` to the parent spe
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from any modified ticket so the full set is re-audited together.
 4. **Post resolution comment**: Explain the fix for each Blocker on the parent specification (`gh issue comment <spec-number> --body "<text>"`).
 5. **Remove label**: Clear `ship-it:changes-requested` from the parent specification (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
+6. **Continue the routing loop**: Immediately return to `SKILL.md` § 2 (`Query state`) in the same turn so routing re-runs Row 9 (ticket-set validation).
