@@ -1,77 +1,71 @@
 # Validate: adversarial audit before anyone builds on this
 
-Read a published artifact (spec, ticket set, or map) as an outside skeptic before implementation begins.
-Try to break the artifact before turning decisions into code.
-Validate is **recommended by default**.
-Run this audit whenever tickets or implementation span more than one session.
-Finding a gap now costs an issue comment.
-Finding that same gap mid-implementation requires a costly rewrite.
-Skip validation only for small, well-scoped features where this risk does not apply.
-Skipping is a deliberate exception rather than the default workflow.
+Read a published spec or ticket set as an outside skeptic.
+Try to break the artifact before anyone turns it into code.
+Every spec and every ticket set is validated; there is no skip.
 
-## 2-Tier Context Isolation Protocol
+## Inputs
 
-Validate artifacts through the [2-Tier Context Isolation Protocol](isolation.md).
-Never simulate an outside skeptic within the authoring session context.
+Read requirements before the artifact.
+Read nothing beyond these inputs:
 
-## What "requirements" means, per artifact
+| Artifact | Requirements | Artifact under audit |
+| :--- | :--- | :--- |
+| Spec | The spec's `## Source`, the linked map's "Decisions so far", and every `## Answers` comment on the spec | The spec body |
+| Ticket set | The parent spec and every `## Answers` comment on the spec | Every open ticket (`gh issue view <n> --json title,body`) |
 
-- **Spec**: Resolved decisions from the map (if a map exists) and the conversation or ticket requesting the spec.
-- **Tickets**: The spec from which tickets were split, evaluated against User Stories and Implementation Decisions.
-- **Map**: The destination named in the map and settled decisions. (Fog itself is expected and not a defect.)
+## Zero-assumption rule
 
-Read requirements before reading the artifact (`gh issue view <number> --json body`).
-Begin the audit from what was requested rather than what was written.
+- When judging the artifact needs a fact that the inputs do not state, record a Question.
+- Never infer intent, fill a gap, or rationalize the author's choice.
+- Treat answers as requirements: an artifact that contradicts an answer has a Blocker.
 
 ## What to look for
 
-Use these audit angles to evaluate target artifacts:
-
-- **Contradictions**: Two statements that cannot both be true, or a decision quietly reversing an earlier choice.
-- **Scope and Traceability**: Unrequested behavior, missing upstream requirements, or incomplete feature coverage.
-- **Verification and Edge Cases**: Untestable acceptance criteria, unhandled errors, missing failure paths, or unenforced constraints.
-- **Map Findings**: Settled decisions that merely restate unresolved uncertainty.
-- **Ticket Findings**: Horizontal slices, sequencing preferences disguised as blockers, or incomplete specification coverage.
+- **Contradictions**: Two statements that cannot both be true, or a decision that quietly reverses an earlier one.
+- **Traceability**: Unrequested behavior, or a requirement with no coverage.
+- **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
+- **Ticket slicing**: Horizontal slices, sequencing preferences disguised as blockers, or tickets too large for one fresh context.
 
 ## Severity
 
-Assign findings to one of three tiers based on clear operational questions:
+| Severity | Test | Effect |
+| :--- | :--- | :--- |
+| **Blocker** | The artifact is wrong, or contradicts a requirement or an answer. | Applies `ship-it:changes-requested`. |
+| **Question** | A fact needed to build the right thing is unwritten. | Withholds approval until answered. |
+| **Nit** | The artifact is correct but improves with a small wording or formatting fix. | Fix in place. |
 
-- **Blocker**: If this defect remains unresolved, can the implementer build the right thing? If no, it is a Blocker.
-- **Warning**: Can the implementer proceed only by guessing at underspecified behavior? If they must guess, it is a Warning.
-- **Nit**: Is the artifact correct without this change, but improved by adding it? That is a Nit.
-
-Do not inflate Warnings to appear thorough.
-Do not downgrade Blockers to avoid delaying work.
-The severity tier dictates whether work proceeds.
+Do not inflate Nits into Questions to appear thorough.
+Do not downgrade a Blocker to avoid delaying work.
 
 ## Report
 
-Post audit findings as an issue comment (`gh issue comment <number> --body "<text>"`).
-Format all findings as concise statements adhering to [writing.md](writing.md):
+Post the report on the **spec** for both artifact types (`gh issue comment <spec> --body-file <file>`):
 
 ```markdown
-## Validation: <artifact type>
-
-**Summary**: <One-line assessment of artifact shape and readiness>
+## Validation: <Spec | Ticket set>
 
 ### Blockers
-- **B-1** [<section>]: <Defect description and blocking rationale> (or "None")
+- **B-1** [<section or #ticket>]: <defect and why it blocks> (or "None")
 
-### Warnings and Nits
-- **W-1** [<section>]: <Underspecified behavior or proposed improvement> (or "None")
+### Clarifying Questions
+- **Q-1** [<section or #ticket>]: <question> (or "None")
 
 ### In-place Resolutions
-- **R-1** [<section>]: <Phonetic, typo, or phrasing fix applied in-place> (or "None")
+- **R-1** [<section or #ticket>]: <nit fixed in the issue body> (or "None")
 
-**Verdict**: <Ready to build as-is | Blocked on reported blockers>
+**Verdict**: Validated | Changes requested | Questions pending
 ```
 
-Post the full report comment even for clean passes to maintain an audit trail.
+Post the report on every pass, including clean passes.
 
 ## Outcomes
 
-Evaluate findings under a binary outcome:
+| Findings | Labels | Return verdict |
+| :--- | :--- | :--- |
+| Any Blocker | Add `ship-it:changes-requested` to the spec. | `changes-requested`, listing any Questions too |
+| Questions, no Blocker | None. | `questions` |
+| Nits or nothing | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` |
 
-- **Blockers detected**: Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`). Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`). Do not apply `ship-it:validated`. Validators must not rewrite major structural defects or missing requirements. Route the artifact back to its authoring phase for rework.
-- **Clean pass or in-place fixes**: Apply `ship-it:validated` (`gh issue edit <number> --add-label "ship-it:validated"`). Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`). Validators may resolve minor typos, phrasing nits, or formatting fixes directly in the issue body. Record these fixes under `### In-place Resolutions`. Warnings and nits do not block the label.
+Fix Nits directly in the issue body and record them under `### In-place Resolutions`.
+Never rewrite structure or add missing requirements; those are Blockers.
