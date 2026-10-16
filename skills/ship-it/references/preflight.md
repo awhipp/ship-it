@@ -66,10 +66,10 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 | Create pull request | `gh pr create --base <default-branch> --head <branch> --title "<title>" --body-file <file>` |
 | List pull request files | `gh pr diff <pr> --name-only` |
 | Get pull request head SHA | `gh pr view <pr> --json headRefOid --jq .headRefOid` |
-| Annotate pull request file (sole `gh api` exception) | `gh api repos/{owner}/{repo}/pulls/<pr>/comments -f commit_id=<sha> -f path=<file> -f subject_type=file -F body=@<file>` |
+| Annotate pull request file (sole `gh api` exception) | `gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<sha> -f path=<file> -f subject_type=file -F body=@<file>` |
 
 ## Cross-platform shell conventions
 
-- **Multi-line bodies**: Pass multi-line text with `--body-file <path>` or `-F body=@<path>` instead of Bash heredocs, which fail in PowerShell.
-- **Assignee quoting**: Always quote `"@me"` (`--add-assignee "@me"`). Unquoted `@me` is a PowerShell splat expression.
+- **Multi-line bodies**: Write multi-line text to a file using a file-writing tool or a single-quoted PowerShell here-string (`@' ... '@`), then pass `--body-file <path>` or `-F body=@<path>`. Never use Bash heredocs or double-quoted PowerShell strings (`"..."`), which interpret Markdown backticks as escape characters.
+- **PowerShell special characters**: Always quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
 - **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.

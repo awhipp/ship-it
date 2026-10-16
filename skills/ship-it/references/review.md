@@ -47,7 +47,7 @@ Flag duplicated logic, unclear names, unused abstractions, primitive obsession, 
 | :--- | :--- | :--- |
 | **Blocker** | The diff is wrong, incomplete, unverified, or breaks a standard. | Requests changes. |
 | **Question** | A fact needed to judge the diff is unwritten. | Withholds approval until answered. |
-| **Nit** | The diff is correct but improves with a typo or naming fix. | Fix in place, commit, and push. |
+| **Nit** | The diff is correct but improves with a typo or naming fix. | Fix in place, commit as `<type>(<slug>): <summary> (#<ticket-or-spec>)`, and push. |
 
 ## Report
 
@@ -77,7 +77,7 @@ The `**Verdict**:` line is exact; the conductor counts `Changes requested` verdi
 
 | Findings | Labels | Return verdict |
 | :--- | :--- | :--- |
-| Any Blocker | Add `ship-it:changes-requested`. Keep the assignee. | `changes-requested` |
+| Any Blocker | Add `ship-it:changes-requested`. Keep the assignee. | `changes-requested`, listing any Questions too |
 | Questions, no Blocker | None. | `questions` |
 | Nits or nothing | Add `ship-it:reviewed`. | `approved` |
 
@@ -94,7 +94,7 @@ Apply the same passes, then check across tickets:
 
 | Findings | Action | Return verdict |
 | :--- | :--- | :--- |
-| Any Blocker | Create one fix ticket per Blocker (below). | `changes-requested` |
+| Any Blocker | Create one fix ticket per Blocker (below). | `changes-requested`, listing any Questions too |
 | Questions, no Blocker | None. | `questions` |
 | Nits or nothing | Add `ship-it:reviewed` to the spec. | `approved` |
 

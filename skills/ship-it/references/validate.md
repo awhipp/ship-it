@@ -2,7 +2,7 @@
 
 Read a published spec or ticket set as an outside skeptic.
 Try to break the artifact before anyone turns it into code.
-Every spec and every ticket set is validated; there is no skip.
+Validate every spec and every ticket set without exception.
 
 ## Inputs
 

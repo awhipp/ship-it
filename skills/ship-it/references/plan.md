@@ -74,9 +74,9 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 2. Select the lowest-numbered open, unblocked decision ticket.
 3. Claim the ticket (`gh issue edit <n> --add-assignee "@me"`).
 4. Resolve the ticket per its type and [isolation.md](isolation.md):
-   - Dispatch `research`, `prototype`, and `task` tickets per `isolation.md`. The subagent posts the findings on the ticket, closes the ticket (`gh issue close <n> --comment "<summary>"`), and returns `done` (or `questions` when blocked on user input).
+   - Dispatch `research`, `prototype`, and `task` tickets per `isolation.md`. The subagent posts the findings on the ticket, closes the ticket (`gh issue close <n> --comment "<summary>"`), and returns `done`. When blocked on user input, the subagent leaves the ticket open and returns `questions`.
    - Run `grilling` tickets in the conductor, asking one question per turn until settled, then close the ticket with the answer.
-5. Update the map (`gh issue edit <map-number> --body-file <file>`):
+5. Once the ticket closes, update the map (`gh issue edit <map-number> --body-file <file>`):
    - Append a one-line summary and link under `## Decisions so far`.
    - Graduate newly specifiable items from `## Not yet specified` into new decision tickets, and move ruled-out items to `## Out of scope`.
 6. When no open decision tickets remain and `## Not yet specified` is empty, close the map (`gh issue close <map-number> --comment "<summary>"`).

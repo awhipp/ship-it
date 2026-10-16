@@ -64,5 +64,5 @@ When validation applies `ship-it:changes-requested` to the specification:
 
 1. **Read the report**: Inspect the validation report and any `## Answers` comments via `gh issue view <spec-number> --comments`.
 2. **Update the spec**: Resolve every Blocker in the issue body (`gh issue edit <spec-number> --body-file <file>`). Obtain user approval when a fix changes scope or architecture.
-3. **Post resolution comment**: Explain how each Blocker was resolved (`gh issue comment <spec-number> --body "<text>"`).
+3. **Post resolution comment**: Explain the fix for each Blocker (`gh issue comment <spec-number> --body "<text>"`).
 4. **Remove label**: Clear `ship-it:changes-requested` (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).

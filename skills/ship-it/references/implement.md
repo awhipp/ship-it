@@ -65,7 +65,7 @@ When the ticket carries `ship-it:changes-requested`:
 1. Read the latest review report on the ticket.
 2. Fix every Blocker, and add a test or direct check for each fix.
 3. Commit and push per step 5. Keep the existing fixed point.
-4. Post a `## Rework` comment stating how each Blocker was resolved, with verification evidence.
+4. Post a `## Rework` comment explaining the fix for each Blocker, with verification evidence.
 5. Remove the label (`gh issue edit <n> --remove-label "ship-it:changes-requested"`) and return `done`.
 
 ## Close-out
@@ -88,7 +88,7 @@ Run after the final review approves the spec.
    gh pr diff <pr> --name-only
    gh pr view <pr> --json headRefOid --jq .headRefOid
    git log --format=%s <merge-base>..HEAD -- <file>
-   gh api repos/{owner}/{repo}/pulls/<pr>/comments -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
+   gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
    ```
 
    Take ticket numbers from the commit subjects for each file.

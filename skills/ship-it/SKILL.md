@@ -50,7 +50,7 @@ Keep only results whose title starts with `[<slug>]`.
 
 ```shell
 gh issue list --label "ship-it:map" --search "<slug> in:title" --state all --json number,title,labels,state
-gh issue list --label "ship-it:spec" --search "<slug> in:title" --state all --json number,title,labels,state
+gh issue list --label "ship-it:spec" --search "<slug> in:title" --state all --json number,title,body,labels,state
 gh issue list --label "ship-it:ticket" --search "<slug> in:title" --state all --json number,title,labels,assignees,state
 gh pr list --head "<branch>" --state all --json number,state,url
 ```
@@ -90,11 +90,11 @@ After each action, query state again and route again until a halt.
 
 ## 4. Dispatch and verdicts
 
-Run every action per [isolation.md](references/isolation.md), then handle the returned verdict:
+Run every action per [isolation.md](references/isolation.md), then handle the return packet:
 
-- **questions**: Ask the user every question. Use an interactive question tool when one exists; otherwise ask in plain text and end the turn. Post the replies as a `## Answers` comment on the issue holding the questions, then route again.
 - **failed**: Halt and report the error, the issue, and the step.
-- **Any other verdict**: Route again.
+- **`Questions` is not `None`** (on `questions` or `changes-requested`): Ask the user every question. Use an interactive question tool when one exists; otherwise ask in plain text and end the turn. Post the replies as a `## Answers` comment on the issue holding the questions, then route again.
+- **Any other packet**: Route again.
 
 ## 5. Report at every halt
 

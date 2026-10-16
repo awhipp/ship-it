@@ -54,4 +54,4 @@ The conductor reads only this block.
 
 Run every action in the current session, with one exception.
 A session may validate or review only when that is its first action.
-When the next routing row is validation or review after any other action, halt and print `ship-it #<n>` for a fresh session.
+When the next routing row is validation or review after any other action, halt and print `ship-it <slug>` for a fresh session.
