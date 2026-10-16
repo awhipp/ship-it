@@ -272,128 +272,124 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(root.children.length).toBeGreaterThan(0);
     });
 
-    it('should render accessible flow selector tabs (Map Lifecycle and Spec Lifecycle) and display comparison summary and active flow blurb', () => {
+    it('should render interactive step selectors for Boundary 1, Boundary 2, and Boundary 3 with accessible attributes and keyboard navigation', () => {
       const root = document.querySelector('#flow-visualizer-root');
-      const mapTab = root.querySelector('[data-flow-tab="map"]');
-      const specTab = root.querySelector('[data-flow-tab="spec"]');
+      const tablist = root.querySelector('[role="tablist"]');
+      expect(tablist, 'Flow selector tablist must exist').not.toBeNull();
+      expect(tablist.getAttribute('aria-label')).toBe('Lifecycle Boundaries');
 
-      expect(mapTab).not.toBeNull();
-      expect(specTab).not.toBeNull();
-      expect(mapTab.getAttribute('role')).toBe('tab');
-      expect(specTab.getAttribute('role')).toBe('tab');
+      const boundaryTabs = root.querySelectorAll('[role="tab"]');
+      expect(boundaryTabs.length).toBe(3);
 
-      // Map tab is active by default
-      expect(mapTab.getAttribute('aria-selected')).toBe('true');
-      expect(specTab.getAttribute('aria-selected')).toBe('false');
-      expect(root.textContent).toContain('Resolve architectural uncertainty and choose a direction.');
-      expect(root.textContent).toContain('When a Map Occurs (Boundary 1: Mapping)');
-      expect(root.textContent).toContain('Boundary 1 Gate: All open decisions are settled.');
+      const b1 = root.querySelector('#btn-boundary-1');
+      const b2 = root.querySelector('#btn-boundary-2');
+      const b3 = root.querySelector('#btn-boundary-3');
 
-      // Switch to Spec tab
+      expect(b1, 'Boundary 1 button must exist').not.toBeNull();
+      expect(b2, 'Boundary 2 button must exist').not.toBeNull();
+      expect(b3, 'Boundary 3 button must exist').not.toBeNull();
+
+      expect(b1.textContent).toContain('Boundary 1');
+      expect(b1.textContent).toContain('Mapping');
+      expect(b2.textContent).toContain('Boundary 2');
+      expect(b2.textContent).toContain('Definition');
+      expect(b3.textContent).toContain('Boundary 3');
+      expect(b3.textContent).toContain('Execution');
+
+      // Boundary 1 is active by default
+      expect(b1.getAttribute('aria-selected')).toBe('true');
+      expect(b2.getAttribute('aria-selected')).toBe('false');
+      expect(b3.getAttribute('aria-selected')).toBe('false');
+
+      // Test keyboard navigation: ArrowRight from B1 moves to B2
       act(() => {
-        specTab.click();
+        b1.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
       });
-      expect(specTab.getAttribute('aria-selected')).toBe('true');
-      expect(mapTab.getAttribute('aria-selected')).toBe('false');
-      expect(root.textContent).toContain('Deliver settled requirements through verified code.');
-      expect(root.textContent).toContain('When a Spec Occurs (Boundary 2: Definition & Boundary 3: Execution)');
-      expect(root.textContent).toContain('Boundary 3 Gate: All tickets pass two-axis review and final audit.');
+      expect(b2.getAttribute('aria-selected')).toBe('true');
+      expect(b1.getAttribute('aria-selected')).toBe('false');
 
-      // Switch back to Map tab
+      // ArrowRight from B2 moves to B3
       act(() => {
-        mapTab.click();
+        b2.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
       });
-      expect(mapTab.getAttribute('aria-selected')).toBe('true');
+      expect(b3.getAttribute('aria-selected')).toBe('true');
+
+      // ArrowRight wraps to B1
+      act(() => {
+        b3.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      });
+      expect(b1.getAttribute('aria-selected')).toBe('true');
+
+      // ArrowLeft wraps to B3
+      act(() => {
+        b1.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+      });
+      expect(b3.getAttribute('aria-selected')).toBe('true');
     });
 
-    it('should render the 4-stage horizontal stepper in Map Lifecycle view with selectable decision ticket sub-cards and Boundary 1 Exit Gate', () => {
+    it('should update the single inspection panel upon selecting any boundary step to display its Goal, Deliverables, and Exit Gate', () => {
       const root = document.querySelector('#flow-visualizer-root');
-      const mapTab = root.querySelector('[data-flow-tab="map"]');
+      const b1 = root.querySelector('#btn-boundary-1');
+      const b2 = root.querySelector('#btn-boundary-2');
+      const b3 = root.querySelector('#btn-boundary-3');
+      const inspector = root.querySelector('#flow-visualizer-inspector');
+
+      expect(inspector, 'Single inspection panel #flow-visualizer-inspector must exist').not.toBeNull();
+      expect(inspector.getAttribute('role')).toBe('tabpanel');
+
+      // --- Boundary 1: Mapping ---
       act(() => {
-        mapTab.click();
+        b1.click();
       });
+      expect(b1.getAttribute('aria-selected')).toBe('true');
+      const textB1 = inspector.textContent;
+      expect(textB1).toContain('Goal');
+      expect(textB1).toContain('Deliverables');
+      expect(textB1).toContain('Exit Gate');
+      expect(textB1).toMatch(/architectural fog/i);
+      expect(textB1).toMatch(/decision tickets/i);
+      expect(textB1).toMatch(/decisions settle/i);
 
-      const stageButtons = root.querySelectorAll('[data-stepper-stage]');
-      expect(stageButtons.length).toBe(4);
-
-      const stepperText = Array.from(stageButtons).map(b => b.textContent).join(' ');
-      expect(stepperText).toContain('Map Initialization');
-      expect(stepperText).toContain('ship-it:map');
-      expect(stepperText).toContain('Decision Ticket Types');
-      expect(stepperText).toContain('Resolution & Fog Loop');
-      expect(stepperText).toContain('Decisions so far');
-      expect(stepperText).toContain('Boundary 1 Exit Gate');
-      expect(stepperText).toContain('ship-it <slug>');
-
-      // Select Stage 2: Decision Ticket Types
-      const stage2Btn = root.querySelector('[data-stepper-stage="map-decision-tickets"]');
-      expect(stage2Btn).not.toBeNull();
+      // --- Boundary 2: Definition ---
       act(() => {
-        stage2Btn.click();
+        b2.click();
       });
+      expect(b2.getAttribute('aria-selected')).toBe('true');
+      const textB2 = inspector.textContent;
+      expect(textB2).toContain('Goal');
+      expect(textB2).toContain('Deliverables');
+      expect(textB2).toContain('Exit Gate');
+      expect(textB2).toMatch(/specifications/i);
+      expect(textB2).toMatch(/tracer-bullet tickets/i);
+      expect(textB2).toMatch(/fresh context/i);
+      expect(textB2).toMatch(/approval/i);
 
-      const subCards = root.querySelectorAll('[data-decision-ticket]');
-      expect(subCards.length).toBe(4);
-      const subCardsText = Array.from(subCards).map(c => c.textContent).join(' ');
-      expect(subCardsText).toContain('ship-it:research');
-      expect(subCardsText).toContain('ship-it:prototype');
-      expect(subCardsText).toContain('ship-it:grilling');
-      expect(subCardsText).toContain('ship-it:task');
-      expect(subCardsText).toContain('Subagent: decide');
-      expect(subCardsText).toContain('Conductor: interactive');
-
-      // Clicking a decision ticket sub-card updates the inspector panel
-      const grillingCard = root.querySelector('[data-decision-ticket="grilling"]');
-      expect(grillingCard).not.toBeNull();
+      // --- Boundary 3: Execution ---
       act(() => {
-        grillingCard.click();
+        b3.click();
       });
-
-      const inspector = root.querySelector('[role="tabpanel"]');
-      expect(inspector).not.toBeNull();
-      expect(inspector.textContent).toContain('ship-it:grilling');
-      expect(inspector.textContent).toContain('Conductor: interactive');
-
-      // Select Stage 4: Boundary 1 Exit Gate
-      const stage4Btn = root.querySelector('[data-stepper-stage="map-exit-gate"]');
-      act(() => {
-        stage4Btn.click();
-      });
-      expect(inspector.textContent).toMatch(/Boundary 1 exit/i);
-      expect(inspector.textContent).toContain('ship-it <slug>');
+      expect(b3.getAttribute('aria-selected')).toBe('true');
+      const textB3 = inspector.textContent;
+      expect(textB3).toContain('Goal');
+      expect(textB3).toContain('Deliverables');
+      expect(textB3).toContain('Exit Gate');
+      expect(textB3).toMatch(/fixed points/i);
+      expect(textB3).toMatch(/two-axis reviews/i);
+      expect(textB3).toMatch(/pull request close-out/i);
     });
 
-    it('should render the 5-stage horizontal stepper in Spec Lifecycle view and update the node inspector panel across all stages', () => {
+    it('should confirm the absence of nested sub-cards, modal pills, and secondary steppers', () => {
       const root = document.querySelector('#flow-visualizer-root');
-      const specTab = root.querySelector('[data-flow-tab="spec"]');
-      act(() => {
-        specTab.click();
-      });
 
-      const stageButtons = root.querySelectorAll('[data-stepper-stage]');
-      expect(stageButtons.length).toBe(5);
+      // Purged elements
+      const subCards = root.querySelectorAll('[data-decision-ticket], .decision-subcard, .decision-subcards-bar');
+      expect(subCards.length).toBe(0);
 
-      const stepperText = Array.from(stageButtons).map(b => b.textContent).join(' ');
-      expect(stepperText).toMatch(/Boundary 2.*Validation/i);
-      expect(stepperText).toContain('Stage 1: Implement with Verification');
-      expect(stepperText).toContain('Stage 2: Two-Axis Review');
-      expect(stepperText).toContain('Stage 3: Final Review');
-      expect(stepperText).toContain('Stage 4: Annotated PR & Close-Out');
+      const modalPills = root.querySelectorAll('.modal-pill, .status-pill');
+      expect(modalPills.length).toBe(0);
 
-      const inspector = root.querySelector('[role="tabpanel"]');
-      expect(inspector).not.toBeNull();
-
-      for (const btn of stageButtons) {
-        act(() => {
-          btn.click();
-        });
-        const text = inspector.textContent;
-        expect(text).toContain('Purpose');
-        expect(text).toContain('Inputs & Outputs');
-        expect(text).toContain('Human Checkpoint');
-        expect(text).toContain('Anti-Drift Guarantee');
-        expect(text).toContain('Artifact Preview');
-      }
+      const secondarySteppers = root.querySelectorAll('.flow-stepper-track, [data-stepper-stage]');
+      expect(secondarySteppers.length).toBe(0);
     });
   });
 
