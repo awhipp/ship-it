@@ -51,7 +51,8 @@ A bare `/ship-it` halts immediately and asks for one of these four directives be
 `ship-it` guides feature development through five phases across three execution boundaries.
 The conductor dispatches discrete tasks to isolated subagents or fresh sessions.
 Work runs continuously within a boundary and halts at each boundary exit for human review.
-Run `ship-it <slug>` to approve the current boundary deliverable and begin the next boundary.
+Run `ship-it <slug>` to approve Boundary 1 or 2 and begin the next boundary.
+Merge the pull request to approve Boundary 3; merging completes the feature.
 
 | Boundary | Phase | What happens | Phase exit / Boundary halt | Reference |
 | :--- | :--- | :--- | :--- | :--- |
