@@ -1,123 +1,103 @@
 # Review: two-axis check of the diff
 
-Review strictly enforces the [2-Tier Context Isolation Protocol](isolation.md).
-In-context persona simulation within an authoring session is strictly prohibited.
+Review a diff along two independent axes, reported side by side:
 
-Review diffs along two independent axes, reported side by side without merging or reranking:
+- **Standards**: Does the diff follow the repository's coding standards and the ship-it standards below?
+- **Spec**: Does the diff faithfully implement the requirements?
 
-- **Standards**: Does the diff follow the repository's documented coding standards?
-- **Spec**: Does the diff faithfully implement the ticket or spec requirements?
+A diff can follow standards yet build the wrong behavior, or build the right behavior badly.
+Evaluating each axis separately keeps strength on one axis from masking defects on the other.
 
-## Why two axes, not one
+## Modes
 
-A diff can follow standards yet implement the wrong behavior, or implement requirements faithfully while violating coding standards.
-Evaluating both axes independently prevents strong performance on one axis from masking critical defects on the other.
+| Mode | Fixed point | Requirements |
+| :--- | :--- | :--- |
+| Ticket review | The `Fixed point: <sha>` comment on the ticket | The ticket, its parent spec, and every `## Answers` comment on both |
+| Final review | `git merge-base origin/<default-branch> HEAD` | The parent spec, every ticket, and every `## Answers` comment |
+
+Return `failed` when the fixed point is missing or does not resolve, or when the diff is empty.
 
 ## Process
 
-### 1. Pin the fixed point
+1. **Fetch the diff**: Run `git fetch origin`, check out the feature branch, then run `git diff <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline`.
+2. **Check verification evidence**: The handoff comment must show passing tests or the direct checks required by [implement.md](implement.md#2-verify). Missing evidence is a Blocker.
+3. **Find standards sources**: Read `CONTRIBUTING.md`, coding standards, style guides, and linter configuration. Skip issues that automated linters catch.
+4. **Standards pass**: Report each breach with file and line.
+5. **Spec pass**: Report missing requirements, partial implementations, scope creep, and incorrect behavior. Quote the requirement for each finding.
 
-Diff against the fixed starting point of the ticket: usually the branch point or the commit preceding the ticket.
-Run `git diff <fixed-point>...HEAD` using three dots to compare against the merge-base.
-Run `git log <fixed-point>..HEAD --oneline` to review the commit list.
-Confirm the fixed point resolves and the diff is non-empty before proceeding.
-A bad ref must fail immediately here.
+### Standards when the repository has none
 
-### 2. Verify verification evidence
+Flag duplicated logic, unclear names, unused abstractions, primitive obsession, and changes scattered across many files.
 
-Inspect evidence for the verification strategy required by [references/implement.md](implement.md) before evaluating code against standards and spec:
+### Ship-it standards for every diff
 
-- **Automated test suites (where applicable)**:
-  Inspect commit history (`git log <fixed-point>..HEAD --oneline`) and the issue thread (`gh issue view <number> --comments` or `gh issue view`). Verify that automated tests exist and pass when expected. Confirm that tests verify acceptance criteria. Do not reject diffs solely over missing terminal failure logs when tests and code verify requirements cleanly.
+- **Ticket-named artifacts**: Files named after issue numbers break the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
+- **Ad-hoc test harnesses**: Scripts simulating coverage for non-code changes break the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+- **Unclear prose**: Documentation that breaks [writing.md](writing.md).
 
-- **Non-automated verification**:
-  Confirm that the handoff report or issue thread documents domain-appropriate acceptance criteria verification per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+## Zero-assumption rule
 
-### 3. Identify the spec source
+- When judging the diff needs a fact that the requirements do not state, record a Question.
+- Never assume undocumented behavior, intent, or edge-case safety.
+- An edge case with no test or check is a Question when the requirements are silent, and a Blocker when the requirements cover it.
 
-Locate the source specification in this priority order:
+## Severity
 
-1. The ticket or spec issue (`gh issue view <number> --json number,title,body`).
-2. Issue references in commit messages (such as `#123` or `Closes #45`).
-3. An explicit path or issue number provided by the user.
+| Severity | Test | Effect |
+| :--- | :--- | :--- |
+| **Blocker** | The diff is wrong, incomplete, unverified, or breaks a standard. | Requests changes. |
+| **Question** | A fact needed to judge the diff is unwritten. | Withholds approval until answered. |
+| **Nit** | The diff is correct but improves with a typo or naming fix. | Fix in place, commit, and push. |
 
-If no spec exists, ask the user.
-If the user confirms no spec exists, skip the Spec pass and record this omission in the report.
+## Report
 
-### 4. Identify the standards sources
-
-Inspect repository documentation for coding rules: `CODING_STANDARDS.md`, `CONTRIBUTING.md`, style guides, or linter configurations.
-Skip issues handled by automated linters.
-
-Enforce these architectural baselines when repository standards are absent:
-
-- **Baseline Smells**: Flag duplicated logic, mysterious names, speculative generality (unused abstractions), primitive obsession, and shotgun surgery. Recommend standard refactoring (extracting helpers, wrapping primitives, consolidating changes). Skip if handled by linters.
-
-Enforce these ship-it specific standards across all diffs:
-
-- **Ticket-Named Artifacts**: Test or source files named after tickets rather than domain seams. Rename files per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
-- **Over-Architected Test Ceremonies**: Ad-hoc harnesses simulating coverage for non-code changes. Verify acceptance criteria directly per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
-- **Unclear Prose or Dense Phrasing**: Documentation or skills violating [writing.md](writing.md). Rewrite wandering compound sentences, passive phrasing, or dense noun clusters. Evaluate brevity qualitatively without running word-counting scripts.
-
-### 5. Run both passes
-
-**Standards pass**: Evaluate the diff, commit list, and identified standards sources.
-Report every breach of documented standards or ship-it prohibitions.
-Cite specific files and line numbers.
-
-**Spec pass**: Evaluate the diff and commit list against the spec or ticket.
-Report missing requirements, partial implementations, unintended scope creep, or incorrect behavior.
-Quote the relevant spec line for each finding.
-If no spec exists, skip the Spec pass and record that no spec was provided.
-
-### 6. Report
-
-Present both passes under `## Standards` and `## Spec` headings, unmerged. Format all findings, in-place resolutions, and summaries as concise statements adhering to [writing.md](writing.md):
+Post the report on the ticket, or on the spec for a final review:
 
 ```markdown
-## Standards
+## Review: <Ticket #n | Final>
 
-<Findings citing file, rule, and hunk, formatted as concise statements following writing.md. Or "None".>
+### Standards
+- <file#Lx: finding> (or "None")
 
-## Spec
+### Spec
+- <quoted requirement: divergence> (or "None")
 
-<Findings citing spec requirement and implementation divergence, formatted as concise statements following writing.md. Or "None".>
+### Clarifying Questions
+- **Q-1**: <question> (or "None")
 
 ### In-place Resolutions
+- **R-1** [<file#Lx>]: <nit fixed, commit sha> (or "None")
 
-- **R-1** [<file>#L<lines>]: <Concise description of the fix, rationale, and commit hash following writing.md>
-- *(or "None")*
-
-**Summary**: <One-line summary of findings per axis and worst issue within each axis, if any.>
+**Verdict**: Approved | Changes requested | Questions pending
 ```
 
-When minor findings are remediated via the fast-path, document them under `### In-place Resolutions` detailing patched hunks and rationale.
-Close with a one-line summary: total findings per axis plus the worst outstanding issue within each axis.
-Do not declare a single overall winner across the two axes; that reranking defeats the two-axis separation.
+The `**Verdict**:` line is exact; the conductor counts `Changes requested` verdicts to enforce the retry limit.
 
-## Outcome
+## Ticket review outcomes
 
-Route the review into one of three unified outcomes based on findings and execution tier:
+| Findings | Labels | Return verdict |
+| :--- | :--- | :--- |
+| Any Blocker | Add `ship-it:changes-requested`. Keep the assignee. | `changes-requested` |
+| Questions, no Blocker | None. | `questions` |
+| Nits or nothing | Add `ship-it:reviewed`. | `approved` |
 
-- **Major findings or missing verification evidence**:
-  Apply `ship-it:changes-requested` (`gh issue edit <number> --add-label "ship-it:changes-requested"`) and remove the assignee (`gh issue edit <number> --remove-assignee "<assignee>"`).
-  Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`).
-  Post findings in an issue comment.
-  - In Tier 1 subagent reviews, return the rejection verdict summary directly to the parent conductor to trigger rework.
-  - In Tier 2 environments, output the command for a fresh implementation rework session and stop.
+Never close the ticket; the conductor closes reviewed tickets.
 
-- **Minor findings or clean pass**:
-  Apply `ship-it:reviewed` (`gh issue edit <number> --add-label "ship-it:reviewed"`).
-  Remove `ready-for-agent` if present (`gh issue edit <number> --remove-label "ready-for-agent"`).
-  For minor nits or typos, patch files in-place, commit fixes, and document them under `### In-place Resolutions`.
-  Post the review report comment.
-  - In Tier 1 subagent reviews, return the approval verdict summary directly to the parent conductor for ticket closure and frontier progression.
-  - In Tier 2 standalone reviews, close the ticket directly with a resolution comment (`gh issue close <number> --comment "<text>"`).
-  - If this is the final ticket in a Tier 2 standalone review, execute the [Feature Close-Out Protocol](../SKILL.md#feature-close-out-protocol).
+## Final review
 
-- **Single-session specifications**:
-  Apply `ship-it:reviewed` to the spec issue (`gh issue edit <spec-id> --add-label "ship-it:reviewed"`).
-  Remove `ready-for-agent` if present (`gh issue edit <spec-id> --remove-label "ready-for-agent"`).
-  Post the review report comment while keeping the specification open.
-  - In Tier 1 mode, return the verdict summary directly to the parent conductor.
-  - In Tier 2 mode, instruct the user to open or update a pull request referencing `Closes #<spec-id>`.
+Run after every ticket closes, against the whole feature branch.
+Apply the same passes, then check across tickets:
+
+- Every User Story and Implementation Decision in the spec is delivered.
+- No transitional scaffolding, dead code, or leftover migration paths remain.
+- Names and patterns stay consistent across tickets.
+
+| Findings | Action | Return verdict |
+| :--- | :--- | :--- |
+| Any Blocker | Create one fix ticket per Blocker (below). | `changes-requested` |
+| Questions, no Blocker | None. | `questions` |
+| Nits or nothing | Add `ship-it:reviewed` to the spec. | `approved` |
+
+Create each fix ticket per [tickets.md](tickets.md) with the title `[<slug>] Ticket: Fix <gist>`.
+Label each fix ticket `ship-it:ticket,ship-it:validated`.
+Quote the Blocker in `## What to build`.
