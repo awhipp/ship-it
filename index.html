@@ -52,6 +52,12 @@
         <span class="brand-text">ship-it</span>
       </a>
 
+      <nav class="site-nav" id="main-nav" aria-label="Main Navigation">
+        <a href="#problem" class="nav-link" id="nav-link-problem">Problem</a>
+        <a href="#solution" class="nav-link" id="nav-link-solution">Solution</a>
+        <a href="#getting-started" class="nav-link" id="nav-link-getting-started">Getting Started</a>
+      </nav>
+
       <div class="nav-actions">
         <a href="https://github.com/awhipp/ship-it" target="_blank" rel="noopener noreferrer" class="btn-ghost-nav"
           id="nav-github-link" aria-label="View ship-it on GitHub">
@@ -67,53 +73,47 @@
 
   <!-- Main Content -->
   <main>
-    <!-- Hero Section -->
-    <section class="hero-section" id="hero" aria-labelledby="hero-title">
-      <div class="hero-glow-bg" aria-hidden="true"></div>
+    <!-- Section 1: Problem Statement -->
+    <section class="problem-section" id="problem" aria-labelledby="problem-title">
+      <div class="container">
+        <div class="problem-header">
+          <h1 class="problem-title" id="problem-title">
+            Keep developers in the <span class="gradient-text">driver's seat</span>
+          </h1>
+          <p class="problem-subtitle" id="problem-subtitle">
+            What is the problem?
+          </p>
+        </div>
 
-      <div class="container hero-content">
-
-        <h1 class="hero-title" id="hero-title">
-          Keep developers in the <span class="hero-gradient-text">driver's seat</span>
-        </h1>
-
-        <p class="hero-description" id="hero-description">
-          <strong>ship-it</strong> automates feature delivery inside your GitHub repository. The conductor coordinates
-          architecture maps, written specifications, pragmatic, domain-aligned verification, and two-axis code reviews
-          while you steer technical decisions.
-        </p>
-
-        <div class="hero-cta-group">
-          <a href="#quickstart" class="btn-primary" id="cta-quickstart">
-            <span>Quickstart</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              stroke-linecap="round" stroke-linejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </a>
-
-          <a href="https://github.com/awhipp/ship-it" target="_blank" rel="noopener noreferrer" class="btn-secondary"
-            id="cta-github-repo">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path fill-rule="evenodd" clip-rule="evenodd"
-                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-            </svg>
-            <span>View on GitHub</span>
-          </a>
+        <div class="problem-card">
+          <p class="problem-description">
+            Unguided AI workflows degrade quickly on non-trivial software projects.
+            Without structured phases and clear human checkpoints, AI-assisted development suffers from three continuous breakdowns:
+          </p>
+          <ul class="problem-breakdown-list">
+            <li class="problem-breakdown-item">
+              <strong>Unguided AI workflows:</strong> Coding assistants generate uncoordinated architecture decisions and jump to implementation without settled requirements.
+            </li>
+            <li class="problem-breakdown-item">
+              <strong>Context degradation:</strong> Conversational threads accumulate noise and token bloat, leading to degraded model reasoning and hallucinated conventions.
+            </li>
+            <li class="problem-breakdown-item">
+              <strong>Sprawling pull requests:</strong> Unconstrained agents produce massive, unreviewable diffs that skip verification and create technical debt.
+            </li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- Interactive Lifecycle Flow Visualizer -->
-    <section class="lifecycle-explorer-section" id="lifecycle-explorer" aria-labelledby="explorer-title">
+    <!-- Section 2: Solution & Interactive Boundary Flow -->
+    <section class="solution-section" id="solution" aria-labelledby="solution-title">
       <div class="container">
         <div class="section-header-centered">
-          <h2 class="section-title" id="explorer-title">
-            <span class="gradient-explorer-text">Step-By-Step</span> Workflow
+          <h2 class="section-title" id="solution-title">
+            How is it <span class="gradient-text">solved?</span>
           </h2>
-          <p class="section-subtitle" id="explorer-subtitle">
-            Inspect each phase to examine inputs, deliverables, human checkpoints, and validation safeguards.
+          <p class="section-subtitle" id="solution-subtitle">
+            ship-it structures feature delivery into three verifiable boundaries with human checkpoints.
           </p>
         </div>
 
@@ -121,412 +121,56 @@
       </div>
     </section>
 
-    <!-- Why a Conductor: Value Gained at Every Step -->
-    <section class="sdlc-comparison-section" id="sdlc-comparison" aria-labelledby="comparison-title">
+    <!-- Section 3: Getting Started -->
+    <section class="getting-started-section" id="getting-started" aria-labelledby="getting-started-title">
       <div class="container">
-        <div class="section-header-centered">
-          <h2 class="section-title" id="comparison-title">
-            Value Gained at <span class="gradient-solution-text">Every Step</span>
-          </h2>
-          <p class="section-subtitle" id="comparison-subtitle">
-            Unguided prompts lose context and skip verification on large tasks. ship-it structures development into
-            verifiable steps with clear human gates.
-          </p>
-        </div>
+        <div class="getting-started-card">
+          <div class="getting-started-header">
+            <h2 class="getting-started-title" id="getting-started-title">How to get started</h2>
+            <p class="getting-started-subtitle">
+              Add the ship-it skill to your workspace to guide feature development through structured phases.
+            </p>
+          </div>
 
-        <div class="bento-value-grid" id="comparison-grid">
-          <!-- Card 1: Diff Scope -->
-          <div class="bento-value-card" id="bento-card-diff-scope" data-dimension="diff-scope">
-            <div class="bento-card-header">
-              <span class="bento-dimension-badge">01 / Diff Scope &amp; PR Size</span>
-              <div class="bento-icon-box" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="6" y1="3" x2="6" y2="15"></line>
-                  <circle cx="18" cy="6" r="3"></circle>
-                  <circle cx="6" cy="18" r="3"></circle>
-                  <path d="M18 9a9 9 0 0 1-9 9"></path>
+          <div class="install-command-box">
+            <div class="install-box-header">
+              <span class="install-step-badge">Step 1</span>
+              <span class="install-hint">Install the skill in your project root:</span>
+            </div>
+            <div class="install-bar">
+              <div class="install-prompt-wrap">
+                <span class="terminal-prompt">$</span>
+                <code class="terminal-command" id="cmd-install">npx skills install awhipp/ship-it</code>
+              </div>
+              <button class="btn-copy" id="btn-copy-install" aria-label="Copy install command"
+                title="Copy install command to clipboard">
+                <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
-              </div>
-            </div>
-            <div class="bento-card-body">
-              <h3 class="bento-headline">Bite-Sized Vertical Slices</h3>
-              <p class="bento-desc">
-                Features land as small, self-contained pull requests that verify behavior before merging. Each vertical
-                slice stays easy to reason about, quick to review, and safe to merge.
-              </p>
-            </div>
-            <div class="bento-contrast-pill-box">
-              <div class="contrast-tag tag-standard">
-                <span class="tag-badge">All-at-once</span>
-                <span class="tag-text">Sprawling mega-PRs with dozens of modified files</span>
-              </div>
-              <div class="contrast-tag tag-value">
-                <span class="tag-badge">With ship-it</span>
-                <span class="tag-text">Manageable vertical slices reviewed in single sittings</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 2: Context Hygiene -->
-          <div class="bento-value-card" id="bento-card-context-hygiene" data-dimension="context-length">
-            <div class="bento-card-header">
-              <span class="bento-dimension-badge">02 / Context Hygiene &amp; Length</span>
-              <div class="bento-icon-box" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="bento-card-body">
-              <h3 class="bento-headline">Fresh Session per Phase</h3>
-              <p class="bento-desc">
-                Starting a fresh session for each phase prevents context degradation. Each agent focuses on a single
-                task with full reasoning capacity.
-              </p>
-            </div>
-            <div class="bento-contrast-pill-box">
-              <div class="contrast-tag tag-standard">
-                <span class="tag-badge">All-at-once</span>
-                <span class="tag-text">Context bloat leading to degraded model reasoning</span>
-              </div>
-              <div class="contrast-tag tag-value">
-                <span class="tag-badge">With ship-it</span>
-                <span class="tag-text">Context isolation with a clean fresh session per step</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 3: Review Quality -->
-          <div class="bento-value-card" id="bento-card-review-quality" data-dimension="review-quality">
-            <div class="bento-card-header">
-              <span class="bento-dimension-badge">03 / Review Quality &amp; Verification</span>
-              <div class="bento-icon-box" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="bento-card-body">
-              <h3 class="bento-headline">Two-Axis Independent Verification</h3>
-              <p class="bento-desc">
-                Independent reviewers audit diffs across two distinct axes: coding standards and specification fidelity.
-                Reviewers evaluate changes without author bias.
-              </p>
-            </div>
-            <div class="bento-contrast-pill-box">
-              <div class="contrast-tag tag-standard">
-                <span class="tag-badge">All-at-once</span>
-                <span class="tag-text">Rubber-stamp reviews over unreviewable diffs</span>
-              </div>
-              <div class="contrast-tag tag-value">
-                <span class="tag-badge">With ship-it</span>
-                <span class="tag-text">Adversarial verification and two-axis quality checks</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 4: Developer Agency -->
-          <div class="bento-value-card" id="bento-card-developer-agency" data-dimension="developer-agency">
-            <div class="bento-card-header">
-              <span class="bento-dimension-badge">04 / Developer Direction &amp; Agency</span>
-              <div class="bento-icon-box" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-                </svg>
-              </div>
-            </div>
-            <div class="bento-card-body">
-              <h3 class="bento-headline">Human Driver, Autonomous Conductor</h3>
-              <p class="bento-desc">
-                You maintain complete technical authority. You steer requirements, verify test seams, and approve diffs
-                while automation executes routine tasks.
-              </p>
-            </div>
-            <div class="bento-contrast-pill-box">
-              <div class="contrast-tag tag-standard">
-                <span class="tag-badge">All-at-once</span>
-                <span class="tag-text">Lost control and unguided hallucinated conventions</span>
-              </div>
-              <div class="contrast-tag tag-value">
-                <span class="tag-badge">With ship-it</span>
-                <span class="tag-text">Full architectural control with you in the driver's seat</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Architecture Deep-Dives: Engineering Foundations -->
-    <section class="architecture-deep-dive-section" id="architecture-deep-dive" aria-labelledby="deep-dive-title">
-      <div class="container">
-        <div class="section-header-centered">
-          <h2 class="section-title" id="deep-dive-title">
-            Architectural <span class="gradient-deep-dive-text">Pillars &amp; Principles</span>
-          </h2>
-          <p class="section-subtitle" id="deep-dive-subtitle">
-            Four core engineering practices that keep automated workflows disciplined, repeatable, and verifiable.
-          </p>
-        </div>
-
-        <div class="deep-dive-grid" id="deep-dive-grid">
-          <!-- Card 1: Context Hygiene -->
-          <div class="deep-dive-card" id="deep-dive-card-context-hygiene">
-            <div class="deep-dive-header">
-              <div class="deep-dive-icon" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
-                  </path>
-                </svg>
-              </div>
-              <span class="deep-dive-badge">Pillar 01</span>
-            </div>
-            <div class="deep-dive-body">
-              <h3 class="deep-dive-headline">Context Hygiene</h3>
-              <p class="deep-dive-tagline">Clearing context as a core feature</p>
-              <p class="deep-dive-desc">
-                Long conversational threads suffer from token limits and reasoning degradation. ship-it treats clearing
-                context as a standard operational practice. Every phase and ticket begins in a fresh session anchored to
-                the git merge-base, eliminating context rot and preserving precision.
-              </p>
-            </div>
-            <div class="deep-dive-footer">
-              <div class="deep-dive-tags">
-                <span class="tag-pill">Zero Context Rot</span>
-                <span class="tag-pill">Fresh Session per Ticket</span>
-                <span class="tag-pill">Git Merge-Base Anchor</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 2: Adversarial Validation Gate -->
-          <div class="deep-dive-card" id="deep-dive-card-adversarial-validation">
-            <div class="deep-dive-header">
-              <div class="deep-dive-icon" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                  <path d="m9 12 2 2 4-4"></path>
-                </svg>
-              </div>
-              <span class="deep-dive-badge">Pillar 02</span>
-            </div>
-            <div class="deep-dive-body">
-              <h3 class="deep-dive-headline">Adversarial Validation Gate</h3>
-              <p class="deep-dive-tagline">Fresh-session pre-build auditing</p>
-              <p class="deep-dive-desc">
-                When the same session writes and approves a specification, confirmation bias hides omissions. ship-it
-                dispatches an independent auditor in a fresh-session pre-build audit. The auditor validates
-                specifications and ticket dependencies before implementation begins.
-              </p>
-            </div>
-            <div class="deep-dive-footer">
-              <div class="deep-dive-tags">
-                <span class="tag-pill">2-Tier Context Isolation</span>
-                <span class="tag-pill">Zero Confirmation Bias</span>
-                <span class="tag-pill">Pre-Build Audit</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 3: Two-Axis Code Review -->
-          <div class="deep-dive-card" id="deep-dive-card-two-axis-review">
-            <div class="deep-dive-header">
-              <div class="deep-dive-icon" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
-              </div>
-              <span class="deep-dive-badge">Pillar 03</span>
-            </div>
-            <div class="deep-dive-body">
-              <h3 class="deep-dive-headline">Two-Axis Code Review</h3>
-              <p class="deep-dive-tagline">Coding Standards vs. Spec Fidelity</p>
-              <p class="deep-dive-desc">
-                Code reviews evaluate changes along two explicit dimensions. Axis 1 checks coding standards, modularity,
-                and repository conventions. Axis 2 verifies spec fidelity against each ticket acceptance criterion.
-              </p>
-            </div>
-            <div class="deep-dive-footer">
-              <div class="deep-dive-tags">
-                <span class="tag-pill">Axis 1: Coding Standards</span>
-                <span class="tag-pill">Axis 2: Spec Fidelity</span>
-                <span class="tag-pill">Dual-Verdict Gate</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 4: GitHub-Native Traceability -->
-          <div class="deep-dive-card" id="deep-dive-card-github-traceability">
-            <div class="deep-dive-header">
-              <div class="deep-dive-icon" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="18" cy="18" r="3"></circle>
-                  <circle cx="6" cy="6" r="3"></circle>
-                  <path d="M13 6h3a2 2 0 0 1 2 2v7"></path>
-                  <line x1="6" y1="9" x2="6" y2="21"></line>
-                </svg>
-              </div>
-              <span class="deep-dive-badge">Pillar 04</span>
-            </div>
-            <div class="deep-dive-body">
-              <h3 class="deep-dive-headline">GitHub-Native Traceability</h3>
-              <p class="deep-dive-tagline">Issues as a transparent state machine</p>
-              <p class="deep-dive-desc">
-                Work requires zero proprietary SaaS, no external dashboards, and no vendor lock-in. ship-it models the
-                complete lifecycle directly in GitHub using issues as the state machine, tasklists for dependencies, and
-                pull requests for the permanent audit log.
-              </p>
-            </div>
-            <div class="deep-dive-footer">
-              <div class="deep-dive-tags">
-                <span class="tag-pill">Issues as State Machine</span>
-                <span class="tag-pill">Zero Proprietary SaaS</span>
-                <span class="tag-pill">100% Git-Native</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Quickstart Section with Interactive CLI Terminal Simulator -->
-    <section class="container quickstart-section" id="quickstart" aria-labelledby="quickstart-title">
-      <div class="quickstart-card">
-        <div class="quickstart-header">
-          <h2 class="quickstart-title" id="quickstart-title">Install &amp; Run in Seconds</h2>
-          <p class="quickstart-subtitle">
-            Add the ship-it skill to your workspace to guide feature development through structured phases.
-          </p>
-        </div>
-
-        <!-- Step 1: Install Command Box on Top -->
-        <div class="install-command-box">
-          <div class="install-box-header">
-            <span class="install-step-badge">Step 1</span>
-            <span class="install-hint">Install the skill in your project root:</span>
-          </div>
-          <div class="install-bar">
-            <div class="install-prompt-wrap">
-              <span class="terminal-prompt">$</span>
-              <code class="terminal-command" id="cmd-install">npx skills install awhipp/ship-it</code>
-            </div>
-            <button class="btn-copy" id="btn-copy-install" aria-label="Copy install command"
-              title="Copy install command to clipboard">
-              <svg class="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-              <span class="copy-text">Copy</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 2: Interactive CLI Terminal Simulator -->
-        <div class="terminal-interactive-wrapper" id="terminal-interactive">
-          <div class="cli-simulator-header">
-            <span class="install-step-badge">Step 2</span>
-            <span class="install-hint">Run in your agent chat &mdash; interactive session preview:</span>
-          </div>
-
-          <div class="terminal-box" id="terminal-quickstart">
-            <div class="terminal-bar">
-              <div class="terminal-dots">
-                <span class="dot dot-red"></span>
-                <span class="dot dot-yellow"></span>
-                <span class="dot dot-green"></span>
-              </div>
-              <div class="terminal-title-box">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  class="terminal-icon" aria-hidden="true">
-                  <polyline points="4 17 10 11 4 5"></polyline>
-                  <line x1="12" y1="19" x2="20" y2="19"></line>
-                </svg>
-                <span class="terminal-title">ship-it-cli &mdash; bash</span>
-              </div>
-              <div class="terminal-badge-live">
-                <span class="live-dot" aria-hidden="true"></span>
-                <span>Interactive Simulation</span>
-              </div>
-            </div>
-
-            <!-- Terminal Simulator Navigation / Step Controls -->
-            <div class="terminal-sim-tabs" id="terminal-sim-controls" role="tablist"
-              aria-label="CLI Simulation Controls">
-              <button class="sim-tab-btn active" id="btn-sim-orient" data-sim-step="orient" role="tab"
-                aria-selected="true" aria-controls="terminal-screen">
-                <span class="sim-step-num">01</span>
-                <span>Orient &amp; Discovery</span>
-              </button>
-              <button class="sim-tab-btn" id="btn-sim-implement" data-sim-step="implement" role="tab"
-                aria-selected="false" aria-controls="terminal-screen">
-                <span class="sim-step-num">02</span>
-                <span>Implement (Red-Green)</span>
-              </button>
-              <button class="sim-tab-btn" id="btn-sim-review" data-sim-step="review" role="tab" aria-selected="false"
-                aria-controls="terminal-screen">
-                <span class="sim-step-num">03</span>
-                <span>Two-Axis Review</span>
+                <span class="copy-text">Copy</span>
               </button>
             </div>
+          </div>
 
-            <!-- Terminal Screen Output -->
-            <div class="terminal-screen-output" id="terminal-screen" aria-live="polite">
-              <div class="terminal-sim-line command-line">
-                <div class="sim-cmd-left">
-                  <span class="terminal-prompt">$</span>
-                  <code class="sim-command-text cmd-invocation" id="cmd-invoke">/ship-it marketing</code>
-                </div>
-                <button class="btn-copy btn-copy-invoke" id="btn-copy-invoke" aria-label="Copy invocation command"
-                  title="Copy invocation command to clipboard">
-                  <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                  </svg>
-                  <span class="copy-text">Copy</span>
-                </button>
-              </div>
-              <div class="terminal-sim-output">
-                <div class="sim-log-row"><span class="sim-icon">🧭</span> <span class="sim-cyan">Orienting
-                    repository:</span> checking Map (<code>ship-it:map</code>) and Spec (<code>ship-it:spec</code>)
-                  state for slug <code>marketing</code>...</div>
-                <div class="sim-log-row"><span class="sim-icon">📋</span> Found validated spec: <span
-                    class="sim-bold">[marketing] Spec: User-facing README refactor (#16)</span></div>
-                <div class="sim-log-row"><span class="sim-icon">🔍</span> Inspecting ticket dependency list in Boundary
-                  3:</div>
-                <div class="sim-log-sub"><span class="sim-green">✔</span> Ticket #17: Setup build &amp; pipeline &mdash;
-                  <span class="sim-badge closed">CLOSED</span>
-                </div>
-                <div class="sim-log-sub"><span class="sim-green">✔</span> Ticket #18: Explorer &amp; SDLC Comparison
-                  &mdash; <span class="sim-badge closed">CLOSED</span>
-                </div>
-                <div class="sim-log-sub"><span class="sim-purple">➜</span> Ticket #19: Architecture Deep-Dives &amp; CLI
-                  &mdash; <span class="sim-badge unblocked">UNBLOCKED</span></div>
-                <div class="sim-log-row highlight-box">
-                  <span class="sim-accent-star">★</span> <span class="sim-text">Earliest unblocked ticket discovered:
-                    <strong>#19</strong></span>
-                </div>
-                <div class="sim-log-row"><span class="sim-icon">👉</span> <strong>Next step:</strong> Dispatch
-                  <code>Subagent: implement</code> for Ticket #19</div>
+          <div class="usage-box">
+            <div class="install-box-header">
+              <span class="install-step-badge">Step 2</span>
+              <span class="install-hint">Run in your agent chat:</span>
+            </div>
+            <div class="usage-bar">
+              <div class="install-prompt-wrap">
+                <span class="terminal-prompt">$</span>
+                <code class="terminal-command" id="cmd-usage">/ship-it &lt;description&gt;</code>
               </div>
             </div>
           </div>
-        </div>
 
-        <p class="quickstart-footnote">
-          Works out of the box in Antigravity, Cursor, Claude Code, Aider, and any agentic coding environment.
-        </p>
+          <p class="quickstart-footnote">
+            Works out of the box in Antigravity, Cursor, Claude Code, Aider, and any agentic coding environment.
+          </p>
+        </div>
       </div>
     </section>
   </main>

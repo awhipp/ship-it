@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { act } from 'react';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,11 +23,23 @@ describe('Marketing Site Architecture & Domains', () => {
 
     globalThis.window = window;
     globalThis.document = document;
+
+    const mockClipboard = {
+      writeText: vi.fn().mockResolvedValue(undefined),
+    };
+
+    Object.defineProperty(window.navigator, 'clipboard', {
+      value: mockClipboard,
+      configurable: true,
+      writable: true,
+    });
+
     Object.defineProperty(globalThis, 'navigator', {
       value: window.navigator,
       configurable: true,
       writable: true,
     });
+
     globalThis.HTMLElement = window.HTMLElement;
     globalThis.Element = window.Element;
     globalThis.Node = window.Node;
@@ -98,7 +110,7 @@ describe('Marketing Site Architecture & Domains', () => {
   // DOMAIN: Document Metadata & Semantic Layout
   // =========================================================================
   describe('Domain: Document Metadata & Semantic Layout', () => {
-    it('should contain developer-focused page title, SEO meta tags, Open Graph, and Twitter metadata per Spec #98 §4', () => {
+    it('should contain developer-focused page title, SEO meta tags, Open Graph, and Twitter metadata', () => {
       expect(document.title).toBe('ship-it | Structured Lifecycle Automation for Software Teams');
       const metaDesc = document.querySelector('meta[name="description"]');
       expect(metaDesc).not.toBeNull();
@@ -137,12 +149,37 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(document.querySelector('footer')).not.toBeNull();
     });
 
-    it('should arrange primary sections in logical sequential flow: Hero -> Lifecycle Explorer -> SDLC Comparison -> Architecture Deep-Dive -> Quickstart', () => {
+    it('should retain the site header containing brand icon, title, repository link, and navigation', () => {
+      const header = document.querySelector('header#main-header');
+      expect(header, 'Site header must exist').not.toBeNull();
+
+      const brandLogo = header.querySelector('#brand-logo-link');
+      expect(brandLogo, 'Brand logo link must exist').not.toBeNull();
+      expect(brandLogo.querySelector('.brand-icon'), 'Brand icon must exist').not.toBeNull();
+      expect(brandLogo.querySelector('.brand-text')?.textContent.trim()).toBe('ship-it');
+
+      const ghLink = header.querySelector('#nav-github-link');
+      expect(ghLink, 'Repository link must exist').not.toBeNull();
+      expect(ghLink.getAttribute('href')).toContain('github.com/awhipp/ship-it');
+    });
+
+    it('should arrange primary sections in sequential semantic order: Problem -> Solution -> Getting Started', () => {
       const main = document.querySelector('main');
       const sections = Array.from(main.querySelectorAll(':scope > section'));
       const sectionIds = sections.map(s => s.getAttribute('id'));
 
-      expect(sectionIds).toEqual(['hero', 'lifecycle-explorer', 'sdlc-comparison', 'architecture-deep-dive', 'quickstart']);
+      expect(sectionIds).toEqual(['problem', 'solution', 'getting-started']);
+    });
+
+    it('should assert the presence of #problem, #solution, and #getting-started', () => {
+      expect(document.querySelector('#problem'), '#problem section must exist').not.toBeNull();
+      expect(document.querySelector('#solution'), '#solution section must exist').not.toBeNull();
+      expect(document.querySelector('#getting-started'), '#getting-started section must exist').not.toBeNull();
+    });
+
+    it('should assert the absence of #sdlc-comparison and #architecture-deep-dive', () => {
+      expect(document.querySelector('#sdlc-comparison'), '#sdlc-comparison must not exist').toBeNull();
+      expect(document.querySelector('#architecture-deep-dive'), '#architecture-deep-dive must not exist').toBeNull();
     });
 
     it('should guarantee unique IDs across all interactive elements', () => {
@@ -157,7 +194,7 @@ describe('Marketing Site Architecture & Domains', () => {
       });
     });
 
-    it('should synchronize gh-pages README.md with root README.md from #99', () => {
+    it('should synchronize gh-pages README.md with root README.md', () => {
       const readmePath = path.join(ROOT_DIR, 'README.md');
       const readme = fs.readFileSync(readmePath, 'utf8');
       expect(readme).toContain('**Disciplined feature delivery for engineering teams.**');
@@ -180,432 +217,295 @@ describe('Marketing Site Architecture & Domains', () => {
   });
 
   // =========================================================================
-  // DOMAIN: Hero Section & Brand Navigation
+  // DOMAIN: Problem Statement & Navigation (#problem)
   // =========================================================================
-  describe('Domain: Hero Section & Brand Navigation', () => {
+  describe('Domain: Problem Statement & Navigation (#problem)', () => {
     it('should render a single h1 element preserving "driver\'s seat"', () => {
       const h1s = document.querySelectorAll('h1');
       expect(h1s.length).toBe(1);
       expect(h1s[0].textContent.replace(/\s+/g, ' ').trim()).toMatch(/driver's seat/i);
     });
 
-    it('should provide functional CTA links for GitHub repository and Quickstart anchor', () => {
-      const ctaGithub = document.querySelector('#cta-github-repo');
-      const ctaQuickstart = document.querySelector('#cta-quickstart');
+    it('should render concise problem statement in #problem explaining unguided AI workflows, context degradation, and sprawling pull requests', () => {
+      const problemSection = document.querySelector('#problem');
+      expect(problemSection, '#problem section must exist').not.toBeNull();
 
-      expect(ctaGithub, 'GitHub CTA button must exist').not.toBeNull();
-      expect(ctaGithub.getAttribute('href')).toContain('github.com');
-      expect(ctaGithub.getAttribute('target')).toBe('_blank');
-
-      expect(ctaQuickstart, 'Quickstart CTA button must exist').not.toBeNull();
-      expect(ctaQuickstart.getAttribute('href')).toBe('#quickstart');
+      const text = problemSection.textContent;
+      expect(text).toMatch(/unguided ai workflows/i);
+      expect(text).toMatch(/context degradation/i);
+      expect(text).toMatch(/sprawling pull requests/i);
     });
 
-    it('should render developer-focused hero description with pragmatic, domain-aligned verification per Spec #98 §4', () => {
-      const heroDesc = document.querySelector('#hero-description');
-      expect(heroDesc).not.toBeNull();
-      const normalized = heroDesc.textContent.replace(/\s+/g, ' ').trim();
-      expect(normalized).toBe(
-        'ship-it automates feature delivery inside your GitHub repository. The conductor coordinates architecture maps, written specifications, pragmatic, domain-aligned verification, and two-axis code reviews while you steer technical decisions.'
-      );
-      expect(heroDesc.querySelector('strong')?.textContent).toBe('ship-it');
+    it('should update smooth-scrolling navigation to target the three new section identifiers', () => {
+      const scrollTargets = ['#problem', '#solution', '#getting-started'];
+      scrollTargets.forEach(targetId => {
+        const targetEl = document.querySelector(targetId);
+        expect(targetEl, `Section with identifier ${targetId} must exist`).not.toBeNull();
+      });
+
+      window.scrollTo = vi.fn();
+
+      const navLinks = document.querySelectorAll('a[href^="#"]');
+      const validSectionLinks = Array.from(navLinks).filter(a => scrollTargets.includes(a.getAttribute('href')));
+      expect(validSectionLinks.length).toBeGreaterThanOrEqual(3);
+
+      validSectionLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        const targetEl = document.querySelector(href);
+        targetEl.getBoundingClientRect = () => ({ top: 300, bottom: 500, left: 0, right: 0, width: 800, height: 200 });
+        link.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+        expect(window.scrollTo).toHaveBeenCalled();
+      });
     });
   });
 
   // =========================================================================
-  // DOMAIN: Interactive Flow Visualizer (#lifecycle-explorer)
+  // DOMAIN: Interactive Flow Visualizer (#solution)
   // =========================================================================
-  describe('Domain: Interactive Flow Visualizer (#lifecycle-explorer)', () => {
-    it('should mount FlowVisualizer inside #flow-visualizer-root within #lifecycle-explorer with updated section header', () => {
-      const section = document.querySelector('#lifecycle-explorer');
-      expect(section).not.toBeNull();
-
-      const title = section.querySelector('#explorer-title');
-      const subtitle = section.querySelector('#explorer-subtitle');
-      expect(title?.textContent.replace(/\s+/g, ' ').trim()).toBe('Step-By-Step Workflow');
-      expect(subtitle?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Inspect each phase to examine inputs, deliverables, human checkpoints, and validation safeguards.'
-      );
+  describe('Domain: Interactive Flow Visualizer (#solution)', () => {
+    it('should mount FlowVisualizer inside #flow-visualizer-root within #solution', () => {
+      const section = document.querySelector('#solution');
+      expect(section, '#solution must exist').not.toBeNull();
 
       const root = section.querySelector('#flow-visualizer-root');
-      expect(root, '#flow-visualizer-root must exist inside #lifecycle-explorer').not.toBeNull();
+      expect(root, '#flow-visualizer-root must exist inside #solution').not.toBeNull();
       expect(root.children.length).toBeGreaterThan(0);
     });
 
-    it('should render accessible flow selector tabs (Map Lifecycle and Spec Lifecycle) and display comparison summary and active flow blurb', () => {
+    it('should render interactive step selectors for Boundary 1, Boundary 2, and Boundary 3 with accessible attributes and keyboard navigation', () => {
       const root = document.querySelector('#flow-visualizer-root');
-      const mapTab = root.querySelector('[data-flow-tab="map"]');
-      const specTab = root.querySelector('[data-flow-tab="spec"]');
+      const tablist = root.querySelector('[role="tablist"]');
+      expect(tablist, 'Flow selector tablist must exist').not.toBeNull();
+      expect(tablist.getAttribute('aria-label')).toBe('Lifecycle Boundaries');
 
-      expect(mapTab).not.toBeNull();
-      expect(specTab).not.toBeNull();
-      expect(mapTab.getAttribute('role')).toBe('tab');
-      expect(specTab.getAttribute('role')).toBe('tab');
+      const boundaryTabs = root.querySelectorAll('[role="tab"]');
+      expect(boundaryTabs.length).toBe(3);
 
-      // Map tab is active by default
-      expect(mapTab.getAttribute('aria-selected')).toBe('true');
-      expect(specTab.getAttribute('aria-selected')).toBe('false');
-      expect(root.textContent).toContain('Resolve architectural uncertainty and choose a direction.');
-      expect(root.textContent).toContain('When a Map Occurs (Boundary 1: Mapping)');
-      expect(root.textContent).toContain('Boundary 1 Gate: All open decisions are settled.');
+      const b1 = root.querySelector('#btn-boundary-1');
+      const b2 = root.querySelector('#btn-boundary-2');
+      const b3 = root.querySelector('#btn-boundary-3');
 
-      // Switch to Spec tab
+      expect(b1, 'Boundary 1 button must exist').not.toBeNull();
+      expect(b2, 'Boundary 2 button must exist').not.toBeNull();
+      expect(b3, 'Boundary 3 button must exist').not.toBeNull();
+
+      expect(b1.textContent).toContain('Boundary 1');
+      expect(b1.textContent).toContain('Mapping');
+      expect(b2.textContent).toContain('Boundary 2');
+      expect(b2.textContent).toContain('Definition');
+      expect(b3.textContent).toContain('Boundary 3');
+      expect(b3.textContent).toContain('Execution');
+
+      // Boundary 1 is active by default
+      expect(b1.getAttribute('aria-selected')).toBe('true');
+      expect(b2.getAttribute('aria-selected')).toBe('false');
+      expect(b3.getAttribute('aria-selected')).toBe('false');
+
+      // Test keyboard navigation: ArrowRight from B1 moves to B2
       act(() => {
-        specTab.click();
+        b1.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
       });
-      expect(specTab.getAttribute('aria-selected')).toBe('true');
-      expect(mapTab.getAttribute('aria-selected')).toBe('false');
-      expect(root.textContent).toContain('Deliver settled requirements through verified code.');
-      expect(root.textContent).toContain('When a Spec Occurs (Boundary 2: Definition & Boundary 3: Execution)');
-      expect(root.textContent).toContain('Boundary 3 Gate: All tickets pass two-axis review and final audit.');
+      expect(b2.getAttribute('aria-selected')).toBe('true');
+      expect(b1.getAttribute('aria-selected')).toBe('false');
 
-      // Switch back to Map tab
+      // ArrowRight from B2 moves to B3
       act(() => {
-        mapTab.click();
+        b2.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
       });
-      expect(mapTab.getAttribute('aria-selected')).toBe('true');
+      expect(b3.getAttribute('aria-selected')).toBe('true');
+
+      // ArrowRight wraps to B1
+      act(() => {
+        b3.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      });
+      expect(b1.getAttribute('aria-selected')).toBe('true');
+
+      // ArrowLeft wraps to B3
+      act(() => {
+        b1.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+      });
+      expect(b3.getAttribute('aria-selected')).toBe('true');
     });
 
-    it('should render the 4-stage horizontal stepper in Map Lifecycle view with selectable decision ticket sub-cards and Boundary 1 Exit Gate', () => {
+    it('should update the single inspection panel upon selecting any boundary step to display its Goal, Deliverables, and Exit Gate', () => {
       const root = document.querySelector('#flow-visualizer-root');
-      const mapTab = root.querySelector('[data-flow-tab="map"]');
+      const b1 = root.querySelector('#btn-boundary-1');
+      const b2 = root.querySelector('#btn-boundary-2');
+      const b3 = root.querySelector('#btn-boundary-3');
+      const inspector = root.querySelector('#flow-visualizer-inspector');
+
+      expect(inspector, 'Single inspection panel #flow-visualizer-inspector must exist').not.toBeNull();
+      expect(inspector.getAttribute('role')).toBe('tabpanel');
+
+      // --- Boundary 1: Mapping ---
       act(() => {
-        mapTab.click();
+        b1.click();
       });
+      expect(b1.getAttribute('aria-selected')).toBe('true');
+      const textB1 = inspector.textContent;
+      expect(textB1).toContain('Goal');
+      expect(textB1).toContain('Deliverables');
+      expect(textB1).toContain('Exit Gate');
+      expect(textB1).toMatch(/architectural fog/i);
+      expect(textB1).toMatch(/decision tickets/i);
+      expect(textB1).toMatch(/decisions settle/i);
 
-      const stageButtons = root.querySelectorAll('[data-stepper-stage]');
-      expect(stageButtons.length).toBe(4);
-
-      const stepperText = Array.from(stageButtons).map(b => b.textContent).join(' ');
-      expect(stepperText).toContain('Map Initialization');
-      expect(stepperText).toContain('ship-it:map');
-      expect(stepperText).toContain('Decision Ticket Types');
-      expect(stepperText).toContain('Resolution & Fog Loop');
-      expect(stepperText).toContain('Decisions so far');
-      expect(stepperText).toContain('Boundary 1 Exit Gate');
-      expect(stepperText).toContain('ship-it <slug>');
-
-      // Select Stage 2: Decision Ticket Types
-      const stage2Btn = root.querySelector('[data-stepper-stage="map-decision-tickets"]');
-      expect(stage2Btn).not.toBeNull();
+      // --- Boundary 2: Definition ---
       act(() => {
-        stage2Btn.click();
+        b2.click();
       });
+      expect(b2.getAttribute('aria-selected')).toBe('true');
+      const textB2 = inspector.textContent;
+      expect(textB2).toContain('Goal');
+      expect(textB2).toContain('Deliverables');
+      expect(textB2).toContain('Exit Gate');
+      expect(textB2).toMatch(/specifications/i);
+      expect(textB2).toMatch(/tracer-bullet tickets/i);
+      expect(textB2).toMatch(/fresh context/i);
+      expect(textB2).toMatch(/approval/i);
 
-      const subCards = root.querySelectorAll('[data-decision-ticket]');
-      expect(subCards.length).toBe(4);
-      const subCardsText = Array.from(subCards).map(c => c.textContent).join(' ');
-      expect(subCardsText).toContain('ship-it:research');
-      expect(subCardsText).toContain('ship-it:prototype');
-      expect(subCardsText).toContain('ship-it:grilling');
-      expect(subCardsText).toContain('ship-it:task');
-      expect(subCardsText).toContain('Subagent: decide');
-      expect(subCardsText).toContain('Conductor: interactive');
-
-      // Clicking a decision ticket sub-card updates the inspector panel
-      const grillingCard = root.querySelector('[data-decision-ticket="grilling"]');
-      expect(grillingCard).not.toBeNull();
+      // --- Boundary 3: Execution ---
       act(() => {
-        grillingCard.click();
+        b3.click();
       });
-
-      const inspector = root.querySelector('[role="tabpanel"]');
-      expect(inspector).not.toBeNull();
-      expect(inspector.textContent).toContain('ship-it:grilling');
-      expect(inspector.textContent).toContain('Conductor: interactive');
-
-      // Select Stage 4: Boundary 1 Exit Gate
-      const stage4Btn = root.querySelector('[data-stepper-stage="map-exit-gate"]');
-      act(() => {
-        stage4Btn.click();
-      });
-      expect(inspector.textContent).toMatch(/Boundary 1 exit/i);
-      expect(inspector.textContent).toContain('ship-it <slug>');
+      expect(b3.getAttribute('aria-selected')).toBe('true');
+      const textB3 = inspector.textContent;
+      expect(textB3).toContain('Goal');
+      expect(textB3).toContain('Deliverables');
+      expect(textB3).toContain('Exit Gate');
+      expect(textB3).toMatch(/fixed points/i);
+      expect(textB3).toMatch(/two-axis reviews/i);
+      expect(textB3).toMatch(/pull request close-out/i);
     });
 
-    it('should render the 5-stage horizontal stepper in Spec Lifecycle view and update the node inspector panel across all stages', () => {
+    it('should confirm the absence of nested sub-cards, modal pills, and secondary steppers', () => {
       const root = document.querySelector('#flow-visualizer-root');
-      const specTab = root.querySelector('[data-flow-tab="spec"]');
-      act(() => {
-        specTab.click();
-      });
 
-      const stageButtons = root.querySelectorAll('[data-stepper-stage]');
-      expect(stageButtons.length).toBe(5);
+      // Purged elements
+      const subCards = root.querySelectorAll('[data-decision-ticket], .decision-subcard, .decision-subcards-bar');
+      expect(subCards.length).toBe(0);
 
-      const stepperText = Array.from(stageButtons).map(b => b.textContent).join(' ');
-      expect(stepperText).toMatch(/Boundary 2.*Validation/i);
-      expect(stepperText).toContain('Stage 1: Implement with Verification');
-      expect(stepperText).toContain('Stage 2: Two-Axis Review');
-      expect(stepperText).toContain('Stage 3: Final Review');
-      expect(stepperText).toContain('Stage 4: Annotated PR & Close-Out');
+      const modalPills = root.querySelectorAll('.modal-pill, .status-pill');
+      expect(modalPills.length).toBe(0);
 
-      const inspector = root.querySelector('[role="tabpanel"]');
-      expect(inspector).not.toBeNull();
+      const secondarySteppers = root.querySelectorAll('.flow-stepper-track, [data-stepper-stage]');
+      expect(secondarySteppers.length).toBe(0);
+    });
+  });
 
-      // Verify each stage updates the inspector with Purpose, Inputs & Outputs, Human Checkpoint, Anti-Drift Guarantee, and Artifact Preview
-      for (const btn of stageButtons) {
-        act(() => {
-          btn.click();
-        });
-        const text = inspector.textContent;
-        expect(text).toContain('Purpose');
-        expect(text).toContain('Inputs & Outputs');
-        expect(text).toContain('Human Checkpoint');
-        expect(text).toContain('Anti-Drift Guarantee');
-        expect(text).toContain('Artifact Preview');
+  // =========================================================================
+  // DOMAIN: Obsolete Sections Removal (#sdlc-comparison, #architecture-deep-dive, terminal simulator)
+  // =========================================================================
+  describe('Domain: Obsolete Sections Removal', () => {
+    it('should assert the complete absence of #sdlc-comparison in DOM and styles', () => {
+      const comparisonSection = document.querySelector('#sdlc-comparison');
+      expect(comparisonSection, '#sdlc-comparison must not exist in DOM').toBeNull();
+
+      const bentoCards = document.querySelectorAll('.bento-value-card, .bento-value-grid');
+      expect(bentoCards.length).toBe(0);
+
+      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
+      const css = fs.readFileSync(cssPath, 'utf8');
+      expect(css).not.toContain('.sdlc-comparison-section');
+      expect(css).not.toContain('.bento-value-grid');
+      expect(css).not.toContain('.bento-value-card');
+    });
+
+    it('should assert the complete absence of #architecture-deep-dive in DOM and styles', () => {
+      const deepDiveSection = document.querySelector('#architecture-deep-dive');
+      expect(deepDiveSection, '#architecture-deep-dive must not exist in DOM').toBeNull();
+
+      const deepDiveCards = document.querySelectorAll('.deep-dive-card, .deep-dive-grid');
+      expect(deepDiveCards.length).toBe(0);
+
+      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
+      const css = fs.readFileSync(cssPath, 'utf8');
+      expect(css).not.toContain('.architecture-deep-dive-section');
+      expect(css).not.toContain('.deep-dive-grid');
+      expect(css).not.toContain('.deep-dive-card');
+    });
+
+    it('should assert the complete absence of the interactive terminal simulator in DOM, styles, and scripts', () => {
+      const terminalEl = document.querySelector('#terminal-interactive, #terminal-quickstart, #terminal-screen');
+      expect(terminalEl, 'Terminal simulator elements must not exist in DOM').toBeNull();
+
+      const simButtons = document.querySelectorAll('button[data-sim-step], .terminal-sim-tabs');
+      expect(simButtons.length).toBe(0);
+
+      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
+      const css = fs.readFileSync(cssPath, 'utf8');
+      expect(css).not.toContain('.terminal-interactive-wrapper');
+      expect(css).not.toContain('.terminal-sim-tabs');
+      expect(css).not.toContain('.sim-tab-btn');
+
+      const scriptPath = path.join(ROOT_DIR, 'src/main.jsx');
+      const script = fs.readFileSync(scriptPath, 'utf8');
+      expect(script).not.toContain('initCliTerminalSimulation');
+      expect(script).not.toContain('SIM_CONTENT');
+    });
+
+    it('should confirm no markup, styles, or scripts from obsolete comparison, deep-dive, or terminal simulator remain in active codebase', () => {
+      const indexHtml = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
+      const mainCss = fs.readFileSync(path.join(ROOT_DIR, 'src/styles/main.css'), 'utf8');
+      const mainJsx = fs.readFileSync(path.join(ROOT_DIR, 'src/main.jsx'), 'utf8');
+
+      const obsoletePatterns = [
+        'sdlc-comparison',
+        'bento-value',
+        'architecture-deep-dive',
+        'deep-dive-grid',
+        'deep-dive-card',
+        'terminal-interactive',
+        'terminal-sim',
+        'initCliTerminalSimulation',
+      ];
+
+      for (const pattern of obsoletePatterns) {
+        expect(indexHtml, `index.html should not contain ${pattern}`).not.toContain(pattern);
+        expect(mainCss, `main.css should not contain ${pattern}`).not.toContain(pattern);
+        expect(mainJsx, `main.jsx should not contain ${pattern}`).not.toContain(pattern);
       }
-
-      // Check specific stage content in Spec Lifecycle
-      const b2Btn = root.querySelector('[data-stepper-stage="spec-boundary-2"]');
-      act(() => {
-        b2Btn.click();
-      });
-      expect(inspector.textContent).toContain('Testing Decisions');
-      expect(inspector.textContent).toContain('Subagent: validate');
-      expect(inspector.textContent).toContain('Subagent: slice');
-      expect(inspector.textContent).toMatch(/Boundary 2 exit/i);
-
-      const s1Btn = root.querySelector('[data-stepper-stage="spec-stage-1"]');
-      act(() => {
-        s1Btn.click();
-      });
-      expect(inspector.textContent).toContain('Fixed point:');
-      expect(inspector.textContent).toMatch(/domain-aligned verification/i);
-      expect(inspector.textContent).toMatch(/ad-hoc test harness prohibition/i);
-      expect(inspector.textContent).toMatch(/ephemeral subagent exploration/i);
-      expect(inspector.textContent).toMatch(/negative invariants/i);
-      expect(inspector.textContent).toContain('Red-Green');
-
-      const s2Btn = root.querySelector('[data-stepper-stage="spec-stage-2"]');
-      act(() => {
-        s2Btn.click();
-      });
-      expect(inspector.textContent).toContain('Subagent: review');
-      expect(inspector.textContent).toContain('Subagent: rework');
-      expect(inspector.textContent).toMatch(/verified acceptance criteria proof/i);
-
-      const s3Btn = root.querySelector('[data-stepper-stage="spec-stage-3"]');
-      act(() => {
-        s3Btn.click();
-      });
-      expect(inspector.textContent).toContain('Subagent: final-review');
-
-      const s4Btn = root.querySelector('[data-stepper-stage="spec-stage-4"]');
-      act(() => {
-        s4Btn.click();
-      });
-      expect(inspector.textContent).toContain('Subagent: close-out');
-      expect(inspector.textContent).toMatch(/Boundary 3 exit/i);
     });
   });
 
   // =========================================================================
-  // DOMAIN: SDLC Comparison (The Contrast)
+  // DOMAIN: Getting Started & Installation (#getting-started)
   // =========================================================================
-  describe('Domain: SDLC Comparison (The Contrast)', () => {
-    it('should have a dedicated comparison section with semantic heading', () => {
-      const section = document.querySelector('#sdlc-comparison');
-      expect(section, 'Comparison section #sdlc-comparison must exist').not.toBeNull();
-      const heading = section.querySelector('h2');
-      expect(heading).not.toBeNull();
-      expect(heading.textContent).toMatch(/Why a Conductor|Value|Contrast|Crisis|Drift|Solution|Method/i);
+  describe('Domain: Getting Started & Installation (#getting-started)', () => {
+    it('should render minimal installation and usage instructions in #getting-started alongside copyable install command', () => {
+      const gettingStarted = document.querySelector('#getting-started');
+      expect(gettingStarted, '#getting-started section must exist').not.toBeNull();
+
+      const installCommand = gettingStarted.querySelector('#cmd-install');
+      expect(installCommand, '#cmd-install must exist inside #getting-started').not.toBeNull();
+      expect(installCommand.textContent.trim()).toBe('npx skills install awhipp/ship-it');
+
+      const copyBtn = gettingStarted.querySelector('#btn-copy-install');
+      expect(copyBtn, '#btn-copy-install must exist inside #getting-started').not.toBeNull();
+
+      const text = gettingStarted.textContent;
+      expect(text).toMatch(/npx skills install awhipp\/ship-it/);
+      expect(text).toMatch(/\/ship-it/);
     });
 
-    it('should contain Value Dividends Bento cards with contrast micro-tags for All-at-Once vs ship-it', () => {
-      const section = document.querySelector('#sdlc-comparison');
-      const bentoCards = section.querySelectorAll('.bento-value-card');
-      expect(bentoCards.length).toBe(4);
-
-      const sectionText = section.textContent;
-      expect(sectionText).toMatch(/mega-PR|sprawling/i);
-      expect(sectionText).toMatch(/vertical slice/i);
-      expect(sectionText).toMatch(/context.*bloat|degraded.*reasoning/i);
-      expect(sectionText).toMatch(/fresh.*session|zero.*memory/i);
-      expect(sectionText).toMatch(/rubber-stamp|unreviewable/i);
-      expect(sectionText).toMatch(/two-axis|adversarial.*verification/i);
-      expect(sectionText).toMatch(/lost.*control|hallucinated/i);
-      expect(sectionText).toMatch(/architectural control|human.*driver/i);
-    });
-
-    it('should contrast four critical SDLC dimensions: diff scope, context length, review verification, and developer agency', () => {
-      const section = document.querySelector('#sdlc-comparison');
-      const text = section.textContent;
-
-      // Dimension 1: Diff Scope & PR Size
-      expect(text).toMatch(/mega-pr/i);
-      expect(text).toMatch(/vertical slice|tracer-bullet/i);
-
-      // Dimension 2: Context Length & Degraded Reasoning
-      expect(text).toMatch(/degraded.*reasoning|context.*bloat/i);
-      expect(text).toMatch(/context.*isolation|fresh.*session/i);
-
-      // Dimension 3: Review Quality & Verification
-      expect(text).toMatch(/unreviewable diff|rubber-stamp/i);
-      expect(text).toMatch(/adversarial.*verification|two-axis/i);
-
-      // Dimension 4: Developer Direction & Agency
-      expect(text).toMatch(/lost.*control|hallucinated/i);
-      expect(text).toMatch(/architectural control|human.*driver|technical authority/i);
-    });
-
-    it('should render the developer-focused SDLC comparison copy per Spec #98 §4', () => {
-      const subtitle = document.querySelector('#comparison-subtitle');
-      expect(subtitle?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Unguided prompts lose context and skip verification on large tasks. ship-it structures development into verifiable steps with clear human gates.'
-      );
-
-      const contextCard = document.querySelector('#bento-card-context-hygiene .bento-desc');
-      expect(contextCard?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Starting a fresh session for each phase prevents context degradation. Each agent focuses on a single task with full reasoning capacity.'
-      );
-
-      const reviewCard = document.querySelector('#bento-card-review-quality .bento-desc');
-      expect(reviewCard?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Independent reviewers audit diffs across two distinct axes: coding standards and specification fidelity. Reviewers evaluate changes without author bias.'
-      );
-
-      const devCard = document.querySelector('#bento-card-developer-agency .bento-desc');
-      expect(devCard?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'You maintain complete technical authority. You steer requirements, verify test seams, and approve diffs while automation executes routine tasks.'
-      );
-    });
-  });
-
-  // =========================================================================
-  // DOMAIN: Architectural Deep Dives & Foundations
-  // =========================================================================
-  describe('Domain: Architectural Deep Dives & Foundations', () => {
-    it('should have a dedicated architecture deep-dive section with semantic heading', () => {
-      const section = document.querySelector('#architecture-deep-dive');
-      expect(section, 'Architecture section #architecture-deep-dive must exist').not.toBeNull();
-      const heading = section.querySelector('h2');
-      expect(heading).not.toBeNull();
-      expect(heading.textContent).toMatch(/Architecture|Foundations|Pillars|Principles|Deep Dive/i);
-    });
-
-    it('should render four architecture deep-dive cards with icons, headings, and conceptual explanations', () => {
-      const section = document.querySelector('#architecture-deep-dive');
-      expect(section).not.toBeNull();
-      const cards = section.querySelectorAll('.deep-dive-card');
-      expect(cards.length).toBe(4);
-
-      cards.forEach((card, index) => {
-        expect(card.querySelector('.deep-dive-icon, .card-icon'), `Card ${index + 1} must have an icon`).not.toBeNull();
-        expect(card.querySelector('h3'), `Card ${index + 1} must have an h3 title`).not.toBeNull();
-        expect(card.querySelector('p'), `Card ${index + 1} must have a description`).not.toBeNull();
-      });
-    });
-
-    it('should articulate the four core architectural pillars with developer-focused copy per Spec #98 §4', () => {
-      const section = document.querySelector('#architecture-deep-dive');
-      expect(section).not.toBeNull();
-
-      const subtitle = section.querySelector('#deep-dive-subtitle');
-      expect(subtitle?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Four core engineering practices that keep automated workflows disciplined, repeatable, and verifiable.'
-      );
-
-      const p1 = section.querySelector('#deep-dive-card-context-hygiene .deep-dive-desc');
-      expect(p1?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Long conversational threads suffer from token limits and reasoning degradation. ship-it treats clearing context as a standard operational practice. Every phase and ticket begins in a fresh session anchored to the git merge-base, eliminating context rot and preserving precision.'
-      );
-
-      const p2 = section.querySelector('#deep-dive-card-adversarial-validation .deep-dive-desc');
-      expect(p2?.textContent.replace(/\s+/g, ' ').trim()).toMatch(
-        /^When the same session writes and approves a specification, confirmation bias hides omissions\. ship-it dispatches an independent auditor in a fresh-session pre-build audit\. The auditor validates specifications and ticket dependencies before (implementation begins|any implementation code is written)\.$/
-      );
-
-      const p3 = section.querySelector('#deep-dive-card-two-axis-review .deep-dive-desc');
-      expect(p3?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Code reviews evaluate changes along two explicit dimensions. Axis 1 checks coding standards, modularity, and repository conventions. Axis 2 verifies spec fidelity against each ticket acceptance criterion.'
-      );
-
-      const p4 = section.querySelector('#deep-dive-card-github-traceability .deep-dive-desc');
-      expect(p4?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Work requires zero proprietary SaaS, no external dashboards, and no vendor lock-in. ship-it models the complete lifecycle directly in GitHub using issues as the state machine, tasklists for dependencies, and pull requests for the permanent audit log.'
-      );
-    });
-  });
-
-  // =========================================================================
-  // DOMAIN: Interactive CLI Terminal & Quickstart Onboarding
-  // =========================================================================
-  describe('Domain: Interactive CLI Terminal & Quickstart Onboarding', () => {
-    it('should render the Quickstart section and footer with developer-focused copy per Spec #98 §4', () => {
-      const quickstart = document.querySelector('#quickstart');
-      expect(quickstart).not.toBeNull();
-
-      const qsSubtitle = quickstart.querySelector('.quickstart-subtitle');
-      expect(qsSubtitle?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Add the ship-it skill to your workspace to guide feature development through structured phases.'
-      );
-
-      const footerTagline = document.querySelector('.footer-tagline');
-      expect(footerTagline?.textContent.replace(/\s+/g, ' ').trim()).toBe(
-        'Structured lifecycle automation that keeps developers in control. Coordinates planning, specifications, tests, and reviews directly on GitHub.'
-      );
-
-      const installCommand = document.querySelector('#cmd-install');
-      expect(installCommand).not.toBeNull();
-      expect(installCommand.textContent).toContain('npx skills install awhipp/ship-it');
-
+    it('should copy the install command to the clipboard and display visual feedback', async () => {
       const copyBtn = document.querySelector('#btn-copy-install');
-      expect(copyBtn).not.toBeNull();
+      const installCmd = document.querySelector('#cmd-install');
+      expect(copyBtn, '#btn-copy-install must exist').not.toBeNull();
+      expect(installCmd, '#cmd-install must exist').not.toBeNull();
 
-      const invokeSnippet = document.querySelector('#cmd-invoke, .cmd-invocation');
-      expect(invokeSnippet, 'Copyable invocation snippet must exist').not.toBeNull();
-      expect(invokeSnippet.textContent).toContain('/ship-it');
+      let copiedText = '';
+      navigator.clipboard.writeText = vi.fn(async (text) => {
+        copiedText = text;
+      });
 
-      const copyInvokeBtn = document.querySelector('#btn-copy-invoke, .btn-copy-invoke');
-      expect(copyInvokeBtn, 'Copy invocation button must exist').not.toBeNull();
-    });
+      await act(async () => {
+        copyBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
 
-    it('should provide interactive CLI terminal controls to simulate /ship-it lifecycle phases', () => {
-      const terminal = document.querySelector('#terminal-interactive, #terminal-quickstart');
-      expect(terminal, 'Interactive terminal container must exist').not.toBeNull();
-
-      const simControls = document.querySelector('#terminal-sim-controls, .terminal-sim-tabs');
-      expect(simControls, 'Simulation controls container must exist').not.toBeNull();
-
-      const simButtons = simControls.querySelectorAll('button[data-sim-step]');
-      expect(simButtons.length).toBeGreaterThanOrEqual(3);
-
-      const terminalScreen = document.querySelector('#terminal-screen, .terminal-screen-output');
-      expect(terminalScreen, 'Terminal screen output container must exist').not.toBeNull();
-    });
-
-    it('should interactively update terminal execution output across Orient, Implement, and Review steps', () => {
-      const btnOrient = document.querySelector('[data-sim-step="orient"]');
-      const btnImplement = document.querySelector('[data-sim-step="implement"]');
-      const btnReview = document.querySelector('[data-sim-step="review"]');
-      const terminalScreen = document.querySelector('#terminal-screen, .terminal-screen-output');
-
-      expect(btnOrient).not.toBeNull();
-      expect(btnImplement).not.toBeNull();
-      expect(btnReview).not.toBeNull();
-      expect(terminalScreen).not.toBeNull();
-
-      // Trigger Orient simulation
-      btnOrient.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-      expect(terminalScreen.textContent).toMatch(/orient|map|spec|slug|unblocked|ticket/i);
-
-      // Trigger Implement simulation
-      btnImplement.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-      expect(terminalScreen.textContent).toMatch(/claim|branch|test|red.*green/i);
-
-      // Trigger Review simulation
-      btnReview.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-      expect(terminalScreen.textContent).toMatch(/two-axis|standards|spec/i);
-    });
-
-    it('should frame Ticket #19 with workflow verification for the automated test suite in the terminal simulator', () => {
-      const btnImplement = document.querySelector('[data-sim-step="implement"]');
-      const terminalScreen = document.querySelector('#terminal-screen, .terminal-screen-output');
-      btnImplement.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-      expect(terminalScreen.textContent).toMatch(
-        /workflow verification for the automated test suite|automated test suite workflow|automated test suite verification/i
-      );
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(installCmd.textContent.trim());
+      expect(copiedText).toBe('npx skills install awhipp/ship-it');
+      expect(copyBtn.classList.contains('copied')).toBe(true);
     });
   });
 
@@ -621,10 +521,9 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(css).toContain('--bg-primary');
       expect(css).toContain('--text-primary');
       expect(css).toContain('--accent-gradient');
-      expect(css).toContain('--color-drift');
-      expect(css).toContain('--color-solution');
-      expect(css).toContain('.sdlc-comparison-section');
-      expect(css).toContain('.lifecycle-explorer-section');
+      expect(css).toContain('.problem-section');
+      expect(css).toContain('.solution-section');
+      expect(css).toContain('.getting-started-section');
     });
 
     it('should define responsive media queries for tablet and mobile viewports', () => {
@@ -651,15 +550,16 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(html).not.toMatch(/href="\/assets\//);
     });
 
-    it('should retain all core domain sections in the production distribution build', () => {
+    it('should retain all core domain sections in the production distribution build and exclude obsolete sections', () => {
       const distHtmlPath = path.join(ROOT_DIR, 'dist/index.html');
       const html = fs.readFileSync(distHtmlPath, 'utf8');
 
-      expect(html).toContain('id="hero"');
-      expect(html).toContain('id="lifecycle-explorer"');
-      expect(html).toContain('id="sdlc-comparison"');
-      expect(html).toContain('id="architecture-deep-dive"');
-      expect(html).toContain('id="quickstart"');
+      expect(html).toContain('id="problem"');
+      expect(html).toContain('id="solution"');
+      expect(html).toContain('id="getting-started"');
+      expect(html).not.toContain('id="sdlc-comparison"');
+      expect(html).not.toContain('id="architecture-deep-dive"');
+      expect(html).not.toContain('id="terminal-interactive"');
     });
   });
 });
