@@ -1,164 +1,104 @@
-# Implement: build, test-first, one ticket at a time
+# Implement: build one ticket, verified
 
-Build the work described by a ticket following [writing.md](writing.md).
-For small single-session features lacking tickets, implement directly against the spec.
-Tier 1 environments dispatch isolated implementation subagents per [isolation.md](isolation.md).
-Tier 2 environments execute each run of this phase in a fresh session.
-Tickets are self-contained by design.
-Prior session context adds minimal value and consumes tokens.
-
-## Automation Boundary 3: Execution
-
-Boundary 3 encapsulates the implementation and review phase within the autonomous build loop:
-
-- **Boundary entry**: Boundary 3 begins after developer approval of Boundary 2, initiating implementation of the ticket frontier (or validated single-session spec).
-- **Execution scope**: Covers claiming tickets, isolated implementation, commit verification, diff review, autonomous rework up to two retries, and continuous frontier progression.
-- **Child subagent delegation**: Under Tier 1 environments, dispatch implementation, review, and remediation to isolated child subagents with zero parent conversation context per [isolation.md](isolation.md).
-- **Boundary exit pause**: The conductor halts when the final ticket closes, the spec completion comment posts, and the pull request opens.
-- **Prohibition of automated merging**: Automated pull request merging is strictly prohibited. The conductor halts execution and waits for human review and merge approval.
+Build exactly what one ticket describes.
+The ticket, its parent spec, and their `## Answers` comments are the only requirements.
 
 ## Process
 
-### 1. Branch and claim the ticket
+### 1. Branch and fixed point
 
-Work on a dedicated feature branch rather than the default branch.
-Create the feature branch when starting the feature, or switch to an existing feature branch.
-This branch provides a valid merge-base for the three-dot diff (`git diff <fixed-point>...HEAD`) in [review.md](review.md).
-Claim the ticket before writing code to prevent concurrent work:
+1. Read the branch name from the spec's `## Source` (`<type>/<slug>`).
+2. Run `git fetch origin`. Check out the branch when it exists on `origin`; otherwise create it from `origin/<default-branch>` and push it with `git push -u origin <branch>`.
+3. Unless the ticket already has a `Fixed point:` comment, post one before the first change: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`.
 
-```shell
-gh issue edit <number> --add-assignee "@me" --remove-label "ready-for-agent"
-```
-
-Always quote `"@me"` per [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).
-Consult [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) for command syntax.
-Claim tickets carrying `ship-it:changes-requested` using this same command to begin rework.
-
-### 2. Execute the verification cycle
+### 2. Verify
 
 Tailor verification to the repository and the change type:
 
-- **Detect workspace test conventions first**:
-  Inspect the repository for existing test runners and frameworks before authoring code.
-  Check for runners such as `npm test`, `pytest`, `cargo test`, `go test`, `vitest`, or `jest`.
-  Inspect directories such as `tests/`, `__tests__/`, `spec/`, or co-located test files.
-  Abide by established test conventions as the primary default.
-  Honor explicit repository testing tiers rather than creating new verification workflows.
-
-- **Explore codebase (optional for multi-file tickets)**:
-  Offload initial exploration to an isolated subagent for tickets touching multiple modules.
-  Skip subagent exploration for single-file tickets.
-  The subagent returns a session-scoped ephemeral map containing key symbols and relevant files.
-  Never persist this exploration map to disk, workspace files, or tickets.
-  Treat this map as a starting point; the final sweep acts as the backstop.
-
-- **Recommended test-first practice (Red-Green)**:
-  Practice test-first Red-Green when an automated suite exists and unit testing is meaningful.
-  This discipline clarifies design seams and guards against regressions:
-  - **Red step**: Write a test capturing the next unit of behavior. Run the test and observe failure.
-  - **Green step**: Write the minimal code necessary to pass the test. Run the test and observe success.
-  Repeat this cycle for each slice or acceptance criterion.
-  Use the seams settled during specification in [spec.md](spec.md).
-  Treat Red-Green as a recommended engineering discipline to build confidence.
-  Intermediate Red failure logs provide valuable verification evidence.
-  Do not block progress if tests cleanly verify acceptance criteria without failure logs.
+- **Use existing test conventions**: Find the repository's test runner (such as `npm test`, `pytest`, `cargo test`, or `go test`) and test directories before writing code. Follow the existing conventions.
+- **Red-Green where tests apply**: Write a test for the next unit of behavior and watch it fail. Write the minimal code that passes it. Repeat for each acceptance criterion.
+- **Direct checks elsewhere**: For documentation, configuration, assets, or repositories without a runner, verify each acceptance criterion with linting, type checks, builds, CLI checks, or inspection.
 
 #### Ticket-naming prohibition
 
-Never name test files, suites, or source files after issue numbers (e.g., `ticket-18.test.js` or `test_issue_23.py`).
-Tests outlive transient issue tracking.
-Naming tests after tickets creates technical debt and obscures domain ownership.
-Organize automated tests by **domain, module, or feature seam** (e.g., `tests/marketing.test.js`, `tests/auth.test.ts`, `src/conductor.test.ts`).
+Never name test or source files after issue numbers (such as `ticket-18.test.js`).
+Tests outlive issues.
+Organize tests by domain, module, or feature seam (such as `tests/auth.test.ts`).
 
 #### Ad-hoc test harness prohibition
 
-For documentation, markdown skills, configuration files, visual assets, or repositories lacking test runners:
+Never invent test runners or string-matching scripts to simulate coverage for non-code changes.
+Never write scripts that count words or measure prose; evaluate writing by reading it.
 
-- Avoid inventing ad-hoc test runners or brittle string-matching tests to simulate coverage.
-- Never generate scripts to count words, parse sentence lengths, or measure prose metrics; evaluate writing quality qualitatively.
-- Verify requirements directly against acceptance criteria using domain-appropriate methods.
-- Use linting, typechecking, build compilation, manual inspection, CLI checks, or schema validation.
-- Record this verification evidence in the handoff report and issue comment.
+### 3. Check as you go
 
-### 3. Check as you go, not just at the end
+Run type checks and targeted tests throughout.
+Run the full suite once before handing off.
+Sweep for negative invariants (such as "no callers of the old API remain") after implementation, using search.
 
-Run typechecking and targeted test files regularly throughout development.
-Run the full test suite once before marking the ticket complete.
-Run a targeted final sweep (e.g., grep or a subagent pass) for codebase-wide negative invariants.
-Execute this sweep after completing implementation rather than scanning the entire codebase upfront.
+### 4. Ask instead of guessing
 
-### 4. Stop drifting from the acceptance criteria
+Never edit acceptance criteria, and never reinterpret them.
+When a criterion is wrong, conflicts with the code, or leaves a needed fact unwritten:
 
-Halt work if acceptance criteria prove incorrect or conflict with findings during implementation.
-Do not silently reinterpret ticket requirements.
-Update the issue with corrected criteria (`gh issue edit <number>`).
-Alternatively, flag discrepancies in an issue comment (`gh issue comment <number> --body "<text>"`).
+1. Post the question on the ticket.
+2. Push any commits, and discard uncommitted work.
+3. Unassign yourself: `gh issue edit <n> --remove-assignee "@me"`.
+4. Return `questions`.
 
-### 5. Commit and stop
+### 5. Commit, push, and hand off
 
-Commit the work-in-progress to the feature branch once implementation passes verification.
-Ensure the diff exists on the branch for subsequent review.
-Do not self-review this work.
-The authoring session carries confirmation bias and cannot provide objective review.
-Leave the ticket assigned and open.
-This open state signals that the ticket awaits review.
-For tickets carrying `ship-it:changes-requested`, execute the rework workflow below before stopping.
+- Commit with the subject `<type>(<slug>): <summary> (#<ticket>)`. Every commit names its ticket; close-out traces files through these subjects.
+- Push after every commit.
+- Post the handoff comment, then return `done`. Leave the ticket assigned and open; the assignee signals that review is next.
 
-### 6. Report and hand off
+```markdown
+## Handoff
+- **Commits**: <sha list>
+- **Verification**: <tests run and results, or each criterion and its direct check>
+```
 
-Handoff procedures depend on the execution tier:
+## Rework
 
-- **Tier 1 autonomous execution**:
-  The implementation subagent returns a concise verdict summary directly to the parent conductor.
-  The summary details modified files, commit hashes, and verification evidence.
-  Never run review within the implementation subagent.
-  - In autonomous loop mode, the conductor chains into review subagent dispatch per [isolation.md](isolation.md).
-  - In step-by-step mode, the conductor prompts for confirmation before downstream dispatch.
+When the ticket carries `ship-it:changes-requested`:
 
-- **Tier 2 manual execution**:
-  Notify the user that the ticket is implemented and awaits review.
-  Add the `ready-for-agent` label to the ticket (`gh issue edit <number> --add-label "ready-for-agent"`).
-  Print the command for an independent review session executing [review.md](review.md) against this diff.
-  Stop the conductor run immediately.
-  Never run review yourself; in-context persona simulation is strictly prohibited.
+1. Read the latest review report on the ticket.
+2. Fix every Blocker, and add a test or direct check for each fix.
+3. Commit and push per step 5. Keep the existing fixed point.
+4. Post a `## Rework` comment stating how each Blocker was resolved, with verification evidence.
+5. Remove the label (`gh issue edit <n> --remove-label "ship-it:changes-requested"`) and return `done`.
 
-### 7. Feature close-out and boundary exit pause
+## Close-out
 
-When the final ticket of a specification closes:
+Run after the final review approves the spec.
 
-1. **Document ticket completion**: Post a completion comment on the parent specification issue (`gh issue comment <spec-id> --body "<text>"`). Prohibit manual issue closure on the parent specification.
-2. **Open or update pull request**: Open or update the pull request targeting the default branch, referencing `Closes #<spec-id>` in the description. Merging the pull request automatically closes the parent specification.
-3. **Boundary exit halt**: Conclude Boundary 3 immediately. The conductor halts execution and reports the pull request link.
-4. **Prohibition of automated merge**: Automated pull request merging is strictly prohibited. Human reviewers must inspect diffs and approve pull request merges.
+1. Open the pull request:
 
-## Rework workflow
+   ```shell
+   gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
+   ```
 
-When a review rejection applies `ship-it:changes-requested`, execute rework based on the execution tier:
+   The body lists each ticket by title and contains `Closes #<spec>`.
+   Add `Closes #<issue>` when `## Source` names a request issue.
+   Merging the pull request closes the spec.
 
-- **Tier 1 environments**:
-  The conductor executes the Autonomous Rework Protocol in [isolation.md](isolation.md).
-  An isolated remediation subagent claims the ticket, addresses review feedback, commits fixes, and returns a verdict.
-  Rework is bounded to a maximum of two retry attempts before developer escalation.
+2. Annotate every changed file with one file-level review comment:
 
-- **Tier 2 environments**:
-  Execute this rework workflow in a fresh manual session:
-  1. **Claim the ticket**: Claim the unassigned ticket via `gh issue edit <number> --add-assignee "@me"`.
-  2. **Inspect review feedback**: Read the review findings recorded in the ticket comments via `gh issue view <number> --comments`.
-  3. **Address findings**: Apply domain verification to fix reported defects. Add regression tests or direct checks covering every finding.
-  4. **Commit fixes**: Commit all remediations directly to the feature branch.
-  5. **Post resolution comment**: Post a comment detailing how each blocker was resolved (`gh issue comment <number> --body "<text>"`).
-  6. **Remove status label**: Remove `ship-it:changes-requested` via `gh issue edit <number> --remove-label "ship-it:changes-requested"`.
+   ```shell
+   gh pr diff <pr> --name-only
+   gh pr view <pr> --json headRefOid --jq .headRefOid
+   git log --format=%s <merge-base>..HEAD -- <file>
+   gh api repos/{owner}/{repo}/pulls/<pr>/comments -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
+   ```
 
-Leave the ticket assigned and open to signal readiness for re-review.
-Hand off to an independent review session under [review.md](review.md).
+   Take ticket numbers from the commit subjects for each file.
+   Write each annotation in this form:
 
-## When there is no ticket (small, single-session feature)
+   ```markdown
+   **Change**: <what changed, one sentence>
+   **Why**: <rationale, one sentence>
+   **Traces to**: #<ticket>, Spec § <section heading>
+   ```
 
-Follow this same process for small features built directly from a specification.
-Work on a dedicated feature branch.
-Build directly from the User Stories and Implementation Decisions in [spec.md](spec.md).
-The spec issue serves as the tracking record.
-Do not claim or close tickets separately.
-When diff review passes on a single-session spec, open the pull request referencing `Closes #<spec-id>`.
-Conclude Boundary 3 and halt execution.
-Automated pull request merging is strictly prohibited.
+3. Post a completion comment on the spec with the pull request link (`gh issue comment <spec> --body "<text>"`).
+4. Return `done`. Never merge the pull request.

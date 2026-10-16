@@ -1,123 +1,75 @@
 # Preflight: verify repository setup, only when needed
 
-`ship-it` assumes that the target repository provides necessary tools by default.
-Required setup includes an installed and authenticated `gh` CLI, a `github.com` remote, and writable issues.
-Standard runs bypass preflight checks to orient on the feature directly.
+`ship-it` assumes an installed and authenticated `gh` CLI, a `github.com` remote, writable GitHub Issues, and the required label set.
+Run this checklist only in two situations:
 
-Execute the checklist below only in two situations:
+- The user runs `ship-it preflight`.
+- A `gh` command fails during a run.
 
-- The user explicitly requests preflight (`ship-it preflight` or `/ship-it preflight`).
-- An issue command during a phase fails with an environmental error.
+## Checklist
 
-Environmental errors include authentication failures, missing remotes, permission errors, disabled issues, or missing labels.
-Run the checklist to identify the underlying failure before retrying.
+Run every check before reporting findings so the user sees all issues at once:
 
-## The checklist
+1. **`gh` version**: Run `gh --version`. Require version `2.94.0` or later for native sub-issue and dependency flags (`--parent`, `--blocked-by`, and JSON fields `subIssues`, `blockedBy`).
+2. **GitHub remote**: Run `git remote -v` and confirm a `github.com` remote exists.
+3. **Authentication**: Run `gh auth status` and confirm an active login.
+4. **Writable issues**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`. Confirm `hasIssuesEnabled` is `true` and `viewerPermission` is `WRITE`, `MAINTAIN`, or `ADMIN`.
+5. **Labels**: Run `gh label list` and verify that every label below exists. Create any missing labels automatically.
 
-Execute every check below before reporting findings.
-Collect all failures rather than halting on the first error.
-Reporting all failures at once saves user time.
+## Label set
 
-- **`gh` installed and updated**: Run `gh --version`.
-  `ship-it` requires GitHub CLI version `2.94.0` or later for native sub-issue and issue relationship flags (`--parent`, `--add-sub-issue`, `--remove-sub-issue`, `--blocked-by`, `--add-blocked-by`, `--remove-blocked-by`, and JSON fields `subIssues`, `blockedBy`).
-  - If missing, report: "Install the GitHub CLI (v2.94.0 or later): <https://cli.github.com>".
-  - If version is below 2.94.0, report: "Update the GitHub CLI to v2.94.0 or later using your OS package manager (e.g. `winget upgrade GitHub.cli`, `brew upgrade gh`, `sudo apt install gh`) or download from <https://cli.github.com>. Older versions lack native sub-issue and relationship flags."
-- **GitHub remote**: Verify that `git remote -v` contains a `github.com` URL.
-  If missing, report: "`ship-it` tracks specs and tickets as GitHub issues; this repository requires a github.com remote."
-- **Authenticated**: Run `gh auth status`.
-  If not logged in, report: "Run `gh auth login`."
-
-The remaining checks call the GitHub API and require the initial checks to pass:
-
-- **Issues enabled and writable**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`.
-  - If `hasIssuesEnabled` is false, report: "Enable Issues for this repository (Settings → General → Features → Issues)."
-  - If `viewerPermission` lacks `WRITE`, `MAINTAIN`, or `ADMIN`, report: "Request write access, or point `ship-it` to a writable fork."
-- **Labels exist**: Run `gh label list` and verify against the required label set below.
-
-## Harness and Invocation Configuration
-
-See [Invocation and Harness Configuration](../SKILL.md#invocation-and-harness-configuration) for the manual-only invocation policy.
-
-## The label set
-
-Every label used across `ship-it` phases appears below.
-**Type labels** identify issue types; apply at most one type label per issue.
-**Status labels** mark issue states (such as pickable, audited, or reviewed).
-Apply any number of status labels alongside the type label.
+Apply at most one type label per issue, plus any applicable status labels:
 
 | Label | Kind | Applied to |
-| --- | --- | --- |
-| `ship-it:map` | type | Feature map issue ([plan.md](plan.md)) |
-| `ship-it:spec` | type | Published spec issue ([spec.md](spec.md)) |
+| :--- | :--- | :--- |
+| `ship-it:map` | type | Feature map ([plan.md](plan.md)) |
+| `ship-it:spec` | type | Feature specification ([spec.md](spec.md)) |
 | `ship-it:ticket` | type | Build ticket ([tickets.md](tickets.md)) |
-| `ship-it:research` | type | Research decision ticket, child of a map |
-| `ship-it:prototype` | type | Prototype decision ticket, child of a map |
-| `ship-it:grilling` | type | Grilling decision ticket, child of a map |
-| `ship-it:task` | type | Task decision ticket, child of a map |
-| `ready-for-agent` | status | Work item ready for agent pickup |
-| `ship-it:validated` | status | Spec, ticket set, or map passed adversarial audit ([validate.md](validate.md)) |
-| `ship-it:reviewed` | status | Ticket diff passed independent review ([review.md](review.md)) |
-| `ship-it:changes-requested` | status | Artifact or diff has unresolved validation blockers or review findings ([validate.md](validate.md), [review.md](review.md)) |
+| `ship-it:research` | type | Research decision ticket ([plan.md](plan.md)) |
+| `ship-it:prototype` | type | Prototype decision ticket ([plan.md](plan.md)) |
+| `ship-it:grilling` | type | Grilling decision ticket ([plan.md](plan.md)) |
+| `ship-it:task` | type | Task decision ticket ([plan.md](plan.md)) |
+| `ship-it:validated` | status | Spec or ticket that passed validation ([validate.md](validate.md)) |
+| `ship-it:reviewed` | status | Ticket diff or full feature PR diff that passed review ([review.md](review.md)) |
+| `ship-it:changes-requested` | status | Spec or ticket with unresolved Blockers ([validate.md](validate.md), [review.md](review.md)) |
 
-## Fix what is fixable, report the rest
-
-Most configuration failures require user intervention.
-Prompt the user to install `gh`, log in, add a remote, or adjust repository permissions.
-Missing labels are safe to create automatically.
-Create missing labels using the specified descriptions and colors:
+Create missing labels with these commands:
 
 ```shell
-gh label create "ready-for-agent" --description "Ready for an agent to pick up" --color "0E8A16"
-gh label create "ship-it:map" --description "Feature map: open decisions for an effort too big or foggy for one session" --color "5319E7"
-gh label create "ship-it:spec" --description "Published spec" --color "5319E7"
-gh label create "ship-it:ticket" --description "Build ticket, a vertical slice of a spec" --color "5319E7"
-gh label create "ship-it:research" --description "Map decision ticket: resolved by reading docs/APIs/code" --color "1D76DB"
-gh label create "ship-it:prototype" --description "Map decision ticket: resolved by building a throwaway artifact" --color "1D76DB"
-gh label create "ship-it:grilling" --description "Map decision ticket: resolved by asking the user" --color "1D76DB"
-gh label create "ship-it:task" --description "Map decision ticket: resolved by doing the work" --color "1D76DB"
-gh label create "ship-it:validated" --description "Artifact passed fresh-context adversarial audit (zero blockers)" --color "0E8A16"
-gh label create "ship-it:reviewed" --description "Diff passed independent review; ready to close out" --color "0E8A16"
-gh label create "ship-it:changes-requested" --description "Artifact or diff has unresolved validation blockers or review findings" --color "D93F0B"
+gh label create "ship-it:map" --description "Feature map of open decisions" --color "5319E7"
+gh label create "ship-it:spec" --description "Published specification" --color "5319E7"
+gh label create "ship-it:ticket" --description "Vertical build ticket" --color "5319E7"
+gh label create "ship-it:research" --description "Decision ticket resolved by reading docs or code" --color "1D76DB"
+gh label create "ship-it:prototype" --description "Decision ticket resolved by a throwaway prototype" --color "1D76DB"
+gh label create "ship-it:grilling" --description "Decision ticket resolved by asking the user" --color "1D76DB"
+gh label create "ship-it:task" --description "Decision ticket resolved by concrete setup work" --color "1D76DB"
+gh label create "ship-it:validated" --description "Passed adversarial validation" --color "0E8A16"
+gh label create "ship-it:reviewed" --description "Passed independent diff review" --color "0E8A16"
+gh label create "ship-it:changes-requested" --description "Unresolved validation or review blockers" --color "D93F0B"
 ```
 
-Retry the failed operation after creating missing labels.
-Report the failure clearly if all checks pass and errors persist.
+## Canonical `gh` CLI commands
 
-## Canonical `gh` CLI Commands
+| Action | Command |
+| :--- | :--- |
+| Query issues by label and slug | `gh issue list --label "<label>" --search "<slug> in:title" --state all --json number,title,labels,assignees,state` |
+| View issue and comments | `gh issue view <n> --comments` or `gh issue view <n> --json number,title,body,labels,assignees,state,comments` |
+| Create issue | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
+| Edit issue | `gh issue edit <n> --title "<title>" --body-file <file> --add-label "<label>" --remove-label "<label>"` |
+| Comment on issue | `gh issue comment <n> --body-file <file>` or `gh issue comment <n> --body "<text>"` |
+| Claim ticket | `gh issue edit <n> --add-assignee "@me"` |
+| Unclaim ticket | `gh issue edit <n> --remove-assignee "@me"` |
+| Close issue | `gh issue close <n> --comment "<text>"` |
+| Link sub-issue or blocker | `gh issue create --parent <parent> --blocked-by <blocker>` or `gh issue edit <n> --add-blocked-by <blocker>` |
+| Query dependencies | `gh issue view <n> --json blockedBy,parent,subIssues` |
+| Query pull requests | `gh pr list --head "<branch>" --state all --json number,state,url` |
+| Create pull request | `gh pr create --base <default-branch> --head <branch> --title "<title>" --body-file <file>` |
+| List pull request files | `gh pr diff <pr> --name-only` |
+| Get pull request head SHA | `gh pr view <pr> --json headRefOid --jq .headRefOid` |
+| Annotate pull request file (sole `gh api` exception) | `gh api repos/{owner}/{repo}/pulls/<pr>/comments -f commit_id=<sha> -f path=<file> -f subject_type=file -F body=@<file>` |
 
-The table below outlines canonical `gh` CLI commands across `ship-it` phases:
+## Cross-platform shell conventions
 
-| Action | Purpose | `gh` CLI Command |
-| --- | --- | --- |
-| Query issues | Search and list issues by state, label, and slug | `gh issue list --label "<label>" --search "<slug> in:title" --json number,title,labels,assignees,state` |
-| View issue | Fetch full issue details, metadata, and comments | `gh issue view <number> --comments` or `gh issue view <number> --json number,title,body,labels,assignees,state,comments` |
-| Create issue | Create a new map, spec, or ticket | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
-| Edit issue | Update issue title, body, or labels | `gh issue edit <number> --title "<title>" --body-file <file> --add-label "<label>"` |
-| Comment on issue | Add a comment to an existing issue | `gh issue comment <number> --body-file <file>` or `gh issue comment <number> --body "<text>"` |
-| Claim ticket | Claim a ticket to prevent concurrent work | `gh issue edit <number> --add-assignee "@me" --remove-label "ready-for-agent"` |
-| Unclaim ticket | Release a ticket for remediation | `gh issue edit <number> --remove-assignee "<assignee>"` |
-| Remove status label | Clear a status label after remediation | `gh issue edit <number> --remove-label "<label>"` |
-| Close issue | Close an issue with resolution comment | `gh issue close <number> --comment "<text>"` |
-| Create pull request | Open a pull request with spec closing directive | `gh pr create --title "<title>" --body "Closes #<spec-id>"` |
-| View pull request | Inspect pull request details and status | `gh pr view` or `gh pr view <number>` |
-| Create sub-issue | Create a ticket linked to a parent spec | `gh issue create --parent <parent-number>` |
-| Add sub-issue | Link an existing child issue to a parent spec | `gh issue edit <parent-number> --add-sub-issue <child-number>` |
-| Remove sub-issue | Detach a child issue from a parent spec | `gh issue edit <parent-number> --remove-sub-issue <child-number>` |
-| Create with blocker | Create a ticket blocked by another issue | `gh issue create --blocked-by <blocker-numbers>` |
-| Add blocker | Mark an issue blocked by another issue | `gh issue edit <child-number> --add-blocked-by <blocker-number>` |
-| Remove blocker | Remove a dependency blocker from an issue | `gh issue edit <child-number> --remove-blocked-by <blocker-number>` |
-| Query issue dependencies | Fetch native blockers and parent relationship | `gh issue view <number> --json blockedBy,parent,subIssues` |
-
-## Cross-Platform Shell Conventions
-
-Follow these cross-platform rules for all shell commands:
-
-- **Multi-line bodies**: Avoid Bash heredocs or redirection blocks, which fail under Windows PowerShell. Use `--body-file <path>` or `--body "<content>"` with properly escaped strings.
-- **Assignee argument quoting**: Always quote `"@me"` and assignee names when claiming or unclaiming tickets (`gh issue edit <number> --add-assignee "@me"`, `gh issue edit <number> --remove-assignee "<assignee>"`). Unquoted `@me` acts as an array expression in PowerShell and fails.
-- **Single number space**: GitHub issues and pull requests share a single number namespace. Resolve bare issue numbers with `gh pr view <number>`, then fall back to `gh issue view <number>`.
-- **Feature slug**: Include a consistent feature slug in all issue titles (e.g., `[auth-rewrite] Spec: ...`).
-
-## Dual-Channel Relationship Contract
-
-Consult the [Dual-Channel Relationship Contract](tickets.md#dual-channel-relationship-contract) for dependency relationships across repository tiers.
-See the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm) for frontier resolution.
+- **Multi-line bodies**: Pass multi-line text with `--body-file <path>` or `-F body=@<path>` instead of Bash heredocs, which fail in PowerShell.
+- **Assignee quoting**: Always quote `"@me"` (`--add-assignee "@me"`). Unquoted `@me` is a PowerShell splat expression.
+- **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.
