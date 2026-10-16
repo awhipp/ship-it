@@ -1,85 +1,43 @@
 # Tickets: split a spec into session-sized slices
 
-Break a spec, map, or conversation into **tickets**: tracer-bullet vertical slices, each declaring explicit blockers. Run this phase only when implementation spans multiple sessions. Single-session implementations proceed directly to [implement.md](implement.md).
-
-## Automation Boundary 2: Definition (Tickets)
-
-Boundary 2 encapsulates the definition phase within the autonomous build loop:
-
-- **Execution scope**: Covers vertical ticket slicing, dependency graph construction, issue publication, and ticket set validation.
-- **Child subagent delegation**: Under Tier 1 environments, dispatch ticket slicing to an isolated child subagent with zero parent conversation context per [isolation.md](isolation.md#ticket-slicing-protocol-tier-1). Passing only the specification verifies self-containment.
-- **Ticket set validation**: After ticket publication, audit the ticket breakdown adversarially per [validate.md](validate.md) under the [2-Tier Context Isolation Protocol](isolation.md#autonomous-verification-protocol-tier-1).
-- **Boundary exit pause**: Boundary 2 concludes when the ticket set passes validation and carries `ship-it:validated` and `ready-for-agent`. The conductor halts execution, reports the ticket breakdown, and pauses for human approval before advancing to implementation in [implement.md](implement.md).
+Break a validated specification into vertical tracer-bullet tickets with explicit blockers.
+Every feature produces at least one ticket.
 
 ## Process
 
-### 1. Gather context
+### 1. Read the spec and explore the codebase
 
-Work from available context: the published spec, map decisions, or user conversations. If a spec exists, read its full issue body via `gh issue view <spec-number>`.
+Read the parent specification (`gh issue view <spec-number>`) and any `## Answers` comments.
+Inspect active code to align slices with existing modules and test runners.
+Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
 
-### 2. Explore the codebase
+### 2. Draft vertical slices
 
-Inspect the codebase if you have not already done so. Use project vocabulary and respect existing architectural patterns. Look for prefactoring opportunities: reshape existing code in an initial ticket to simplify subsequent feature slices.
-
-### 3. Draft vertical slices
-
-Break the work into tracer-bullet tickets:
-
-- Each slice cuts a narrow but **complete** path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
-- Incorporate natural verification into each slice. Organize automated tests by domain or module seams per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition). Where automated tests are not viable, define direct verification criteria (linting, typechecking, build checks, manual/CLI inspection).
-- Deliver verifiable or demoable behavior with each completed slice.
-- Scope each slice to fit in a single fresh context window.
+- Cut each slice as a narrow, complete path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
+- Incorporate verification into every slice. Organize automated tests by domain or module seam per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition), or state direct checks per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+- Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
 - Sequence prefactoring first as a dedicated ticket that blocks subsequent slices.
+- For mechanical refactors spanning the codebase, use **expand → migrate → contract**: add the new interface alongside the old one, migrate callers in blocked tickets, and remove the old interface in a final ticket.
 
-Under Tier 1 environments, delegate slice drafting to an isolated child subagent per [isolation.md](isolation.md#ticket-slicing-protocol-tier-1).
-Declare explicit **blocking edges** for each ticket. A ticket without blockers can start immediately.
+### 3. Publish in dependency order
 
-**Wide refactors are an exception.** When a mechanical refactor spans the entire codebase, sequence it using **expand → migrate → contract**:
+Publish blockers first so dependent tickets can reference their issue numbers.
+Title each issue `[<slug>] Ticket: <gist>` and apply the `ship-it:ticket` label:
 
-1. **Expand**: Add the new interface alongside the old interface.
-2. **Migrate**: Update call sites in batch tickets blocked by the expand ticket.
-3. **Contract**: Remove the old interface in a final ticket blocked by all migration tickets.
+```shell
+gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket"
+```
 
-If intermediate batches cannot stay green in isolation, point batches to an integration branch and gate them on a final integration verification ticket.
+After creating all tickets, post a summary comment on the parent specification listing the created tickets and their blockers, then return `done`.
 
-### 4. Check the breakdown with the user (Approval Gate)
-
-Present the breakdown as a numbered list stating the title, blockers, and delivered behavior for each ticket.
-Pause and obtain explicit user confirmation of slice boundaries and dependencies before creating GitHub issues.
-
-### 5. Publish
-
-After explicit user approval, publish tickets as GitHub issues in dependency order (blockers first) so child issues can reference created blocker numbers. Title each issue `[<slug>] Ticket: <gist>`. Apply the `ship-it:ticket` and `ready-for-agent` labels per [Canonical `gh` CLI Commands](preflight.md#canonical-gh-cli-commands) and [Cross-Platform Shell Conventions](preflight.md#cross-platform-shell-conventions).
-
-#### Dual-Channel Relationship Contract
-
-Maintain universal compatibility across GitHub repository tiers through dual-channel relationship management:
-
-- **Dual-write on ticket creation**:
-  Record `Part of #<spec-id>` on the first line of each ticket body.
-  Declare blockers in a markdown tasklist under `## Blocked by` (or state `None (can start immediately).`).
-  Concurrently attempt native relationship linking via CLI flags (`--parent`, `--blocked-by`).
-- **Silent error handling**:
-  Ignore errors when native relationship operations fail on unsupported repository tiers.
-  Continue ticket creation without interrupting the workflow.
-  Markdown pointers maintain relationship tracking when native operations fail.
-- **Dual-read dependency resolution**:
-  Inspect native issue dependencies first during Orient.
-  Query native blockers through GitHub CLI (`gh issue view <number> --json blockedBy`).
-  Fall back to parsing the markdown `## Blocked by` tasklist when native relationships are absent.
-  A ticket becomes unblocked when all listed blockers reach `state: "CLOSED"`.
-- **Frontier resolution**:
-  Discover unblocked frontier tickets using the [Orient Discovery Algorithm](../SKILL.md#orient-discovery-algorithm).
-
-Ticket body:
+## Ticket template
 
 ```markdown
 Part of #<spec-id>
 
 ## What to build
 
-The end-to-end behavior this ticket makes work, described from the user perspective.
-Follow [writing.md](writing.md). Not a layer-by-layer implementation list.
+Describe the end-to-end behavior this ticket delivers from the user perspective, following [writing.md](writing.md).
 
 ## Acceptance criteria
 
@@ -91,23 +49,23 @@ Follow [writing.md](writing.md). Not a layer-by-layer implementation list.
 - [ ] Blocked by #<blocker-id>
 ```
 
-(If unblocked, state `None (can start immediately).` under `## Blocked by`.)
+When a ticket has no blockers, write `None (can start immediately).` under `## Blocked by`.
+Phrase negative invariants (such as "no callers of the old API remain") as final-check criteria.
+Omit file paths and transient code snippets unless the ticket is a fix ticket created by the final review.
 
-Format every acceptance criterion as a single-sentence imperative check adhering to [writing.md](writing.md). State verifiable outcomes incorporating verification. Avoid quantitative sentence-length criteria that encourage automated word-counting scripts. Phrase negative invariants (such as "no callers of deprecated API remain") as distinct final-check criteria. Implementers sweep them at the end rather than scanning upfront. Avoid file paths and transient code snippets. Adhere to the [ticket-naming prohibition](implement.md#ticket-naming-prohibition) for all automated test artifacts.
+## Relationships
 
-Recommended next step: [validate.md](validate.md) audits the ticket breakdown in a fresh context before implementation begins.
-Audit any ticket set where a flawed slice risks derailment during implementation.
-Boundary 2 concludes when tickets pass validation and carry `ship-it:validated` and `ready-for-agent`.
-The conductor halts execution, reports the ticket breakdown, and pauses for developer approval before starting implementation.
+Maintain compatibility across GitHub repository tiers with dual-channel relationships:
 
-## Ticket set remediation
+- **Dual-write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. Also attempt native linking via `--parent <spec-id>` and `--blocked-by <blocker-id>`, ignoring errors on unsupported tiers.
+- **Dual-read on inspection**: Query native blockers first (`gh issue view <n> --json blockedBy`). Fall back to parsing the `## Blocked by` tasklist when native relationships are empty. A ticket is unblocked when every blocker has `state: "CLOSED"`.
 
-When validation applies `ship-it:changes-requested`, resolve reported blockers before starting implementation:
+## Remediation
 
-1. **Review findings**: Read the validation report via `gh issue view <ticket-number> --comments`.
-2. **Remediate blockers**: Update ticket bodies with `gh issue edit <ticket-number>`, creating missing slices or adjusting boundaries.
-3. **Confirm changes**: Obtain user approval if adjustments alter scope or sequencing.
-4. **Post resolution comment**: Document fixes via `gh issue comment <ticket-number> --body "<text>"`.
-5. **Remove label**: Clear the status label via `gh issue edit <ticket-number> --remove-label "ship-it:changes-requested"`.
+When ticket-set validation applies `ship-it:changes-requested` to the parent specification:
 
-Submit updated tickets for re-audit under [validate.md](validate.md).
+1. **Read the report**: Inspect the validation report and any `## Answers` comments on the parent specification (`gh issue view <spec-number> --comments`).
+2. **Update the tickets**: Edit ticket bodies (`gh issue edit <n> --body-file <file>`), create missing slices, or close redundant slices. Obtain user approval when changes alter scope.
+3. **Clear ticket validation labels**: Remove `ship-it:validated` from any modified ticket so the full set is re-audited together.
+4. **Post resolution comment**: Explain the fix for each Blocker on the parent specification (`gh issue comment <spec-number> --body "<text>"`).
+5. **Remove label**: Clear `ship-it:changes-requested` from the parent specification (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
