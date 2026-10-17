@@ -23,7 +23,7 @@ Return `failed` when the fixed point is missing or does not resolve, or when the
 2. **Check verification evidence**: The handoff comment must show passing tests or the direct checks required by [implement.md](implement.md#2-verify). Missing evidence is a Blocker.
 3. **Find standards sources**: Read `CONTRIBUTING.md`, coding standards, style guides, and linter configuration. Skip issues that automated linters catch.
 4. **Standards pass**: Report each breach with file and line.
-5. **Spec pass**: Report missing requirements, partial implementations, scope creep, and incorrect behavior. Quote the requirement for each finding.
+5. **Spec pass**: Audit the diff against the parent spec's cross-cutting architecture and the ticket's low-level design (touchpoints, contracts, state flow, edge cases, and acceptance criteria). Report missing requirements, partial implementations, unapproved architectural inventions, scope creep, and incorrect behavior. Quote the requirement for each finding.
 
 ### Standards when the repository has none
 

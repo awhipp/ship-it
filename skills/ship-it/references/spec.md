@@ -1,13 +1,14 @@
 # Spec: synthesize what has already been decided
 
-Turn settled decisions into a specification published as a GitHub issue.
+Turn settled decisions into a high-level design specification published as a GitHub issue.
+The specification provides cross-cutting architectural context that guides every ticket and review.
 This phase is synthesis, not an open-ended interview.
 When a point remains unsettled, ask the user directly instead of guessing.
 
 ## Process
 
 1. **Gather settled context**: When a map exists for the feature, read "Decisions so far" via `gh issue view <map-number>` and inspect any referenced decision tickets. Otherwise, read the directive text or source issue from setup.
-2. **Explore the codebase**: Ground the specification in active code. Use the repository's vocabulary and respect existing Architecture Decision Records (ADRs).
+2. **Explore the codebase**: Ground the specification in active code. Identify affected modules, shared interfaces, data models, and system invariants. Use the repository's vocabulary and respect existing Architecture Decision Records (ADRs).
 3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories. Prefer high-level seams with minimal touchpoints. When automated tests do not apply, define direct checks per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
 4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Pause and obtain explicit user approval of the draft before creating the GitHub issue.
 5. **Publish the spec**: Create the issue with `--body-file`:
@@ -42,8 +43,12 @@ Numbered list covering the complete feature surface area:
 
 ## Implementation Decisions
 
-State technical clarifications, architectural decisions, module interfaces, schema updates, and API contracts.
-Omit file paths and transient code snippets unless a prototype established a concrete schema or state machine.
+State the high-level design and cross-cutting context that govern the entire feature:
+- **Architecture and module boundaries**: Name the components, modules, or subsystems involved and define their responsibilities.
+- **Contracts and schemas**: Specify shared interfaces, API contracts, data models, and state transitions across components.
+- **Cross-cutting invariants and failure handling**: State error-handling rules, edge-case policies, backward-compatibility constraints, and system invariants.
+
+Omit line numbers and low-level function bodies unless a prototype established a concrete schema or state machine.
 
 ## Testing Decisions
 

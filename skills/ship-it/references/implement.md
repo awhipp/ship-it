@@ -38,8 +38,8 @@ Sweep for negative invariants (such as "no callers of the old API remain") after
 
 ### 4. Ask instead of guessing
 
-Never edit acceptance criteria, and never reinterpret them.
-When a criterion is wrong, conflicts with the code, or leaves a needed fact unwritten:
+Never edit acceptance criteria or low-level design contracts, and never reinterpret them.
+When the ticket's low-level design or acceptance criteria conflict with active code or leave a design decision unwritten:
 
 1. Post the question on the ticket.
 2. Push any commits, and discard uncommitted work.
