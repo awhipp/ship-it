@@ -1,6 +1,7 @@
 # Tickets: split a spec into session-sized slices
 
-Break a validated specification into vertical tracer-bullet tickets with explicit blockers.
+Break a validated specification into vertical tracer-bullet tickets that serve as low-level design documents.
+Each ticket provides concrete implementation details for its slice so the implementer faces zero design ambiguity.
 Every feature produces at least one ticket.
 
 ## Process
@@ -8,12 +9,13 @@ Every feature produces at least one ticket.
 ### 1. Read the spec and explore the codebase
 
 Read the parent specification (`gh issue view <spec-number>`) and any `## Answers` comments.
-Inspect active code to align slices with existing modules and test runners.
+Inspect active code to locate the exact files, modules, symbols, types, and test suites each slice touches.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
 
 ### 2. Draft vertical slices
 
 - Cut each slice as a narrow, complete path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
+- Specify the low-level design for every slice: target files and modules, symbol signatures, data and state flow, error handling, and integration seams with adjacent tickets.
 - Incorporate verification into every slice. Organize automated tests by domain or module seam per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition), or state direct checks per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
 - Sequence prefactoring first as a dedicated ticket that blocks subsequent slices.
@@ -37,7 +39,14 @@ Part of #<spec-id>
 
 ## What to build
 
-Describe the end-to-end behavior this ticket delivers from the user perspective, following [writing.md](writing.md).
+Describe the vertical slice this ticket delivers and how the slice advances the specification, following [writing.md](writing.md).
+
+## Low-level design
+
+- **Touchpoints**: Name the files, modules, classes, functions, or configuration targets to create, modify, or remove.
+- **Contracts and state**: Define the signatures, input and output shapes, state transitions, and control flow for this slice.
+- **Edge cases and invariants**: Specify failure modes, boundary conditions, and invariants this slice enforces.
+- **Slice seam**: State what this slice consumes from prerequisite tickets and what working state the slice exposes to dependent tickets.
 
 ## Acceptance criteria
 
@@ -50,8 +59,8 @@ Describe the end-to-end behavior this ticket delivers from the user perspective,
 ```
 
 When a ticket has no blockers, write `None (can start immediately).` under `## Blocked by`.
-Phrase negative invariants (such as "no callers of the old API remain") as final-check criteria.
-Omit file paths and transient code snippets unless the ticket is a fix ticket created by the final review.
+Include concrete verification criteria for happy paths, edge cases, and negative invariants (such as "confirm as a final check that no callers of the old API remain").
+Omit line numbers and literal code blocks while naming exact file paths, modules, and symbols.
 
 ## Relationships
 
