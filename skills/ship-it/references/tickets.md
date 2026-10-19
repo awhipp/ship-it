@@ -24,10 +24,10 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 ### 3. Publish in dependency order
 
 Publish blockers first so dependent tickets can reference their issue numbers.
-Title each issue `[<slug>] Ticket: <gist>` and apply the `ship-it:ticket` label:
+Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the parent specification via `--parent <spec-id>`:
 
 ```shell
-gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket"
+gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket" --parent <spec-id>
 ```
 
 After creating all tickets, post a summary comment on the parent specification listing the created tickets and their blockers, then return `done`.
