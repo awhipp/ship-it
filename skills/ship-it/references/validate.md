@@ -30,15 +30,19 @@ Ground every check in these inputs:
 - **Design completeness**: Specs missing cross-cutting context, module boundaries, shared contracts, or invariants; tickets missing concrete touchpoints, symbol contracts, state flow, or edge cases.
 - **Traceability**: Unrequested behavior, or a requirement with no coverage.
 - **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
-- **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets too large for one fresh context.
+- **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the catalog of slicing anti-patterns. Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
+- **Complexity declarations**: Tickets assigning invalid tiers or rationales failing to justify scope, touched layers, and reasoning depth. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
 
 ## Severity
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, or leaves gaps in the high-level or low-level design. | Applies `ship-it:changes-requested`. |
+| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, or leaves gaps in the high-level or low-level design. Mismatched complexity levels and slicing anti-patterns constitute Blockers. | Applies `ship-it:changes-requested`. |
 | **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten. | Withholds approval until answered. |
 | **Nit** | The artifact is correct but improves with a small wording or formatting fix. | Fix in place. |
+
+Always treat mismatched complexity levels and slicing anti-patterns as Blockers.
+When a ticket omits complexity, apply the fallback default to `high`.
 
 Do not inflate Nits into Questions to appear thorough.
 Do not downgrade a Blocker to avoid delaying work.

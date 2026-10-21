@@ -32,10 +32,55 @@ gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "sh
 
 After creating all tickets, post a summary comment on the parent specification listing the created tickets and their blockers, then return `done`.
 
+## Granularity thresholds
+
+Apply qualitative bounds to ticket sizing:
+
+- **Lower Bound (Minimum Viable Ticket)**: Introduce or modify executable behavior verified by tests or direct checks. Standalone tickets must not consist solely of passive artifacts like documentation, comments, or unused configuration keys. Work lacking an independent, testable consumer seam is sub-threshold. Collapse sub-threshold items into adjacent functional slices.
+- **Upper Bound (Maximum Ticket Size)**: Keep every ticket within a single fresh subagent context window without reasoning degradation. Touch a single coherent domain rather than multiple disconnected systems.
+
+## Collapse rules
+
+Follow five rules to prevent unnecessary isolation overhead:
+
+1. **Colocate Documentation with Functional Slices**: Update documentation within the functional ticket altering behavior. Reserve standalone documentation tickets for full documentation rewrites.
+2. **Fold Configuration into Consumers**: Declare configuration settings, environment variables, and package dependencies in the earliest ticket consuming them. Prohibit standalone configuration tickets.
+3. **Absorb Mechanical Cleanups**: Bundle localized symbol renames, parameter adjustments, and file reorganizations into the functional ticket touching those files. Reserve dedicated refactoring tickets for codebase-wide migrations.
+4. **Default to Single Tickets for Small Specs**: Default a specification with a compact architectural footprint and localized changes spanning a single coherent concern to a single vertical ticket.
+5. **Require Multiple Consumers for Prefactoring**: Create a dedicated prefactoring ticket only when restructuring prepares shared interfaces for two or more subsequent tickets. Merge prefactoring into the dependent functional slice when only one ticket benefits.
+
+## Slicing anti-patterns
+
+Avoid these five anti-patterns during ticket slicing:
+
+| Anti-Pattern | Description | Failure Mode | Required Remediation |
+| :--- | :--- | :--- | :--- |
+| **The Docs-Tail** | Creating a trailing ticket solely for README updates or documentation synchronization. | Dispatches two isolated subagents to edit passive prose. Wastes tokens and execution time on zero code risk. | Bundle documentation updates into the functional ticket that modified the behavior. |
+| **The Config-Preamble** | Creating an initial ticket to declare an unused configuration option, environment variable, or package dependency. | Delivers passive declarations with no executable behavior or meaningful test seam. | Fold the configuration declaration into the first ticket executing the feature logic. |
+| **The Horizontal Slice** | Separating data models, business logic, and user interfaces into sequential tickets. | Violates tracer-bullet principles. Leaves dead code and non-functional intermediate states. | Cut vertically through data, logic, interface, and verification within each ticket. |
+| **The Orphaned Scaffolding** | Creating empty module files, blank classes, or stub functions as an independent ticket. | Stubs lack behavioral contracts, invariants, and automated verification evidence. | Create and wire scaffolding directly inside the ticket connecting real callers. |
+| **The Micro-Refactor** | Carving a localized symbol rename or import cleanup into a dedicated ticket blocking functional work. | Setup overhead for branch checkouts, fixed points, and reviews exceeds the diff size. | Absorb the localized cleanup into the functional ticket touching that module. |
+
+## Complexity taxonomy
+
+Assign a complexity tier to each ticket based on scope, touched layers, verification seams, and reasoning requirements:
+
+| Level | Architectural Scope and Touchpoints | Verification Seam | Reasoning Need |
+| :--- | :--- | :--- | :--- |
+| **`low`** | Localized changes in 1 or 2 files. Minor fixes, absorbed cleanups, or colocated docs. | Localized unit tests or direct checks. | Minimal procedural execution. Zero architectural ambiguity. |
+| **`medium`** | Conventional vertical slice across 2 to 4 files. Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning. Routine edge-case handling. |
+| **`high`** | Broad slice across 4 or more files, or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning. Invariant auditing. |
+
+Tickets needing deeper reasoning beyond `high` exceed ticket granularity bounds. Split oversized slices into smaller vertical tickets rather than expanding reasoning tiers.
+
 ## Ticket template
 
 ```markdown
 Part of #<spec-id>
+
+## Complexity
+
+<level> - <Single-sentence rationale justifying the chosen level based on scope, touched layers, and reasoning depth.>
 
 ## What to build
 
