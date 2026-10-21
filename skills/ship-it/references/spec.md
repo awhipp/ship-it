@@ -1,4 +1,4 @@
-# Spec: synthesize what has already been decided
+# Spec: synthesize settled decisions
 
 Turn settled decisions into a high-level design specification published as a GitHub issue.
 The specification provides cross-cutting architectural context that guides every ticket and review.
@@ -8,14 +8,15 @@ When a point remains unsettled, ask the user directly instead of guessing.
 ## Process
 
 1. **Gather settled context**: When a map exists for the feature, read "Decisions so far" via `gh issue view <map-number>` and inspect any referenced decision tickets. Otherwise, read the directive text or source issue from setup.
-2. **Explore the codebase**: Ground the specification in active code. Identify affected modules, shared interfaces, data models, and system invariants. Use the repository's vocabulary and respect existing Architecture Decision Records (ADRs).
-3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories. Prefer high-level seams with minimal touchpoints. When automated tests do not apply, define direct checks per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
+2. **Explore the codebase**: Ground the specification in active code using targeted symbol and path searches rather than full-repository directory scans. Read relevant interface and module sections to identify affected modules, shared contracts, data models, and system invariants. Use the repository's vocabulary and respect existing Architecture Decision Records (ADRs).
+3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories. Prefer high-level seams with minimal touchpoints. When automated tests do not apply, define direct checks rather than custom string-matching scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
 4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Pause and obtain explicit user approval of the draft before creating the GitHub issue.
 5. **Publish the spec**: Create the issue with `--body-file`:
 
    ```shell
    gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec"
    ```
+
 6. **Continue the routing loop**: Publishing the spec completes only the first step of Boundary 2. Immediately return to `SKILL.md` § 2 (`Query state`) in the same turn so routing advances to Row 7 (spec validation).
 
 ## Spec template
@@ -53,7 +54,7 @@ Omit line numbers and low-level function bodies unless a prototype established a
 ## Testing Decisions
 
 State the verification strategy aligned with workspace conventions and existing test runners.
-Name the domain modules and seams that receive coverage, or state the direct checks per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+Name the domain modules and seams that receive coverage, or state the direct checks without inventing custom test scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 
 ## Out of Scope
 

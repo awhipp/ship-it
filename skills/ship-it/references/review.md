@@ -15,17 +15,17 @@ Evaluating each axis separately keeps strength on one axis from masking defects 
 | Ticket review | The `Fixed point: <sha>` comment on the ticket, or derived via fallback below | The ticket, its parent spec, and every `## Answers` comment on both |
 | Final review | `git merge-base origin/<default-branch> HEAD` | The parent spec, every ticket, and every `## Answers` comment |
 
-Return `failed` when the fixed point cannot be derived or does not resolve, or when the diff is empty.
+Return `failed` when the fallback procedure cannot derive a fixed point, the commit does not resolve, or the diff is empty.
 
 ## Process
 
-1. **Fetch the diff**: Run `git fetch origin` and check out the feature branch. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
+1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
    1. Extract commit hashes from the `## Handoff` comment on the ticket. Resolve the parent of the earliest commit using `<earliest-sha>~1`.
    2. When extraction yields no commits, inspect `git log origin/<default-branch>..HEAD` for commits referencing `(#<ticket>)`. Resolve the parent of the earliest match using `<earliest-sha>~1`.
    3. When steps 1 and 2 find no matching commits, and the ticket is the first ticket on the branch, resolve `git merge-base origin/<default-branch> HEAD`.
    4. When a commit resolves, post `Fixed point: <sha>` to the ticket using `gh issue comment <n> --body "Fixed point: <sha>"`.
    5. Use the resolved commit as `<fixed-point>` for `git diff <fixed-point>...HEAD`. Return `failed` when no commit resolves.
-   Run `git diff <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline`.
+   Run `git diff --stat <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline` first to survey changed files, then inspect `git diff <fixed-point>...HEAD` (scoping per path or skipping generated lockfiles when large).
 2. **Check verification evidence**: The handoff comment must show passing tests or the direct checks required by [implement.md](implement.md#2-verify). Missing evidence is a Blocker.
 3. **Find standards sources**: Read `CONTRIBUTING.md`, coding standards, style guides, and linter configuration. Skip issues that automated linters catch.
 4. **Standards pass**: Report each breach with file and line.
@@ -45,7 +45,7 @@ Flag duplicated logic, unclear names, unused abstractions, primitive obsession, 
 
 - When judging the diff needs a fact that the requirements do not state, record a Question.
 - Never assume undocumented behavior, intent, or edge-case safety.
-- An edge case with no test or check is a Question when the requirements are silent, and a Blocker when the requirements cover it.
+- An edge case with no test or check is a Question when the requirements are silent, and a Blocker when the requirements cover the edge case.
 
 ## Severity
 
@@ -94,7 +94,7 @@ Never close the ticket; the conductor closes reviewed tickets.
 Run after every ticket closes, against the whole feature branch.
 Apply the same passes, then check across tickets:
 
-- Every User Story and Implementation Decision in the spec is delivered.
+- The branch delivers every User Story and Implementation Decision in the spec.
 - No transitional scaffolding, dead code, or leftover migration paths remain.
 - Names and patterns stay consistent across tickets.
 
@@ -104,6 +104,5 @@ Apply the same passes, then check across tickets:
 | Questions, no Blocker | None. | `questions` |
 | Nits or nothing | Add `ship-it:reviewed` to the spec. | `approved` |
 
-Create each fix ticket per [tickets.md](tickets.md) with the title `[<slug>] Ticket: Fix <gist>`.
-Label each fix ticket `ship-it:ticket,ship-it:validated`.
-Quote the Blocker in `## What to build`.
+Create each fix ticket with the title `[<slug>] Ticket: Fix <gist>`, label `ship-it:ticket,ship-it:validated`, and `--parent <spec-id>` ([tickets.md](tickets.md)).
+Include `Part of #<spec-id>`, `## Complexity`, `## What to build` (quoting the Blocker), `## Low-level design`, `## Acceptance criteria`, and `## Blocked by` in the ticket body, and delete the temporary `--body-file` payload after creation.

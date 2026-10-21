@@ -1,12 +1,12 @@
 # Isolation: who runs each action
 
 Isolation keeps authoring bias out of verification and keeps the conductor's context small.
-The conductor orchestrates; it never absorbs raw diffs, transcripts, or implementation rationale.
+The conductor orchestrates without absorbing raw diffs, transcripts, or implementation rationale.
 
 ## Pick the tier
 
-- **Tier 1**: A subagent dispatch tool exists (such as `invoke_subagent`, `Task`, or `Agent`).
-- **Tier 2**: No subagent dispatch tool exists.
+- **Tier 1**: A subagent dispatch tool with shell execution and file-writing capabilities exists (such as `invoke_subagent`, `Task`, or `Agent`). Select an execution-capable subagent rather than a read-only exploration subagent so the subagent can run `gh` and `git` commands.
+- **Tier 2**: No execution-capable subagent dispatch tool exists.
 
 ## Actions
 
@@ -30,17 +30,17 @@ Pass only these fields to the subagent:
 
 - **Role**: One of the subagent roles above.
 - **Complexity**: `low` | `medium` | `high`.
-- **Reference**: The file and section to follow, plus [writing.md](writing.md).
+- **Reference**: The file and section to follow, plus [writing.md](writing.md). Load only the assigned reference file and `writing.md`; treat links to other reference files as citations rather than files to load.
 - **Issues**: The target issue number and the parent spec or map number.
 - **Branch**: The feature branch, for `implement`, `rework`, `review`, `final-review`, and `close-out`.
 
 Never pass conversation history, summaries of user intent, or opinions.
 Every requirement a subagent needs lives in the issues.
-A subagent that finds a requirement missing returns it as a question.
+A subagent that finds a requirement missing returns the missing requirement as a question.
 
 ### Role complexity matrix
 
-Assign subagent complexity according to lifecycle roles or target ticket declarations:
+Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section, falling back to `high` when a ticket omits complexity:
 
 | Role | Lifecycle Phase | Complexity Source | Default Complexity |
 | :--- | :--- | :--- | :--- |
@@ -48,32 +48,20 @@ Assign subagent complexity according to lifecycle roles or target ticket declara
 | **`slice`** | Tickets | Fixed Default | `high` |
 | **`validate`** | Spec / Tickets | Fixed Default | `high` |
 | **`implement`** | Implementation | Target Ticket | Inherited from `## Complexity` |
-| **`rework`** | Implementation | Target Ticket | Inherited from `## Complexity` (or elevated +1) |
+| **`rework`** | Implementation | Target Ticket | Inherited from `## Complexity` |
 | **`review`** | Implementation | Target Ticket | Inherited from `## Complexity` |
 | **`final-review`** | Review | Fixed Default | `high` |
 | **`close-out`** | Close-out | Fixed Default | `low` |
 
 ### Universal reasoning directives
 
-Universal directives provide soft prompt-based steering and behavioral guidance.
-Directives guide subagent analytical thoroughness, step-by-step discipline, and exploratory depth.
-Directives convey behavioral expectations through prompt text rather than engine-level token budgets or model tiering.
-
-Include the matching universal directive in the dispatch prompt:
+Subagents inherit the conductor's model and harness configuration by default.
+Reference files exclude vendor model switches and harness-specific parameter tables.
+Convey analytical thoroughness and exploratory depth by including the matching directive in the subagent dispatch prompt:
 
 - **`low`**: `Reasoning Effort: Minimal. Execute directly without exploratory loops.`
 - **`medium`**: `Reasoning Effort: Standard. Follow step-by-step verification.`
 - **`high`**: `Reasoning Effort: Extensive. Audit edge cases and invariants thoroughly.`
-
-### Dispatch transmission protocol
-
-Follow these transmission rules during subagent dispatch:
-
-- Subagents inherit conductor model and configuration settings by default across agnostic harnesses.
-- The conductor extracts the complexity level from the target ticket's `## Complexity` section (or selects the role default).
-- When a ticket omits complexity, the conductor falls back to `high`.
-- The conductor includes the corresponding universal reasoning directive in the prompt when invoking subagents across all harnesses.
-- Reference files exclude harness-specific parameter tables, configuration files, and vendor model switches.
 
 ## Return schema
 
@@ -91,5 +79,5 @@ The conductor reads only this block.
 ## Tier 2
 
 Run every action in the current session, with one exception.
-A session may validate or review only when that is its first action.
+A session may validate or review only as the session's first action.
 When the next routing row is validation or review after any other action, halt and print `ship-it <slug>` for a fresh session.

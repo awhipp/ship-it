@@ -1,4 +1,4 @@
-# Validate: adversarial audit before anyone builds on this
+# Validate: adversarial audit before implementation
 
 Read a published spec or ticket set as an outside skeptic.
 Verify that the specification and tickets are crystal clear on implementation against the current state of the project.
@@ -7,13 +7,13 @@ Validate every spec and every ticket set without exception.
 
 ## Inputs
 
-Read the requirements and inspect the active codebase before reading the artifact under audit.
+Read the requirements and the artifact under audit first, then verify every named touchpoint, module boundary, symbol contract, and caller against active code using targeted search.
 Ground every check in these inputs:
 
 | Artifact | Requirements | Artifact under audit |
 | :--- | :--- | :--- |
 | Spec | The spec's `## Source`, the linked map's "Decisions so far", every `## Answers` comment on the spec, and the active codebase | The spec body |
-| Ticket set | The parent spec, every `## Answers` comment on the spec, and the active codebase | Every open ticket (`gh issue view <n> --json title,body`) |
+| Ticket set | The parent spec, every `## Answers` comment on the spec, and the active codebase | Every open ticket (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels`) |
 
 ## Zero-assumption rule
 
@@ -30,19 +30,16 @@ Ground every check in these inputs:
 - **Design completeness**: Specs missing cross-cutting context, module boundaries, shared contracts, or invariants; tickets missing concrete touchpoints, symbol contracts, state flow, or edge cases.
 - **Traceability**: Unrequested behavior, or a requirement with no coverage.
 - **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
-- **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the catalog of slicing anti-patterns. Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
-- **Complexity declarations**: Tickets assigning invalid tiers or rationales failing to justify scope, touched layers, and reasoning depth. Validators audit qualitative reasoning depth and scope alignment without expecting engine-level parameter controls. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
+- **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the five slicing anti-patterns (`Docs-Tail`, `Config-Preamble`, `Horizontal Slice`, `Orphaned Scaffolding`, and `Micro-Refactor`). Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
+- **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, or rationales failing to justify scope, touched layers, and reasoning depth. Validators audit qualitative reasoning depth and scope alignment without expecting engine-level parameter controls. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
 
 ## Severity
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, or leaves gaps in the high-level or low-level design. Mismatched complexity levels and slicing anti-patterns constitute Blockers. | Applies `ship-it:changes-requested`. |
+| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level or low-level design, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
 | **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten. | Withholds approval until answered. |
 | **Nit** | The artifact is correct but improves with a small wording or formatting fix. | Fix in place. |
-
-Always treat mismatched complexity levels and slicing anti-patterns as Blockers.
-When a ticket omits complexity, apply the fallback default to `high`.
 
 Do not inflate Nits into Questions to appear thorough.
 Do not downgrade a Blocker to avoid delaying work.
