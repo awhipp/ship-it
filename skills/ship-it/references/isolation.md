@@ -29,6 +29,7 @@ The conductor orchestrates; it never absorbs raw diffs, transcripts, or implemen
 Pass only these fields to the subagent:
 
 - **Role**: One of the subagent roles above.
+- **Complexity**: `low` | `medium` | `high` | `x-high`.
 - **Reference**: The file and section to follow, plus [writing.md](writing.md).
 - **Issues**: The target issue number and the parent spec or map number.
 - **Branch**: The feature branch, for `implement`, `rework`, `review`, `final-review`, and `close-out`.
@@ -36,6 +37,38 @@ Pass only these fields to the subagent:
 Never pass conversation history, summaries of user intent, or opinions.
 Every requirement a subagent needs lives in the issues.
 A subagent that finds a requirement missing returns it as a question.
+
+### Role complexity matrix
+
+Assign subagent complexity according to lifecycle roles or target ticket declarations:
+
+| Role | Lifecycle Phase | Complexity Source | Default Complexity |
+| :--- | :--- | :--- | :--- |
+| **`decide`** | Plan | Ticket or Default | `low` for research, `medium` for prototypes and tasks |
+| **`slice`** | Tickets | Fixed Default | `high` |
+| **`validate`** | Spec / Tickets | Fixed Default | `high` |
+| **`implement`** | Implementation | Target Ticket | Inherited from `## Complexity` |
+| **`rework`** | Implementation | Target Ticket | Inherited from `## Complexity` (or elevated +1) |
+| **`review`** | Implementation | Target Ticket | Inherited from `## Complexity` |
+| **`final-review`** | Review | Fixed Default | `high` (or `x-high` on large specs) |
+| **`close-out`** | Close-out | Fixed Default | `low` |
+
+### Universal reasoning directives
+
+Include the matching universal directive in the dispatch prompt:
+
+- **`low`**: `Reasoning Effort: Minimal. Execute directly without exploratory loops.`
+- **`medium`**: `Reasoning Effort: Standard. Follow step-by-step verification.`
+- **`high`**: `Reasoning Effort: Extensive. Audit edge cases and invariants thoroughly.`
+- **`x-high`**: `Reasoning Effort: Exhaustive. Conduct exhaustive architectural analysis.`
+
+### Dispatch transmission protocol
+
+Follow these transmission rules during subagent dispatch:
+
+- The conductor extracts the complexity level from the target ticket's `## Complexity` section (or selects the role default).
+- The conductor includes the corresponding universal reasoning directive in the prompt when invoking subagents across all harnesses.
+- Reference files exclude vendor-specific parameter tables, CLI flags, and model names.
 
 ## Return schema
 
