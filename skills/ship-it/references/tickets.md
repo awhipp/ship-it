@@ -70,7 +70,8 @@ Assign a complexity tier to each ticket based on scope, touched layers, verifica
 | **`low`** | Localized changes in 1 or 2 files. Minor fixes, absorbed cleanups, or colocated docs. | Localized unit tests or direct checks. | Minimal procedural execution. Zero architectural ambiguity. |
 | **`medium`** | Conventional vertical slice across 2 to 4 files. Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning. Routine edge-case handling. |
 | **`high`** | Broad slice across 4 or more files, or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning. Invariant auditing. |
-| **`x-high`** | System-wide architectural refactors, protocol changes, or mission-critical data flows. Expand-migrate-contract migrations. | Multi-tier test matrices, stress tests, and rollback checks. | Frontier reasoning depth. Exhaustive state-space exploration. |
+
+Tickets needing deeper reasoning beyond `high` exceed ticket granularity bounds. Split oversized slices into smaller vertical tickets rather than expanding reasoning tiers.
 
 ## Ticket template
 
