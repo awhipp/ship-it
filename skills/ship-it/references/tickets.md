@@ -9,14 +9,15 @@ Every feature produces at least one ticket.
 ### 1. Read the spec and explore the codebase
 
 Read the parent specification (`gh issue view <spec-number>`) and any `## Answers` comments.
-Inspect active code to locate the exact files, modules, symbols, types, and test suites each slice touches.
+Use targeted symbol and path searches anchored on the specification's modules and contracts to locate the exact files, symbols, types, and test suites each slice touches.
+Read only the relevant sections of large files rather than scanning the entire repository.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
 
 ### 2. Draft vertical slices
 
 - Cut each slice as a narrow, complete path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
 - Specify the low-level design for every slice: target files and modules, symbol signatures, data and state flow, error handling, and integration seams with adjacent tickets.
-- Incorporate verification into every slice. Organize automated tests by domain or module seam per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition), or state direct checks per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+- Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
 - Sequence prefactoring first as a dedicated ticket that blocks subsequent slices.
 - For mechanical refactors spanning the codebase, use **expand → migrate → contract**: add the new interface alongside the old one, migrate callers in blocked tickets, and remove the old interface in a final ticket.
@@ -36,7 +37,7 @@ After creating all tickets, post a summary comment on the parent specification l
 
 Apply qualitative bounds to ticket sizing:
 
-- **Lower Bound (Minimum Viable Ticket)**: Introduce or modify executable behavior verified by tests or direct checks. Standalone tickets must not consist solely of passive artifacts like documentation, comments, or unused configuration keys. Work lacking an independent, testable consumer seam is sub-threshold. Collapse sub-threshold items into adjacent functional slices.
+- **Lower Bound (Minimum Viable Ticket)**: Introduce or modify executable behavior verified by tests or direct checks. Keep passive artifacts such as documentation, comments, or unused configuration keys attached to functional slices rather than standalone tickets. Collapse work lacking an independent, testable consumer seam into adjacent functional slices.
 - **Upper Bound (Maximum Ticket Size)**: Keep every ticket within a single fresh subagent context window without reasoning degradation. Touch a single coherent domain rather than multiple disconnected systems.
 
 ## Collapse rules
@@ -114,7 +115,7 @@ Omit line numbers and literal code blocks while naming exact file paths, modules
 Maintain compatibility across GitHub repository tiers with dual-channel relationships:
 
 - **Dual-write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. Also attempt native linking via `--parent <spec-id>` and `--blocked-by <blocker-id>`, ignoring errors on unsupported tiers.
-- **Dual-read on inspection**: Query native blockers first (`gh issue view <n> --json blockedBy`). Fall back to parsing the `## Blocked by` tasklist when native relationships are empty. A ticket is unblocked when every blocker has `state: "CLOSED"`.
+- **Dual-read on inspection**: Evaluate open tickets in ascending number order against the already-queried closed-ticket set. Query native blockers first (`gh issue view <n> --json blockedBy`), falling back to the `## Blocked by` tasklist when native relationships are empty, and stop at the first ticket whose blockers all have `state: "CLOSED"`.
 
 ## Remediation
 
@@ -122,7 +123,7 @@ When ticket-set validation applies `ship-it:changes-requested` to the parent spe
 
 1. **Read the report**: Inspect the validation report and any `## Answers` comments on the parent specification (`gh issue view <spec-number> --comments`).
 2. **Update the tickets**: Edit ticket bodies (`gh issue edit <n> --body-file <file>`), create missing slices, or close redundant slices. Obtain user approval when changes alter scope.
-3. **Clear ticket validation labels**: Remove `ship-it:validated` from any modified ticket so the full set is re-audited together.
+3. **Clear ticket validation labels**: Remove `ship-it:validated` from any modified ticket so the validator re-audits the full set together.
 4. **Post resolution comment**: Explain the fix for each Blocker on the parent specification (`gh issue comment <spec-number> --body "<text>"`).
 5. **Remove label**: Clear `ship-it:changes-requested` from the parent specification (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 6. **Continue the routing loop**: Immediately return to `SKILL.md` § 2 (`Query state`) in the same turn so routing re-runs Row 9 (ticket-set validation).

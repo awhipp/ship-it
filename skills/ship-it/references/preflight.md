@@ -14,7 +14,7 @@ Run every check before reporting findings so the user sees all issues at once:
 2. **GitHub remote**: Run `git remote -v` and confirm a `github.com` remote exists.
 3. **Authentication**: Run `gh auth status` and confirm an active login.
 4. **Writable issues**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`. Confirm `hasIssuesEnabled` is `true` and `viewerPermission` is `WRITE`, `MAINTAIN`, or `ADMIN`.
-5. **Labels**: Run `gh label list` and verify that every label below exists. Create any missing labels automatically.
+5. **Labels**: Run `gh label list --search "ship-it:" --limit 100 --json name` and verify that every label below exists. Create or update any missing labels automatically.
 
 ## Label set
 
@@ -33,26 +33,26 @@ Apply at most one type label per issue, plus any applicable status labels:
 | `ship-it:reviewed` | status | Ticket diff or full feature PR diff that passed review ([review.md](review.md)) |
 | `ship-it:changes-requested` | status | Spec or ticket with unresolved Blockers ([validate.md](validate.md), [review.md](review.md)) |
 
-Create missing labels with these commands:
+Create or update labels with these idempotent commands:
 
 ```shell
-gh label create "ship-it:map" --description "Feature map of open decisions" --color "5319E7"
-gh label create "ship-it:spec" --description "Published specification" --color "5319E7"
-gh label create "ship-it:ticket" --description "Vertical build ticket" --color "5319E7"
-gh label create "ship-it:research" --description "Decision ticket resolved by reading docs or code" --color "1D76DB"
-gh label create "ship-it:prototype" --description "Decision ticket resolved by a throwaway prototype" --color "1D76DB"
-gh label create "ship-it:grilling" --description "Decision ticket resolved by asking the user" --color "1D76DB"
-gh label create "ship-it:task" --description "Decision ticket resolved by concrete setup work" --color "1D76DB"
-gh label create "ship-it:validated" --description "Passed adversarial validation" --color "0E8A16"
-gh label create "ship-it:reviewed" --description "Passed independent diff review" --color "0E8A16"
-gh label create "ship-it:changes-requested" --description "Unresolved validation or review blockers" --color "D93F0B"
+gh label create "ship-it:map" --description "Feature map of open decisions" --color "5319E7" --force
+gh label create "ship-it:spec" --description "Published specification" --color "5319E7" --force
+gh label create "ship-it:ticket" --description "Vertical build ticket" --color "5319E7" --force
+gh label create "ship-it:research" --description "Decision ticket resolved by reading docs or code" --color "1D76DB" --force
+gh label create "ship-it:prototype" --description "Decision ticket resolved by a throwaway prototype" --color "1D76DB" --force
+gh label create "ship-it:grilling" --description "Decision ticket resolved by asking the user" --color "1D76DB" --force
+gh label create "ship-it:task" --description "Decision ticket resolved by concrete setup work" --color "1D76DB" --force
+gh label create "ship-it:validated" --description "Passed adversarial validation" --color "0E8A16" --force
+gh label create "ship-it:reviewed" --description "Passed independent diff review" --color "0E8A16" --force
+gh label create "ship-it:changes-requested" --description "Unresolved validation or review blockers" --color "D93F0B" --force
 ```
 
 ## Canonical `gh` CLI commands
 
 | Action | Command |
 | :--- | :--- |
-| Query issues by label and slug | `gh issue list --label "<label>" --search "<slug> in:title" --state all --json number,title,labels,assignees,state` |
+| Query issues by label and slug | `gh issue list --label "<label>" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,assignees,state` |
 | View issue and comments | `gh issue view <n> --comments` or `gh issue view <n> --json number,title,body,labels,assignees,state,comments` |
 | Create issue | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
 | Edit issue | `gh issue edit <n> --title "<title>" --body-file <file> --add-label "<label>" --remove-label "<label>"` |
@@ -70,6 +70,6 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 
 ## Cross-platform shell conventions
 
-- **Multi-line bodies**: Write multi-line text to a file using a file-writing tool or a single-quoted PowerShell here-string (`@' ... '@`), then pass `--body-file <path>` or `-F body=@<path>`. Never use Bash heredocs or double-quoted PowerShell strings (`"..."`), which interpret Markdown backticks as escape characters.
+- **Multi-line bodies**: Write multi-line text to a temporary file using a file-writing tool or a single-quoted PowerShell here-string (`@' ... '@`), pass `--body-file <path>` or `-F body=@<path>`, and delete the temporary file immediately after the `gh` command completes. Never use Bash heredocs or double-quoted PowerShell strings (`"..."`), which interpret Markdown backticks as escape characters.
 - **PowerShell special characters**: Always quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
 - **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.

@@ -1,6 +1,6 @@
 ---
 name: ship-it
-description: "Conducts one feature through plan, spec, tickets, implement, and review, using GitHub issues as the only state. Requires a directive: `ship-it <slug>`, `ship-it #<issue>`, `ship-it \"<idea>\"`, or `ship-it preflight`. Manual-only workflow: do NOT invoke automatically or unprompted; only activate when the user explicitly types ship-it or /ship-it."
+description: "Conducts one feature through plan, spec, tickets, implement, and review, using GitHub issues as the only state. Requires a directive: `ship-it [slug]`, `ship-it #[issue]`, `ship-it \"[idea]\"`, or `ship-it preflight`. Manual-only workflow: invoke only when the user explicitly types ship-it or /ship-it."
 compatibility: Git repository, GitHub CLI (gh) 2.94.0 or later, and a cross-platform shell.
 disable-model-invocation: true
 ---
@@ -37,7 +37,7 @@ Run no `gh` command before a directive exists.
 **New feature setup** (idea, or an issue without a `[<slug>]` prefix):
 
 1. Propose a kebab-case slug and a Conventional Commits type (`feat`, `fix`, `refactor`, `docs`, `chore`, `perf`, `test`, `build`, `ci`).
-2. Confirm the slug is unused: `gh issue list --search "<slug> in:title" --state all --json title`. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug if taken.
+2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug when the slug is taken.
 3. Ask the user to confirm the slug and type, and to choose between charting a map first and writing the spec directly.
    Recommend a map when the idea leaves a scope or architecture decision open.
 
@@ -49,13 +49,14 @@ Run these queries at the start of every routing pass.
 Keep only results whose title starts with `[<slug>]`.
 
 ```shell
-gh issue list --label "ship-it:map" --search "<slug> in:title" --state all --json number,title,labels,state
-gh issue list --label "ship-it:spec" --search "<slug> in:title" --state all --json number,title,body,labels,state
-gh issue list --label "ship-it:ticket" --search "<slug> in:title" --state all --json number,title,labels,assignees,state
+gh issue list --label "ship-it:map" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state
+gh issue list --label "ship-it:spec" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state
+gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,assignees,state
 gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
-Run the pull request query only once a spec exists; the branch comes from the spec's `## Source`.
+Run the pull request query only once a spec exists.
+Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body` and retain that branch name across routing passes.
 A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`.
 A failed query is an environment error: run [preflight.md](references/preflight.md).
 Never read a failed query as "no artifacts".
@@ -80,16 +81,17 @@ Never treat an intermediate artifact (such as a newly published spec or freshly 
 | 10 | An open ticket exists | Work the frontier ticket (below). | Query state and route again after each frontier step. |
 | 11 | Spec lacks `ship-it:reviewed` | Run the final review ([review.md](references/review.md#final-review)). | On `approved`: query state and route again (hits row 12). When the review creates fix tickets: **halt** for approval of the fix tickets. |
 | 12 | No pull request exists for the branch | Close out ([implement.md](references/implement.md#close-out)). | **Halt (Boundary 3 exit).** |
-| 13 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and ask the user whether to reopen it. | **Stop.** |
+| 13 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and ask the user whether to reopen the pull request. | **Stop.** |
 
 **Frontier ticket**: the lowest-numbered open ticket whose blockers are all closed ([tickets.md](references/tickets.md#relationships)).
+Check open tickets in ascending number order against the closed ticket set from § 2 and stop at the first unblocked ticket.
 Apply the first matching step:
 
 1. No open ticket is unblocked: report each open ticket with its open blockers and **halt**.
 2. Has `ship-it:reviewed`: close the ticket (`gh issue close <n> --comment "<summary>"`), then query state and route again.
 3. Has `ship-it:changes-requested`: count the `**Verdict**: Changes requested` review comments posted after the latest `## Answers` comment on the ticket (or since creation when none exists). At three or more, **halt** and ask the user to post guidance as a `## Answers` comment on the ticket; otherwise dispatch rework, then query state and route again.
 4. Has an assignee: dispatch review, then query state and route again.
-5. Otherwise: create the branch named in `## Source` if missing, claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation, then query state and route again.
+5. Otherwise: claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation, then query state and route again.
 
 ## 4. Dispatch and verdicts
 
@@ -122,7 +124,9 @@ End with exactly one next step:
 
 ## Reference index
 
-| File | Read it when |
+Load only the reference file for the active step plus [writing.md](references/writing.md).
+
+| File | Read the file when |
 | :--- | :--- |
 | [isolation.md](references/isolation.md) | Running any action |
 | [plan.md](references/plan.md) | Rows 1 and 2 (map) |
