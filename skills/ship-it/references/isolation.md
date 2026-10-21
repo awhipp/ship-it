@@ -55,6 +55,10 @@ Assign subagent complexity according to lifecycle roles or target ticket declara
 
 ### Universal reasoning directives
 
+Universal directives provide soft prompt-based steering and behavioral guidance.
+Directives guide subagent analytical thoroughness, step-by-step discipline, and exploratory depth.
+Directives convey behavioral expectations through prompt text rather than engine-level token budgets or model tiering.
+
 Include the matching universal directive in the dispatch prompt:
 
 - **`low`**: `Reasoning Effort: Minimal. Execute directly without exploratory loops.`
@@ -65,10 +69,11 @@ Include the matching universal directive in the dispatch prompt:
 
 Follow these transmission rules during subagent dispatch:
 
+- Subagents inherit conductor model and configuration settings by default across agnostic harnesses.
 - The conductor extracts the complexity level from the target ticket's `## Complexity` section (or selects the role default).
 - When a ticket omits complexity, the conductor falls back to `high`.
 - The conductor includes the corresponding universal reasoning directive in the prompt when invoking subagents across all harnesses.
-- Reference files exclude vendor-specific parameter tables, CLI flags, and model names.
+- Reference files exclude harness-specific parameter tables, configuration files, and vendor model switches.
 
 ## Return schema
 

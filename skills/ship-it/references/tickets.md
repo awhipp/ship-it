@@ -63,13 +63,15 @@ Avoid these five anti-patterns during ticket slicing:
 
 ## Complexity taxonomy
 
-Assign a complexity tier to each ticket based on scope, touched layers, verification seams, and reasoning requirements:
+Assign a complexity tier to each ticket based on scope, touched layers, verification seams, and reasoning requirements.
+Complexity tiers describe prompt-steered behavioral depth.
+Reasoning requirements establish qualitative analytical expectations rather than hardware or token allocations.
 
 | Level | Architectural Scope and Touchpoints | Verification Seam | Reasoning Need |
 | :--- | :--- | :--- | :--- |
-| **`low`** | Localized changes in 1 or 2 files. Minor fixes, absorbed cleanups, or colocated docs. | Localized unit tests or direct checks. | Minimal procedural execution. Zero architectural ambiguity. |
-| **`medium`** | Conventional vertical slice across 2 to 4 files. Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning. Routine edge-case handling. |
-| **`high`** | Broad slice across 4 or more files, or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning. Invariant auditing. |
+| **`low`** | Localized changes in 1 or 2 files. Minor fixes, absorbed cleanups, or colocated docs. | Localized unit tests or direct checks. | Minimal procedural execution with direct steps. Zero architectural ambiguity. |
+| **`medium`** | Conventional vertical slice across 2 to 4 files. Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning with step-by-step verification. Routine edge-case handling. |
+| **`high`** | Broad slice across 4 or more files, or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning with thorough invariant auditing. |
 
 Tickets needing deeper reasoning beyond `high` exceed ticket granularity bounds. Split oversized slices into smaller vertical tickets rather than expanding reasoning tiers.
 
