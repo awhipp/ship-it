@@ -12,14 +12,20 @@ Evaluating each axis separately keeps strength on one axis from masking defects 
 
 | Mode | Fixed point | Requirements |
 | :--- | :--- | :--- |
-| Ticket review | The `Fixed point: <sha>` comment on the ticket | The ticket, its parent spec, and every `## Answers` comment on both |
+| Ticket review | The `Fixed point: <sha>` comment on the ticket, or derived via fallback below | The ticket, its parent spec, and every `## Answers` comment on both |
 | Final review | `git merge-base origin/<default-branch> HEAD` | The parent spec, every ticket, and every `## Answers` comment |
 
-Return `failed` when the fixed point is missing or does not resolve, or when the diff is empty.
+Return `failed` when the fixed point cannot be derived or does not resolve, or when the diff is empty.
 
 ## Process
 
-1. **Fetch the diff**: Run `git fetch origin`, check out the feature branch, then run `git diff <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline`.
+1. **Fetch the diff**: Run `git fetch origin` and check out the feature branch. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
+   1. Extract commit hashes from the `## Handoff` comment on the ticket. Resolve the parent of the earliest commit using `<earliest-sha>~1`.
+   2. When extraction yields no commits, inspect `git log origin/<default-branch>..HEAD` for commits referencing `(#<ticket>)`. Resolve the parent of the earliest match using `<earliest-sha>~1`.
+   3. When steps 1 and 2 find no matching commits, and the ticket is the first ticket on the branch, resolve `git merge-base origin/<default-branch> HEAD`.
+   4. When a commit resolves, post `Fixed point: <sha>` to the ticket using `gh issue comment <n> --body "Fixed point: <sha>"`.
+   5. Use the resolved commit as `<fixed-point>` for `git diff <fixed-point>...HEAD`. Return `failed` when no commit resolves.
+   Run `git diff <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline`.
 2. **Check verification evidence**: The handoff comment must show passing tests or the direct checks required by [implement.md](implement.md#2-verify). Missing evidence is a Blocker.
 3. **Find standards sources**: Read `CONTRIBUTING.md`, coding standards, style guides, and linter configuration. Skip issues that automated linters catch.
 4. **Standards pass**: Report each breach with file and line.
