@@ -17,7 +17,7 @@ When a point remains unsettled, ask the user directly instead of guessing.
    gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec"
    ```
 
-6. **Continue the routing loop**: Publishing the spec completes only the first step of Boundary 2. Immediately return to `SKILL.md` § 2 (`Query state`) in the same turn so routing advances to Row 7 (spec validation).
+6. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing advances to Row 7 (spec validation).
 
 ## Spec template
 
@@ -73,4 +73,4 @@ When validation applies `ship-it:changes-requested` to the specification:
 2. **Update the spec**: Resolve every Blocker in the issue body (`gh issue edit <spec-number> --body-file <file>`). Obtain user approval when a fix changes scope or architecture.
 3. **Post resolution comment**: Explain the fix for each Blocker (`gh issue comment <spec-number> --body "<text>"`).
 4. **Remove label**: Clear `ship-it:changes-requested` (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
-5. **Continue the routing loop**: Immediately return to `SKILL.md` § 2 (`Query state`) in the same turn so routing re-runs Row 7 (spec validation).
+5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 7 (spec validation).

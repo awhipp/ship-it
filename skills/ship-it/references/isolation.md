@@ -5,7 +5,7 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 
 ## Pick the tier
 
-- **Tier 1**: A subagent dispatch tool with shell execution and file-writing capabilities exists (such as `invoke_subagent`, `Task`, or `Agent`). Select an execution-capable subagent rather than a read-only exploration subagent so the subagent can run `gh` and `git` commands.
+- **Tier 1**: A subagent dispatch tool with shell execution and file-writing capabilities exists. Select an execution-capable subagent rather than a read-only exploration subagent so the subagent can run `gh` and `git` commands.
 - **Tier 2**: No execution-capable subagent dispatch tool exists.
 
 ## Actions
@@ -53,15 +53,15 @@ Assign subagent complexity from the lifecycle role or the target ticket's `## Co
 | **`final-review`** | Review | Fixed Default | `high` |
 | **`close-out`** | Close-out | Fixed Default | `low` |
 
-### Universal reasoning directives
+### Complexity directives
 
-Subagents inherit the conductor's model and harness configuration by default.
-Reference files exclude vendor model switches and harness-specific parameter tables.
-Convey analytical thoroughness and exploratory depth by including the matching directive in the subagent dispatch prompt:
+Include the matching directive in the subagent dispatch prompt:
 
-- **`low`**: `Reasoning Effort: Minimal. Execute directly without exploratory loops.`
-- **`medium`**: `Reasoning Effort: Standard. Follow step-by-step verification.`
-- **`high`**: `Reasoning Effort: Extensive. Audit edge cases and invariants thoroughly.`
+- **`low`**: `Complexity: low. Expect a localized change. Check each requirement in the assigned issues.`
+- **`medium`**: `Complexity: medium. Check each requirement and edge case the assign issues name.`
+- **`high`**: `Complexity: high. Check each requirement, edge case, and invariant against active code, including callers outside the named touchpoints.`
+
+When the dispatch tool accepts a reasoning-effort setting, set the setting to the same level.
 
 ## Return schema
 

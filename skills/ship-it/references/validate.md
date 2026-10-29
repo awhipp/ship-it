@@ -31,7 +31,7 @@ Ground every check in these inputs:
 - **Traceability**: Unrequested behavior, or a requirement with no coverage.
 - **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
 - **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the five slicing anti-patterns (`Docs-Tail`, `Config-Preamble`, `Horizontal Slice`, `Orphaned Scaffolding`, and `Micro-Refactor`). Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
-- **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, or rationales failing to justify scope, touched layers, and reasoning depth. Validators audit qualitative reasoning depth and scope alignment without expecting engine-level parameter controls. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
+- **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, or rationales failing to justify scope, touched layers, and reasoning depth. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
 
 ## Severity
 
