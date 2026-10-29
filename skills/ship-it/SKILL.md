@@ -64,8 +64,7 @@ Never read a failed query as "no artifacts".
 ## 3. Route: the first matching row wins
 
 Execute a continuous **Query → Route → Act** loop.
-Complete the matched action, then follow the row's **Transition** column immediately.
-Never treat an intermediate artifact (such as a newly published spec or freshly sliced tickets) as a stopping point.
+Complete the matched action, then follow the row's **Transition** column.
 
 | # | State | Action | Transition |
 | :-- | :--- | :--- | :--- |
@@ -97,7 +96,7 @@ Apply the first matching step:
 
 Run every action per [isolation.md](references/isolation.md):
 
-- **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column immediately. Query state and route again in the same turn after publishing or remediating a spec or ticket set.
+- **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
 - **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`): Ask the user every question. Use an interactive question tool when one exists; otherwise ask in plain text and end the turn. Post the replies as a `## Answers` comment on the issue holding the questions, then query state and route again.
 - **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit at row 9, fix-ticket approval at row 11, or Boundary 3 exit at row 12; otherwise query state and route again).

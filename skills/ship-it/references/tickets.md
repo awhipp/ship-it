@@ -19,7 +19,7 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 - Specify the low-level design for every slice: target files and modules, symbol signatures, data and state flow, error handling, and integration seams with adjacent tickets.
 - Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
-- Sequence prefactoring first as a dedicated ticket that blocks subsequent slices.
+- When prefactoring earns a dedicated ticket under colapse rule 5, sequence that ticket first so the ticket blocks the slices that use it.
 - For mechanical refactors spanning the codebase, use **expand → migrate → contract**: add the new interface alongside the old one, migrate callers in blocked tickets, and remove the old interface in a final ticket.
 
 ### 3. Publish in dependency order
@@ -65,8 +65,6 @@ Avoid these five anti-patterns during ticket slicing:
 ## Complexity taxonomy
 
 Assign a complexity tier to each ticket based on scope, touched layers, verification seams, and reasoning requirements.
-Complexity tiers describe prompt-steered behavioral depth.
-Reasoning requirements establish qualitative analytical expectations rather than hardware or token allocations.
 
 | Level | Architectural Scope and Touchpoints | Verification Seam | Reasoning Need |
 | :--- | :--- | :--- | :--- |
@@ -74,7 +72,7 @@ Reasoning requirements establish qualitative analytical expectations rather than
 | **`medium`** | Conventional vertical slice across 2 to 4 files. Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning with step-by-step verification. Routine edge-case handling. |
 | **`high`** | Broad slice across 4 or more files, or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning with thorough invariant auditing. |
 
-Tickets needing deeper reasoning beyond `high` exceed ticket granularity bounds. Split oversized slices into smaller vertical tickets rather than expanding reasoning tiers.
+A slice that needs more than `high` exceeds the upper bounds in § Granularity thresholds. Split the slice into smaller vertical tickets.
 
 ## Ticket template
 
@@ -126,4 +124,4 @@ When ticket-set validation applies `ship-it:changes-requested` to the parent spe
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from any modified ticket so the validator re-audits the full set together.
 4. **Post resolution comment**: Explain the fix for each Blocker on the parent specification (`gh issue comment <spec-number> --body "<text>"`).
 5. **Remove label**: Clear `ship-it:changes-requested` from the parent specification (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
-6. **Continue the routing loop**: Immediately return to `SKILL.md` § 2 (`Query state`) in the same turn so routing re-runs Row 9 (ticket-set validation).
+6. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`).Routing re-runs Row 9 (ticket-set validation).
