@@ -71,9 +71,10 @@ Every subagent returns exactly this block:
 Verdict: done | approved | changes-requested | questions | failed
 Issues: #<n>, ...
 Questions: <numbered list, or None>
-Evidence: <link to the issue comment holding the full report>
+Evidence: <link to the issue comment holding the full report, or None>
 ```
 
+Actions that post no report comment return `Evidence: None`.
 The conductor reads only this block.
 
 ## Tier 2

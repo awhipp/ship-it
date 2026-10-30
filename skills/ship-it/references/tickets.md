@@ -8,7 +8,7 @@ Every feature produces at least one ticket.
 
 ### 1. Read the spec and explore the codebase
 
-Read the parent specification (`gh issue view <spec-number>`) and any `## Answers` comments.
+Read only the validated parent specification body (`gh issue view <spec-number> --json body`) without reading comments.
 Use targeted symbol and path searches anchored on the specification's modules and contracts to locate the exact files, symbols, types, and test suites each slice touches.
 Read only the relevant sections of large files rather than scanning the entire repository.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
@@ -16,10 +16,10 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 ### 2. Draft vertical slices
 
 - Cut each slice as a narrow, complete path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
-- Specify the low-level design for every slice: target files and modules, symbol signatures, data and state flow, error handling, and integration seams with adjacent tickets.
+- Specify the low-level design for every slice through `Touchpoints` and `Design deltas` referencing `Spec § <section>` rather than repeating parent specification contracts.
 - Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
-- When prefactoring earns a dedicated ticket under colapse rule 5, sequence that ticket first so the ticket blocks the slices that use it.
+- When prefactoring earns a dedicated ticket under collapse rule 5, sequence that ticket first so the ticket blocks the slices that use it.
 - For mechanical refactors spanning the codebase, use **expand → migrate → contract**: add the new interface alongside the old one, migrate callers in blocked tickets, and remove the old interface in a final ticket.
 
 ### 3. Publish in dependency order
@@ -31,7 +31,7 @@ Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, an
 gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket" --parent <spec-id>
 ```
 
-After creating all tickets, post a summary comment on the parent specification listing the created tickets and their blockers, then return `done`.
+After creating all tickets, return `done` with `Evidence: None`.
 
 ## Granularity thresholds
 
@@ -83,21 +83,19 @@ Part of #<spec-id>
 
 <level> - <Single-sentence rationale justifying the chosen level based on scope, touched layers, and reasoning depth.>
 
-## What to build
+## Slice goal
 
-Describe the vertical slice this ticket delivers and how the slice advances the specification, following [writing.md](writing.md).
+Name the vertical slice in one to two sentences and cite the `Spec § <section>` sections implemented, following [writing.md](writing.md).
 
 ## Low-level design
 
-- **Touchpoints**: Name the files, modules, classes, functions, or configuration targets to create, modify, or remove.
-- **Contracts and state**: Define the signatures, input and output shapes, state transitions, and control flow for this slice.
-- **Edge cases and invariants**: Specify failure modes, boundary conditions, and invariants this slice enforces.
-- **Slice seam**: State what this slice consumes from prerequisite tickets and what working state the slice exposes to dependent tickets.
+- **Touchpoints**: Name the exact files, modules, and symbols to create, modify, or remove.
+- **Design deltas**: Specify slice-specific signatures, state flow, and failure handling not already fully specified in the parent spec.
 
 ## Acceptance criteria
 
-- [ ] <Single-sentence imperative check adhering to writing.md>
-- [ ] <Single-sentence imperative check adhering to writing.md>
+- [ ] <Single-sentence imperative verification or edge-case check adhering to writing.md>
+- [ ] <Single-sentence imperative verification or edge-case check adhering to writing.md>
 
 ## Blocked by
 
@@ -105,7 +103,7 @@ Describe the vertical slice this ticket delivers and how the slice advances the 
 ```
 
 When a ticket has no blockers, write `None (can start immediately).` under `## Blocked by`.
-Include concrete verification criteria for happy paths, edge cases, and negative invariants (such as "confirm as a final check that no callers of the old API remain").
+Use `## Acceptance criteria` as the single home for imperative, testable slice verification, happy paths, edge cases, and negative invariants (such as "confirm as a final check that no callers of the old API remain").
 Omit line numbers and literal code blocks while naming exact file paths, modules, and symbols.
 
 ## Relationships
@@ -119,9 +117,8 @@ Maintain compatibility across GitHub repository tiers with dual-channel relation
 
 When ticket-set validation applies `ship-it:changes-requested` to the parent specification:
 
-1. **Read the report**: Inspect the validation report and any `## Answers` comments on the parent specification (`gh issue view <spec-number> --comments`).
+1. **Read the report**: Inspect the latest validation report comment on the parent specification via `gh issue view <spec-number> --json comments --jq '.comments[-1]'`.
 2. **Update the tickets**: Edit ticket bodies (`gh issue edit <n> --body-file <file>`), create missing slices, or close redundant slices. Obtain user approval when changes alter scope.
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from any modified ticket so the validator re-audits the full set together.
-4. **Post resolution comment**: Explain the fix for each Blocker on the parent specification (`gh issue comment <spec-number> --body "<text>"`).
-5. **Remove label**: Clear `ship-it:changes-requested` from the parent specification (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
-6. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`).Routing re-runs Row 9 (ticket-set validation).
+4. **Remove label**: Clear `ship-it:changes-requested` from the parent specification (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
+5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 9 (ticket-set validation).
