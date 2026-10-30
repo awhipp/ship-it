@@ -56,7 +56,7 @@ gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
 Run the pull request query only once a spec exists.
-Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body` and retain that branch name across routing passes.
+Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body --jq .body` and retain that branch name across routing passes.
 A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`.
 A failed query is an environment error: run [preflight.md](references/preflight.md).
 Never read a failed query as "no artifacts".
@@ -88,7 +88,7 @@ Apply the first matching step:
 
 1. No open ticket is unblocked: report each open ticket with its open blockers and **halt**.
 2. Has `ship-it:reviewed`: close the ticket (`gh issue close <n> --comment "<summary>"`), then query state and route again.
-3. Has `ship-it:changes-requested`: count the `**Verdict**: Changes requested` review comments posted after the latest `## Answers` comment on the ticket (or since creation when none exists). At three or more, **halt** and ask the user to post guidance as a `## Answers` comment on the ticket; otherwise dispatch rework, then query state and route again.
+3. Has `ship-it:changes-requested`: count the `**Verdict**: Changes requested` review comments posted after the latest `## Answers` comment on the ticket (or since creation when none exists) via `gh issue view <n> --json comments`. At three or more retries, ask the user for rework guidance (using an interactive question tool when one exists; otherwise ask in plain text and end the turn). Post the reply as a `## Answers` comment on the ticket, fold the guidance or clarified constraints into the ticket body (and parent specification body when shared contracts change) via surgical body edit (`gh issue edit <n> --body-file <file>`), then query state and route again. Below three retries, dispatch rework, then query state and route again.
 4. Has an assignee: dispatch review, then query state and route again.
 5. Otherwise: claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation, then query state and route again.
 
@@ -98,7 +98,7 @@ Run every action per [isolation.md](references/isolation.md):
 
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
-- **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`): Ask the user every question. Use an interactive question tool when one exists; otherwise ask in plain text and end the turn. Post the replies as a `## Answers` comment on the issue holding the questions, then query state and route again.
+- **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`): Ask the user every question. Use an interactive question tool when one exists; otherwise ask in plain text and end the turn. Post the replies as a `## Answers` comment on the issue holding the questions. Fold every settled answer—including clarifications confirming existing behavior—into the target map, specification, or ticket body (and both the ticket and parent specification bodies when a ticket answer alters a shared contract) via surgical body edit (`gh issue edit <n> --body-file <file>`), then query state and route again.
 - **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit at row 9, fix-ticket approval at row 11, or Boundary 3 exit at row 12; otherwise query state and route again).
 
 ## 5. Report at every halt

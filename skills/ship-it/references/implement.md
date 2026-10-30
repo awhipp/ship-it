@@ -1,7 +1,7 @@
 # Implement: build one ticket, verified
 
 Build exactly what one ticket describes.
-The ticket, its parent spec, and their `## Answers` comments are the only requirements.
+The ticket body and its parent specification body (`gh issue view <n> --json body --jq .body`) are the only requirements.
 
 ## Process
 
@@ -9,7 +9,7 @@ The ticket, its parent spec, and their `## Answers` comments are the only requir
 
 1. Read the branch name from the spec's `## Source` (`<type>/<slug>`).
 2. Fetch the target refs (`git fetch origin <default-branch>` and `git fetch origin <branch>` when the branch exists on `origin`). Check out the branch when it exists on `origin`; otherwise create the branch from `origin/<default-branch>` and push the branch with `git push -u origin <branch>`.
-3. Unless the ticket already has a `Fixed point:` comment, post one before the first change: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`.
+3. Check for an existing `Fixed point:` comment via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Fixed:1}|keys[])) == 0)] | last'`. When no `Fixed point:` comment exists, post the comment before the first change on a best-effort basis: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`. Proceed with implementation when an enterprise policy blocks the comment, as ticket-tagged commits (`(#<ticket>)`) allow review to derive the fixed point from Git history.
 
 ### 2. Verify
 
@@ -63,7 +63,7 @@ When the ticket's low-level design or acceptance criteria conflict with active c
 
 When the ticket carries `ship-it:changes-requested`:
 
-1. Read the latest review report on the ticket.
+1. Read the latest review report (plus any subsequent `## Answers` comment posted after that review) on the ticket via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1,Answers:1}|keys[])) == 3)] | (if (last | index(({Answers:1}|keys[])) == 3) then .[-2:] else [last] end)[]'`.
 2. Fix every Blocker, and add a test or direct check for each fix.
 3. Commit and push per step 5. Keep the existing fixed point.
 4. Write a `## Rework` comment explaining the fix and verification evidence for each Blocker to a temporary file, post the comment (`gh issue comment <n> --body-file <file>`), and delete the temporary file.
@@ -102,5 +102,4 @@ Run after the final review approves the spec.
    **Traces to**: #<ticket>, Spec § <section heading>
    ```
 
-3. Post a completion comment on the spec with the pull request link (`gh issue comment <spec> --body "<text>"`).
-4. Return `done`. Never merge the pull request.
+3. Return `done`. Never merge the pull request.

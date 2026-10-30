@@ -58,7 +58,7 @@ Assign subagent complexity from the lifecycle role or the target ticket's `## Co
 Include the matching directive in the subagent dispatch prompt:
 
 - **`low`**: `Complexity: low. Expect a localized change. Check each requirement in the assigned issues.`
-- **`medium`**: `Complexity: medium. Check each requirement and edge case the assign issues name.`
+- **`medium`**: `Complexity: medium. Check each requirement and edge case the assigned issues name.`
 - **`high`**: `Complexity: high. Check each requirement, edge case, and invariant against active code, including callers outside the named touchpoints.`
 
 When the dispatch tool accepts a reasoning-effort setting, set the setting to the same level.
@@ -71,9 +71,10 @@ Every subagent returns exactly this block:
 Verdict: done | approved | changes-requested | questions | failed
 Issues: #<n>, ...
 Questions: <numbered list, or None>
-Evidence: <link to the issue comment holding the full report>
+Evidence: <link to the issue comment holding the full report, or None>
 ```
 
+Actions that post no report comment return `Evidence: None`.
 The conductor reads only this block.
 
 ## Tier 2

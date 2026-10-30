@@ -29,12 +29,12 @@ Evaluate every file against these five audit axes:
 - **No XML tags in frontmatter**: Confirm the YAML frontmatter contains zero `<` or `>` characters so system prompt parsers never misinterpret placeholders as XML tags.
 - **One-level progressive disclosure**: Confirm `SKILL.md` links directly to its `references/*.md` files (`<500` lines each) and that cross-phase citations inside reference files are self-explanatory inline so subagents load only their assigned reference file plus `writing.md`.
 - **Harness agnosticism**: Confirm instructions avoid vendor-specific model switches, proprietary configuration files, or single-harness assumptions. Verify [`isolation.md`](../../../skills/ship-it/references/isolation.md) requires execution-capable subagents with shell and file-writing tools rather than read-only exploration subagents.
-- **Cross-platform shell and temp-file hygiene**: Confirm [`preflight.md`](../../../skills/ship-it/references/preflight.md) and [`implement.md`](../../../skills/ship-it/references/implement.md) quote PowerShell special characters (`"@me"`, `"repos/{owner}/{repo}/..."`), use `--body-file` instead of heredocs, clean up temporary `--body-file` payloads immediately, and stage explicit file paths (`git add <file>...`).
+- **Cross-platform shell and temp-file hygiene**: Confirm [`preflight.md`](../../../skills/ship-it/references/preflight.md), [`spec.md`](../../../skills/ship-it/references/spec.md), [`tickets.md`](../../../skills/ship-it/references/tickets.md), [`implement.md`](../../../skills/ship-it/references/implement.md), and [`review.md`](../../../skills/ship-it/references/review.md) quote PowerShell special characters (`"@me"`, `"repos/{owner}/{repo}/..."`), keep `--jq '...'` filters free of inner double quotes so Windows PowerShell 5.1 does not strip them, use `--body-file` instead of heredocs, clean up temporary `--body-file` payloads immediately, and stage explicit file paths (`git add <file>...`).
 
 ### 2. Large-codebase and context efficiency
 
 - **Conductor context minimalism**: Confirm the conductor queries only metadata in per-pass routing loops, reads large issue bodies (such as the spec's `## Source` branch) only once when needed, and never absorbs raw diffs or subagent transcripts.
-- **Bounded `gh` CLI queries**: Confirm `gh issue list` and `gh label list` queries include explicit `--limit 100` bounds and narrow search prefixes (`--search "[<slug>] in:title"` or `--search "ship-it:"`), use `--force` for idempotent label creation, batch-fetch open tickets during ticket-set validation, and evaluate frontier blockers lazily in ascending issue-number order.
+- **Bounded `gh` CLI queries**: Confirm `gh issue list` and `gh label list` queries include explicit `--limit 100` bounds and narrow search prefixes (`--search "[<slug>] in:title"` or `--search "ship-it:"`), use `--force` for idempotent label creation, read raw issue bodies with `--json body --jq .body` instead of `--comments`, batch-fetch open and closed tickets (`--limit 100`) during ticket-set validation and final review, and evaluate frontier blockers lazily in ascending issue-number order.
 - **Search-first codebase exploration**: Confirm [`plan.md`](../../../skills/ship-it/references/plan.md), [`spec.md`](../../../skills/ship-it/references/spec.md), [`tickets.md`](../../../skills/ship-it/references/tickets.md), and [`validate.md`](../../../skills/ship-it/references/validate.md) instruct agents to use targeted symbol and path searches (`rg`, `git grep`, or harness search tools) and line-range reads rather than full-repository directory scans. Confirm `validate.md` reads the artifact under audit before verifying named touchpoints against active code.
 - **Scoped git and test execution**: Confirm [`implement.md`](../../../skills/ship-it/references/implement.md) and [`review.md`](../../../skills/ship-it/references/review.md) fetch specific target branches (`git fetch origin <default-branch> <branch>`), survey diffs with `git diff --stat` before reading full diffs, and run package- or domain-scoped test suites per `## Testing Decisions`.
 
@@ -46,13 +46,7 @@ Evaluate every file against these five audit axes:
 
 ### 4. Writing and clarity standard
 
-- Audit every file against the six rules in [`writing.md`](../../../skills/ship-it/references/writing.md):
-  1. **Sentence brevity**: One idea or instruction per sentence, without scripts or word counters.
-  2. **Voice and mood**: Imperative mood for procedures; active voice for descriptions.
-  3. **Noun clusters**: At most three consecutive nouns.
-  4. **Affirmative phrasing**: Direct affirmative statements instead of double negatives.
-  5. **High scannability**: Bulleted lists, bold lead-ins, tables, and paragraphs under four sentences.
-  6. **Controlled vocabulary**: One consistent term per concept and explicit antecedents instead of bare pronouns (`this`, `it`).
+- Audit every file qualitatively against all seven core rules in [`writing.md`](../../../skills/ship-it/references/writing.md) (`Sentence Brevity`, `Voice and Mood`, `Noun Clusters`, `Affirmative Phrasing`, `High Scannability`, `Controlled Vocabulary`, and `Single Source of Truth`), without writing scripts or word counters.
 
 ### 5. `README.md` synchronization and brevity
 

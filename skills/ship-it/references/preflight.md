@@ -53,7 +53,7 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 | Action | Command |
 | :--- | :--- |
 | Query issues by label and slug | `gh issue list --label "<label>" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,assignees,state` |
-| View issue and comments | `gh issue view <n> --comments` or `gh issue view <n> --json number,title,body,labels,assignees,state,comments` |
+| View issue body | `gh issue view <n> --json body --jq .body` or `gh issue view <n> --json number,title,body,labels,assignees,state` |
 | Create issue | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
 | Edit issue | `gh issue edit <n> --title "<title>" --body-file <file> --add-label "<label>" --remove-label "<label>"` |
 | Comment on issue | `gh issue comment <n> --body-file <file>` or `gh issue comment <n> --body "<text>"` |
@@ -68,8 +68,16 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 | Get pull request head SHA | `gh pr view <pr> --json headRefOid --jq .headRefOid` |
 | Annotate pull request file (sole `gh api` exception) | `gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<sha> -f path=<file> -f subject_type=file -F body=@<file>` |
 
+### Bounded comment queries
+
+- **View latest validation report**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last'`
+- **View latest review and answers**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1,Answers:1}|keys[])) == 3)] | (if (last | index(({Answers:1}|keys[])) == 3) then .[-2:] else [last] end)[]'`
+- **View ticket review metadata**: `gh issue view <n> --json comments --jq '.comments[].body | select(index(({Fixed:1}|keys[])) == 0 or index(({Handoff:1,Rework:1}|keys[])) == 3)'`
+
 ## Cross-platform shell conventions
 
 - **Multi-line bodies**: Write multi-line text to a temporary file using a file-writing tool or a single-quoted PowerShell here-string (`@' ... '@`), pass `--body-file <path>` or `-F body=@<path>`, and delete the temporary file immediately after the `gh` command completes. Never use Bash heredocs or double-quoted PowerShell strings (`"..."`), which interpret Markdown backticks as escape characters.
+- **Surgical body edits**: Fetch the raw issue body (`gh issue view <n> --json body --jq .body`) to a temporary file, edit only the target section with a file-editing tool so untouched sections and `- [ ]` tasklists stay intact, inspect the diff (`git diff --no-index`), run `gh issue edit <n> --body-file <path>`, and delete the temporary file.
+- **Quote-free `--jq` filters**: Keep `--jq '...'` expressions free of inner double quotes by matching heading prefixes with bare-identifier object keys (`index(({Validation:1}|keys[])) == 3`). Windows PowerShell 5.1 strips unescaped inner `"` when spawning native processes, while `pwsh` 7 and POSIX shells reject `\"`.
 - **PowerShell special characters**: Always quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
 - **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.

@@ -1,6 +1,6 @@
 # Writing and Clarity Standard
 
-Technical prose in `ship-it` must be clear, concise, and scannable. This standard defines six core authoring rules for all documentation and lifecycle artifacts.
+Technical prose in `ship-it` must be clear, concise, and scannable. This standard defines seven core authoring rules for all documentation and lifecycle artifacts.
 
 ## Core Rules
 
@@ -12,8 +12,9 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 | **4. Affirmative Phrasing** | State what to do directly. Avoid double negatives and negative constructions when an affirmative instruction exists. | *Good*: Retain existing comments (*not* do not fail to avoid deleting existing comments). |
 | **5. High Scannability** | Structure text with bulleted lists, bold lead-ins, short paragraphs, and clear tables. Keep paragraphs under four sentences. | Use bulleted lists for multi-item sequences. |
 | **6. Controlled Vocabulary** | Use one consistent term per concept across all files. State explicit antecedents instead of bare pronouns like "this" or "it". | *Good*: The ticket defines acceptance criteria (*not* It defines them). |
+| **7. Single Source of Truth** | State each requirement, contract, or decision once in its canonical section. Reference parent sections from child artifacts instead of restating parent content. | *Good*: Implement the retry policy in Spec § Implementation Decisions (*not* restating the full retry contract in the ticket). |
 
 ## Application Across Artifacts
 
-Apply these six rules across all `ship-it` documentation, maps, specs, tickets, validation reports, and reviews.
+Apply these seven rules across all `ship-it` documentation, maps, specs, tickets, validation reports, and reviews.
 Evaluate clarity and brevity qualitatively through direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics.
