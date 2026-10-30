@@ -8,7 +8,7 @@ Every feature produces at least one ticket.
 
 ### 1. Read the spec and explore the codebase
 
-Read only the validated parent specification body (`gh issue view <spec-number> --json body`) without reading comments.
+Read only the validated parent specification body (`gh issue view <spec-number> --json body --jq .body`) without reading comments.
 Use targeted symbol and path searches anchored on the specification's modules and contracts to locate the exact files, symbols, types, and test suites each slice touches.
 Read only the relevant sections of large files rather than scanning the entire repository.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
@@ -16,7 +16,7 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 ### 2. Draft vertical slices
 
 - Cut each slice as a narrow, complete path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
-- Specify the low-level design for every slice through `Touchpoints` and `Design deltas` referencing `Spec § <section>` rather than repeating parent specification contracts.
+- Specify the low-level design for every slice through `Touchpoints` and `Design deltas` referencing `Spec § <section>` rather than repeating parent specification contracts. State concrete slice-local symbol signatures, step numbers, or behavior subsets plus explicit inter-slice transition boundaries (what the slice introduces, leaves in place, or removes relative to sibling tickets); never write bare pointer stubs such as `"Apply rules in Spec § ..."`.
 - Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
 - When prefactoring earns a dedicated ticket under collapse rule 5, sequence that ticket first so the ticket blocks the slices that use it.
@@ -90,7 +90,7 @@ Name the vertical slice in one to two sentences and cite the `Spec § <section>`
 ## Low-level design
 
 - **Touchpoints**: Name the exact files, modules, and symbols to create, modify, or remove.
-- **Design deltas**: Specify slice-specific signatures, state flow, and failure handling not already fully specified in the parent spec.
+- **Design deltas**: Specify concrete slice-local symbol signatures, step numbers, state flow, failure handling, and inter-slice transition boundaries (what the slice introduces, leaves in place, or removes relative to sibling tickets) not already itemized per-slice in the parent spec. Never write bare pointer stubs.
 
 ## Acceptance criteria
 
@@ -117,8 +117,8 @@ Maintain compatibility across GitHub repository tiers with dual-channel relation
 
 When ticket-set validation applies `ship-it:changes-requested` to the parent specification:
 
-1. **Read the report**: Inspect the latest validation report comment on the parent specification via `gh issue view <spec-number> --json comments --jq '.comments[-1]'`.
-2. **Update the tickets**: Edit ticket bodies (`gh issue edit <n> --body-file <file>`), create missing slices, or close redundant slices. Obtain user approval when changes alter scope.
+1. **Read the report**: Inspect the latest validation report comment on the parent specification via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last'`.
+2. **Update the tickets**: Edit ticket bodies via surgical body edit (`gh issue edit <n> --body-file <file>`), create missing slices, or close redundant slices. Obtain user approval when changes alter scope.
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from any modified ticket so the validator re-audits the full set together.
 4. **Remove label**: Clear `ship-it:changes-requested` from the parent specification (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 9 (ticket-set validation).

@@ -12,21 +12,20 @@ Evaluating each axis separately keeps strength on one axis from masking defects 
 
 | Mode | Fixed point | Requirements |
 | :--- | :--- | :--- |
-| Ticket review | The `Fixed point: <sha>` comment on the ticket, or derived via fallback below | The ticket body and its parent spec body |
-| Final review | `git merge-base origin/<default-branch> HEAD` | The parent spec body and every ticket body (zero comment reads) |
+| Ticket review | The `Fixed point: <sha>` comment on the ticket, or derived via fallback below | The ticket body and its parent spec body (`gh issue view <n> --json body --jq .body`) |
+| Final review | `git merge-base origin/<default-branch> HEAD` | The parent spec body (`gh issue view <spec> --json body --jq .body`) and every closed ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,body`), with zero comment reads |
 
 Return `failed` when the fallback procedure cannot derive a fixed point, the commit does not resolve, or the diff is empty.
 
 ## Process
 
-1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. For ticket review, read only the `Fixed point:`, `## Handoff`, and `## Rework` comments on the ticket via `gh issue view <n> --json comments --jq '[.comments[].body | select(startswith("Fixed point:") or startswith("## Handoff") or startswith("## Rework"))]'`. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
+1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. For ticket review, read only the `Fixed point:`, `## Handoff`, and `## Rework` comments on the ticket via `gh issue view <n> --json comments --jq '.comments[].body | select(index(({Fixed:1}|keys[])) == 0 or index(({Handoff:1,Rework:1}|keys[])) == 3)'`. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
    1. Extract commit hashes from the `## Handoff` comment on the ticket. Resolve the parent of the earliest commit using `<earliest-sha>~1`.
    2. When extraction yields no commits, inspect `git log origin/<default-branch>..HEAD` for commits referencing `(#<ticket>)`. Resolve the parent of the earliest match using `<earliest-sha>~1`.
    3. When steps 1 and 2 find no matching commits, and the ticket is the first ticket on the branch, resolve `git merge-base origin/<default-branch> HEAD`.
-   4. When a commit resolves, post `Fixed point: <sha>` to the ticket using `gh issue comment <n> --body "Fixed point: <sha>"`.
-   5. Use the resolved commit as `<fixed-point>` for `git diff <fixed-point>...HEAD`. Return `failed` when no commit resolves.
+   4. Use the resolved commit as `<fixed-point>` for `git diff <fixed-point>...HEAD`. Return `failed` when no commit resolves.
    Run `git diff --stat <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline` first to survey changed files, then inspect `git diff <fixed-point>...HEAD` (scoping per path or skipping generated lockfiles when large).
-2. **Check verification evidence**: Inspect the `## Handoff` and `## Rework` comments fetched in step 1 for passing tests or the direct checks required by [implement.md](implement.md#2-verify). Missing evidence is a Blocker.
+2. **Check verification evidence**: For ticket review, inspect the `## Handoff` and `## Rework` comments fetched in step 1 for passing tests or the direct checks required by [implement.md](implement.md#2-verify). For final review, run or verify the test suite and direct checks specified in the parent spec's `## Testing Decisions` and ticket `## Acceptance criteria` directly against the branch without reading issue comments. Missing verification is a Blocker.
 3. **Find standards sources**: Read `CONTRIBUTING.md`, coding standards, style guides, and linter configuration. Skip issues that automated linters catch.
 4. **Standards pass**: Report each breach with file and line.
 5. **Spec pass**: Audit the diff against the parent spec's cross-cutting architecture and the ticket's low-level design (touchpoints, design deltas, and acceptance criteria). Report missing requirements, partial implementations, unapproved architectural inventions, scope creep, and incorrect behavior. Quote the requirement for each finding.
@@ -61,6 +60,7 @@ Post the report on the ticket, or on the spec for a final review:
 
 ```markdown
 ## Review: <Ticket #n | Final>
+**Audited**: `<fixed-point>..<head-sha>` (<diff stat summary>; <verification summary>)
 
 ### Standards
 - <file#Lx: finding>
@@ -78,7 +78,7 @@ Post the report on the ticket, or on the spec for a final review:
 ```
 
 Render only subsections that contain findings (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`), omitting empty subsections and `- None` placeholders.
-When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>` and `**Verdict**: Approved`.
+When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, the `**Audited**:` proof-of-work line, and `**Verdict**: Approved`.
 The `**Verdict**:` line is exact; the conductor counts `Changes requested` verdicts to enforce the retry limit.
 
 ## Ticket review outcomes
@@ -107,5 +107,5 @@ Apply the same passes, then check across tickets:
 | Nits or nothing | Add `ship-it:reviewed` to the spec. | `approved` |
 
 Create each fix ticket with the title `[<slug>] Ticket: Fix <gist>`, label `ship-it:ticket,ship-it:validated`, and `--parent <spec-id>` ([tickets.md](tickets.md)).
-Include `Part of #<spec-id>`, `## Complexity`, `## Slice goal` (quoting the Blocker and citing `Spec § <section>`), `## Low-level design`, `## Acceptance criteria`, and `## Blocked by` in the ticket body.
+Include `Part of #<spec-id>`, `## Complexity`, `## Slice goal` (quoting the Blocker and citing `Spec § <section>`), `## Low-level design` (with `- **Touchpoints**:` and `- **Design deltas**:` bullets), `## Acceptance criteria`, and `## Blocked by` (`None (can start immediately).` or `- [ ] Blocked by #<blocker-id>`) in the ticket body.
 Delete the temporary `--body-file` payload after creation.

@@ -39,10 +39,6 @@ Part of #<map-id>
 
 <Single-sentence question this ticket resolves.>
 
-## Decision
-
-<!-- Filled when resolving the decision ticket: settled decision and brief rationale. -->
-
 ## Blocked by
 
 - [ ] Blocked by #<blocker-id>
@@ -74,13 +70,13 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 
 ### Resolving (map is open)
 
-1. Read the map body (`gh issue view <map-number> --json body`) and list its decision tickets (`gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state`), keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`.
+1. Read the map body (`gh issue view <map-number> --json body --jq .body`) and list its decision tickets (`gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state`), keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`.
 2. Select the lowest-numbered open decision ticket whose blockers are all closed, checking open decision tickets in ascending number order against the closed set.
 3. Claim the ticket (`gh issue edit <n> --add-assignee "@me"`).
 4. Resolve the ticket per its type and [isolation.md](isolation.md):
-   - Dispatch `research`, `prototype`, and `task` tickets per `isolation.md`. The subagent writes the settled decision into `## Decision` in the decision ticket body (`gh issue edit <n> --body-file <file>`), closes the ticket (`gh issue close <n> --comment "<summary>"`), and returns `done`. When blocked on user input, the subagent leaves the ticket open and returns `questions`.
-   - Run `grilling` tickets in the conductor, asking one question per turn until settled. Write the settled decision into `## Decision` in the decision ticket body (`gh issue edit <n> --body-file <file>`), then close the ticket (`gh issue close <n> --comment "<summary>"`).
-5. Once the ticket closes, update the map (`gh issue edit <map-number> --body-file <file>`):
+   - Dispatch `research`, `prototype`, and `task` tickets per `isolation.md`. The subagent closes the ticket (`gh issue close <n> --comment "<settled decision and rationale>"`) and returns `done`. When blocked on user input, the subagent leaves the ticket open and returns `questions`.
+   - Run `grilling` tickets in the conductor, asking one question per turn until settled, then close the ticket (`gh issue close <n> --comment "<settled decision and rationale>"`).
+5. Once the ticket closes, update the map body (`gh issue edit <map-number> --body-file <file>`):
    - Append a self-contained single-sentence decision summary and issue link under `## Decisions so far`.
    - Graduate newly specifiable items from `## Not yet specified` into new decision tickets, and move ruled-out items to `## Out of scope`. When no open decision tickets remain, graduate or rule out every remaining item under `## Not yet specified` before proceeding.
 6. While open decision tickets remain, return to `SKILL.md` § 2 (`Query state`) to resolve the next decision ticket. When none remain, close the map (`gh issue close <map-number> --comment "<summary>"`) and halt at Boundary 1 exit.
