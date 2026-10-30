@@ -46,13 +46,14 @@ Evaluate every file against these five audit axes:
 
 ### 4. Writing and clarity standard
 
-- Audit every file against the six rules in [`writing.md`](../../../skills/ship-it/references/writing.md):
+- Audit every file against the seven rules in [`writing.md`](../../../skills/ship-it/references/writing.md):
   1. **Sentence brevity**: One idea or instruction per sentence, without scripts or word counters.
   2. **Voice and mood**: Imperative mood for procedures; active voice for descriptions.
   3. **Noun clusters**: At most three consecutive nouns.
   4. **Affirmative phrasing**: Direct affirmative statements instead of double negatives.
   5. **High scannability**: Bulleted lists, bold lead-ins, tables, and paragraphs under four sentences.
   6. **Controlled vocabulary**: One consistent term per concept and explicit antecedents instead of bare pronouns (`this`, `it`).
+  7. **Single source of truth**: Each requirement, contract, or decision appears once in its canonical section, and child artifacts reference parent sections instead of restating parent content.
 
 ### 5. `README.md` synchronization and brevity
 

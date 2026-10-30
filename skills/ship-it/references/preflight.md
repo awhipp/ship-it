@@ -53,7 +53,8 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 | Action | Command |
 | :--- | :--- |
 | Query issues by label and slug | `gh issue list --label "<label>" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,assignees,state` |
-| View issue and comments | `gh issue view <n> --comments` or `gh issue view <n> --json number,title,body,labels,assignees,state,comments` |
+| View issue body | `gh issue view <n> --json number,title,body,labels,assignees,state` or `gh issue view <n> --json body` |
+| View latest issue comment | `gh issue view <n> --json comments --jq '.comments[-1]'` |
 | Create issue | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
 | Edit issue | `gh issue edit <n> --title "<title>" --body-file <file> --add-label "<label>" --remove-label "<label>"` |
 | Comment on issue | `gh issue comment <n> --body-file <file>` or `gh issue comment <n> --body "<text>"` |
