@@ -31,4 +31,3 @@ Organize tests by domain, module, or feature seam (such as `tests/auth.test.ts`)
 
 Never invent test runners or string-matching scripts to simulate coverage for non-code changes.
 Never write scripts that count words or measure prose; evaluate writing by reading it.
-

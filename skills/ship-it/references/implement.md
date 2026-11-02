@@ -34,6 +34,7 @@ Scale verification scope to the complexity tier recorded on the ticket:
 #### Universal testing standards
 
 Follow the universal testing standards defined in [writing.md](writing.md):
+
 - Follow the [ticket-naming prohibition](writing.md#ticket-naming-prohibition). Organize tests by domain, module, or feature seam rather than issue numbers.
 - Follow the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition). Never invent test runners or string-matching scripts to simulate coverage for non-code changes.
 
