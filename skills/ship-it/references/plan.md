@@ -65,12 +65,12 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 
 1. Grill the user to settle the destination and surface open decisions, asking strictly one question per turn.
 2. Publish the map issue (`gh issue create --title "[<slug>] Map: <gist>" --body-file <file> --label "ship-it:map"`).
-3. Create decision tickets for every question that has a clear phrasing now. Write `Part of #<map-id>` and `## Blocked by` in the body, and pass `--parent <map-id>` and `--blocked-by <blocker-id>` when supported ([tickets.md](tickets.md#relationships)).
+3. Create decision tickets for every question that has a clear phrasing now. Write `Part of #<map-id>` and `## Blocked by` in the body, and pass `--parent <map-id>` and `--blocked-by <blocker-id>` when supported.
 4. Continue straight into resolving decision tickets.
 
 ### Resolving (map is open)
 
-1. Read the map body (`gh issue view <map-number> --json body --jq .body`) and list its decision tickets (`gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state`), keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`.
+1. Read the map body (`gh issue view <map-number> --json body --jq .body`) and list its decision tickets (`gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state`), keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`. When the query returns exactly 100 results, print `"Warning: Search returned 100 results; GitHub search may be truncated."`.
 2. Select the lowest-numbered open decision ticket whose blockers are all closed, checking open decision tickets in ascending number order against the closed set.
 3. Claim the ticket (`gh issue edit <n> --add-assignee "@me"`).
 4. Resolve the ticket per its type and [isolation.md](isolation.md):
