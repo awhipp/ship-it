@@ -70,14 +70,16 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 
 ### Bounded comment queries
 
-- **View latest validation report**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last'`
+- **View latest validation report**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`
 - **View latest review and answers**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1,Answers:1}|keys[])) == 3)] | (if (last | index(({Answers:1}|keys[])) == 3) then .[-2:] else [last] end)[]'`
-- **View ticket review metadata**: `gh issue view <n> --json comments --jq '.comments[].body | select(index(({Fixed:1}|keys[])) == 0 or index(({Handoff:1,Rework:1}|keys[])) == 3)'`
+- **View ticket review metadata**: `gh issue view <n> --json comments --jq '.comments[].body | select((index(({Fixed:1}|keys[])) == 0 and index(({point:1}|keys[])) == 6) or index(({Handoff:1,Rework:1}|keys[])) == 3)'`
 
 ## Cross-platform shell conventions
 
 - **Multi-line bodies**: Write multi-line text to a temporary file using a file-writing tool or a single-quoted PowerShell here-string (`@' ... '@`), pass `--body-file <path>` or `-F body=@<path>`, and delete the temporary file immediately after the `gh` command completes. Never use Bash heredocs or double-quoted PowerShell strings (`"..."`), which interpret Markdown backticks as escape characters.
-- **Surgical body edits**: Fetch the raw issue body (`gh issue view <n> --json body --jq .body`) to a temporary file, edit only the target section with a file-editing tool so untouched sections and `- [ ]` tasklists stay intact, inspect the diff (`git diff --no-index`), run `gh issue edit <n> --body-file <path>`, and delete the temporary file.
+- **UTF-8 file persistence**: Write UTF-8 files without BOM using native file-writing tools or `[IO.File]::WriteAllText($path, $text, [System.Text.UTF8Encoding]::new($false))` to avoid UTF-16LE corruption in `gh --body-file` under PowerShell 5.1.
+- **Surgical body edits**: Fetch the raw issue body (`gh issue view <n> --json body --jq .body`) to a temporary file. Edit only the target section with a file-editing tool so untouched sections and `- [ ]` tasklists stay intact. Inspect the diff (`git diff --no-index`). Run `gh issue edit <n> --body-file <path>`, and delete the temporary file.
+- **Diff exit codes**: Treat exit code 1 from `git diff --no-index` as differences detected rather than command failure.
 - **Quote-free `--jq` filters**: Keep `--jq '...'` expressions free of inner double quotes by matching heading prefixes with bare-identifier object keys (`index(({Validation:1}|keys[])) == 3`). Windows PowerShell 5.1 strips unescaped inner `"` when spawning native processes, while `pwsh` 7 and POSIX shells reject `\"`.
 - **PowerShell special characters**: Always quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
 - **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.
