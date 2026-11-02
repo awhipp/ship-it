@@ -12,23 +12,33 @@ Evaluating each axis separately keeps strength on one axis from masking defects 
 
 | Mode | Fixed point | Requirements |
 | :--- | :--- | :--- |
-| Ticket review | The `Fixed point: <sha>` comment on the ticket, or derived via fallback below | The ticket body and its parent spec body (`gh issue view <n> --json body --jq .body`) |
-| Final review | `git merge-base origin/<default-branch> HEAD` | The parent spec body (`gh issue view <spec> --json body --jq .body`) and every closed ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,body`), with zero comment reads |
+| Ticket review | The `Fixed point: <sha>` comment on the ticket, or derived via fallback below | The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) |
+| Final review | `git merge-base origin/<default-branch> HEAD` | The spec body (`gh issue view <spec> --json body --jq .body`) and every closed ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,body`). Keep only results whose title starts with `[<slug>]`, with zero comment reads. |
 
 Return `failed` when the fallback procedure cannot derive a fixed point, the commit does not resolve, or the diff is empty.
 
 ## Process
 
-1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. For ticket review, read only the `Fixed point:`, `## Handoff`, and `## Rework` comments on the ticket via `gh issue view <n> --json comments --jq '.comments[].body | select(index(({Fixed:1}|keys[])) == 0 or index(({Handoff:1,Rework:1}|keys[])) == 3)'`. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
+1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. For ticket review, read only the `Fixed point:`, `## Handoff`, and `## Rework` comments on the ticket via `gh issue view <n> --json comments --jq '.comments[].body | select((index(({Fixed:1}|keys[])) == 0 and index(({point:1}|keys[])) == 6) or index(({Handoff:1,Rework:1}|keys[])) == 3) // empty'`. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
    1. Extract commit hashes from the `## Handoff` comment on the ticket. Resolve the parent of the earliest commit using `<earliest-sha>~1`.
    2. When extraction yields no commits, inspect `git log origin/<default-branch>..HEAD` for commits referencing `(#<ticket>)`. Resolve the parent of the earliest match using `<earliest-sha>~1`.
    3. When steps 1 and 2 find no matching commits, and the ticket is the first ticket on the branch, resolve `git merge-base origin/<default-branch> HEAD`.
    4. Use the resolved commit as `<fixed-point>` for `git diff <fixed-point>...HEAD`. Return `failed` when no commit resolves.
    Run `git diff --stat <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline` first to survey changed files, then inspect `git diff <fixed-point>...HEAD` (scoping per path or skipping generated lockfiles when large).
-2. **Check verification evidence**: For ticket review, inspect the `## Handoff` and `## Rework` comments fetched in step 1 for passing tests or the direct checks required by [implement.md](implement.md#2-verify). For final review, run or verify the test suite and direct checks specified in the parent spec's `## Testing Decisions` and ticket `## Acceptance criteria` directly against the branch without reading issue comments. Missing verification is a Blocker.
+2. **Check verification evidence**: For ticket review, inspect the `## Handoff` and `## Rework` comments fetched in step 1 for passing tests or the direct checks required by [implement.md](implement.md#2-verify). For final review, run or verify the test suite and direct checks specified in the spec's `## Testing Decisions` and ticket `## Acceptance criteria` directly against the branch without reading issue comments. Missing verification is a Blocker.
 3. **Find standards sources**: Read `CONTRIBUTING.md`, coding standards, style guides, and linter configuration. Skip issues that automated linters catch.
 4. **Standards pass**: Report each breach with file and line.
-5. **Spec pass**: Audit the diff against the parent spec's cross-cutting architecture and the ticket's low-level design (touchpoints, design deltas, and acceptance criteria). Report missing requirements, partial implementations, unapproved architectural inventions, scope creep, and incorrect behavior. Quote the requirement for each finding.
+5. **Spec pass**: Audit the diff against the spec's cross-cutting architecture and the ticket's low-level design (touchpoints, design deltas, and acceptance criteria). Report missing requirements, partial implementations, unapproved architectural inventions, scope creep, and incorrect behavior. Quote the requirement for each finding.
+
+### Complexity-scaled audit depth
+
+Scale audit depth to the ticket's complexity tier:
+
+| Complexity | Audit depth |
+| :--- | :--- |
+| `low` | Audit touched files and direct test coverage. |
+| `medium` | Audit module test suites and named edge cases. |
+| `high` | Audit module boundaries, unaffected callers outside touched files, and cross-cutting invariants. |
 
 ### Standards when the repository has none
 
@@ -36,8 +46,8 @@ Flag duplicated logic, unclear names, unused abstractions, primitive obsession, 
 
 ### Ship-it standards for every diff
 
-- **Ticket-named artifacts**: Files named after issue numbers break the [ticket-naming prohibition](implement.md#ticket-naming-prohibition).
-- **Ad-hoc test harnesses**: Scripts simulating coverage for non-code changes break the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+- **Ticket-named artifacts**: Files named after issue numbers break the [ticket-naming prohibition](writing.md#ticket-naming-prohibition).
+- **Ad-hoc test harnesses**: Scripts simulating coverage for non-code changes break the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
 - **Unclear prose**: Documentation that breaks [writing.md](writing.md).
 
 ## Zero-assumption rule
@@ -96,7 +106,7 @@ Never close the ticket; the conductor closes reviewed tickets.
 Run after every ticket closes, against the whole feature branch.
 Apply the same passes, then check across tickets:
 
-- The branch delivers every `Scope and Behavior` item and `Implementation Decision` in the spec.
+- The branch delivers every `Scope and Behaviors` item and `Implementation Decisions` item in the spec.
 - No transitional scaffolding, dead code, or leftover migration paths remain.
 - Names and patterns stay consistent across tickets.
 
@@ -106,6 +116,38 @@ Apply the same passes, then check across tickets:
 | Questions, no Blocker | None. | `questions` |
 | Nits or nothing | Add `ship-it:reviewed` to the spec. | `approved` |
 
-Create each fix ticket with the title `[<slug>] Ticket: Fix <gist>`, label `ship-it:ticket,ship-it:validated`, and `--parent <spec-id>` ([tickets.md](tickets.md)).
-Include `Part of #<spec-id>`, `## Complexity`, `## Slice goal` (quoting the Blocker and citing `Spec § <section>`), `## Low-level design` (with `- **Touchpoints**:` and `- **Design deltas**:` bullets), `## Acceptance criteria`, and `## Blocked by` (`None (can start immediately).` or `- [ ] Blocked by #<blocker-id>`) in the ticket body.
+Create each fix ticket with the title `[<slug>] Ticket: Fix <gist>`, labels `ship-it:ticket,ship-it:validated`, and `--parent <spec-id>`.
+Write the ticket body using a temporary payload file.
+Include `Part of #<spec-id>` on the first line.
+Include `## Complexity` with the tier (`low`, `medium`, or `high`) and a single-sentence rationale.
+Include `## Slice goal` quoting the Blocker and citing `Spec § <section>`.
+Include `## Low-level design` with `- **Touchpoints**:` and `- **Design deltas**:` bullets.
+Include `## Acceptance criteria` with single-sentence imperative checks.
+Fold conductor final review answers directly into fix ticket acceptance criteria.
+Include `## Blocked by` with `None (can start immediately).` or `- [ ] Blocked by #<blocker-id>`.
 Delete the temporary `--body-file` payload after creation.
+
+```markdown
+Part of #<spec-id>
+
+## Complexity
+
+<level> - <Single-sentence rationale justifying the chosen level.>
+
+## Slice goal
+
+<Quote the Blocker and cite Spec § <section>.>
+
+## Low-level design
+
+- **Touchpoints**: Name the exact files, modules, and symbols to create, modify, or remove.
+- **Design deltas**: Specify concrete symbol signatures, step numbers, state flow, and failure handling.
+
+## Acceptance criteria
+
+- [ ] <Single-sentence imperative check adhering to writing.md>
+
+## Blocked by
+
+None (can start immediately).
+```
