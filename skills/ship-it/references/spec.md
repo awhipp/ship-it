@@ -9,7 +9,7 @@ When a point remains unsettled, ask the user directly instead of guessing.
 
 1. **Gather settled context**: When a map exists for the feature, read the full map body via `gh issue view <map-number> --json body --jq .body` without `--comments`. When sourced from an issue (`ship-it #<n>`), read the source issue body via `gh issue view <n> --json body --jq .body`. Otherwise, read the verbatim directive text from setup.
 2. **Explore the codebase**: Ground the specification in active code using targeted symbol and path searches rather than full-repository directory scans. Read relevant interface and module sections to identify affected modules, shared contracts, data models, and system invariants. Use the repository's vocabulary and respect existing Architecture Decision Records (ADRs).
-3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories. Prefer high-level seams with minimal touchpoints. When automated tests do not apply, define direct checks rather than custom string-matching scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
+3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories, preferring high-level seams with minimal touchpoints. For `fix` feature types, specify `Root cause: <mechanism>` and `Reproduction seam: <test or CLI command failing before fix>`. When automated tests do not apply, define direct checks rather than custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
 4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Pause and obtain explicit user approval of the draft before creating the GitHub issue.
 5. **Publish the spec**: Create the issue with `--body-file`:
 
@@ -50,7 +50,10 @@ Omit line numbers and low-level function bodies unless a prototype established a
 ## Testing Decisions
 
 State the verification strategy aligned with workspace conventions and existing test runners.
-Name the domain modules and seams that receive coverage, or state the direct checks without inventing custom test scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+Name the domain modules and seams that receive coverage, or state the direct checks without inventing custom test scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
+For `fix` feature types, specify:
+- **Root cause**: <mechanism>
+- **Reproduction seam**: <test or CLI command failing before fix>
 
 ## Out of Scope
 
@@ -61,7 +64,7 @@ List explicitly excluded capabilities.
 
 When validation applies `ship-it:changes-requested` to the specification:
 
-1. **Read the report**: Inspect the latest validation report via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last'`.
-2. **Update the spec**: Resolve every Blocker in the issue body via surgical body edit (`gh issue edit <spec-number> --body-file <file>`). Obtain user approval when a fix changes scope or architecture.
+1. **Read the report**: Inspect the latest validation report via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
+2. **Update the spec**: Fold settled answers from `## Answers` comments into the spec body. Resolve every Blocker in the issue body via surgical body edit (`gh issue edit <spec-number> --body-file <file>`). Obtain user approval when a fix changes scope or architecture.
 3. **Remove label**: Clear `ship-it:changes-requested` (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 4. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 7 (spec validation).

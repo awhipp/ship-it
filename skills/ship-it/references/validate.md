@@ -13,7 +13,7 @@ Ground every check in these inputs:
 | Artifact | Requirements | Artifact under audit |
 | :--- | :--- | :--- |
 | Spec | The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), and the active codebase | The spec body (`gh issue view <spec> --json body --jq .body`) |
-| Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`) and the active codebase | Every open ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels`) |
+| Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`) and the active codebase | Every open ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels`). Keep only results whose title starts with `[<slug>]`. |
 
 ## Zero-assumption rule
 

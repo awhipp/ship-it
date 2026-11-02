@@ -29,9 +29,13 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 Pass only these fields to the subagent:
 
 - **Role**: One of the subagent roles above.
+- **Target**: `spec` | `ticket-set`, for `validate`.
+- **Mode**: `ticket` | `final`, for `review`.
 - **Complexity**: `low` | `medium` | `high`.
 - **Reference**: The file and section to follow, plus [writing.md](writing.md). Load only the assigned reference file and `writing.md`; treat links to other reference files as citations rather than files to load.
 - **Issues**: The target issue number and the parent spec or map number.
+- **Slug**: The feature slug.
+- **Default branch**: The default branch name (such as `main`).
 - **Branch**: The feature branch, for `implement`, `rework`, `review`, `final-review`, and `close-out`.
 
 Never pass conversation history, summaries of user intent, or opinions.
@@ -74,6 +78,7 @@ Questions: <numbered list, or None>
 Evidence: <link to the issue comment holding the full report, or None>
 ```
 
+Slicing subagents populate `Issues: #<n>, ...` with all created ticket numbers.
 Actions that post no report comment return `Evidence: None`.
 The conductor reads only this block.
 

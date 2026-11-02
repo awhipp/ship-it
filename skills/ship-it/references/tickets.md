@@ -8,7 +8,7 @@ Every feature produces at least one ticket.
 
 ### 1. Read the spec and explore the codebase
 
-Read only the validated parent specification body (`gh issue view <spec-number> --json body --jq .body`) without reading comments.
+Read only the validated spec body (`gh issue view <spec-number> --json body --jq .body`) without reading comments.
 Use targeted symbol and path searches anchored on the specification's modules and contracts to locate the exact files, symbols, types, and test suites each slice touches.
 Read only the relevant sections of large files rather than scanning the entire repository.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
@@ -16,8 +16,8 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 ### 2. Draft vertical slices
 
 - Cut each slice as a narrow, complete path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
-- Specify the low-level design for every slice through `Touchpoints` and `Design deltas` referencing `Spec § <section>` rather than repeating parent specification contracts. State concrete slice-local symbol signatures, step numbers, or behavior subsets plus explicit inter-slice transition boundaries (what the slice introduces, leaves in place, or removes relative to sibling tickets); never write bare pointer stubs such as `"Apply rules in Spec § ..."`.
-- Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](implement.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](implement.md#ad-hoc-test-harness-prohibition).
+- Specify the low-level design for every slice through `Touchpoints` and `Design deltas` referencing `Spec § <section>` rather than repeating spec contracts. State concrete slice-local symbol signatures, step numbers, or behavior subsets. Define explicit inter-slice transition boundaries covering what the slice introduces, leaves in place, or removes relative to sibling tickets. Never write bare pointer stubs such as `"Apply rules in Spec § ..."`.
+- Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](writing.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
 - When prefactoring earns a dedicated ticket under collapse rule 5, sequence that ticket first so the ticket blocks the slices that use it.
 - For mechanical refactors spanning the codebase, use **expand → migrate → contract**: add the new interface alongside the old one, migrate callers in blocked tickets, and remove the old interface in a final ticket.
@@ -25,7 +25,7 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 ### 3. Publish in dependency order
 
 Publish blockers first so dependent tickets can reference their issue numbers.
-Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the parent specification via `--parent <spec-id>`:
+Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the spec via `--parent <spec-id>`:
 
 ```shell
 gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket" --parent <spec-id>
@@ -111,14 +111,14 @@ Omit line numbers and literal code blocks while naming exact file paths, modules
 Maintain compatibility across GitHub repository tiers with dual-channel relationships:
 
 - **Dual-write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. Also attempt native linking via `--parent <spec-id>` and `--blocked-by <blocker-id>`, ignoring errors on unsupported tiers.
-- **Dual-read on inspection**: Evaluate open tickets in ascending number order against the already-queried closed-ticket set. Query native blockers first (`gh issue view <n> --json blockedBy`), falling back to the `## Blocked by` tasklist when native relationships are empty, and stop at the first ticket whose blockers all have `state: "CLOSED"`.
+- **Dual-read on inspection**: Evaluate open tickets in ascending number order against the already-queried closed-ticket set. Inspect native blockers in-memory from the batch ticket query's `blockedBy` field, falling back to the ticket's `## Blocked by` tasklist when native relationships are empty. Stop at the first ticket whose blockers all have `state: "CLOSED"`.
 
 ## Remediation
 
-When ticket-set validation applies `ship-it:changes-requested` to the parent specification:
+When ticket-set validation applies `ship-it:changes-requested` to the spec:
 
-1. **Read the report**: Inspect the latest validation report comment on the parent specification via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last'`.
-2. **Update the tickets**: Edit ticket bodies via surgical body edit (`gh issue edit <n> --body-file <file>`), create missing slices, or close redundant slices. Obtain user approval when changes alter scope.
-3. **Clear ticket validation labels**: Remove `ship-it:validated` from any modified ticket so the validator re-audits the full set together.
-4. **Remove label**: Clear `ship-it:changes-requested` from the parent specification (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
+1. **Read the report**: Inspect the latest validation report comment on the spec via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
+2. **Update the tickets**: Fold settled answers from `## Answers` comments into the ticket bodies. Edit ticket bodies via surgical body edit (`gh issue edit <n> --body-file <file>`), create missing slices, or close redundant slices. Obtain user approval when changes alter scope.
+3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets.
+4. **Remove label**: Clear `ship-it:changes-requested` from the spec (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 9 (ticket-set validation).

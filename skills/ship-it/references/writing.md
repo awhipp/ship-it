@@ -18,3 +18,16 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 
 Apply these seven rules across all `ship-it` documentation, maps, specs, tickets, validation reports, and reviews.
 Evaluate clarity and brevity qualitatively through direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics.
+
+## Universal Testing Standards
+
+### Ticket-naming prohibition
+
+Never name test or source files after issue numbers (such as `ticket-18.test.js`).
+Tests outlive issues.
+Organize tests by domain, module, or feature seam (such as `tests/auth.test.ts`).
+
+### Ad-hoc test harness prohibition
+
+Never invent test runners or string-matching scripts to simulate coverage for non-code changes.
+Never write scripts that count words or measure prose; evaluate writing by reading it.
