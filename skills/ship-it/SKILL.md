@@ -39,7 +39,8 @@ Run no `gh` command before a directive exists.
 
 1. Propose a kebab-case slug and a Conventional Commits type (`feat`, `fix`, `refactor`, `docs`, `chore`, `perf`, `test`, `build`, `ci`).
 2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. When the query returns exactly 100 results, print `"Warning: Search returned 100 results; GitHub search may be truncated."`. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug when the slug is taken.
-3. Ask the user to confirm the slug and type, and to choose between charting a map first and writing the spec directly.
+3. When starting from `ship-it #<n>`, capture the source issue title and issue number for in-place adoption during initial artifact publication.
+4. Ask the user to confirm the slug and type, and to choose between charting a map first and writing the spec directly.
    Recommend a map when the idea leaves a scope or architecture decision open.
 
 When a `ship-it <slug>` directive matches no issue, report that no feature uses the slug, ask for an idea, and stop.
@@ -119,7 +120,7 @@ Forbid subagents from loading `skills/ship-it/SKILL.md`, running routing queries
 
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
-- **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`): Ask the user every question using an interactive question tool when available, or in plain text before ending the turn. Post the replies as a `## Answers` comment on the issue holding the questions. For implementation questions, delegate folding answers to the next implementation subagent. For bug-preparation, validation, ticket-review, or final-review questions, fold settled answers into the map, spec, bug issue, or ticket body via surgical body edit (`gh issue edit <n> --body-file <file>`), or into the acceptance criteria of fix tickets. Halt when Row 12 created fix tickets; otherwise query state and route again.
+- **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`): Ask the user every question using an interactive question tool when available, or in plain text before ending the turn. Post the replies as a `## Answers` comment on the issue holding the questions. For implementation questions, delegate folding answers to the next implementation subagent. For bug-preparation, validation, ticket-review, or final-review questions, fold settled answers into the map, spec, bug issue, or ticket body via surgical body edit (`gh issue edit <n> --body-file <file>`), deleting the temporary file immediately, or into the acceptance criteria of fix tickets. Halt when Row 12 created fix tickets; otherwise query state and route again.
 - **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit or bug-ticket approval at row 9, fix-ticket approval at row 12, or Boundary 3 exit at row 13, and otherwise query state and route again).
 
 ## 5. Report at every halt

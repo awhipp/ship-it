@@ -12,7 +12,7 @@ Ground every check in these inputs:
 
 | Artifact | Requirements | Artifact under audit |
 | :--- | :--- | :--- |
-| Spec | The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), `## Deferred to Slicing` comments on the spec, and the active codebase | The spec body (`gh issue view <spec> --json body --jq .body`) |
+| Spec | The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`; skip reading the request issue body when `<spec-number> == n`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), `## Deferred to Slicing` comments on the spec, and the active codebase | The spec body (`gh issue view <spec> --json body --jq .body`) |
 | Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`), `## Deferred to Slicing` comments on the parent spec, completed closed tickets (`state: "CLOSED"` with `stateReason: "COMPLETED"`), and active code on `<branch>` when present on `origin` (or `origin/<default-branch>` otherwise, after fetching those target refs) | Every open ticket body from `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,body,labels,state,stateReason` (keeping titles starting with `[<slug>]`) |
 
 Query `## Deferred to Slicing` comments on the spec via `gh issue view <spec> --json comments --jq '[.comments[].body | select(index(({Deferred:1}|keys[])) == 3)]'`.
@@ -50,7 +50,7 @@ Do not downgrade a Blocker to avoid delaying work.
 
 ## Report
 
-When findings exist, post the report on the **spec** for both artifact types (`gh issue comment <spec> --body-file <file>`):
+When findings exist, post the report on the **spec** for both artifact types (`gh issue comment <spec> --body-file <file>`), deleting the temporary file immediately:
 
 ```markdown
 ## Validation: <Spec | Ticket set>

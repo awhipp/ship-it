@@ -45,6 +45,7 @@ Every invocation requires an explicit directive so the conductor never guesses w
 ```
 
 A bare `/ship-it` halts immediately and asks for one of these five directives before running any GitHub queries.
+Starting from an existing issue (`/ship-it #<n>`) prompts the user to adopt the source issue in place as the initial map or spec.
 
 ---
 
