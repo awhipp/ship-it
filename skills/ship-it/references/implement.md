@@ -89,7 +89,7 @@ Run after the final review approves the spec (`Mode: initial`) or when synchroni
 
    The body lists each ticket by title and contains `Closes #<spec>`.
    Add `Closes #<issue>` when `## Source` names a request issue.
-   Add `Closes #<n>` for each `ship-it:bug` ticket closed as completed so routing tracks synchronized bugs through closing references.
+   When closed bug tickets exist, append an `### Addendum Bugs` section listing each ticket as `- #<n> (<title>) - Closes #<n>` so routing tracks synchronized bugs through closing references.
    Merging the pull request closes the spec.
 
 2. Annotate every changed file with one file-level review comment, deleting each temporary `<annotation-file>` after posting:
@@ -116,6 +116,7 @@ Run after the final review approves the spec (`Mode: initial`) or when synchroni
 ### Synchronization
 
 Run when `Mode: sync` for a closed `ship-it:bug` ticket absent from the pull request's closing references.
+Derive the pull request number via `gh pr view --json number --jq .number` when `<pr>` is not provided in dispatch.
 
 1. Update the pull request description:
 
@@ -138,6 +139,7 @@ Run when `Mode: sync` for a closed `ship-it:bug` ticket absent from the pull req
 2. Annotate the files touched by the bug ticket's commits:
 
    ```shell
+   git fetch origin <default-branch>
    git log origin/<default-branch>..HEAD --grep="(#<bug-ticket>)" --name-only --format=
    gh pr view <pr> --json headRefOid --jq .headRefOid
    gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
