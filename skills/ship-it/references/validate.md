@@ -13,7 +13,7 @@ Ground every check in these inputs:
 | Artifact | Requirements | Artifact under audit |
 | :--- | :--- | :--- |
 | Spec | The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), and the active codebase | The spec body (`gh issue view <spec> --json body --jq .body`) |
-| Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`) and the active codebase | Every open ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels`). Keep only results whose title starts with `[<slug>]`. |
+| Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`), completed closed tickets (`state: "CLOSED"` with `stateReason: "COMPLETED"`), and active code on `<branch>` when present on `origin` (or `origin/<default-branch>` otherwise, after fetching those target refs) | Every open ticket body from `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,body,labels,state,stateReason` (keeping titles starting with `[<slug>]`) |
 
 ## Zero-assumption rule
 
@@ -29,16 +29,17 @@ Ground every check in these inputs:
 - **Codebase alignment**: References to nonexistent modules or symbols, conflicts with existing architecture, or missed touchpoints in active code.
 - **Design completeness**: Specs missing cross-cutting context, module boundaries, shared contracts, or invariants; tickets missing concrete `Touchpoints`, actionable slice-local `Design deltas` (including inter-slice transition boundaries when sibling tickets touch the same files or follow `expand → migrate → contract`), or edge-case checks. Flag bare pointer-only `Design deltas` (such as `"Apply rules in Spec § ..."`) as Blockers.
 - **Repetition and bloat**: Cross-section restatement within an artifact, verbatim copying of multi-line parent spec contracts into tickets instead of citing `Spec § <section>` and stating slice-local deltas, or walls of text violating [writing.md](writing.md) Rule 7.
-- **Traceability**: Unrequested behavior, or a requirement with no coverage.
+- **Traceability**: Unrequested behavior, or a requirement with no coverage across open tickets and `COMPLETED` closed tickets.
 - **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
 - **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the five slicing anti-patterns (`Docs-Tail`, `Config-Preamble`, `Horizontal Slice`, `Orphaned Scaffolding`, and `Micro-Refactor`). Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
 - **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, or rationales failing to justify scope, touched layers, and reasoning depth. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
+- **Bug tickets**: Audit tickets bearing `ship-it:bug` against the bug ticket template ([tickets.md](tickets.md#bug-ticket-template)): `Part of #<spec-id>`, `## Complexity`, `## Root cause`, `## Reproduction seam`, `## Acceptance criteria`, and `## Blocked by`. Verify consistency with the parent spec, and skip low-level design, slicing, and full-spec coverage checks for bug tickets.
 
 ## Severity
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level or low-level design, uses bare pointer-only `Design deltas`, repeats contracts across sections or from spec to ticket, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
+| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level design, the low-level design, or the root cause and reproduction seam of a bug ticket, uses bare pointer-only `Design deltas`, repeats contracts across sections or from spec to ticket, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
 | **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten. | Withholds approval until answered. |
 | **Nit** | The artifact is correct but improves with a small wording or formatting fix, or by trimming minor phrasing redundancy. | Fix in place. |
 

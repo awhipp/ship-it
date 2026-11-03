@@ -17,6 +17,7 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 | Remediate ticket set | [tickets.md](tickets.md#remediation) | Conductor (needs the user) |
 | Resolve research, prototype, or task ticket | [plan.md](plan.md#ticket-types) | Subagent: `decide` |
 | Slice tickets | [tickets.md](tickets.md) | Subagent: `slice` |
+| Prepare bug | [tickets.md](tickets.md#bug-preparation) | Subagent: `prepare-bug` |
 | Implement ticket | [implement.md](implement.md) | Subagent: `implement` |
 | Rework ticket | [implement.md](implement.md#rework) | Subagent: `rework` |
 | Validate spec or ticket set | [validate.md](validate.md) | Subagent: `validate` |
@@ -30,13 +31,13 @@ Pass only these fields to the subagent:
 
 - **Role**: One of the subagent roles above.
 - **Target**: `spec` | `ticket-set`, for `validate`.
-- **Mode**: `ticket` | `final`, for `review`.
+- **Mode**: `ticket` | `final`, for `review`; `initial` | `sync`, for `close-out`.
 - **Complexity**: `low` | `medium` | `high`.
 - **Reference**: The file and section to follow, plus [writing.md](writing.md). Load only the assigned reference file and `writing.md`; treat links to other reference files as citations rather than files to load.
 - **Issues**: The target issue number and the parent spec or map number.
 - **Slug**: The feature slug.
 - **Default branch**: The default branch name (such as `main`).
-- **Branch**: The feature branch, for `implement`, `rework`, `review`, `final-review`, and `close-out`.
+- **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
 
 Never pass conversation history, summaries of user intent, or opinions.
 Every requirement a subagent needs lives in the issues.
@@ -50,6 +51,7 @@ Assign subagent complexity from the lifecycle role or the target ticket's `## Co
 | :--- | :--- | :--- | :--- |
 | **`decide`** | Plan | Ticket or Default | `low` for research, `medium` for prototypes and tasks |
 | **`slice`** | Tickets | Fixed Default | `high` |
+| **`prepare-bug`** | Tickets | Fixed Default | `medium` |
 | **`validate`** | Spec / Tickets | Fixed Default | `high` |
 | **`implement`** | Implementation | Target Ticket | Inherited from `## Complexity` |
 | **`rework`** | Implementation | Target Ticket | Inherited from `## Complexity` |

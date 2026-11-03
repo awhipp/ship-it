@@ -28,7 +28,7 @@ Return `failed` when the fallback procedure cannot derive a fixed point, the com
 2. **Check verification evidence**: For ticket review, inspect the `## Handoff` and `## Rework` comments fetched in step 1 for passing tests or the direct checks required by [implement.md](implement.md#2-verify). For final review, run or verify the test suite and direct checks specified in the spec's `## Testing Decisions` and ticket `## Acceptance criteria` directly against the branch without reading issue comments. Missing verification is a Blocker.
 3. **Find standards sources**: Read `CONTRIBUTING.md`, coding standards, style guides, and linter configuration. Skip issues that automated linters catch.
 4. **Standards pass**: Report each breach with file and line.
-5. **Spec pass**: Audit the diff against the spec's cross-cutting architecture and the ticket's low-level design (touchpoints, design deltas, and acceptance criteria). Report missing requirements, partial implementations, unapproved architectural inventions, scope creep, and incorrect behavior. Quote the requirement for each finding.
+5. **Spec pass**: Audit the diff against the spec's cross-cutting architecture and the ticket's low-level design (touchpoints, design deltas, and acceptance criteria). For bug tickets, audit the diff against `## Root cause`, `## Reproduction seam`, and `## Acceptance criteria` instead of `## Low-level design`. Report missing requirements, partial implementations, unapproved architectural inventions, scope creep, and incorrect behavior, quoting the requirement for each finding.
 
 ### Complexity-scaled audit depth
 
@@ -123,7 +123,7 @@ Include `## Complexity` with the tier (`low`, `medium`, or `high`) and a single-
 Include `## Slice goal` quoting the Blocker and citing `Spec § <section>`.
 Include `## Low-level design` with `- **Touchpoints**:` and `- **Design deltas**:` bullets.
 Include `## Acceptance criteria` with single-sentence imperative checks.
-Fold conductor final review answers directly into fix ticket acceptance criteria.
+Fold final-review answers from the conductor directly into the acceptance criteria of fix tickets.
 Include `## Blocked by` with `None (can start immediately).` or `- [ ] Blocked by #<blocker-id>`.
 Delete the temporary `--body-file` payload after creation.
 
