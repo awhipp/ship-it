@@ -119,7 +119,7 @@ When ticket-set validation applies `ship-it:changes-requested` to the spec:
 
 1. **Read the report**: Inspect the latest validation report comment on the spec via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
 2. **Update the tickets**: Fold settled answers from `## Answers` comments into the ticket bodies. Edit ticket bodies via surgical body edit (`gh issue edit <n> --body-file <file>`), create missing slices, or close redundant slices. Obtain user approval when changes alter scope.
-3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets.
+3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets. After close-out, open tickets are bug tickets only, so remediation scopes to them.
 4. **Remove label**: Clear `ship-it:changes-requested` from the spec (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 9 (ticket-set validation).
 
@@ -127,6 +127,7 @@ When ticket-set validation applies `ship-it:changes-requested` to the spec:
 
 The conductor dispatches `prepare-bug` to inspect open `ship-it:bug` issues lacking `ship-it:ticket`.
 The subagent diagnoses the root cause, establishes a reproduction seam, and formats the bug ticket for execution without re-slicing the feature.
+File bugs as `[<slug>] <gist>` with the `ship-it:bug` label so routing finds them.
 
 ### Preparation process
 

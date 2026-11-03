@@ -90,6 +90,8 @@ Complete the matched action, then follow the row's **Transition** column.
 | 14 | An open pull request exists and a closed `ship-it:bug` ticket with `stateReason` `COMPLETED` is absent from its closing references | Close out in sync mode for the lowest-numbered such ticket ([implement.md](references/implement.md#synchronization)). | Query state and route again (hits row 15). |
 | 15 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and prompt the user to reopen it. On confirmation, run `gh pr reopen <pr>` and query state and route again. When declined, report the feature abandoned and stop. | Query state and route again on reopen (hits row 15 in `OPEN` state); otherwise **stop**. |
 
+**Bug tickets after final review**: Bug tickets prepared after the final review receive ticket review only; merging the pull request is the final gate.
+
 **Frontier ticket**: the lowest-numbered open ticket whose blockers are all closed ([tickets.md](references/tickets.md#relationships)).
 Check open tickets in ascending number order against the closed ticket set from § 2.
 Inspect native blockers in-memory from the batch query's `blockedBy` field, falling back to the `## Blocked by` tasklist when native relationships are empty.
