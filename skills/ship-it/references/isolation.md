@@ -32,7 +32,7 @@ Pass only these fields to the subagent:
 
 - **Role**: One of the subagent roles above.
 - **Target**: `spec` | `ticket-set`, for `validate`.
-- **Mode**: `ticket` | `final` | `bug-audit`, for `review`.
+- **Mode**: `ticket` | `final` | `bug-audit`, for `review`; `initial` | `sync`, for `close-out`.
 - **Complexity**: `low` | `medium` | `high`.
 - **Reference**: The file and section to follow, plus [writing.md](writing.md). Load only the assigned reference file and `writing.md`; treat links to other reference files as citations rather than files to load.
 - **Issues**: The target issue number and the parent spec or map number.

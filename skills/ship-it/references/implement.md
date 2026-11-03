@@ -79,7 +79,7 @@ When the ticket carries `ship-it:changes-requested`:
 
 ## Close-out
 
-Run after the final review approves the spec.
+Run after the final review approves the spec (`Mode: initial`) or when synchronizing addendum bug fixes (`Mode: sync`).
 
 1. Open the pull request and delete the temporary body file once the command completes:
 
@@ -111,3 +111,54 @@ Run after the final review approves the spec.
    ```
 
 3. Return `done`. Never merge the pull request.
+
+### Synchronization
+
+Run when `Mode: sync` after review approves an addendum bug ticket.
+
+1. Derive the fixed point for the closed bug ticket:
+
+   ```shell
+   git log --reverse origin/<default-branch>..HEAD --grep="(#<bug-ticket>)" -n 1 --format="%H"
+   ```
+
+   Resolve `<fixed-point>` as the parent of the earliest commit: `<earliest-sha>~1`.
+   Return `failed` when no commit resolves.
+
+2. Update the pull request description:
+
+   Inspect the pull request body (`gh pr view <pr> --json body --jq .body`).
+   Append `### Addendum Bugs` when the heading is absent from the body.
+   Append the bug bullet under `### Addendum Bugs`:
+
+   ```markdown
+   - #<bug-number> (<bug-title>) - Closes #<bug-number>
+   ```
+
+   Write the full updated description to a temporary file.
+   Update the pull request and delete the temporary file after the command completes:
+
+   ```shell
+   gh pr edit <pr> --body-file <file>
+   ```
+
+3. Annotate modified delta files:
+
+   Identify modified files in the delta diff:
+
+   ```shell
+   git diff --name-only <fixed-point>..HEAD
+   gh pr view <pr> --json headRefOid --jq .headRefOid
+   gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
+   ```
+
+   Annotate each modified file with one file-level review comment, deleting each temporary `<annotation-file>` after posting.
+   Write each annotation in this form:
+
+   ```markdown
+   **Change**: <what changed, one sentence>
+   **Why**: <rationale, one sentence>
+   **Traces to**: #<bug-ticket>
+   ```
+
+4. Return `done`.
