@@ -122,3 +122,53 @@ When ticket-set validation applies `ship-it:changes-requested` to the spec:
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets.
 4. **Remove label**: Clear `ship-it:changes-requested` from the spec (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 9 (ticket-set validation).
+
+## Bug preparation
+
+The conductor dispatches `prepare-bug` to inspect open `ship-it:bug` issues lacking `ship-it:ticket`.
+The subagent diagnoses the root cause, establishes a reproduction seam, and formats the bug ticket for execution without re-slicing the feature.
+
+### Preparation process
+
+1. **Investigate active code**: Read the issue description and explore the active code on the feature branch. Locate the defect mechanism and affected symbols.
+2. **Establish reproduction seam**: Identify or construct a targeted test or CLI command that reliably fails before applying code changes.
+3. **Draft bug ticket**: Format the issue body according to the bug ticket template below. State the root cause mechanism, reproduction seam, complexity level, and testable acceptance criteria.
+4. **Link parent spec**: Link the ticket to the parent spec using native linking (`gh issue edit <n> --parent <spec-id>`).
+5. **Apply labels**: Add `ship-it:ticket` and `ship-it:validated` labels (`gh issue edit <n> --add-label "ship-it:ticket,ship-it:validated"`). Retain `ship-it:bug` to preserve defect provenance.
+6. **Handoff**: Return `done` with `Evidence: None`.
+
+### Bug ticket template
+
+```markdown
+Part of #<spec-id>
+
+## Complexity
+
+<level> - <Single-sentence rationale justifying the chosen level based on scope, touched layers, and reasoning depth.>
+
+## Root cause
+
+<mechanism>
+
+## Reproduction seam
+
+<test or CLI command failing before fix>
+
+## Acceptance criteria
+
+- [ ] <Single-sentence imperative verification or edge-case check adhering to [writing.md](writing.md)>
+
+## Blocked by
+
+None (can start immediately).
+```
+
+### Bug ticket lifecycle
+
+Addendum bug tickets advance through five lifecycle stages:
+
+1. **Creation**: A contributor or test suite opens an issue titled `[<slug>] <gist>` with label `ship-it:bug`. The issue lacks `ship-it:ticket` and remains separate from the active ticket set.
+2. **Preparation**: The conductor dispatches `prepare-bug` to inspect open `ship-it:bug` issues lacking `ship-it:ticket`. The subagent diagnoses the root cause, writes the reproduction seam and acceptance criteria, links the parent spec, and applies `ship-it:ticket` and `ship-it:validated`.
+3. **Execution**: The prepared bug ticket enters frontier execution. The `implement` subagent reproduces the defect via the reproduction seam, implements the minimal fix, verifies acceptance criteria, and commits using `fix(<slug>): <summary> (#<bug-ticket>)`.
+4. **Review**: After ticket completion and closure, the conductor dispatches `review` in `bug-audit` mode. The reviewer audits the delta commit range `<fixed-point>..HEAD`, posts a `## Review: Bug Audit (#<bug-ticket>)` comment on the pull request, and applies `ship-it:reviewed`.
+5. **Pull request synchronization**: Following review approval, the conductor dispatches `close-out` in `sync` mode. The subagent appends the defect under `### Addendum Bugs` in the pull request description (`- #<bug-number> (<bug-title>) - Closes #<bug-number>`) and annotates touched delta files.

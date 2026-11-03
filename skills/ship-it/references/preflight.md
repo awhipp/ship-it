@@ -18,13 +18,16 @@ Run every check before reporting findings so the user sees all issues at once:
 
 ## Label set
 
-Apply at most one type label per issue, plus any applicable status labels:
+Apply at most one type label per issue, plus any applicable status labels.
+Prepared bug tickets carry both `ship-it:bug` and `ship-it:ticket` as an exception to this rule.
+This dual typing preserves defect provenance across execution and pull request synchronization:
 
 | Label | Kind | Applied to |
 | :--- | :--- | :--- |
 | `ship-it:map` | type | Feature map ([plan.md](plan.md)) |
 | `ship-it:spec` | type | Feature specification ([spec.md](spec.md)) |
 | `ship-it:ticket` | type | Build ticket ([tickets.md](tickets.md)) |
+| `ship-it:bug` | type | Addendum defect ticket ([tickets.md](tickets.md#bug-preparation)) |
 | `ship-it:research` | type | Research decision ticket ([plan.md](plan.md)) |
 | `ship-it:prototype` | type | Prototype decision ticket ([plan.md](plan.md)) |
 | `ship-it:grilling` | type | Grilling decision ticket ([plan.md](plan.md)) |
@@ -39,6 +42,7 @@ Create or update labels with these idempotent commands:
 gh label create "ship-it:map" --description "Feature map of open decisions" --color "5319E7" --force
 gh label create "ship-it:spec" --description "Published specification" --color "5319E7" --force
 gh label create "ship-it:ticket" --description "Vertical build ticket" --color "5319E7" --force
+gh label create "ship-it:bug" --description "Addendum defect ticket" --color "D73A4A" --force
 gh label create "ship-it:research" --description "Decision ticket resolved by reading docs or code" --color "1D76DB" --force
 gh label create "ship-it:prototype" --description "Decision ticket resolved by a throwaway prototype" --color "1D76DB" --force
 gh label create "ship-it:grilling" --description "Decision ticket resolved by asking the user" --color "1D76DB" --force
