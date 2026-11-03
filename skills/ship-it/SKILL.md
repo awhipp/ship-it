@@ -75,9 +75,9 @@ Complete the matched action, then follow the row's **Transition** column.
 | 4 | No spec | Draft and publish the spec ([spec.md](references/spec.md)). | Query state and route again (hits row 7). |
 | 5 | Spec has `ship-it:changes-requested` and no tickets | Remediate the spec ([spec.md](references/spec.md#remediation)), enforcing the loop guard (below). | At three or more retries: **halt** for user guidance. Otherwise: query state and route again (hits row 7). |
 | 6 | Spec has `ship-it:changes-requested` and tickets exist | Remediate the ticket set ([tickets.md](references/tickets.md#remediation)), enforcing the loop guard (below). | At three or more retries: **halt** for user guidance. Otherwise: query state and route again (hits row 9). |
-| 7 | Spec lacks `ship-it:validated` | Validate the spec ([validate.md](references/validate.md)). | Query state and route again (hits row 8 on pass, or row 5 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
+| 7 | Spec lacks `ship-it:validated` | Validate the spec ([validate.md](references/validate.md)). | Query state and route again (hits row 8 on pass, row 5 on blockers, or row 7 after answering questions) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 8 | No tickets | Slice tickets ([tickets.md](references/tickets.md)). | Query state and route again (hits row 9). |
-| 9 | An open ticket lacks `ship-it:validated` and no open issue has `ship-it:bug` lacking `ship-it:ticket` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)** when no open ticket has `ship-it:bug`, or **halt** for approval of the bug tickets when an open ticket has `ship-it:bug`. Otherwise: query state and route again (hits row 6 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
+| 9 | An open ticket lacks `ship-it:validated` and no open issue has `ship-it:bug` lacking `ship-it:ticket` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)** when no open ticket has `ship-it:bug`, or **halt** for approval of the bug tickets when an open ticket has `ship-it:bug`. Otherwise: query state and route again (hits row 6 on blockers, or row 9 after answering questions) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 10 | An open issue has `ship-it:bug` and lacks `ship-it:ticket` | Prepare the lowest-numbered open bug issue ([tickets.md](references/tickets.md#bug-preparation)). | Query state and route again (hits row 10 when unprepared bugs remain, or row 9). |
 | 11 | An open ticket exists | Work the frontier ticket (below). | Query state and route again after each frontier step. |
 | 12 | Spec lacks `ship-it:reviewed` | Run the final review ([review.md](references/review.md#final-review)), enforcing the loop guard (below). | On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
@@ -114,7 +114,7 @@ Incorporate settled decisions into the acceptance criteria of fix tickets, and c
 Run every action per [isolation.md](references/isolation.md).
 Dispatch at most one leaf subagent at a time.
 Await the subagent's four-line return block before resuming the routing loop.
-Forbid subagents from loading `skills/ship-it/SKILL.md`, executing routing queries, or spawning workers.
+Forbid subagents from loading `skills/ship-it/SKILL.md`, running routing queries, or spawning subagents.
 
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.

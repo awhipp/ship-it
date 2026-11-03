@@ -66,7 +66,7 @@ When validation applies `ship-it:changes-requested` to the specification:
 
 1. **Read the report**: Inspect the latest validation report via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
 2. **Resolve cited Blockers**: Fold settled answers from `## Answers` comments into the spec body. Resolve every cited Blocker using one of four remediation paths while preserving untouched text verbatim:
-   - **In-body edit**: Apply surgical edits to the spec body (`gh issue edit <spec-number> --body-file <file>`) to resolve high-level architectural gaps, keeping untouched sections bit-for-bit unchanged.
+   - **In-body edit**: Apply surgical edits to the spec body (`gh issue edit <spec-number> --body-file <file>`) to resolve high-level architectural gaps.
    - **Defer to slicing**: Defer slice-local details or caller edge cases to ticket slicing by posting a `## Deferred to Slicing` comment on the spec (`gh issue comment <spec-number> --body-file <file>`) without prompting the user. Format the comment with a `## Deferred to Slicing` heading and a bulleted list of deferred items.
    - **Descope**: Remove capabilities and record them under `## Out of Scope` only after obtaining explicit user approval.
    - **Split scope**: Create a follow-up GitHub issue for the deferred work and link the issue under `## Out of Scope` only after obtaining explicit user approval.

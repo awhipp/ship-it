@@ -46,7 +46,6 @@ Query `## Deferred to Slicing` comments on the spec via `gh issue view <spec> --
 | **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten, or an unwritten choice has multiple valid designs. | Withholds approval until answered. |
 
 Validation is strictly read-only on issue bodies.
-Never modify issue bodies during validation.
 Do not downgrade a Blocker to avoid delaying work.
 
 ## Report
@@ -75,7 +74,3 @@ Never output `- None` placeholder subsections.
 | Any Blocker | Add `ship-it:changes-requested` to the spec. | `changes-requested`, listing any Questions too, with `Evidence: <comment-url>` |
 | Questions, no Blocker | None. | `questions`, with `Evidence: <comment-url>` |
 | Clean pass (zero Blockers or Questions) | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: None` (skip posting a report comment) |
-
-Validation is strictly read-only on issue bodies.
-Never edit issue bodies during validation.
-Never rewrite structure or add missing requirements; those are Blockers.
