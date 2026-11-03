@@ -162,13 +162,3 @@ Part of #<spec-id>
 
 None (can start immediately).
 ```
-
-### Bug ticket lifecycle
-
-Addendum bug tickets advance through five lifecycle stages:
-
-1. **Creation**: A contributor or test suite opens an issue titled `[<slug>] <gist>` with label `ship-it:bug`. The issue lacks `ship-it:ticket` and remains separate from the active ticket set.
-2. **Preparation**: The conductor dispatches `prepare-bug` to inspect open `ship-it:bug` issues lacking `ship-it:ticket`. The subagent diagnoses the root cause, writes the reproduction seam and acceptance criteria, links the parent spec, and applies `ship-it:ticket` and `ship-it:validated`.
-3. **Execution**: The prepared bug ticket enters frontier execution. The `implement` subagent reproduces the defect via the reproduction seam, implements the minimal fix, verifies acceptance criteria, and commits using `fix(<slug>): <summary> (#<bug-ticket>)`.
-4. **Review**: After ticket completion and closure, the conductor dispatches `review` in `bug-audit` mode. The reviewer audits the delta commit range `<fixed-point>..HEAD`, posts a `## Review: Bug Audit (#<bug-ticket>)` comment on the pull request, and applies `ship-it:reviewed`.
-5. **Pull request synchronization**: Following review approval, the conductor dispatches `close-out` in `sync` mode. The subagent appends the defect under `### Addendum Bugs` in the pull request description (`- #<bug-number> (<bug-title>) - Closes #<bug-number>`) and annotates touched delta files.

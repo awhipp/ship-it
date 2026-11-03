@@ -14,7 +14,6 @@ Evaluating each axis separately keeps strength on one axis from masking defects 
 | :--- | :--- | :--- |
 | Ticket review | The `Fixed point: <sha>` comment on the ticket, or derived via fallback below | The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) |
 | Final review | `git merge-base origin/<default-branch> HEAD` | The spec body (`gh issue view <spec> --json body --jq .body`) and every closed ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,body`). Keep only results whose title starts with `[<slug>]`, with zero comment reads. |
-| Bug audit | Parent of earliest commit referencing closed bug ticket (`<earliest-bug-sha>~1`) | The bug ticket body (`## Reproduction seam` and `## Acceptance criteria`) and parent spec body |
 
 Return `failed` when the fallback procedure cannot derive a fixed point, the commit does not resolve, or the diff is empty.
 
@@ -67,7 +66,7 @@ Flag duplicated logic, unclear names, unused abstractions, primitive obsession, 
 
 ## Report
 
-Post the report on the ticket, on the spec for a final review, or on the pull request for a bug audit:
+Post the report on the ticket, or on the spec for a final review:
 
 ```markdown
 ## Review: <Ticket #n | Final>
@@ -152,73 +151,3 @@ Part of #<spec-id>
 
 None (can start immediately).
 ```
-
-## Addendum bug audit
-
-Audit closed addendum bug tickets on the open pull request branch.
-Audit only the delta commit range without re-auditing base commits that passed the original final review.
-
-### 1. Derive fixed point and diff range
-
-1. Extract the earliest commit referencing the closed bug ticket on the branch:
-
-   ```shell
-   git log --reverse origin/<default-branch>..HEAD --grep="(#<bug-ticket>)" -n 1 --format="%H"
-   ```
-
-2. Resolve `<fixed-point>` as the parent of the earliest commit: `<earliest-sha>~1`. Return `failed` when no commit resolves or the diff is empty.
-3. Restrict the audited diff range to `<fixed-point>..HEAD` (`git diff <fixed-point>..HEAD`).
-
-### 2. Verify criteria
-
-Audit the delta diff against four mandatory criteria:
-
-1. **Defect reproduction and acceptance criteria**: Execute tests from the reproduction seam and acceptance criteria defined in the bug ticket body. Confirm all tests pass.
-2. **Spec invariant regression testing**: Run the test suites specified in the parent spec's `## Testing Decisions`. Verify bug fixes introduce zero regressions against existing feature contracts.
-3. **Workspace quality checks**: Run the repository linter and static type checker across affected packages. Verify zero errors or warnings.
-4. **Clean diff standards**: Inspect the delta diff for dead code, leftover debug statements, and temporary scaffolding. Enforce the prohibitions against ticket-named files and ad-hoc test harnesses in [writing.md](writing.md).
-
-### 3. Report schema and comment posting
-
-Write the bug audit report using the sparse report format.
-Post the report directly to the open pull request as a comment:
-
-```shell
-gh pr comment <pr> --body-file <file>
-```
-
-Delete the temporary `--body-file` payload immediately after posting.
-
-Format the report with the bug audit header and proof-of-work line:
-
-```markdown
-## Review: Bug Audit (#<bug-ticket>)
-**Audited**: `<fixed-point>..<head-sha>` (<diff stat summary>; <verification summary>)
-
-### Standards
-- <file#Lx: finding>
-
-### Spec
-- <quoted requirement: divergence>
-
-### Clarifying Questions
-- **Q-1**: <question>
-
-### In-place Resolutions
-- **R-1** [<file#Lx>]: <nit fixed, commit sha>
-
-**Verdict**: Approved | Changes requested | Questions pending
-```
-
-Render only subsections that contain findings, omitting empty subsections.
-When the bug audit has zero findings and zero Nits, output only `## Review: Bug Audit (#<bug-ticket>)`, the `**Audited**:` proof-of-work line, and `**Verdict**: Approved`.
-
-### 4. Verdict routing
-
-| Findings | Action | Return verdict |
-| :--- | :--- | :--- |
-| Any Blocker | Create one fix ticket per Blocker using the template in [Final review](#final-review). Cite `#<bug-ticket>` in `## Slice goal`. | `changes-requested`, listing any Questions too |
-| Questions, no Blocker | None. | `questions` |
-| Nits or nothing | Add `ship-it:reviewed` to the bug ticket (`gh issue edit <bug-ticket> --add-label "ship-it:reviewed"`). | `approved` |
-
-Record the pull request comment URL in the `Evidence` field of the return schema.

@@ -22,7 +22,6 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 | Rework ticket | [implement.md](implement.md#rework) | Subagent: `rework` |
 | Validate spec or ticket set | [validate.md](validate.md) | Subagent: `validate` |
 | Review ticket | [review.md](review.md) | Subagent: `review` |
-| Bug audit | [review.md](review.md#addendum-bug-audit) | Subagent: `review` |
 | Final review | [review.md](review.md#final-review) | Subagent: `final-review` |
 | Close out | [implement.md](implement.md#close-out) | Subagent: `close-out` |
 
@@ -32,7 +31,7 @@ Pass only these fields to the subagent:
 
 - **Role**: One of the subagent roles above.
 - **Target**: `spec` | `ticket-set`, for `validate`.
-- **Mode**: `ticket` | `final` | `bug-audit`, for `review`; `initial` | `sync`, for `close-out`.
+- **Mode**: `ticket` | `final`, for `review`; `initial` | `sync`, for `close-out`.
 - **Complexity**: `low` | `medium` | `high`.
 - **Reference**: The file and section to follow, plus [writing.md](writing.md). Load only the assigned reference file and `writing.md`; treat links to other reference files as citations rather than files to load.
 - **Issues**: The target issue number and the parent spec or map number.
@@ -46,7 +45,7 @@ A subagent that finds a requirement missing returns the missing requirement as a
 
 ### Role complexity matrix
 
-Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section, falling back to `high` when a ticket omits complexity (or `medium` for `review` in `bug-audit` mode):
+Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section, falling back to `high` when a ticket omits complexity:
 
 | Role | Lifecycle Phase | Complexity Source | Default Complexity |
 | :--- | :--- | :--- | :--- |
@@ -56,7 +55,7 @@ Assign subagent complexity from the lifecycle role or the target ticket's `## Co
 | **`validate`** | Spec / Tickets | Fixed Default | `high` |
 | **`implement`** | Implementation | Target Ticket | Inherited from `## Complexity` |
 | **`rework`** | Implementation | Target Ticket | Inherited from `## Complexity` |
-| **`review`** | Implementation | Target Ticket | Inherited from `## Complexity` (falls back to `medium` in `bug-audit` mode) |
+| **`review`** | Implementation | Target Ticket | Inherited from `## Complexity` |
 | **`final-review`** | Review | Fixed Default | `high` |
 | **`close-out`** | Close-out | Fixed Default | `low` |
 

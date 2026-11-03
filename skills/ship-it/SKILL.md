@@ -112,7 +112,6 @@ Run every action per [isolation.md](references/isolation.md):
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
 - **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`): Ask the user every question. Use an interactive question tool when available; otherwise ask in plain text and end the turn. Post the replies as a `## Answers` comment on the issue holding the questions. For ticket questions, delegate folding answers to the next executing implementation subagent. For validation or final review questions, fold settled answers into the map or spec body via surgical body edit (`gh issue edit <n> --body-file <file>`), or into fix ticket acceptance criteria. Query state and route again.
-- **Sequential dispatch for Row 14**: When `review` in `bug-audit` mode returns `approved`, immediately dispatch `close-out` in `sync` mode ([implement.md](references/implement.md#synchronization)). Query state and route again only after `close-out` completes.
 - **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit at row 9, fix-ticket approval at row 12, or Boundary 3 exit at row 13; otherwise query state and route again).
 
 ## 5. Report at every halt
@@ -147,6 +146,6 @@ Load only the reference file for the active step plus [writing.md](references/wr
 | [tickets.md](references/tickets.md) | Rows 6, 8, and 10, and blocker checks |
 | [validate.md](references/validate.md) | Rows 7 and 9 |
 | [implement.md](references/implement.md) | Implementation, rework, close-out, and synchronization |
-| [review.md](references/review.md) | Ticket review, final review, and bug audit |
+| [review.md](references/review.md) | Ticket review and final review |
 | [preflight.md](references/preflight.md) | `ship-it preflight` or `ship-it init`, or a `gh` command fails |
 | [writing.md](references/writing.md) | Writing any artifact |
