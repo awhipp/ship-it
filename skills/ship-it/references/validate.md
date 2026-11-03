@@ -33,6 +33,7 @@ Ground every check in these inputs:
 - **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
 - **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the five slicing anti-patterns (`Docs-Tail`, `Config-Preamble`, `Horizontal Slice`, `Orphaned Scaffolding`, and `Micro-Refactor`). Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
 - **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, or rationales failing to justify scope, touched layers, and reasoning depth. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
+- **Bug tickets**: Audit tickets bearing `ship-it:bug` against the bug ticket template ([tickets.md](tickets.md#bug-ticket-template)): `## Root cause`, `## Reproduction seam`, and `## Acceptance criteria`. Skip low-level design and slicing checks for bug tickets.
 
 ## Severity
 

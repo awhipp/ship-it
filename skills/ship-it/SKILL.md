@@ -83,14 +83,14 @@ Complete the matched action, then follow the row's **Transition** column.
 | 7 | Spec lacks `ship-it:validated` | Validate the spec ([validate.md](references/validate.md)). | Query state and route again (hits row 8 on pass, or row 5 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 8 | No tickets | Slice tickets ([tickets.md](references/tickets.md)). | Query state and route again (hits row 9). |
 | 9 | An open ticket lacks `ship-it:validated` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)**. Otherwise: query state and route again (hits row 6 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
-| 10 | An open issue has `ship-it:bug` and lacks `ship-it:ticket` | Prepare the lowest-numbered open bug issue ([tickets.md](references/tickets.md#bug-preparation)). | Query state and route again (hits row 11). |
+| 10 | An open issue has `ship-it:bug` and lacks `ship-it:ticket` | Prepare the lowest-numbered open bug issue ([tickets.md](references/tickets.md#bug-preparation)). | Query state and route again (hits row 9). |
 | 11 | An open ticket exists | Work the frontier ticket (below). | Query state and route again after each frontier step. |
 | 12 | Spec lacks `ship-it:reviewed` | Run the final review ([review.md](references/review.md#final-review)), enforcing the loop guard (below). | On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 13 | No pull request exists for the branch | Close out in initial mode ([implement.md](references/implement.md#close-out)). | **Halt (Boundary 3 exit).** |
 | 14 | An open pull request exists and a closed `ship-it:bug` ticket is absent from its closing references | Close out in sync mode for the lowest-numbered such ticket ([implement.md](references/implement.md#synchronization)). | Query state and route again (hits row 15). |
 | 15 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and prompt the user to reopen it. On confirmation, run `gh pr reopen <pr>` and query state and route again. When declined, report the feature abandoned and stop. | Query state and route again on reopen (hits row 15 in `OPEN` state); otherwise **stop**. |
 
-**Frontier ticket**: the lowest-numbered open ticket whose blockers are all closed ([tickets.md](references/tickets.md#relationships)), including prepared bug tickets bearing both `ship-it:ticket` and `ship-it:bug`.
+**Frontier ticket**: the lowest-numbered open ticket whose blockers are all closed ([tickets.md](references/tickets.md#relationships)).
 Check open tickets in ascending number order against the closed ticket set from § 2.
 Inspect native blockers in-memory from the batch query's `blockedBy` field, falling back to the `## Blocked by` tasklist when native relationships are empty.
 Stop at the first unblocked ticket.

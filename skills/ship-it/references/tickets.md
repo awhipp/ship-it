@@ -134,7 +134,7 @@ The subagent diagnoses the root cause, establishes a reproduction seam, and form
 2. **Establish reproduction seam**: Identify or construct a targeted test or CLI command that reliably fails before applying code changes.
 3. **Draft bug ticket**: Format the issue body according to the bug ticket template below. State the root cause mechanism, reproduction seam, complexity level, and testable acceptance criteria.
 4. **Link parent spec**: Link the ticket to the parent spec using native linking (`gh issue edit <n> --parent <spec-id>`).
-5. **Apply labels**: Add `ship-it:ticket` and `ship-it:validated` labels (`gh issue edit <n> --add-label "ship-it:ticket,ship-it:validated"`). Retain `ship-it:bug` to preserve defect provenance.
+5. **Apply label**: Add `ship-it:ticket` (`gh issue edit <n> --add-label "ship-it:ticket"`). Retain `ship-it:bug` to preserve defect provenance. Fresh-context validation runs in Row 9 of the routing table.
 6. **Handoff**: Return `done` with `Evidence: None`.
 
 ### Bug ticket template
