@@ -65,6 +65,7 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 | Link sub-issue or blocker | `gh issue create --parent <parent> --blocked-by <blocker>` or `gh issue edit <n> --add-blocked-by <blocker>` |
 | Query dependencies | `gh issue view <n> --json blockedBy,parent,subIssues` |
 | Query pull requests | `gh pr list --head "<branch>" --state all --json number,state,url` |
+| View pull request body | `gh pr view <pr> --json body --jq .body` |
 | Query closing references | `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'` |
 | Create pull request | `gh pr create --base <default-branch> --head <branch> --title "<title>" --body-file <file>` |
 | Edit pull request | `gh pr edit <pr> --body-file <file>` |

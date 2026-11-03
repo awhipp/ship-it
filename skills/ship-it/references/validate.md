@@ -39,7 +39,7 @@ Ground every check in these inputs:
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level or low-level design, uses bare pointer-only `Design deltas`, repeats contracts across sections or from spec to ticket, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
+| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level design, low-level design (or bug ticket root cause and reproduction seam), uses bare pointer-only `Design deltas`, repeats contracts across sections or from spec to ticket, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
 | **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten. | Withholds approval until answered. |
 | **Nit** | The artifact is correct but improves with a small wording or formatting fix, or by trimming minor phrasing redundancy. | Fix in place. |
 
