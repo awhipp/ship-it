@@ -117,16 +117,7 @@ Run after the final review approves the spec (`Mode: initial`) or when synchroni
 
 Run when `Mode: sync` for a closed `ship-it:bug` ticket absent from the pull request's closing references.
 
-1. Derive the fixed point for the closed bug ticket:
-
-   ```shell
-   git log --reverse origin/<default-branch>..HEAD --grep="(#<bug-ticket>)" -n 1 --format="%H"
-   ```
-
-   Resolve `<fixed-point>` as the parent of the earliest commit: `<earliest-sha>~1`.
-   Return `failed` when no commit resolves.
-
-2. Update the pull request description:
+1. Update the pull request description:
 
    Inspect the pull request body (`gh pr view <pr> --json body --jq .body`).
    Skip this step when the body already contains `Closes #<bug-number>`.
@@ -144,17 +135,16 @@ Run when `Mode: sync` for a closed `ship-it:bug` ticket absent from the pull req
    gh pr edit <pr> --body-file <file>
    ```
 
-3. Annotate modified delta files:
-
-   Identify modified files in the delta diff:
+2. Annotate the files touched by the bug ticket's commits:
 
    ```shell
-   git diff --name-only <fixed-point>..HEAD
+   git log origin/<default-branch>..HEAD --grep="(#<bug-ticket>)" --name-only --format=
    gh pr view <pr> --json headRefOid --jq .headRefOid
    gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
    ```
 
-   Annotate each modified file with one file-level review comment, deleting each temporary `<annotation-file>` after posting.
+   Return `failed` when no commit matches.
+   Annotate each unique file with one file-level review comment, deleting each temporary `<annotation-file>` after posting.
    Write each annotation in this form:
 
    ```markdown
@@ -163,4 +153,4 @@ Run when `Mode: sync` for a closed `ship-it:bug` ticket absent from the pull req
    **Traces to**: #<bug-ticket>
    ```
 
-4. Return `done`.
+3. Return `done`.
