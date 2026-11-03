@@ -89,6 +89,7 @@ Run after the final review approves the spec (`Mode: initial`) or when synchroni
 
    The body lists each ticket by title and contains `Closes #<spec>`.
    Add `Closes #<issue>` when `## Source` names a request issue.
+   Add `Closes #<n>` for each closed `ship-it:bug` ticket so routing tracks synchronized bugs through closing references.
    Merging the pull request closes the spec.
 
 2. Annotate every changed file with one file-level review comment, deleting each temporary `<annotation-file>` after posting:
@@ -114,7 +115,7 @@ Run after the final review approves the spec (`Mode: initial`) or when synchroni
 
 ### Synchronization
 
-Run when `Mode: sync` after review approves an addendum bug ticket.
+Run when `Mode: sync` for a closed `ship-it:bug` ticket absent from the pull request's closing references.
 
 1. Derive the fixed point for the closed bug ticket:
 
@@ -128,6 +129,7 @@ Run when `Mode: sync` after review approves an addendum bug ticket.
 2. Update the pull request description:
 
    Inspect the pull request body (`gh pr view <pr> --json body --jq .body`).
+   Skip this step when the body already contains `Closes #<bug-number>`.
    Append `### Addendum Bugs` when the heading is absent from the body.
    Append the bug bullet under `### Addendum Bugs`:
 

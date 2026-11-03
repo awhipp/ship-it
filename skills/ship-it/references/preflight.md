@@ -66,13 +66,13 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 | Close issue | `gh issue close <n> --comment "<text>"` |
 | Link sub-issue or blocker | `gh issue create --parent <parent> --blocked-by <blocker>` or `gh issue edit <n> --add-blocked-by <blocker>` |
 | Query dependencies | `gh issue view <n> --json blockedBy,parent,subIssues` |
-| Query pull requests | `gh pr list --head "<branch>" --state all --json number,state,url,body` |
+| Query pull requests | `gh pr list --head "<branch>" --state all --json number,state,url` |
+| Query closing references | `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'` |
 | Create pull request | `gh pr create --base <default-branch> --head <branch> --title "<title>" --body-file <file>` |
 | Edit pull request | `gh pr edit <pr> --body-file <file>` |
 | List pull request files | `gh pr diff <pr> --name-only` |
 | Get pull request head SHA | `gh pr view <pr> --json headRefOid --jq .headRefOid` |
 | Annotate pull request file (sole `gh api` exception) | `gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<sha> -f path=<file> -f subject_type=file -F body=@<file>` |
-| Comment on pull request | `gh pr comment <pr> --body-file <file>` |
 
 ### Bounded comment queries
 
