@@ -89,7 +89,7 @@ Run after the final review approves the spec (`Mode: initial`) or when synchroni
 
    The body lists each ticket by title and contains `Closes #<spec>`.
    Add `Closes #<issue>` when `## Source` names a request issue.
-   Add `Closes #<n>` for each closed `ship-it:bug` ticket so routing tracks synchronized bugs through closing references.
+   Add `Closes #<n>` for each `ship-it:bug` ticket closed as completed so routing tracks synchronized bugs through closing references.
    Merging the pull request closes the spec.
 
 2. Annotate every changed file with one file-level review comment, deleting each temporary `<annotation-file>` after posting:

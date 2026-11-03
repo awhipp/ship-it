@@ -133,7 +133,7 @@ The subagent diagnoses the root cause, establishes a reproduction seam, and form
 1. **Investigate active code**: Read the issue description and explore the active code on the feature branch. Locate the defect mechanism and affected symbols.
 2. **Establish reproduction seam**: Identify or construct a targeted test or CLI command that reliably fails before applying code changes.
 3. **Draft bug ticket**: Format the issue body according to the bug ticket template below. State the root cause mechanism, reproduction seam, complexity level, and testable acceptance criteria.
-4. **Link parent spec**: Link the ticket to the parent spec using native linking (`gh issue edit <n> --parent <spec-id>`).
+4. **Link parent spec**: Write `Part of #<spec-id>` on the first line and attempt native linking (`gh issue edit <n> --parent <spec-id>`), ignoring errors on unsupported tiers per [Relationships](#relationships).
 5. **Apply label**: Add `ship-it:ticket` (`gh issue edit <n> --add-label "ship-it:ticket"`). Retain `ship-it:bug` to preserve defect provenance. Fresh-context validation runs in Row 9 of the routing table.
 6. **Handoff**: Return `done` with `Evidence: None`.
 

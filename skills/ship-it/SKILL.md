@@ -52,7 +52,7 @@ Keep only results whose title starts with `[<slug>]`.
 gh issue list --label "ship-it:map" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state
 gh issue list --label "ship-it:spec" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state
 gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,assignees,blockedBy,state
-gh issue list --label "ship-it:bug" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state
+gh issue list --label "ship-it:bug" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state,stateReason
 gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
@@ -60,7 +60,7 @@ Evaluate issues bearing `ship-it:ticket` as the active ticket set for Rows 8, 9,
 Partition issues bearing `ship-it:bug` and lacking `ship-it:ticket` as unprepared bug issues for Row 10.
 Run the pull request query only once a spec exists.
 Evaluate Row 14 only when Rows 1–13 miss.
-Read the open pull request's closing references once via `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'`.
+Read the open pull request's closing references on every pass that reaches Row 14 via `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'`.
 Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body --jq .body` and retain that branch name across routing passes.
 A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`.
 When multiple pull requests exist for the branch, evaluate their states in strict priority order: `MERGED` > `OPEN` > `CLOSED`.
@@ -82,12 +82,12 @@ Complete the matched action, then follow the row's **Transition** column.
 | 6 | Spec has `ship-it:changes-requested` and tickets exist | Remediate the ticket set ([tickets.md](references/tickets.md#remediation)). | Query state and route again (hits row 9). |
 | 7 | Spec lacks `ship-it:validated` | Validate the spec ([validate.md](references/validate.md)). | Query state and route again (hits row 8 on pass, or row 5 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 8 | No tickets | Slice tickets ([tickets.md](references/tickets.md)). | Query state and route again (hits row 9). |
-| 9 | An open ticket lacks `ship-it:validated` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)**. Otherwise: query state and route again (hits row 6 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
-| 10 | An open issue has `ship-it:bug` and lacks `ship-it:ticket` | Prepare the lowest-numbered open bug issue ([tickets.md](references/tickets.md#bug-preparation)). | Query state and route again (hits row 9). |
+| 9 | An open ticket lacks `ship-it:validated` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)**, or **halt** for approval of the bug tickets when any ticket is closed. Otherwise: query state and route again (hits row 6 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
+| 10 | An open issue has `ship-it:bug` and lacks `ship-it:ticket` | Prepare the lowest-numbered open bug issue ([tickets.md](references/tickets.md#bug-preparation)). | Query state and route again (hits row 9) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 11 | An open ticket exists | Work the frontier ticket (below). | Query state and route again after each frontier step. |
 | 12 | Spec lacks `ship-it:reviewed` | Run the final review ([review.md](references/review.md#final-review)), enforcing the loop guard (below). | On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 13 | No pull request exists for the branch | Close out in initial mode ([implement.md](references/implement.md#close-out)). | **Halt (Boundary 3 exit).** |
-| 14 | An open pull request exists and a closed `ship-it:bug` ticket is absent from its closing references | Close out in sync mode for the lowest-numbered such ticket ([implement.md](references/implement.md#synchronization)). | Query state and route again (hits row 15). |
+| 14 | An open pull request exists and a closed `ship-it:bug` ticket with `stateReason` `COMPLETED` is absent from its closing references | Close out in sync mode for the lowest-numbered such ticket ([implement.md](references/implement.md#synchronization)). | Query state and route again (hits row 15). |
 | 15 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and prompt the user to reopen it. On confirmation, run `gh pr reopen <pr>` and query state and route again. When declined, report the feature abandoned and stop. | Query state and route again on reopen (hits row 15 in `OPEN` state); otherwise **stop**. |
 
 **Frontier ticket**: the lowest-numbered open ticket whose blockers are all closed ([tickets.md](references/tickets.md#relationships)).
