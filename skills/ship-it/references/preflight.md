@@ -3,7 +3,7 @@
 `ship-it` assumes an installed and authenticated `gh` CLI, a `github.com` remote, writable GitHub Issues, and the required label set.
 Run this checklist only in two situations:
 
-- The user runs `ship-it preflight`.
+- The user runs `ship-it preflight` or `ship-it init`.
 - A `gh` command fails during a run.
 
 ## Checklist

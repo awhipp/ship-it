@@ -56,16 +56,11 @@ gh issue list --label "ship-it:bug" --search "[<slug>] in:title" --state all --l
 gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
-Evaluate issues bearing `ship-it:ticket` as the active ticket set for Rows 8, 9, and 11, deduplicated by issue number.
-Partition issues bearing `ship-it:bug` and lacking `ship-it:ticket` as unprepared bug issues for Row 10.
-Run the pull request query only once a spec exists.
-Evaluate Row 14 only when Rows 1–13 miss.
-Read the open pull request's closing references on every pass that reaches Row 14 via `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'`.
-Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body --jq .body` and retain that branch name across routing passes.
-A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`.
-When multiple pull requests exist for the branch, evaluate their states in strict priority order: `MERGED` > `OPEN` > `CLOSED`.
-A failed query is an environment error: run [preflight.md](references/preflight.md).
-Never read a failed query as "no artifacts".
+- **Ticket and bug sets**: Treat issues bearing `ship-it:ticket` as the ticket set across Rows 5, 6, 8, 9, and 11, deduplicated by issue number. Partition issues bearing `ship-it:bug` and lacking `ship-it:ticket` as unprepared bug issues for Row 10.
+- **Branch name**: Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body --jq .body`. Retain that branch name across routing passes.
+- **Pull requests**: Run the pull request query only once a spec exists. A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`. Evaluate multiple pull requests for the branch in priority order: `MERGED` > `OPEN` > `CLOSED`.
+- **Closing references**: When Rows 1–13 miss, an `OPEN` pull request exists, and a closed issue bears both `ship-it:bug` and `ship-it:ticket` with `stateReason` `COMPLETED`, query closing references via `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'`.
+- **Query errors**: Treat any failed query as an environment error and run [preflight.md](references/preflight.md). Never interpret a failed query as "no artifacts".
 
 ## 3. Route: the first matching row wins
 
@@ -82,15 +77,15 @@ Complete the matched action, then follow the row's **Transition** column.
 | 6 | Spec has `ship-it:changes-requested` and tickets exist | Remediate the ticket set ([tickets.md](references/tickets.md#remediation)). | Query state and route again (hits row 9). |
 | 7 | Spec lacks `ship-it:validated` | Validate the spec ([validate.md](references/validate.md)). | Query state and route again (hits row 8 on pass, or row 5 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 8 | No tickets | Slice tickets ([tickets.md](references/tickets.md)). | Query state and route again (hits row 9). |
-| 9 | An open ticket lacks `ship-it:validated` and no open issue has `ship-it:bug` lacking `ship-it:ticket` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)** when no ticket is closed; **halt** for approval of the bug tickets when any ticket is closed. Otherwise: query state and route again (hits row 6 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
-| 10 | An open issue has `ship-it:bug` and lacks `ship-it:ticket` | Prepare the lowest-numbered open bug issue ([tickets.md](references/tickets.md#bug-preparation)). | Query state and route again (hits row 9) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
+| 9 | An open ticket lacks `ship-it:validated` and no open issue has `ship-it:bug` lacking `ship-it:ticket` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)** when no open ticket has `ship-it:bug`, or **halt** for approval of the bug tickets when an open ticket has `ship-it:bug`. Otherwise: query state and route again (hits row 6 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
+| 10 | An open issue has `ship-it:bug` and lacks `ship-it:ticket` | Prepare the lowest-numbered open bug issue ([tickets.md](references/tickets.md#bug-preparation)). | Query state and route again (hits row 10 when unprepared bugs remain, or row 9). |
 | 11 | An open ticket exists | Work the frontier ticket (below). | Query state and route again after each frontier step. |
 | 12 | Spec lacks `ship-it:reviewed` | Run the final review ([review.md](references/review.md#final-review)), enforcing the loop guard (below). | On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 13 | No pull request exists for the branch | Close out in initial mode ([implement.md](references/implement.md#close-out)). | **Halt (Boundary 3 exit).** |
-| 14 | An open pull request exists and a closed issue bearing both `ship-it:bug` and `ship-it:ticket` with `stateReason` `COMPLETED` is absent from its closing references | Close out in sync mode for the lowest-numbered such ticket ([implement.md](references/implement.md#synchronization)). | Query state and route again (hits row 14 when unsynchronized bug tickets remain, or row 15). |
+| 14 | An open pull request exists and a closed issue bearing both `ship-it:bug` and `ship-it:ticket` with `stateReason` `COMPLETED` is absent from the pull request's closing references | Close out in sync mode for the lowest-numbered such ticket ([implement.md](references/implement.md#synchronization)). | Query state and route again (hits row 14 when unsynchronized bug tickets remain, or row 15). |
 | 15 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and prompt the user to reopen it. On confirmation, run `gh pr reopen <pr>` and query state and route again. When declined, report the feature abandoned and stop. | Query state and route again on reopen (hits row 15 in `OPEN` state); otherwise **stop**. |
 
-**Bug tickets after final review**: Bug tickets prepared after the final review receive ticket review only; merging the pull request is the final gate.
+**Bug tickets after final review**: Bug tickets prepared after the final review receive ticket review only. Merging the pull request is the final gate.
 
 **Frontier ticket**: the lowest-numbered open ticket whose blockers are all closed ([tickets.md](references/tickets.md#relationships)).
 Check open tickets in ascending number order against the closed ticket set from § 2.
@@ -107,7 +102,7 @@ Apply the first matching step:
 **Final review loop guard** (Row 12): count final review rejections posted after the latest `## Answers` comment on the spec via `gh issue view <spec> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Answers:1}|keys[])) == 3) | .key] | last) as $ans | (if $ans == null then . else .[($ans + 1):] end) | [.[] | select(index(({Review:1}|keys[])) == 3 and (index(({Final:1}|keys[])) != null) and (index(({Changes:1}|keys[])) != null))] | length'`.
 At three or more cycles, halt and ask the user for guidance (using an interactive question tool when available; otherwise ask in plain text and end the turn).
 Post the reply as a `## Answers` comment on the spec to reset the retry counter.
-Incorporate settled decisions into fix ticket acceptance criteria, and continue Row 12.
+Incorporate settled decisions into the acceptance criteria of fix tickets, and continue Row 12.
 
 ## 4. Dispatch and verdicts
 
@@ -115,8 +110,8 @@ Run every action per [isolation.md](references/isolation.md):
 
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
-- **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`): Ask the user every question. Use an interactive question tool when available; otherwise ask in plain text and end the turn. Post the replies as a `## Answers` comment on the issue holding the questions. For ticket questions, delegate folding answers to the next executing implementation subagent. For validation or final review questions, fold settled answers into the map, spec, or bug ticket body via surgical body edit (`gh issue edit <n> --body-file <file>`), or into fix ticket acceptance criteria. Query state and route again.
-- **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit at row 9, fix-ticket approval at row 12, or Boundary 3 exit at row 13; otherwise query state and route again).
+- **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`): Ask the user every question using an interactive question tool when available, or in plain text before ending the turn. Post the replies as a `## Answers` comment on the issue holding the questions. For implementation questions, delegate folding answers to the next implementation subagent. For bug-preparation, validation, ticket-review, or final-review questions, fold settled answers into the map, spec, bug issue, or ticket body via surgical body edit (`gh issue edit <n> --body-file <file>`), or into the acceptance criteria of fix tickets. Halt when Row 12 created fix tickets; otherwise query state and route again.
+- **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit or bug-ticket approval at row 9, fix-ticket approval at row 12, or Boundary 3 exit at row 13, and otherwise query state and route again).
 
 ## 5. Report at every halt
 
@@ -127,8 +122,8 @@ End with exactly one next step:
 | :--- | :--- |
 | Boundary 3 exit, or row 15 with an `OPEN` pull request | `Merge <pr-url> to complete the feature. No further ship-it run is needed.` |
 | Row 3 | `Feature complete.` Print no command. |
-| Row 15 with a `CLOSED` pull request | Report that <pr-url> closed unmerged and prompt to reopen. When declined, report feature abandoned. Print no command. |
-| Row 9 with closed tickets | Review the bug tickets and run `ship-it <slug>` to begin implementation. |
+| Row 15 with a `CLOSED` pull request | Report that `<pr-url>` closed unmerged and prompt to reopen. When declined, report feature abandoned. Print no command. |
+| Row 9 with open `ship-it:bug` tickets | Review the bug tickets and run `ship-it <slug>` to begin implementation. |
 | Any other halt | `ship-it <slug>` |
 
 ## Boundaries

@@ -37,7 +37,7 @@ Pass only these fields to the subagent:
 - **Issues**: The target issue number and the parent spec or map number.
 - **Slug**: The feature slug.
 - **Default branch**: The default branch name (such as `main`).
-- **Branch**: The feature branch, for `prepare-bug`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
+- **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
 
 Never pass conversation history, summaries of user intent, or opinions.
 Every requirement a subagent needs lives in the issues.
