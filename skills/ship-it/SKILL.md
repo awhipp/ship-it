@@ -1,6 +1,6 @@
 ---
 name: ship-it
-description: "Conducts one feature through plan, spec, tickets, implement, and review, using GitHub issues as the only state. Requires a directive: `ship-it [slug]`, `ship-it #[issue]`, `ship-it \"[idea]\"`, `ship-it preflight`, or `ship-it init`. Manual-only workflow: invoke only when the user explicitly types ship-it or /ship-it."
+description: "Conducts one feature through plan, spec, tickets, implement, and review, using GitHub issues as the only state. Requires a directive: `ship-it [slug]`, `ship-it #[issue]`, `ship-it \"[idea]\"`, `ship-it preflight`, `ship-it init`, or `ship-it version`. Manual-only workflow: invoke only when the user explicitly types ship-it or /ship-it."
 compatibility: Git repository, GitHub CLI (gh) 2.94.0 or later, and a cross-platform shell.
 disable-model-invocation: true
 ---
@@ -30,6 +30,7 @@ Ignore earlier conversation when choosing the feature.
 | `ship-it #<n>` | Run `gh issue view <n> --json title,body`. A `[<slug>]` title prefix resumes that slug. Any other issue is an idea, and the issue becomes the spec's source. |
 | `ship-it "<idea>"` | Start a new feature from the idea. |
 | `ship-it preflight` or `ship-it init` | Run [preflight.md](references/preflight.md) and stop. |
+| `ship-it version`, `ship-it --version`, or `ship-it -v` | Read `skills/ship-it/version.json` to report the installed version and release date. Query the latest upstream release via `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. Fall back to local version details on network or API failure. Halt immediately after reporting the version. |
 
 With no directive, ask for one of these forms and stop.
 Run no `gh` command before a directive exists.
