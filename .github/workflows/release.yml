@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - skills/ship-it/version.json
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(jq -r '.version' skills/ship-it/version.json)
+          if git rev-parse -q --verify "refs/tags/v${version}" >/dev/null 2>&1 || gh release view "v${version}" >/dev/null 2>&1; then
+            echo "Tag v${version} already exists; skipping release creation."
+            exit 0
+          fi
+          gh release create "v${version}" --generate-notes

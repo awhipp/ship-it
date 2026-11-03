@@ -1,0 +1,31 @@
+name: Version Check
+
+on:
+  pull_request:
+    paths:
+      - 'skills/ship-it/**'
+
+permissions:
+  contents: read
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check skill version bump
+        run: |
+          changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          if echo "$changed_files" | grep -q "^skills/ship-it/" && ! echo "$changed_files" | grep -qx "skills/ship-it/version.json"; then
+            echo "::warning::Files in skills/ship-it/ changed without bumping skills/ship-it/version.json."
+            {
+              echo "### Skill Version Notice"
+              echo ""
+              echo "Files in \`skills/ship-it/\` changed without an accompanying update to \`skills/ship-it/version.json\`."
+              echo "Update \`skills/ship-it/version.json\` per \`AGENTS.md\` before merging the pull request."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
