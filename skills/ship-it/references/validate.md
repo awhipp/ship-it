@@ -12,16 +12,19 @@ Ground every check in these inputs:
 
 | Artifact | Requirements | Artifact under audit |
 | :--- | :--- | :--- |
-| Spec | The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), and the active codebase | The spec body (`gh issue view <spec> --json body --jq .body`) |
-| Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`), completed closed tickets (`state: "CLOSED"` with `stateReason: "COMPLETED"`), and active code on `<branch>` when present on `origin` (or `origin/<default-branch>` otherwise, after fetching those target refs) | Every open ticket body from `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,body,labels,state,stateReason` (keeping titles starting with `[<slug>]`) |
+| Spec | The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), `## Deferred to Slicing` comments on the spec, and the active codebase | The spec body (`gh issue view <spec> --json body --jq .body`) |
+| Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`), `## Deferred to Slicing` comments on the parent spec, completed closed tickets (`state: "CLOSED"` with `stateReason: "COMPLETED"`), and active code on `<branch>` when present on `origin` (or `origin/<default-branch>` otherwise, after fetching those target refs) | Every open ticket body from `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,body,labels,state,stateReason` (keeping titles starting with `[<slug>]`) |
+
+Query `## Deferred to Slicing` comments on the spec via `gh issue view <spec> --json comments --jq '[.comments[].body | select(index(({Deferred:1}|keys[])) == 3)]'`.
 
 ## Zero-assumption rule
 
-- Apply the two-implementer test: when two isolated implementers reading the artifact and codebase could make different architectural or low-level design choices, the artifact has a gap.
-- When the author or slicer can resolve a gap from existing requirements and the codebase, record a Blocker.
-- When resolving a gap requires an unsettled product, scope, or architectural decision from the user, record a Question.
-- Never infer intent, fill a gap, or rationalize the author's choice.
-- Verify that the artifact honors every requirement and settled decision in the source issue, map body, or parent spec body without contradiction.
+- **Spec altitude**: Restrict the two-implementer test for `Target: spec` to cross-cutting architecture, shared contracts, module boundaries, system invariants, and high-level test seams.
+- **Ticket-set altitude**: Reserve checks on low-level design, slice-local helpers, caller edge cases, and low-level agreement between implementers for `Target: ticket-set`.
+- **Architectural choice escalation**: Record a Question whenever an unwritten choice on behavior, scope, boundaries, contracts, or state transitions has multiple valid designs. Raise a Question even when active code suggests a plausible default.
+- **Single-outcome gaps**: Reserve Blocker for factual drift against active code, contradictions with settled decisions, or single-outcome gaps where requirements and code dictate one resolution.
+- **Zero inference**: Never infer intent, fill a gap, or rationalize the author's choice.
+- **Source fidelity**: Verify that the artifact honors every requirement and settled decision in the source issue, map body, or parent spec body without contradiction.
 
 ## What to look for
 
@@ -29,7 +32,7 @@ Ground every check in these inputs:
 - **Codebase alignment**: References to nonexistent modules or symbols, conflicts with existing architecture, or missed touchpoints in active code.
 - **Design completeness**: Specs missing cross-cutting context, module boundaries, shared contracts, or invariants; tickets missing concrete `Touchpoints`, actionable slice-local `Design deltas` (including inter-slice transition boundaries when sibling tickets touch the same files or follow `expand → migrate → contract`), or edge-case checks. Flag bare pointer-only `Design deltas` (such as `"Apply rules in Spec § ..."`) as Blockers.
 - **Repetition and bloat**: Cross-section restatement within an artifact, verbatim copying of multi-line parent spec contracts into tickets instead of citing `Spec § <section>` and stating slice-local deltas, or walls of text violating [writing.md](writing.md) Rule 7.
-- **Traceability**: Unrequested behavior, or a requirement with no coverage across open tickets and `COMPLETED` closed tickets.
+- **Traceability**: Unrequested behavior, or a requirement with no coverage across open tickets and `COMPLETED` closed tickets. For `Target: spec`, skip items listed in `## Deferred to Slicing` comments on the spec. For `Target: ticket-set`, verify coverage of all deferred items from `## Deferred to Slicing` comments across the ticket set.
 - **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
 - **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the five slicing anti-patterns (`Docs-Tail`, `Config-Preamble`, `Horizontal Slice`, `Orphaned Scaffolding`, and `Micro-Refactor`). Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
 - **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, or rationales failing to justify scope, touched layers, and reasoning depth. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
@@ -40,16 +43,15 @@ Ground every check in these inputs:
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
 | **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level design, the low-level design, or the root cause and reproduction seam of a bug ticket, uses bare pointer-only `Design deltas`, repeats contracts across sections or from spec to ticket, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
-| **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten. | Withholds approval until answered. |
-| **Nit** | The artifact is correct but improves with a small wording or formatting fix, or by trimming minor phrasing redundancy. | Fix in place. |
+| **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten, or an unwritten choice has multiple valid designs. | Withholds approval until answered. |
 
-Do not inflate Nits into Questions to appear thorough.
+Validation is strictly read-only on issue bodies.
+Never modify issue bodies during validation.
 Do not downgrade a Blocker to avoid delaying work.
-Never pass an underspecified artifact by fixing only prose Nits.
 
 ## Report
 
-When findings or in-place resolutions exist, post the report on the **spec** for both artifact types (`gh issue comment <spec> --body-file <file>`):
+When findings exist, post the report on the **spec** for both artifact types (`gh issue comment <spec> --body-file <file>`):
 
 ```markdown
 ## Validation: <Spec | Ticket set>
@@ -60,23 +62,20 @@ When findings or in-place resolutions exist, post the report on the **spec** for
 ### Clarifying Questions
 - **Q-1** [<section or #ticket>]: <question>
 
-### In-place Resolutions
-- **R-1** [<section or #ticket>]: <nit fixed in the issue body>
-
 **Verdict**: Validated | Changes requested | Questions pending
 ```
 
-Render only subsections that contain findings (`### Blockers`, `### Clarifying Questions`, `### In-place Resolutions`).
+Render only subsections that contain findings (`### Blockers`, `### Clarifying Questions`).
 Never output `- None` placeholder subsections.
 
 ## Outcomes
 
 | Findings | Labels | Return verdict |
 | :--- | :--- | :--- |
-| Any Blocker | Add `ship-it:changes-requested` to the spec. | `changes-requested`, listing any Questions too |
-| Questions, no Blocker | None. | `questions` |
-| Nits only | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` after posting the sparse report with `### In-place Resolutions` |
-| Clean pass (zero Blockers, Questions, or Nits) | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: None` (skip posting a report comment) |
+| Any Blocker | Add `ship-it:changes-requested` to the spec. | `changes-requested`, listing any Questions too, with `Evidence: <comment-url>` |
+| Questions, no Blocker | None. | `questions`, with `Evidence: <comment-url>` |
+| Clean pass (zero Blockers or Questions) | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: None` (skip posting a report comment) |
 
-Fix Nits directly in the issue body via surgical body edit (`gh issue view <n> --json body --jq .body` to a temporary file, targeted edit preserving untouched sections and tasklists, `gh issue edit <n> --body-file <file>`) and record them under `### In-place Resolutions`.
+Validation is strictly read-only on issue bodies.
+Never edit issue bodies during validation.
 Never rewrite structure or add missing requirements; those are Blockers.

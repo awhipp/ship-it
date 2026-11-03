@@ -53,7 +53,7 @@ Assign subagent complexity from the lifecycle role or the target ticket's `## Co
 | **`decide`** | Plan | Ticket or Default | `low` for research, `medium` for prototypes and tasks |
 | **`slice`** | Tickets | Fixed Default | `high` |
 | **`prepare-bug`** | Tickets | Fixed Default | `medium` |
-| **`validate`** | Spec / Tickets | Fixed Default | `high` |
+| **`validate`** | Spec / Tickets | Target | `medium` for `Target: spec`, `high` for `Target: ticket-set` |
 | **`implement`** | Implementation | Target Ticket | Inherited from `## Complexity` |
 | **`rework`** | Implementation | Target Ticket | Inherited from `## Complexity` |
 | **`review`** | Implementation | Target Ticket | Inherited from `## Complexity` |

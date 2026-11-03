@@ -38,6 +38,7 @@ Evaluate every file against these five audit axes:
 - **Search-first codebase exploration**: Confirm [`plan.md`](../../../skills/ship-it/references/plan.md), [`spec.md`](../../../skills/ship-it/references/spec.md), [`tickets.md`](../../../skills/ship-it/references/tickets.md), and [`validate.md`](../../../skills/ship-it/references/validate.md) instruct agents to use targeted symbol and path searches (`rg`, `git grep`, or harness search tools) and line-range reads rather than full-repository directory scans. Confirm `validate.md` reads the artifact under audit before verifying named touchpoints against active code.
 - **Scoped git and test execution**: Confirm [`implement.md`](../../../skills/ship-it/references/implement.md) and [`review.md`](../../../skills/ship-it/references/review.md) fetch specific target branches (`git fetch origin <default-branch> <branch>`), survey diffs with `git diff --stat` before reading full diffs, and run package- or domain-scoped test suites per `## Testing Decisions`.
 - **Loop guard consistency**: Confirm [`SKILL.md`](../../../skills/ship-it/SKILL.md) maintains consistent loop guards across Rows 5, 6, 11, and 12 that halt for user guidance at three or more rejections.
+- **Validation complexity scaling**: Confirm [`isolation.md`](../../../skills/ship-it/references/isolation.md) assigns `medium` complexity to `Target: spec` validation to bound context and reasoning depth, reserving `high` complexity for `Target: ticket-set` validation.
 
 ### 3. SSOT, DRY, and internal consistency
 
