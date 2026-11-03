@@ -77,10 +77,10 @@ Merge the pull request to approve Boundary 3 and complete the feature.
 
 ## Core guarantees
 
-- **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub issues, labels, and assignees.
+- **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub issues, labels, and assignees, enforcing bounded validation loops.
 - **Explicit Directives Only**: Invoking `ship-it` without a slug, issue number, idea, or `preflight` halts immediately instead of scanning or guessing.
 - **Zero-Assumption Verification**: Evaluators classify findings as **Blocker**, **Question**, or **Nit** and withhold approval whenever an unwritten fact prevents verification.
-- **Two-Tier Context Isolation**: Tier 1 harnesses dispatch execution-capable subagents with prompt-based complexity steering per [`isolation.md`](skills/ship-it/references/isolation.md), while Tier 2 harnesses halt for a fresh session before validation or review.
+- **Two-Tier Context Isolation**: A single conductor dispatches execution-capable leaf subagents with fresh, unforked context in Tier 1 per [`isolation.md`](skills/ship-it/references/isolation.md), falling back to Tier 2 for session-forking harnesses.
 - **Two-Axis Review and Final Audit**: Reviewers audit each ticket diff across Standards and Spec axes from a recorded or derived `Fixed point: <sha>`, followed by a full-branch final review against the specification.
 - **Annotated Pull Requests**: The `close-out` subagent posts a file-level comment on every changed file tracing the change to its ticket and specification section.
 - **Pragmatic, Domain-Aligned Verification**: Implementation verifies behavior using existing repository test runners or direct checks while prohibiting ticket-named test files and ad-hoc string-matching test scripts.

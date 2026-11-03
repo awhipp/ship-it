@@ -5,8 +5,8 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 
 ## Pick the tier
 
-- **Tier 1**: A subagent dispatch tool with shell execution and file-writing capabilities exists. Select an execution-capable subagent rather than a read-only exploration subagent so the subagent can run `gh` and `git` commands.
-- **Tier 2**: No execution-capable subagent dispatch tool exists.
+- **Tier 1**: An execution-capable subagent dispatch tool with shell execution and file-writing capabilities exists. Launch subagents with fresh, unforked context without inherited conversation history. Disable context inheritance when configurable. Select an execution-capable subagent rather than a read-only exploration subagent so the subagent can run `gh` and `git` commands.
+- **Tier 2**: No execution-capable subagent dispatch tool exists, or the harness supports only full-context session forking.
 
 ## Actions
 
@@ -40,6 +40,7 @@ Pass only these fields to the subagent:
 - **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
 
 Never pass conversation history, summaries of user intent, or opinions.
+Forbid subagents from loading `skills/ship-it/SKILL.md`, running routing queries, or spawning subagents.
 Every requirement a subagent needs lives in the issues.
 A subagent that finds a requirement missing returns the missing requirement as a question.
 

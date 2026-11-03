@@ -73,8 +73,8 @@ Complete the matched action, then follow the row's **Transition** column.
 | 2 | Map is open | Resolve the next decision ticket ([plan.md](references/plan.md)). When none remain, close the map. | While open decision tickets remain: query state and route again. When the map closes: **halt (Boundary 1 exit)**. |
 | 3 | Spec is closed, or a pull request for the branch is `MERGED` | Close the spec when open (`gh issue close <spec> --comment "Merged in <pr-url>"`), then report the feature complete. | **Stop.** |
 | 4 | No spec | Draft and publish the spec ([spec.md](references/spec.md)). | Query state and route again (hits row 7). |
-| 5 | Spec has `ship-it:changes-requested` and no tickets | Remediate the spec ([spec.md](references/spec.md#remediation)). | Query state and route again (hits row 7). |
-| 6 | Spec has `ship-it:changes-requested` and tickets exist | Remediate the ticket set ([tickets.md](references/tickets.md#remediation)). | Query state and route again (hits row 9). |
+| 5 | Spec has `ship-it:changes-requested` and no tickets | Remediate the spec ([spec.md](references/spec.md#remediation)), enforcing the loop guard (below). | At three or more retries: **halt** for user guidance. Otherwise: query state and route again (hits row 7). |
+| 6 | Spec has `ship-it:changes-requested` and tickets exist | Remediate the ticket set ([tickets.md](references/tickets.md#remediation)), enforcing the loop guard (below). | At three or more retries: **halt** for user guidance. Otherwise: query state and route again (hits row 9). |
 | 7 | Spec lacks `ship-it:validated` | Validate the spec ([validate.md](references/validate.md)). | Query state and route again (hits row 8 on pass, or row 5 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
 | 8 | No tickets | Slice tickets ([tickets.md](references/tickets.md)). | Query state and route again (hits row 9). |
 | 9 | An open ticket lacks `ship-it:validated` and no open issue has `ship-it:bug` lacking `ship-it:ticket` | Validate the ticket set ([validate.md](references/validate.md)). | On `approved`: **halt (Boundary 2 exit)** when no open ticket has `ship-it:bug`, or **halt** for approval of the bug tickets when an open ticket has `ship-it:bug`. Otherwise: query state and route again (hits row 6 on blockers) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
@@ -99,6 +99,11 @@ Apply the first matching step:
 4. Has an assignee: count handoff comments via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Handoff:1}|keys[])) == 3)] | length'`. When the count is at least one, dispatch review, then query state and route again. When the count is zero, re-dispatch implementation, then query state and route again.
 5. Otherwise: claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation, then query state and route again.
 
+**Validation loop guard** (Rows 5 and 6): count validation rejections posted after the latest `## Answers` comment on the spec for the active phase via `gh issue view <spec> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Answers:1}|keys[])) == 3) | .key] | last) as $ans | (if $ans == null then . else .[($ans + 1):] end) | [.[] | select(index(({Validation:1}|keys[])) == 3 and (index(({<phase>:1}|keys[])) != null) and (index(({Changes:1}|keys[])) != null))] | length'`, where `<phase>` is `Spec` for Row 5 and `Ticket` for Row 6.
+At three or more retries, halt and ask the user for guidance (using an interactive question tool when available; otherwise ask in plain text and end the turn).
+Post the reply as a `## Answers` comment on the spec to reset the retry counter.
+Incorporate settled guidance into the remediation, and query state and route again.
+
 **Final review loop guard** (Row 12): count final review rejections posted after the latest `## Answers` comment on the spec via `gh issue view <spec> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Answers:1}|keys[])) == 3) | .key] | last) as $ans | (if $ans == null then . else .[($ans + 1):] end) | [.[] | select(index(({Review:1}|keys[])) == 3 and (index(({Final:1}|keys[])) != null) and (index(({Changes:1}|keys[])) != null))] | length'`.
 At three or more cycles, halt and ask the user for guidance (using an interactive question tool when available; otherwise ask in plain text and end the turn).
 Post the reply as a `## Answers` comment on the spec to reset the retry counter.
@@ -106,7 +111,10 @@ Incorporate settled decisions into the acceptance criteria of fix tickets, and c
 
 ## 4. Dispatch and verdicts
 
-Run every action per [isolation.md](references/isolation.md):
+Run every action per [isolation.md](references/isolation.md).
+Dispatch at most one leaf subagent at a time.
+Await the subagent's four-line return block before resuming the routing loop.
+Forbid subagents from loading `skills/ship-it/SKILL.md`, executing routing queries, or spawning workers.
 
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
