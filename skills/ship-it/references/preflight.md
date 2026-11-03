@@ -71,6 +71,7 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 | List pull request files | `gh pr diff <pr> --name-only` |
 | Get pull request head SHA | `gh pr view <pr> --json headRefOid --jq .headRefOid` |
 | Annotate pull request file (sole `gh api` exception) | `gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<sha> -f path=<file> -f subject_type=file -F body=@<file>` |
+| Comment on pull request | `gh pr comment <pr> --body-file <file>` |
 
 ### Bounded comment queries
 
