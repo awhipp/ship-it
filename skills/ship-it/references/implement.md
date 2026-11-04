@@ -88,7 +88,7 @@ When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-bran
    gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
    ```
 
-   List each closed ticket by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue) so merging the pull request closes the spec.
+   List each closed ticket by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue and `<spec-number> != <issue>`) so merging the pull request closes the spec.
    When closed `ship-it:bug` tickets with `stateReason` `COMPLETED` exist, append an `### Addendum Bugs` section listing each completed bug ticket as `- #<n> (<title>) - Closes #<n>`.
 
 2. Annotate every changed file with one file-level review comment, deleting each temporary `<annotation-file>` after posting:

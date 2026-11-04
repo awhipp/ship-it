@@ -11,11 +11,23 @@ When a point remains unsettled, ask the user directly instead of guessing.
 2. **Explore the codebase**: Ground the specification in active code using targeted symbol and path searches rather than full-repository directory scans. Read relevant interface and module sections to identify affected modules, shared contracts, data models, and system invariants. Use the repository's vocabulary and respect existing Architecture Decision Records (ADRs).
 3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories, preferring high-level seams with minimal touchpoints. For `fix` feature types, specify `Root cause: <mechanism>` and `Reproduction seam: <test or CLI command failing before fix>`. When automated tests do not apply, define direct checks rather than custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
 4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Write concise single-contract bullet points covering cross-cutting concerns. Pause and obtain explicit user approval of the draft before creating the GitHub issue.
-5. **Publish the spec**: Create the issue with `--body-file`:
+5. **Publish the spec**:
+   When sourced from `ship-it #<n>` without a map, prompt the user with interactive options:
+   - Option 1 (Recommended): `Adopt source issue #<n> in place (updates title, adds artifact label, and overwrites body with the artifact template)`
+   - Option 2: `Create a new issue (retains original source issue #<n> untouched as external reference)`
+   On Option 1, execute atomic edit:
+
+   ```shell
+   gh issue edit <n> --title "[<slug>] Spec: <gist>" --add-label "ship-it:spec" --body-file <file>
+   ```
+
+   On Option 2, when a map exists, or when not sourced from an issue, create a new issue and leave source issue `#<n>` untouched:
 
    ```shell
    gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec"
    ```
+
+   Delete the temporary body file immediately after executing `gh issue edit` or `gh issue create`.
 
 6. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing advances to Row 7 (spec validation).
 
@@ -24,7 +36,7 @@ When a point remains unsettled, ask the user directly instead of guessing.
 ```markdown
 ## Source
 
-- **Request**: #<n> (<title>) when sourced from an issue, or verbatim "<idea>" directive text
+- **Request**: #<n> (<original-title>) when sourced from an issue, or verbatim "<idea>" directive text. Pair with `Map: None` when adopted directly as the spec, or `Map: #<n>` when adopted as the map first.
 - **Map**: #<map-number> (or "None")
 - **Branch**: <type>/<slug>
 
@@ -66,8 +78,8 @@ When validation applies `ship-it:changes-requested` to the specification:
 
 1. **Read the report**: Inspect the latest validation report via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
 2. **Resolve cited Blockers**: Fold settled answers from `## Answers` comments into the spec body. Resolve every cited Blocker using one of four remediation paths while preserving untouched text verbatim:
-   - **In-body edit**: Apply surgical edits to the spec body (`gh issue edit <spec-number> --body-file <file>`) to resolve high-level architectural gaps.
-   - **Defer to slicing**: Defer slice-local details or caller edge cases to ticket slicing by posting a `## Deferred to Slicing` comment on the spec (`gh issue comment <spec-number> --body-file <file>`) without prompting the user. Format the comment with a `## Deferred to Slicing` heading and a bulleted list of deferred items.
+   - **In-body edit**: Apply surgical edits to the spec body (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) to resolve high-level architectural gaps.
+   - **Defer to slicing**: Defer slice-local details or caller edge cases to ticket slicing by posting a `## Deferred to Slicing` comment on the spec (`gh issue comment <spec-number> --body-file <file>`, deleting the temporary file immediately) without prompting the user. Format the comment with a `## Deferred to Slicing` heading and a bulleted list of deferred items.
    - **Descope**: Remove capabilities and record them under `## Out of Scope` only after obtaining explicit user approval.
    - **Split scope**: Create a follow-up GitHub issue for the deferred work and link the issue under `## Out of Scope` only after obtaining explicit user approval.
 3. **Remove label**: Clear `ship-it:changes-requested` (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).

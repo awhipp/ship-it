@@ -16,6 +16,7 @@ The map is a GitHub issue titled `[<slug>] Map: <destination gist>` with the `sh
 ## Notes
 
 - <Concise single-sentence domain context or standing preference for this feature.>
+<!-- When adopted in place from an issue, record: - Adopted in place from source issue #<n> (<original-title>). -->
 
 ## Decisions so far
 
@@ -64,7 +65,13 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 ### Charting (no map exists)
 
 1. Grill the user to settle the destination and surface open decisions, asking strictly one question per turn.
-2. Publish the map issue (`gh issue create --title "[<slug>] Map: <gist>" --body-file <file> --label "ship-it:map"`).
+2. Publish the map issue.
+   When sourced from `ship-it #<n>`, prompt the user with interactive options:
+   - Option 1 (Recommended): `Adopt source issue #<n> in place (updates title, adds artifact label, and overwrites body with the artifact template)`
+   - Option 2: `Create a new issue (retains original source issue #<n> untouched as external reference)`
+   On Option 1, record `- Adopted in place from source issue #<n> (<original-title>).` under `## Notes` in the map body and execute `gh issue edit <n> --title "[<slug>] Map: <gist>" --add-label "ship-it:map" --body-file <file>`.
+   On Option 2 or when not sourced from an issue, execute `gh issue create --title "[<slug>] Map: <gist>" --body-file <file> --label "ship-it:map"` and leave source issue `#<n>` untouched.
+   Delete the temporary body file immediately after executing `gh issue edit` or `gh issue create`.
 3. Create decision tickets for every question that has a clear phrasing now. Write `Part of #<map-id>` and `## Blocked by` in the body, and pass `--parent <map-id>` and `--blocked-by <blocker-id>` when supported.
 4. Continue straight into resolving decision tickets.
 
@@ -76,7 +83,7 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 4. Resolve the ticket per its type and [isolation.md](isolation.md):
    - Dispatch `research`, `prototype`, and `task` tickets per `isolation.md`. The subagent closes the ticket (`gh issue close <n> --comment "<settled decision and rationale>"`) and returns `done`. When blocked on user input, the subagent leaves the ticket open and returns `questions`.
    - Run `grilling` tickets in the conductor, asking one question per turn until settled, then close the ticket (`gh issue close <n> --comment "<settled decision and rationale>"`).
-5. Once the ticket closes, update the map body (`gh issue edit <map-number> --body-file <file>`):
+5. Once the ticket closes, update the map body (`gh issue edit <map-number> --body-file <file>`), deleting the temporary file immediately:
    - Append a self-contained single-sentence decision summary and issue link under `## Decisions so far`.
    - Graduate newly specifiable items from `## Not yet specified` into new decision tickets, and move ruled-out items to `## Out of scope`. When no open decision tickets remain, graduate or rule out every remaining item under `## Not yet specified` before proceeding.
 6. While open decision tickets remain, return to `SKILL.md` § 2 (`Query state`) to resolve the next decision ticket. When none remain, close the map (`gh issue close <map-number> --comment "<summary>"`) and halt at Boundary 1 exit.
