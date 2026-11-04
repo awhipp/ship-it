@@ -82,7 +82,7 @@ Merge the pull request to approve Boundary 3 and complete the feature.
 
 - **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub issues, labels, and assignees, enforcing bounded validation loops.
 - **Explicit Directives Only**: Invoking `ship-it` without a slug, issue number, idea, `preflight`, or `version` halts immediately instead of scanning or guessing.
-- **Zero-Assumption Verification**: Evaluators conduct read-only audits classifying findings as **Blocker** or **Question** without in-place edits, matching audit altitude to artifact scope and withholding approval on unwritten facts.
+- **Zero-Assumption Verification**: Evaluators conduct read-only audits classifying findings as **Blocker**, **Warning**, or **Question** without in-place edits, matching audit altitude to artifact scope and withholding approval on unwritten facts.
 - **Two-Tier Context Isolation**: A single conductor dispatches execution-capable leaf subagents with fresh, unforked context in Tier 1 per [`isolation.md`](skills/ship-it/references/isolation.md), falling back to Tier 2 for session-forking harnesses.
 - **Two-Axis Review and Final Audit**: Reviewers audit each ticket diff across Standards and Spec axes from a recorded or derived `Fixed point: <sha>`, followed by a full-branch final review against the specification.
 - **Annotated Pull Requests**: The `close-out` subagent posts a file-level comment on every changed file tracing the change to its ticket and specification section.

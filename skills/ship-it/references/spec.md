@@ -80,7 +80,11 @@ Conductors update the spec body directly via surgical edits without posting issu
 Conductors must never post comments or author `## Answers` headings for autonomous blocker resolutions.
 
 1. **Read the report**: Inspect the latest validation report via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
-2. **Resolve cited Blockers**: Fold settled answers from `## Answers` comments into the spec body. Resolve every cited Blocker using one of four remediation paths while preserving untouched text verbatim:
+2. **Resolve cited Blockers**: Fold settled answers from `## Answers` comments into the spec body.
+   Conductors may opportunistically fold advisory warnings into spec bodies while editing for blockers or while folding answers from questions.
+   Warnings never trigger independent remediation passes or revalidation loops.
+
+   Resolve every cited Blocker using one of four remediation paths while preserving untouched text verbatim:
    - **In-body edit**: Apply surgical edits to the spec body (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) to resolve high-level architectural gaps.
    - **Defer to slicing**: Record slice-local details or caller edge cases directly in the spec body for ticket slicing without prompting the user.
    - **Descope**: Remove capabilities and record them under `## Out of Scope` only after obtaining explicit user approval.

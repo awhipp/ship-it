@@ -31,7 +31,7 @@ Query `## Deferred to Slicing` comments on the spec via `gh issue view <spec> --
 - **Contradictions**: Two statements that cannot both be true, or a decision that quietly reverses an earlier one.
 - **Codebase alignment**: References to nonexistent modules or symbols, conflicts with existing architecture, or missed touchpoints in active code.
 - **Design completeness**: Specs missing cross-cutting context, module boundaries, shared contracts, or invariants; tickets missing concrete `Touchpoints`, actionable slice-local `Design deltas` (including inter-slice transition boundaries when sibling tickets touch the same files or follow `expand → migrate → contract`), or edge-case checks. Flag bare pointer-only `Design deltas` (such as `"Apply rules in Spec § ..."`) as Blockers.
-- **Repetition and bloat**: Cross-section restatement within an artifact, verbatim copying of multi-line parent spec contracts into tickets instead of citing `Spec § <section>` and stating slice-local deltas, or walls of text violating [writing.md](writing.md) Rule 7.
+- **Repetition and bloat**: Cross-section restatement within an artifact, verbatim copying of multi-line parent spec contracts into tickets instead of citing `Spec § <section>` and stating slice-local deltas, or walls of text violating [writing.md](writing.md) Rule 7. Classify Rule 7 repetition as Warning unless restated text contradicts canonical sources.
 - **Traceability**: Unrequested behavior, or a requirement with no coverage across open tickets and `COMPLETED` closed tickets. For `Target: spec`, skip items listed in `## Deferred to Slicing` comments on the spec. For `Target: ticket-set`, verify coverage of all deferred items from `## Deferred to Slicing` comments across the ticket set.
 - **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
 - **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the five slicing anti-patterns (`Docs-Tail`, `Config-Preamble`, `Horizontal Slice`, `Orphaned Scaffolding`, and `Micro-Refactor`). Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
@@ -42,7 +42,8 @@ Query `## Deferred to Slicing` comments on the spec via `gh issue view <spec> --
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level design, the low-level design, or the root cause and reproduction seam of a bug ticket, uses bare pointer-only `Design deltas`, repeats contracts across sections or from spec to ticket, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
+| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level design, the low-level design, or the root cause and reproduction seam of a bug ticket, uses bare pointer-only `Design deltas`, repeats contracts across sections or from spec to ticket with conflicting details, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
+| **Warning** | Non-conflicting repetition, style improvements, or prose polish. | Advisory; applies `ship-it:validated` and permits progression without revalidation. |
 | **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten, or an unwritten choice has multiple valid designs. | Withholds approval until answered. |
 
 Validation is strictly read-only on issue bodies.
@@ -58,14 +59,19 @@ When findings exist, post the report on the **spec** for both artifact types (`g
 ### Blockers
 - **B-1** [<section or #ticket>]: <defect and why it blocks>
 
+### Warnings
+- **W-1** [<section or #ticket>]: <advisory observation and rationale>
+
 ### Clarifying Questions
 - **Q-1** [<section or #ticket>]: <question>
 
 **Verdict**: Validated | Changes requested | Questions pending
 ```
 
-Render only subsections that contain findings (`### Blockers`, `### Clarifying Questions`).
+Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
 Never output `- None` placeholder subsections.
+Specify `**Verdict**: Validated` for warning-only reports.
+Avoid using the word `Changes` in warning text to prevent false-positive matches in queries for conductor loop guards.
 
 ## Outcomes
 
@@ -73,4 +79,7 @@ Never output `- None` placeholder subsections.
 | :--- | :--- | :--- |
 | Any Blocker | Add `ship-it:changes-requested` to the spec. | `changes-requested`, listing any Questions too, with `Evidence: <comment-url>` |
 | Questions, no Blocker | None. | `questions`, with `Evidence: <comment-url>` |
-| Clean pass (zero Blockers or Questions) | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: None` (skip posting a report comment) |
+| Warnings, no Blocker or Question | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: <comment-url>` |
+| Clean pass (zero findings) | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: None` (skip posting a report comment) |
+
+Preserve the four-line return packet schema in [isolation.md](isolation.md) by recording warnings exclusively within report comments linked via `Evidence: <comment-url>`.
