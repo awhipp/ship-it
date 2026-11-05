@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { act } from 'react';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -7,12 +7,14 @@ import { JSDOM } from 'jsdom';
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 
-describe('Marketing Site Architecture & Domains', () => {
+describe('Marketing Site Architecture & Shell', () => {
   let dom;
   let document;
   let window;
+  let mainModule;
+  let mockClipboard;
 
-  beforeAll(async () => {
+  const setupDomEnvironment = async (storedTheme = null) => {
     const htmlPath = path.join(ROOT_DIR, 'index.html');
     expect(fs.existsSync(htmlPath), 'index.html must exist').toBe(true);
     const html = fs.readFileSync(htmlPath, 'utf8');
@@ -24,7 +26,7 @@ describe('Marketing Site Architecture & Domains', () => {
     globalThis.window = window;
     globalThis.document = document;
 
-    const mockClipboard = {
+    mockClipboard = {
       writeText: vi.fn().mockResolvedValue(undefined),
     };
 
@@ -40,6 +42,12 @@ describe('Marketing Site Architecture & Domains', () => {
       writable: true,
     });
 
+    if (storedTheme) {
+      window.localStorage.setItem('ship-it-theme', storedTheme);
+    } else {
+      window.localStorage.clear();
+    }
+
     globalThis.HTMLElement = window.HTMLElement;
     globalThis.Element = window.Element;
     globalThis.Node = window.Node;
@@ -48,28 +56,61 @@ describe('Marketing Site Architecture & Domains', () => {
     globalThis.KeyboardEvent = window.KeyboardEvent;
     globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-    const mainEntryPath = path.join(ROOT_DIR, 'src/main.jsx');
-    if (fs.existsSync(mainEntryPath)) {
-      const mainModule = await import('../src/main.jsx');
-      if (typeof mainModule.initMarketingApp === 'function') {
-        await mainModule.initMarketingApp(document, window);
-      }
+    const distHtmlPath = path.join(ROOT_DIR, 'dist/index.html');
+    if (!fs.existsSync(distHtmlPath)) {
+      const { execSync } = await import('node:child_process');
+      execSync('npx vite build', { cwd: ROOT_DIR, stdio: 'ignore' });
     }
+
+    mainModule = await import('../src/main.jsx');
+    if (typeof mainModule.initMarketingApp === 'function') {
+      await mainModule.initMarketingApp(document, window);
+    }
+  };
+
+  beforeAll(async () => {
+    await setupDomEnvironment();
   });
 
   // =========================================================================
-  // DOMAIN: Infrastructure & Deployment Pipeline
+  // DOMAIN: Infrastructure & Tooling Pipeline
   // =========================================================================
-  describe('Domain: Infrastructure & Deployment Pipeline', () => {
-    it('should configure package.json with React 19 and @vitejs/plugin-react without Mermaid dependencies', () => {
+  describe('Domain: Infrastructure & Tooling Pipeline', () => {
+    it('should configure package.json with React 19, Tailwind CSS, PostCSS, and Autoprefixer without Mermaid', () => {
       const pkgPath = path.join(ROOT_DIR, 'package.json');
       const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 
       expect(pkg.dependencies?.react).toBe('^19.0.0');
       expect(pkg.dependencies?.['react-dom']).toBe('^19.0.0');
       expect(pkg.devDependencies?.['@vitejs/plugin-react']).toBe('^4.3.4');
+      expect(pkg.devDependencies?.tailwindcss).toBeDefined();
+      expect(pkg.devDependencies?.postcss).toBeDefined();
+      expect(pkg.devDependencies?.autoprefixer).toBeDefined();
       expect(pkg.dependencies?.mermaid).toBeUndefined();
       expect(pkg.devDependencies?.mermaid).toBeUndefined();
+    });
+
+    it('should configure PostCSS with tailwindcss and autoprefixer plugins', async () => {
+      const postcssPath = path.join(ROOT_DIR, 'postcss.config.js');
+      expect(fs.existsSync(postcssPath), 'postcss.config.js must exist').toBe(true);
+
+      const postcssModule = await import(postcssPath);
+      const config = postcssModule.default;
+      expect(config.plugins).toBeDefined();
+      expect(config.plugins.tailwindcss).toBeDefined();
+      expect(config.plugins.autoprefixer).toBeDefined();
+    });
+
+    it('should configure Tailwind CSS with class dark mode and content scan paths', async () => {
+      const tailwindPath = path.join(ROOT_DIR, 'tailwind.config.js');
+      expect(fs.existsSync(tailwindPath), 'tailwind.config.js must exist').toBe(true);
+
+      const tailwindModule = await import(tailwindPath);
+      const config = tailwindModule.default;
+      expect(config.darkMode).toBe('class');
+      expect(Array.isArray(config.content)).toBe(true);
+      expect(config.content.some((p) => p.includes('index.html'))).toBe(true);
+      expect(config.content.some((p) => p.includes('src'))).toBe(true);
     });
 
     it('should configure Vite with react() plugin, relative base path "./", dist outDir, and assets assetsDir', async () => {
@@ -92,31 +133,26 @@ describe('Marketing Site Architecture & Domains', () => {
       const content = fs.readFileSync(workflowPath, 'utf8');
       const doc = yaml.load(content);
 
-      // Verify branch trigger
       expect(doc.on.push.branches).toContain('gh-pages');
-
-      // Verify deployment permissions
       expect(doc.permissions.pages).toBe('write');
       expect(doc.permissions['id-token']).toBe('write');
 
-      // Verify build and deploy actions
-      const steps = doc.jobs.deploy.steps.map(s => s.run || s.uses);
-      expect(steps.some(s => s && s.includes('npm run build'))).toBe(true);
-      expect(steps.some(s => s && s.includes('actions/deploy-pages'))).toBe(true);
+      const steps = doc.jobs.deploy.steps.map((s) => s.run || s.uses);
+      expect(steps.some((s) => s && s.includes('npm run build'))).toBe(true);
+      expect(steps.some((s) => s && s.includes('actions/deploy-pages'))).toBe(true);
     });
   });
 
   // =========================================================================
-  // DOMAIN: Document Metadata & Semantic Layout
+  // DOMAIN: Document Shell & Metadata (index.html)
   // =========================================================================
-  describe('Domain: Document Metadata & Semantic Layout', () => {
+  describe('Domain: Document Shell & Metadata (index.html)', () => {
     it('should contain developer-focused page title, SEO meta tags, Open Graph, and Twitter metadata', () => {
       expect(document.title).toBe('ship-it | Structured Lifecycle Automation for Software Teams');
       const metaDesc = document.querySelector('meta[name="description"]');
       expect(metaDesc).not.toBeNull();
       expect(metaDesc.getAttribute('content').length).toBeGreaterThan(20);
 
-      // Open Graph & Social Cards
       const ogTitle = document.querySelector('meta[property="og:title"]');
       const ogDesc = document.querySelector('meta[property="og:description"]');
       const ogType = document.querySelector('meta[property="og:type"]');
@@ -143,49 +179,51 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(fs.existsSync(faviconPath), `Favicon asset must exist at ${faviconPath}`).toBe(true);
     });
 
+    it('should configure Google Fonts preconnect and stylesheet links for Plus Jakarta Sans and JetBrains Mono', () => {
+      const fontLink = document.querySelector('link[rel="stylesheet"][href*="fonts.googleapis.com"]');
+      expect(fontLink, 'Google Fonts stylesheet must be linked').not.toBeNull();
+      const href = fontLink.getAttribute('href');
+      expect(href).toContain('JetBrains+Mono');
+      expect(href).toContain('Plus+Jakarta+Sans');
+    });
+
+    it('should host clean container #root and exclude legacy static HTML sections from index.html', () => {
+      const htmlPath = path.join(ROOT_DIR, 'index.html');
+      const rawHtml = fs.readFileSync(htmlPath, 'utf8');
+
+      expect(rawHtml).toContain('<div id="root"></div>');
+      expect(rawHtml).not.toContain('<section class="problem-section"');
+      expect(rawHtml).not.toContain('<section class="solution-section"');
+      expect(rawHtml).not.toContain('<section class="getting-started-section"');
+      expect(rawHtml).not.toContain('id="flow-visualizer-root"');
+    });
+  });
+
+  // =========================================================================
+  // DOMAIN: Application Shell & Root Mounting
+  // =========================================================================
+  describe('Domain: Application Shell & Root Mounting', () => {
+    it('should mount the React 19 application into container #root via initMarketingApp', () => {
+      const rootEl = document.getElementById('root');
+      expect(rootEl, '#root container must exist').not.toBeNull();
+      expect(rootEl.children.length).toBeGreaterThan(0);
+      expect(rootEl.dataset.mounted).toBe('true');
+    });
+
     it('should structure content within semantic header, main, and footer landmarks', () => {
-      expect(document.querySelector('header')).not.toBeNull();
-      expect(document.querySelector('main')).not.toBeNull();
-      expect(document.querySelector('footer')).not.toBeNull();
-    });
+      const header = document.querySelector('header.site-header');
+      const main = document.querySelector('main#main-content');
+      const footer = document.querySelector('footer.site-footer');
 
-    it('should retain the site header containing brand icon, title, repository link, and navigation', () => {
-      const header = document.querySelector('header#main-header');
-      expect(header, 'Site header must exist').not.toBeNull();
-
-      const brandLogo = header.querySelector('#brand-logo-link');
-      expect(brandLogo, 'Brand logo link must exist').not.toBeNull();
-      expect(brandLogo.querySelector('.brand-icon'), 'Brand icon must exist').not.toBeNull();
-      expect(brandLogo.querySelector('.brand-text')?.textContent.trim()).toBe('ship-it');
-
-      const ghLink = header.querySelector('#nav-github-link');
-      expect(ghLink, 'Repository link must exist').not.toBeNull();
-      expect(ghLink.getAttribute('href')).toContain('github.com/awhipp/ship-it');
-    });
-
-    it('should arrange primary sections in sequential semantic order: Problem -> Solution -> Getting Started', () => {
-      const main = document.querySelector('main');
-      const sections = Array.from(main.querySelectorAll(':scope > section'));
-      const sectionIds = sections.map(s => s.getAttribute('id'));
-
-      expect(sectionIds).toEqual(['problem', 'solution', 'getting-started']);
-    });
-
-    it('should assert the presence of #problem, #solution, and #getting-started', () => {
-      expect(document.querySelector('#problem'), '#problem section must exist').not.toBeNull();
-      expect(document.querySelector('#solution'), '#solution section must exist').not.toBeNull();
-      expect(document.querySelector('#getting-started'), '#getting-started section must exist').not.toBeNull();
-    });
-
-    it('should assert the absence of #sdlc-comparison and #architecture-deep-dive', () => {
-      expect(document.querySelector('#sdlc-comparison'), '#sdlc-comparison must not exist').toBeNull();
-      expect(document.querySelector('#architecture-deep-dive'), '#architecture-deep-dive must not exist').toBeNull();
+      expect(header, 'header.site-header landmark must exist').not.toBeNull();
+      expect(main, 'main#main-content landmark must exist').not.toBeNull();
+      expect(footer, 'footer.site-footer landmark must exist').not.toBeNull();
     });
 
     it('should guarantee unique IDs across all interactive elements', () => {
       const interactiveEls = document.querySelectorAll('a, button, input, select');
       const ids = new Set();
-      interactiveEls.forEach(el => {
+      interactiveEls.forEach((el) => {
         const id = el.getAttribute('id');
         if (id) {
           expect(ids.has(id), `Duplicate ID found: ${id}`).toBe(false);
@@ -193,306 +231,134 @@ describe('Marketing Site Architecture & Domains', () => {
         }
       });
     });
-
-    it('should synchronize gh-pages README.md with root README.md', () => {
-      const readmePath = path.join(ROOT_DIR, 'README.md');
-      const readme = fs.readFileSync(readmePath, 'utf8');
-      expect(readme).toContain('**Disciplined feature delivery for engineering teams.**');
-      expect(readme).toContain('### Map vs. Spec');
-      expect(readme).toContain('Phase exit / Boundary halt');
-      expect(readme).toContain('View Boundary 1: Map Lifecycle Diagram');
-      expect(readme).toContain('View Boundary 2: Spec & Ticket Definition Diagram');
-      expect(readme).toContain('View Boundary 3: Ticket Loop & PR Close-Out Diagram');
-      expect(readme).toContain('pragmatic, domain-aligned verification');
-      expect(readme).toContain('ad-hoc test harness prohibition');
-      expect(readme).toContain('Spec #34');
-      expect(readme).toContain('Spec #36');
-    });
-
-    it('should exclude Mermaid diagram blocks from the marketing site application', () => {
-      const htmlPath = path.join(ROOT_DIR, 'index.html');
-      const html = fs.readFileSync(htmlPath, 'utf8');
-      expect(html).not.toMatch(/mermaid/i);
-    });
   });
 
   // =========================================================================
-  // DOMAIN: Problem Statement & Navigation (#problem)
+  // DOMAIN: Theme System & Dual-Theme Persistence
   // =========================================================================
-  describe('Domain: Problem Statement & Navigation (#problem)', () => {
-    it('should render a single h1 element preserving "driver\'s seat"', () => {
-      const h1s = document.querySelectorAll('h1');
-      expect(h1s.length).toBe(1);
-      expect(h1s[0].textContent.replace(/\s+/g, ' ').trim()).toMatch(/driver's seat/i);
+  describe('Domain: Theme System & Dual-Theme Persistence', () => {
+    it('should initialize ThemeMode to "light" by default when localStorage has no stored preference', async () => {
+      const { getStoredTheme, applyTheme } = await import('../src/components/ThemeToggle.jsx');
+      window.localStorage.clear();
+
+      const theme = getStoredTheme();
+      expect(theme).toBe('light');
+
+      applyTheme(theme);
+      expect(document.documentElement.classList.contains('dark')).toBe(false);
     });
 
-    it('should render concise problem statement in #problem explaining unguided AI workflows, context degradation, and sprawling pull requests', () => {
-      const problemSection = document.querySelector('#problem');
-      expect(problemSection, '#problem section must exist').not.toBeNull();
+    it('should initialize ThemeMode to "light" when localStorage throws a SecurityError', async () => {
+      const { getStoredTheme } = await import('../src/components/ThemeToggle.jsx');
 
-      const text = problemSection.textContent;
-      expect(text).toMatch(/unguided ai workflows/i);
-      expect(text).toMatch(/context degradation/i);
-      expect(text).toMatch(/sprawling pull requests/i);
-    });
+      const originalGetItem = window.localStorage.getItem;
+      window.localStorage.getItem = () => {
+        throw new DOMException('Access denied', 'SecurityError');
+      };
 
-    it('should update smooth-scrolling navigation to target the three new section identifiers', () => {
-      const scrollTargets = ['#problem', '#solution', '#getting-started'];
-      scrollTargets.forEach(targetId => {
-        const targetEl = document.querySelector(targetId);
-        expect(targetEl, `Section with identifier ${targetId} must exist`).not.toBeNull();
-      });
-
-      window.scrollTo = vi.fn();
-
-      const navLinks = document.querySelectorAll('a[href^="#"]');
-      const validSectionLinks = Array.from(navLinks).filter(a => scrollTargets.includes(a.getAttribute('href')));
-      expect(validSectionLinks.length).toBeGreaterThanOrEqual(3);
-
-      validSectionLinks.forEach(link => {
-        const href = link.getAttribute('href');
-        const targetEl = document.querySelector(href);
-        targetEl.getBoundingClientRect = () => ({ top: 300, bottom: 500, left: 0, right: 0, width: 800, height: 200 });
-        link.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
-        expect(window.scrollTo).toHaveBeenCalled();
-      });
-    });
-  });
-
-  // =========================================================================
-  // DOMAIN: Interactive Flow Visualizer (#solution)
-  // =========================================================================
-  describe('Domain: Interactive Flow Visualizer (#solution)', () => {
-    it('should mount FlowVisualizer inside #flow-visualizer-root within #solution', () => {
-      const section = document.querySelector('#solution');
-      expect(section, '#solution must exist').not.toBeNull();
-
-      const root = section.querySelector('#flow-visualizer-root');
-      expect(root, '#flow-visualizer-root must exist inside #solution').not.toBeNull();
-      expect(root.children.length).toBeGreaterThan(0);
-    });
-
-    it('should render interactive step selectors for Boundary 1, Boundary 2, and Boundary 3 with accessible attributes and keyboard navigation', () => {
-      const root = document.querySelector('#flow-visualizer-root');
-      const tablist = root.querySelector('[role="tablist"]');
-      expect(tablist, 'Flow selector tablist must exist').not.toBeNull();
-      expect(tablist.getAttribute('aria-label')).toBe('Lifecycle Boundaries');
-
-      const boundaryTabs = root.querySelectorAll('[role="tab"]');
-      expect(boundaryTabs.length).toBe(3);
-
-      const b1 = root.querySelector('#btn-boundary-1');
-      const b2 = root.querySelector('#btn-boundary-2');
-      const b3 = root.querySelector('#btn-boundary-3');
-
-      expect(b1, 'Boundary 1 button must exist').not.toBeNull();
-      expect(b2, 'Boundary 2 button must exist').not.toBeNull();
-      expect(b3, 'Boundary 3 button must exist').not.toBeNull();
-
-      expect(b1.textContent).toContain('Boundary 1');
-      expect(b1.textContent).toContain('Mapping');
-      expect(b2.textContent).toContain('Boundary 2');
-      expect(b2.textContent).toContain('Definition');
-      expect(b3.textContent).toContain('Boundary 3');
-      expect(b3.textContent).toContain('Execution');
-
-      // Boundary 1 is active by default
-      expect(b1.getAttribute('aria-selected')).toBe('true');
-      expect(b2.getAttribute('aria-selected')).toBe('false');
-      expect(b3.getAttribute('aria-selected')).toBe('false');
-
-      // Test keyboard navigation: ArrowRight from B1 moves to B2
-      act(() => {
-        b1.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-      });
-      expect(b2.getAttribute('aria-selected')).toBe('true');
-      expect(b1.getAttribute('aria-selected')).toBe('false');
-
-      // ArrowRight from B2 moves to B3
-      act(() => {
-        b2.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-      });
-      expect(b3.getAttribute('aria-selected')).toBe('true');
-
-      // ArrowRight wraps to B1
-      act(() => {
-        b3.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-      });
-      expect(b1.getAttribute('aria-selected')).toBe('true');
-
-      // ArrowLeft wraps to B3
-      act(() => {
-        b1.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
-      });
-      expect(b3.getAttribute('aria-selected')).toBe('true');
-    });
-
-    it('should update the single inspection panel upon selecting any boundary step to display its Goal, Deliverables, and Exit Gate', () => {
-      const root = document.querySelector('#flow-visualizer-root');
-      const b1 = root.querySelector('#btn-boundary-1');
-      const b2 = root.querySelector('#btn-boundary-2');
-      const b3 = root.querySelector('#btn-boundary-3');
-      const inspector = root.querySelector('#flow-visualizer-inspector');
-
-      expect(inspector, 'Single inspection panel #flow-visualizer-inspector must exist').not.toBeNull();
-      expect(inspector.getAttribute('role')).toBe('tabpanel');
-
-      // --- Boundary 1: Mapping ---
-      act(() => {
-        b1.click();
-      });
-      expect(b1.getAttribute('aria-selected')).toBe('true');
-      const textB1 = inspector.textContent;
-      expect(textB1).toContain('Goal');
-      expect(textB1).toContain('Deliverables');
-      expect(textB1).toContain('Exit Gate');
-      expect(textB1).toMatch(/architectural fog/i);
-      expect(textB1).toMatch(/decision tickets/i);
-      expect(textB1).toMatch(/decisions settle/i);
-
-      // --- Boundary 2: Definition ---
-      act(() => {
-        b2.click();
-      });
-      expect(b2.getAttribute('aria-selected')).toBe('true');
-      const textB2 = inspector.textContent;
-      expect(textB2).toContain('Goal');
-      expect(textB2).toContain('Deliverables');
-      expect(textB2).toContain('Exit Gate');
-      expect(textB2).toMatch(/specifications/i);
-      expect(textB2).toMatch(/tracer-bullet tickets/i);
-      expect(textB2).toMatch(/fresh context/i);
-      expect(textB2).toMatch(/approval/i);
-
-      // --- Boundary 3: Execution ---
-      act(() => {
-        b3.click();
-      });
-      expect(b3.getAttribute('aria-selected')).toBe('true');
-      const textB3 = inspector.textContent;
-      expect(textB3).toContain('Goal');
-      expect(textB3).toContain('Deliverables');
-      expect(textB3).toContain('Exit Gate');
-      expect(textB3).toMatch(/fixed points/i);
-      expect(textB3).toMatch(/two-axis reviews/i);
-      expect(textB3).toMatch(/pull request close-out/i);
-    });
-
-    it('should confirm the absence of nested sub-cards, modal pills, and secondary steppers', () => {
-      const root = document.querySelector('#flow-visualizer-root');
-
-      // Purged elements
-      const subCards = root.querySelectorAll('[data-decision-ticket], .decision-subcard, .decision-subcards-bar');
-      expect(subCards.length).toBe(0);
-
-      const modalPills = root.querySelectorAll('.modal-pill, .status-pill');
-      expect(modalPills.length).toBe(0);
-
-      const secondarySteppers = root.querySelectorAll('.flow-stepper-track, [data-stepper-stage]');
-      expect(secondarySteppers.length).toBe(0);
-    });
-  });
-
-  // =========================================================================
-  // DOMAIN: Obsolete Sections Removal (#sdlc-comparison, #architecture-deep-dive, terminal simulator)
-  // =========================================================================
-  describe('Domain: Obsolete Sections Removal', () => {
-    it('should assert the complete absence of #sdlc-comparison in DOM and styles', () => {
-      const comparisonSection = document.querySelector('#sdlc-comparison');
-      expect(comparisonSection, '#sdlc-comparison must not exist in DOM').toBeNull();
-
-      const bentoCards = document.querySelectorAll('.bento-value-card, .bento-value-grid');
-      expect(bentoCards.length).toBe(0);
-
-      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
-      const css = fs.readFileSync(cssPath, 'utf8');
-      expect(css).not.toContain('.sdlc-comparison-section');
-      expect(css).not.toContain('.bento-value-grid');
-      expect(css).not.toContain('.bento-value-card');
-    });
-
-    it('should assert the complete absence of #architecture-deep-dive in DOM and styles', () => {
-      const deepDiveSection = document.querySelector('#architecture-deep-dive');
-      expect(deepDiveSection, '#architecture-deep-dive must not exist in DOM').toBeNull();
-
-      const deepDiveCards = document.querySelectorAll('.deep-dive-card, .deep-dive-grid');
-      expect(deepDiveCards.length).toBe(0);
-
-      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
-      const css = fs.readFileSync(cssPath, 'utf8');
-      expect(css).not.toContain('.architecture-deep-dive-section');
-      expect(css).not.toContain('.deep-dive-grid');
-      expect(css).not.toContain('.deep-dive-card');
-    });
-
-    it('should assert the complete absence of the interactive terminal simulator in DOM, styles, and scripts', () => {
-      const terminalEl = document.querySelector('#terminal-interactive, #terminal-quickstart, #terminal-screen');
-      expect(terminalEl, 'Terminal simulator elements must not exist in DOM').toBeNull();
-
-      const simButtons = document.querySelectorAll('button[data-sim-step], .terminal-sim-tabs');
-      expect(simButtons.length).toBe(0);
-
-      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
-      const css = fs.readFileSync(cssPath, 'utf8');
-      expect(css).not.toContain('.terminal-interactive-wrapper');
-      expect(css).not.toContain('.terminal-sim-tabs');
-      expect(css).not.toContain('.sim-tab-btn');
-
-      const scriptPath = path.join(ROOT_DIR, 'src/main.jsx');
-      const script = fs.readFileSync(scriptPath, 'utf8');
-      expect(script).not.toContain('initCliTerminalSimulation');
-      expect(script).not.toContain('SIM_CONTENT');
-    });
-
-    it('should confirm no markup, styles, or scripts from obsolete comparison, deep-dive, or terminal simulator remain in active codebase', () => {
-      const indexHtml = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf8');
-      const mainCss = fs.readFileSync(path.join(ROOT_DIR, 'src/styles/main.css'), 'utf8');
-      const mainJsx = fs.readFileSync(path.join(ROOT_DIR, 'src/main.jsx'), 'utf8');
-
-      const obsoletePatterns = [
-        'sdlc-comparison',
-        'bento-value',
-        'architecture-deep-dive',
-        'deep-dive-grid',
-        'deep-dive-card',
-        'terminal-interactive',
-        'terminal-sim',
-        'initCliTerminalSimulation',
-      ];
-
-      for (const pattern of obsoletePatterns) {
-        expect(indexHtml, `index.html should not contain ${pattern}`).not.toContain(pattern);
-        expect(mainCss, `main.css should not contain ${pattern}`).not.toContain(pattern);
-        expect(mainJsx, `main.jsx should not contain ${pattern}`).not.toContain(pattern);
+      try {
+        const theme = getStoredTheme();
+        expect(theme).toBe('light');
+      } finally {
+        window.localStorage.getItem = originalGetItem;
       }
     });
+
+    it('should toggle the "dark" class on document.documentElement and persist to localStorage when clicking ThemeToggle', async () => {
+      const themeToggleBtn = document.getElementById('theme-toggle-btn');
+      expect(themeToggleBtn, '#theme-toggle-btn must exist in DOM').not.toBeNull();
+
+      // Ensure starting in light mode
+      window.localStorage.removeItem('ship-it-theme');
+      document.documentElement.classList.remove('dark');
+
+      // Click to toggle to dark
+      await act(async () => {
+        themeToggleBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+
+      expect(document.documentElement.classList.contains('dark')).toBe(true);
+      expect(window.localStorage.getItem('ship-it-theme')).toBe('dark');
+
+      // Click to toggle back to light
+      await act(async () => {
+        themeToggleBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+
+      expect(document.documentElement.classList.contains('dark')).toBe(false);
+      expect(window.localStorage.getItem('ship-it-theme')).toBe('light');
+    });
+
+    it('should read stored "dark" preference when initialized with persisted theme', async () => {
+      const { getStoredTheme, applyTheme } = await import('../src/components/ThemeToggle.jsx');
+      window.localStorage.setItem('ship-it-theme', 'dark');
+
+      const theme = getStoredTheme();
+      expect(theme).toBe('dark');
+
+      applyTheme(theme);
+      expect(document.documentElement.classList.contains('dark')).toBe(true);
+
+      // Clean up back to light
+      applyTheme('light');
+      window.localStorage.removeItem('ship-it-theme');
+    });
   });
 
   // =========================================================================
-  // DOMAIN: Getting Started & Installation (#getting-started)
+  // DOMAIN: Navigation Landmark (Navbar)
   // =========================================================================
-  describe('Domain: Getting Started & Installation (#getting-started)', () => {
-    it('should render minimal installation and usage instructions in #getting-started alongside copyable install command', () => {
-      const gettingStarted = document.querySelector('#getting-started');
-      expect(gettingStarted, '#getting-started section must exist').not.toBeNull();
+  describe('Domain: Navigation Landmark (Navbar)', () => {
+    it('should render the brand logo and GitHub repository link inside the <nav> landmark of Navbar', () => {
+      const nav = document.querySelector('header.site-header nav');
+      expect(nav, '<nav> landmark must exist inside header').not.toBeNull();
 
-      const installCommand = gettingStarted.querySelector('#cmd-install');
-      expect(installCommand, '#cmd-install must exist inside #getting-started').not.toBeNull();
-      expect(installCommand.textContent.trim()).toBe('npx skills install awhipp/ship-it');
+      const brandLogo = nav.querySelector('#brand-logo-link');
+      expect(brandLogo, 'Brand logo link must exist inside <nav>').not.toBeNull();
+      expect(brandLogo.querySelector('.brand-icon'), 'Brand icon must exist').not.toBeNull();
+      expect(brandLogo.querySelector('.brand-text')?.textContent.trim()).toBe('ship-it');
 
-      const copyBtn = gettingStarted.querySelector('#btn-copy-install');
-      expect(copyBtn, '#btn-copy-install must exist inside #getting-started').not.toBeNull();
+      const ghLink = nav.querySelector('#nav-github-link');
+      expect(ghLink, 'Repository link must exist inside <nav>').not.toBeNull();
+      expect(ghLink.getAttribute('href')).toBe('https://github.com/awhipp/ship-it');
+      expect(ghLink.getAttribute('target')).toBe('_blank');
+      expect(ghLink.getAttribute('rel')).toContain('noopener');
+      expect(ghLink.getAttribute('rel')).toContain('noreferrer');
+    });
 
-      const text = gettingStarted.textContent;
-      expect(text).toMatch(/npx skills install awhipp\/ship-it/);
-      expect(text).toMatch(/\/ship-it/);
+    it('should render the theme toggle button inside the <nav> landmark', () => {
+      const nav = document.querySelector('header.site-header nav');
+      const toggle = nav.querySelector('#theme-toggle-btn');
+      expect(toggle, '#theme-toggle-btn must exist inside <nav>').not.toBeNull();
+    });
+  });
+
+  // =========================================================================
+  // DOMAIN: Hero Presentation & Clipboard Copy (Hero)
+  // =========================================================================
+  describe('Domain: Hero Presentation & Clipboard Copy (Hero)', () => {
+    it('should render the hero section within <section id="hero"> with headline and value proposition', () => {
+      const hero = document.querySelector('section#hero.hero-section');
+      expect(hero, 'section#hero.hero-section must exist').not.toBeNull();
+
+      const h1 = hero.querySelector('h1#hero-title');
+      expect(h1, 'h1#hero-title must exist inside hero').not.toBeNull();
+      expect(h1.textContent).toMatch(/driver's seat/i);
+
+      const valueProp = hero.textContent;
+      expect(valueProp).toMatch(/structured lifecycle automation/i);
+    });
+
+    it('should render the install command "npx skills install awhipp/ship-it" inside hero', () => {
+      const cmdEl = document.querySelector('#hero #cmd-install');
+      expect(cmdEl, '#cmd-install must exist inside hero').not.toBeNull();
+      expect(cmdEl.textContent.trim()).toBe('npx skills install awhipp/ship-it');
     });
 
     it('should copy the install command to the clipboard and display visual feedback', async () => {
-      const copyBtn = document.querySelector('#btn-copy-install');
-      const installCmd = document.querySelector('#cmd-install');
-      expect(copyBtn, '#btn-copy-install must exist').not.toBeNull();
-      expect(installCmd, '#cmd-install must exist').not.toBeNull();
+      const copyBtn = document.querySelector('#hero #btn-copy-install');
+      const cmdEl = document.querySelector('#hero #cmd-install');
+      expect(copyBtn, '#btn-copy-install must exist inside hero').not.toBeNull();
 
       let copiedText = '';
       navigator.clipboard.writeText = vi.fn(async (text) => {
@@ -503,35 +369,50 @@ describe('Marketing Site Architecture & Domains', () => {
         copyBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
       });
 
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(installCmd.textContent.trim());
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(cmdEl.textContent.trim());
       expect(copiedText).toBe('npx skills install awhipp/ship-it');
       expect(copyBtn.classList.contains('copied')).toBe(true);
+      expect(copyBtn.querySelector('.copy-text')?.textContent.trim()).toBe('Copied!');
+    });
+
+    it('should catch clipboard write failures gracefully without unhandled runtime exceptions', async () => {
+      const copyBtn = document.querySelector('#hero #btn-copy-install');
+      expect(copyBtn).not.toBeNull();
+
+      navigator.clipboard.writeText = vi.fn().mockRejectedValue(new Error('Clipboard permission denied'));
+
+      // Clicking must not throw an unhandled exception
+      await expect(
+        act(async () => {
+          copyBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+        })
+      ).resolves.not.toThrow();
     });
   });
 
   // =========================================================================
-  // DOMAIN: Design System & Responsive Layout
+  // DOMAIN: Footer Landmarks & Metadata (Footer)
   // =========================================================================
-  describe('Domain: Design System & Responsive Layout', () => {
-    it('should define core design system tokens and dark mode palette in CSS', () => {
-      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
-      expect(fs.existsSync(cssPath), 'src/styles/main.css must exist').toBe(true);
+  describe('Domain: Footer Landmarks & Metadata (Footer)', () => {
+    it('should render repository links, GitHub Issues link, MIT license link, and attribution inside the <footer> landmark', () => {
+      const footer = document.querySelector('footer.site-footer');
+      expect(footer, 'footer.site-footer must exist').not.toBeNull();
 
-      const css = fs.readFileSync(cssPath, 'utf8');
-      expect(css).toContain('--bg-primary');
-      expect(css).toContain('--text-primary');
-      expect(css).toContain('--accent-gradient');
-      expect(css).toContain('.problem-section');
-      expect(css).toContain('.solution-section');
-      expect(css).toContain('.getting-started-section');
-    });
+      const ghLink = footer.querySelector('#footer-link-github');
+      expect(ghLink, '#footer-link-github must exist').not.toBeNull();
+      expect(ghLink.getAttribute('href')).toBe('https://github.com/awhipp/ship-it');
 
-    it('should define responsive media queries for tablet and mobile viewports', () => {
-      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
-      const css = fs.readFileSync(cssPath, 'utf8');
+      const issuesLink = footer.querySelector('#footer-link-issues');
+      expect(issuesLink, '#footer-link-issues must exist').not.toBeNull();
+      expect(issuesLink.getAttribute('href')).toBe('https://github.com/awhipp/ship-it/issues');
 
-      expect(css).toMatch(/@media[^{]*max-width:\s*768px/i);
-      expect(css).toMatch(/@media[^{]*max-width:\s*400px/i);
+      const licenseLink = footer.querySelector('#footer-link-license');
+      expect(licenseLink, '#footer-link-license must exist').not.toBeNull();
+      expect(licenseLink.getAttribute('href')).toBe('https://github.com/awhipp/ship-it/blob/main/LICENSE');
+
+      const attribution = footer.querySelector('.footer-attribution');
+      expect(attribution, '.footer-attribution must exist').not.toBeNull();
+      expect(attribution.textContent).toContain('2026 ship-it');
     });
   });
 
@@ -550,13 +431,14 @@ describe('Marketing Site Architecture & Domains', () => {
       expect(html).not.toMatch(/href="\/assets\//);
     });
 
-    it('should retain all core domain sections in the production distribution build and exclude obsolete sections', () => {
+    it('should contain the application mount root #root in dist/index.html and exclude legacy static content', () => {
       const distHtmlPath = path.join(ROOT_DIR, 'dist/index.html');
       const html = fs.readFileSync(distHtmlPath, 'utf8');
 
-      expect(html).toContain('id="problem"');
-      expect(html).toContain('id="solution"');
-      expect(html).toContain('id="getting-started"');
+      expect(html).toContain('id="root"');
+      expect(html).not.toContain('id="problem"');
+      expect(html).not.toContain('id="solution"');
+      expect(html).not.toContain('id="getting-started"');
       expect(html).not.toContain('id="sdlc-comparison"');
       expect(html).not.toContain('id="architecture-deep-dive"');
       expect(html).not.toContain('id="terminal-interactive"');

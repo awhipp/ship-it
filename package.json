@@ -15,8 +15,11 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.6.2",
     "js-yaml": "^4.1.0",
     "jsdom": "^26.0.0",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.19",
     "vite": "^6.2.0",
     "vitest": "^3.0.7"
   }
