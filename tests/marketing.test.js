@@ -736,4 +736,254 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(cssContent).toMatch(/@media\s*\([^)]*min-width:\s*769px\)[^{]*\{[\s\S]*?\.stage-stepper-list\s*\{[^}]*flex-direction:\s*row/);
     });
   });
+
+  // =========================================================================
+  // DOMAIN: Capabilities & Explicit Trade-offs (Tradeoffs)
+  // =========================================================================
+  describe('Domain: Capabilities & Explicit Trade-offs (Tradeoffs)', () => {
+    it('should render the capabilities and trade-offs section within <section id="tradeoffs">', () => {
+      const section = document.querySelector('section#tradeoffs.tradeoffs-section');
+      expect(section, 'section#tradeoffs.tradeoffs-section must exist').not.toBeNull();
+      expect(section.getAttribute('aria-labelledby')).toBe('tradeoffs-title');
+
+      const title = section.querySelector('h2#tradeoffs-title');
+      expect(title, 'h2#tradeoffs-title must exist inside tradeoffs section').not.toBeNull();
+      expect(title.textContent).toMatch(/Capabilities &.*Trade-offs/i);
+    });
+
+    it('should render core capabilities highlighting deterministic GitHub state, fresh-context verification, and automated PR closeouts', () => {
+      const capabilitiesList = document.querySelector('#tradeoffs #capabilities-list');
+      expect(capabilitiesList, '#capabilities-list must exist in tradeoffs section').not.toBeNull();
+
+      const items = Array.from(capabilitiesList.querySelectorAll('li'));
+      expect(items.length).toBe(3);
+
+      const text = capabilitiesList.textContent;
+      expect(text).toContain('Deterministic GitHub state');
+      expect(text).toContain('Fresh-context verification');
+      expect(text).toContain('Automated PR closeouts');
+
+      const githubStateItem = document.getElementById('capability-github-state');
+      expect(githubStateItem).not.toBeNull();
+      expect(githubStateItem.textContent).toMatch(/git commits, issues, and labels/i);
+
+      const freshContextItem = document.getElementById('capability-fresh-context');
+      expect(freshContextItem).not.toBeNull();
+      expect(freshContextItem.textContent).toMatch(/independent sessions without conversational history pollution/i);
+
+      const prCloseoutsItem = document.getElementById('capability-pr-closeouts');
+      expect(prCloseoutsItem).not.toBeNull();
+      expect(prCloseoutsItem.textContent).toMatch(/traceability links to upstream issues/i);
+    });
+
+    it('should render explicit trade-offs detailing GitHub CLI requirements and multi-step gate pacing', () => {
+      const tradeoffsList = document.querySelector('#tradeoffs #tradeoffs-list');
+      expect(tradeoffsList, '#tradeoffs-list must exist in tradeoffs section').not.toBeNull();
+
+      const items = Array.from(tradeoffsList.querySelectorAll('li'));
+      expect(items.length).toBe(2);
+
+      const text = tradeoffsList.textContent;
+      expect(text).toContain('GitHub CLI requirements');
+      expect(text).toContain('Multi-step gate pacing');
+
+      const ghCliItem = document.getElementById('tradeoff-gh-cli');
+      expect(ghCliItem).not.toBeNull();
+      expect(ghCliItem.textContent).toMatch(/GitHub CLI \(gh\)/i);
+
+      const gatePacingItem = document.getElementById('tradeoff-gate-pacing');
+      expect(gatePacingItem).not.toBeNull();
+      expect(gatePacingItem.textContent).toMatch(/deliberate human checkpoints/i);
+      expect(gatePacingItem.textContent).toMatch(/slower than unverified one-shot code generation/i);
+    });
+  });
+
+  // =========================================================================
+  // DOMAIN: Quick Start Onboarding & Clipboard Interactions (QuickStart)
+  // =========================================================================
+  describe('Domain: Quick Start Onboarding & Clipboard Interactions (QuickStart)', () => {
+    it('should render the quick start onboarding guide within <section id="quickstart">', () => {
+      const section = document.querySelector('section#quickstart.quickstart-section');
+      expect(section, 'section#quickstart.quickstart-section must exist').not.toBeNull();
+      expect(section.getAttribute('aria-labelledby')).toBe('quickstart-title');
+
+      const title = section.querySelector('h2#quickstart-title');
+      expect(title, 'h2#quickstart-title must exist inside quickstart section').not.toBeNull();
+      expect(title.textContent).toMatch(/Quick Start Onboarding/i);
+    });
+
+    it('should render Step 1 detailing prerequisites for Node.js, Git, and authenticated GitHub CLI', () => {
+      const stepPrereqs = document.getElementById('quickstart-step-prereqs');
+      expect(stepPrereqs, '#quickstart-step-prereqs must exist').not.toBeNull();
+
+      const text = stepPrereqs.textContent;
+      expect(text).toMatch(/Node\.js/i);
+      expect(text).toMatch(/Git/i);
+      expect(text).toMatch(/GitHub CLI/i);
+      expect(text).toMatch(/gh auth login/i);
+    });
+
+    it('should render Step 2 displaying the skill installation command "npx skills install awhipp/ship-it" with copy button', () => {
+      const stepInstall = document.getElementById('quickstart-step-install');
+      expect(stepInstall, '#quickstart-step-install must exist').not.toBeNull();
+
+      const cmdEl = stepInstall.querySelector('#cmd-quickstart-install');
+      expect(cmdEl, '#cmd-quickstart-install must exist').not.toBeNull();
+      expect(cmdEl.textContent.trim()).toBe('npx skills install awhipp/ship-it');
+
+      const copyBtn = stepInstall.querySelector('#btn-copy-quickstart-install');
+      expect(copyBtn, '#btn-copy-quickstart-install must exist').not.toBeNull();
+      expect(copyBtn.getAttribute('aria-label')).toBe('Copy install command');
+    });
+
+    it('should render Step 3 displaying the agent invocation command "/ship-it <description>" with copy button', () => {
+      const stepInvoke = document.getElementById('quickstart-step-invoke');
+      expect(stepInvoke, '#quickstart-step-invoke must exist').not.toBeNull();
+
+      const cmdEl = stepInvoke.querySelector('#cmd-quickstart-invoke');
+      expect(cmdEl, '#cmd-quickstart-invoke must exist').not.toBeNull();
+      expect(cmdEl.textContent.trim()).toBe('/ship-it <description>');
+
+      const copyBtn = stepInvoke.querySelector('#btn-copy-quickstart-invoke');
+      expect(copyBtn, '#btn-copy-quickstart-invoke must exist').not.toBeNull();
+      expect(copyBtn.getAttribute('aria-label')).toBe('Copy invocation command');
+    });
+
+    it('should copy installation command to clipboard and display visual feedback on click', async () => {
+      const copyBtn = document.querySelector('#quickstart-step-install #btn-copy-quickstart-install');
+      expect(copyBtn).not.toBeNull();
+
+      let written = '';
+      navigator.clipboard.writeText = vi.fn(async (text) => {
+        written = text;
+      });
+
+      await act(async () => {
+        copyBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('npx skills install awhipp/ship-it');
+      expect(written).toBe('npx skills install awhipp/ship-it');
+      expect(copyBtn.classList.contains('copied')).toBe(true);
+      expect(copyBtn.querySelector('.copy-text')?.textContent.trim()).toBe('Copied!');
+    });
+
+    it('should copy invocation command to clipboard and display visual feedback on click', async () => {
+      const copyBtn = document.querySelector('#quickstart-step-invoke #btn-copy-quickstart-invoke');
+      expect(copyBtn).not.toBeNull();
+
+      let written = '';
+      navigator.clipboard.writeText = vi.fn(async (text) => {
+        written = text;
+      });
+
+      await act(async () => {
+        copyBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('/ship-it <description>');
+      expect(written).toBe('/ship-it <description>');
+      expect(copyBtn.classList.contains('copied')).toBe(true);
+      expect(copyBtn.querySelector('.copy-text')?.textContent.trim()).toBe('Copied!');
+    });
+
+    it('should fall back to document.execCommand when navigator.clipboard throws or is unavailable', async () => {
+      const copyBtn = document.querySelector('#quickstart-step-install #btn-copy-quickstart-install');
+      expect(copyBtn).not.toBeNull();
+
+      navigator.clipboard.writeText = vi.fn().mockRejectedValue(new Error('Permission denied'));
+      const originalExecCommand = document.execCommand;
+      document.execCommand = vi.fn().mockReturnValue(true);
+
+      try {
+        await act(async () => {
+          copyBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+        });
+
+        expect(document.execCommand).toHaveBeenCalledWith('copy');
+        expect(copyBtn.classList.contains('copied')).toBe(true);
+      } finally {
+        document.execCommand = originalExecCommand;
+      }
+    });
+
+    it('should catch errors gracefully when both clipboard API and fallback execCommand fail', async () => {
+      const copyBtn = document.querySelector('#quickstart-step-invoke #btn-copy-quickstart-invoke');
+      expect(copyBtn).not.toBeNull();
+
+      navigator.clipboard.writeText = vi.fn().mockRejectedValue(new Error('Permission denied'));
+      const originalExecCommand = document.execCommand;
+      document.execCommand = vi.fn(() => {
+        throw new Error('execCommand disabled');
+      });
+
+      try {
+        await expect(
+          act(async () => {
+            copyBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+          })
+        ).resolves.not.toThrow();
+      } finally {
+        document.execCommand = originalExecCommand;
+      }
+    });
+  });
+
+  // =========================================================================
+  // DOMAIN: Full-Page Landmark & Integration Hierarchy
+  // =========================================================================
+  describe('Domain: Full-Page Landmark & Integration Hierarchy', () => {
+    it('should structure the entire page across semantic header, main, and footer landmarks', () => {
+      const header = document.querySelector('header#main-header.site-header');
+      const main = document.querySelector('main#main-content');
+      const footer = document.querySelector('footer#main-footer.site-footer');
+
+      expect(header, 'header#main-header landmark must exist').not.toBeNull();
+      expect(main, 'main#main-content landmark must exist').not.toBeNull();
+      expect(footer, 'footer#main-footer landmark must exist').not.toBeNull();
+    });
+
+    it('should mount all page sections in canonical sequence within <main#main-content>', () => {
+      const main = document.querySelector('main#main-content');
+      expect(main).not.toBeNull();
+
+      const sections = Array.from(main.querySelectorAll(':scope > section'));
+      const sectionIds = sections.map((s) => s.getAttribute('id'));
+
+      expect(sectionIds).toEqual(['hero', 'stages', 'tradeoffs', 'quickstart']);
+    });
+
+    it('should remove all temporary placeholder elements and content-placeholder classes from the DOM', () => {
+      const placeholderById = document.getElementById('downstream-tradeoffs-placeholder');
+      expect(placeholderById, 'Temporary placeholder ID must not exist').toBeNull();
+
+      const placeholderByClass = document.querySelectorAll('.content-placeholder');
+      expect(placeholderByClass.length, 'No .content-placeholder elements should remain').toBe(0);
+    });
+
+    it('should verify deployment workflow in .github/workflows/deploy.yml publishes dist to gh-pages', () => {
+      const workflowPath = path.join(ROOT_DIR, '.github/workflows/deploy.yml');
+      expect(fs.existsSync(workflowPath), '.github/workflows/deploy.yml must exist').toBe(true);
+
+      const yamlContent = fs.readFileSync(workflowPath, 'utf8');
+      const workflow = yaml.load(yamlContent);
+
+      expect(workflow.name).toBe('Deploy to GitHub Pages');
+      expect(workflow.on.push.branches).toContain('gh-pages');
+
+      const deployJob = workflow.jobs.deploy;
+      expect(deployJob).toBeDefined();
+
+      const steps = deployJob.steps;
+      const buildStep = steps.find((s) => s.run && s.run.includes('npm run build'));
+      expect(buildStep, 'Workflow must contain build step running npm run build').toBeDefined();
+
+      const uploadStep = steps.find((s) => s.uses && s.uses.includes('upload-pages-artifact'));
+      expect(uploadStep, 'Workflow must upload pages artifact').toBeDefined();
+      expect(uploadStep.with?.path).toBe('./dist');
+
+      const deployStep = steps.find((s) => s.uses && s.uses.includes('deploy-pages'));
+      expect(deployStep, 'Workflow must deploy pages').toBeDefined();
+    });
+  });
 });

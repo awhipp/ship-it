@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar.jsx';
 import { Hero } from './components/Hero.jsx';
 import { StageStepper } from './components/StageStepper.jsx';
+import { Tradeoffs } from './components/Tradeoffs.jsx';
+import { QuickStart } from './components/QuickStart.jsx';
 import { Footer } from './components/Footer.jsx';
 import { getStoredTheme, applyTheme } from './components/ThemeToggle.jsx';
 
@@ -18,8 +20,8 @@ export function App() {
       <main id="main-content" className="flex-1">
         <Hero />
         <StageStepper />
-        {/* Placeholder container for downstream tradeoffs and quickstart sections */}
-        <div id="downstream-tradeoffs-placeholder" className="content-placeholder hidden" aria-hidden="true" />
+        <Tradeoffs />
+        <QuickStart />
       </main>
       <Footer />
     </div>
