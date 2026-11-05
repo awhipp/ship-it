@@ -444,4 +444,296 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(html).not.toContain('id="terminal-interactive"');
     });
   });
+
+  // =========================================================================
+  // DOMAIN: Interactive SDLC Stage Stepper & Inspector
+  // =========================================================================
+  describe('Domain: Interactive SDLC Stage Stepper & Inspector', () => {
+    it('should define all five stages in src/data/stages.js conforming to StageDefinition with canonical boundaries and roles', async () => {
+      const { STAGES, STAGES_BY_ID } = await import('../src/data/stages.js');
+
+      expect(Array.isArray(STAGES)).toBe(true);
+      expect(STAGES.length).toBe(5);
+
+      const stageIds = STAGES.map((s) => s.id);
+      expect(stageIds).toEqual(['plan', 'spec', 'tickets', 'implement', 'review']);
+
+      // Canonical boundary assignments
+      expect(STAGES_BY_ID.plan.boundary).toBe('Boundary 1: Mapping');
+      expect(STAGES_BY_ID.spec.boundary).toBe('Boundary 2: Definition');
+      expect(STAGES_BY_ID.tickets.boundary).toBe('Boundary 2: Definition');
+      expect(STAGES_BY_ID.implement.boundary).toBe('Boundary 3: Execution');
+      expect(STAGES_BY_ID.review.boundary).toBe('Boundary 3: Execution');
+
+      // Canonical binary roles
+      expect(STAGES_BY_ID.plan.role).toBe('agent');
+      expect(STAGES_BY_ID.spec.role).toBe('agent');
+      expect(STAGES_BY_ID.tickets.role).toBe('agent');
+      expect(STAGES_BY_ID.implement.role).toBe('agent');
+      expect(STAGES_BY_ID.review.role).toBe('human');
+
+      // Schema completeness
+      STAGES.forEach((stage) => {
+        expect(typeof stage.id).toBe('string');
+        expect(typeof stage.name).toBe('string');
+        expect(typeof stage.boundary).toBe('string');
+        expect(['agent', 'human']).toContain(stage.role);
+        expect(typeof stage.purpose).toBe('string');
+        expect(stage.purpose.length).toBeGreaterThan(10);
+        expect(Array.isArray(stage.inputs)).toBe(true);
+        expect(stage.inputs.length).toBeGreaterThan(0);
+        expect(Array.isArray(stage.outputs)).toBe(true);
+        expect(stage.outputs.length).toBeGreaterThan(0);
+        expect(typeof stage.checkpoint).toBe('string');
+        expect(stage.checkpoint.length).toBeGreaterThan(10);
+        expect(Array.isArray(stage.antiDriftGuarantees)).toBe(true);
+        expect(stage.antiDriftGuarantees.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('should render the stage visualizer inside landmark container <section id="stages">', () => {
+      const stagesSection = document.querySelector('section#stages');
+      expect(stagesSection, 'section#stages landmark container must exist').not.toBeNull();
+      expect(stagesSection.getAttribute('aria-labelledby')).toBe('stages-title');
+
+      const title = stagesSection.querySelector('#stages-title');
+      expect(title, '#stages-title heading must exist inside section#stages').not.toBeNull();
+      expect(title.textContent).toMatch(/five sequential stages/i);
+    });
+
+    it('should render stage selection tabs for Plan, Spec, Tickets, Implement, and Review inside role="tablist"', () => {
+      const tablist = document.querySelector('section#stages [role="tablist"]');
+      expect(tablist, '[role="tablist"] must exist inside section#stages').not.toBeNull();
+      expect(tablist.getAttribute('aria-label')).toBe('SDLC Stages');
+
+      const tabs = tablist.querySelectorAll('[role="tab"]');
+      expect(tabs.length).toBe(5);
+
+      const expectedIds = [
+        'stage-tab-plan',
+        'stage-tab-spec',
+        'stage-tab-tickets',
+        'stage-tab-implement',
+        'stage-tab-review',
+      ];
+
+      tabs.forEach((tab, index) => {
+        expect(tab.getAttribute('id')).toBe(expectedIds[index]);
+        expect(tab.getAttribute('aria-controls')).toBe('stage-inspector-panel');
+      });
+
+      // Default stage is plan
+      const planTab = document.getElementById('stage-tab-plan');
+      expect(planTab.getAttribute('aria-selected')).toBe('true');
+      expect(planTab.getAttribute('tabindex')).toBe('0');
+    });
+
+    it('should render the active stage purpose, inputs, outputs, checkpoint, and anti-drift guarantees inside StageInspector', async () => {
+      const { STAGES_BY_ID } = await import('../src/data/stages.js');
+      const inspector = document.querySelector('section#stages [role="tabpanel"]#stage-inspector-panel');
+      expect(inspector, 'Inspector tabpanel must exist').not.toBeNull();
+      expect(inspector.getAttribute('aria-labelledby')).toBe('stage-tab-plan');
+
+      const plan = STAGES_BY_ID.plan;
+      expect(inspector.textContent).toContain(plan.purpose);
+      expect(inspector.textContent).toContain(plan.checkpoint);
+
+      plan.inputs.forEach((input) => {
+        expect(inspector.textContent).toContain(input);
+      });
+
+      plan.outputs.forEach((output) => {
+        expect(inspector.textContent).toContain(output);
+      });
+
+      plan.antiDriftGuarantees.forEach((guarantee) => {
+        expect(inspector.textContent).toContain(guarantee);
+      });
+    });
+
+    it('should render distinct visual badges distinguishing autonomous agent tasks from human-in-the-loop checkpoints', async () => {
+      const inspector = document.querySelector('#stage-inspector-panel');
+      expect(inspector).not.toBeNull();
+
+      // For plan stage (agent role)
+      const agentBadge = inspector.querySelector('.role-badge.role-agent');
+      expect(agentBadge, 'Agent role badge must exist for Plan stage').not.toBeNull();
+      expect(agentBadge.getAttribute('data-role')).toBe('agent');
+      expect(agentBadge.textContent).toMatch(/Agent/i);
+
+      // Switch to review stage (human role)
+      const reviewTab = document.getElementById('stage-tab-review');
+      await act(async () => {
+        reviewTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+
+      const humanBadge = inspector.querySelector('.role-badge.role-human');
+      expect(humanBadge, 'Human role badge must exist for Review stage').not.toBeNull();
+      expect(humanBadge.getAttribute('data-role')).toBe('human');
+      expect(humanBadge.textContent).toMatch(/Human/i);
+
+      // Return back to plan
+      const planTab = document.getElementById('stage-tab-plan');
+      await act(async () => {
+        planTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+    });
+
+    it('should update the active stage and inspector content when clicking any stage tab', async () => {
+      const { STAGES } = await import('../src/data/stages.js');
+      const inspector = document.querySelector('#stage-inspector-panel');
+
+      for (const stage of STAGES) {
+        const tab = document.getElementById(`stage-tab-${stage.id}`);
+        expect(tab, `Tab for ${stage.id} must exist`).not.toBeNull();
+
+        await act(async () => {
+          tab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+        });
+
+        expect(tab.getAttribute('aria-selected')).toBe('true');
+        expect(tab.getAttribute('tabindex')).toBe('0');
+        expect(inspector.getAttribute('aria-labelledby')).toBe(`stage-tab-${stage.id}`);
+        expect(inspector.textContent).toContain(stage.purpose);
+        expect(inspector.textContent).toContain(stage.checkpoint);
+      }
+    });
+
+    it('should cycle active stage focus and selection using ArrowRight and ArrowDown with wrap-around', async () => {
+      // Start at plan (index 0)
+      const planTab = document.getElementById('stage-tab-plan');
+      await act(async () => {
+        planTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+      expect(planTab.getAttribute('aria-selected')).toBe('true');
+
+      // ArrowRight -> Spec (index 1)
+      await act(async () => {
+        planTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      });
+      const specTab = document.getElementById('stage-tab-spec');
+      expect(specTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(specTab);
+
+      // ArrowDown -> Tickets (index 2)
+      await act(async () => {
+        specTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+      });
+      const ticketsTab = document.getElementById('stage-tab-tickets');
+      expect(ticketsTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(ticketsTab);
+
+      // ArrowRight -> Implement (index 3)
+      await act(async () => {
+        ticketsTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      });
+      const implementTab = document.getElementById('stage-tab-implement');
+      expect(implementTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(implementTab);
+
+      // ArrowDown -> Review (index 4)
+      await act(async () => {
+        implementTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+      });
+      const reviewTab = document.getElementById('stage-tab-review');
+      expect(reviewTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(reviewTab);
+
+      // ArrowRight from Review (index 4) wraps around to Plan (index 0)
+      await act(async () => {
+        reviewTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      });
+      expect(planTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(planTab);
+    });
+
+    it('should cycle active stage focus and selection using ArrowLeft and ArrowUp with wrap-around', async () => {
+      // Start at plan (index 0)
+      const planTab = document.getElementById('stage-tab-plan');
+      await act(async () => {
+        planTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+      expect(planTab.getAttribute('aria-selected')).toBe('true');
+
+      // ArrowLeft from Plan (index 0) wraps around to Review (index 4)
+      await act(async () => {
+        planTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+      });
+      const reviewTab = document.getElementById('stage-tab-review');
+      expect(reviewTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(reviewTab);
+
+      // ArrowUp -> Implement (index 3)
+      await act(async () => {
+        reviewTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+      });
+      const implementTab = document.getElementById('stage-tab-implement');
+      expect(implementTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(implementTab);
+
+      // ArrowLeft -> Tickets (index 2)
+      await act(async () => {
+        implementTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+      });
+      const ticketsTab = document.getElementById('stage-tab-tickets');
+      expect(ticketsTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(ticketsTab);
+
+      // ArrowUp -> Spec (index 1)
+      await act(async () => {
+        ticketsTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+      });
+      const specTab = document.getElementById('stage-tab-spec');
+      expect(specTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(specTab);
+    });
+
+    it('should jump to first stage with Home and last stage with End', async () => {
+      // Switch to tickets (middle stage)
+      const ticketsTab = document.getElementById('stage-tab-tickets');
+      await act(async () => {
+        ticketsTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      });
+      expect(ticketsTab.getAttribute('aria-selected')).toBe('true');
+
+      // Home jumps to Plan (first stage)
+      await act(async () => {
+        ticketsTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+      });
+      const planTab = document.getElementById('stage-tab-plan');
+      expect(planTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(planTab);
+
+      // End jumps to Review (last stage)
+      await act(async () => {
+        planTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+      });
+      const reviewTab = document.getElementById('stage-tab-review');
+      expect(reviewTab.getAttribute('aria-selected')).toBe('true');
+      expect(document.activeElement).toBe(reviewTab);
+
+      // Reset to Plan
+      await act(async () => {
+        reviewTab.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+      });
+      expect(planTab.getAttribute('aria-selected')).toBe('true');
+    });
+
+    it('should configure responsive horizontal desktop layout and vertical mobile layout', () => {
+      const tablist = document.querySelector('section#stages [role="tablist"]');
+      expect(tablist).not.toBeNull();
+
+      // Tailwind responsive classes: flex-col on mobile, md:flex-row on desktop
+      expect(tablist.classList.contains('flex')).toBe(true);
+      expect(tablist.classList.contains('flex-col')).toBe(true);
+      expect(tablist.classList.contains('md:flex-row')).toBe(true);
+
+      // CSS stylesheet inspection for .stage-stepper-list orientation rules
+      const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
+      const cssContent = fs.readFileSync(cssPath, 'utf8');
+
+      expect(cssContent).toMatch(/\.stage-stepper-list\s*\{[^}]*flex-direction:\s*column/);
+      expect(cssContent).toMatch(/@media\s*\([^)]*min-width:\s*769px\)[^{]*\{[\s\S]*?\.stage-stepper-list\s*\{[^}]*flex-direction:\s*row/);
+    });
+  });
 });

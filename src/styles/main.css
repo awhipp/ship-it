@@ -80,3 +80,57 @@ body {
   -webkit-text-fill-color: transparent;
   display: inline-block;
 }
+
+/* ==========================================================================
+   SDLC Stage Stepper & Inspector Styles
+   ========================================================================== */
+
+/* Responsive Stepper Orientation: Horizontal on Desktop (>768px), Vertical on Mobile (<=768px) */
+.stage-stepper-list {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 769px) {
+  .stage-stepper-list {
+    flex-direction: row;
+  }
+}
+
+/* Active Tab Indicator */
+.stage-tab[aria-selected="true"],
+.stage-tab.active {
+  border-color: var(--border-active);
+  box-shadow: 0 4px 14px -1px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+.dark .stage-tab[aria-selected="true"],
+.dark .stage-tab.active {
+  border-color: var(--border-active);
+  box-shadow: 0 4px 14px -1px rgba(0, 0, 0, 0.3), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Role Badges */
+.role-badge.role-agent {
+  background-color: rgba(99, 102, 241, 0.08);
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+.dark .role-badge.role-agent {
+  background-color: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.role-badge.role-human {
+  background-color: rgba(245, 158, 11, 0.08);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+.dark .role-badge.role-human {
+  background-color: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.35);
+}

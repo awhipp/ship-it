@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar.jsx';
 import { Hero } from './components/Hero.jsx';
+import { StageStepper } from './components/StageStepper.jsx';
 import { Footer } from './components/Footer.jsx';
 import { getStoredTheme, applyTheme } from './components/ThemeToggle.jsx';
 
@@ -16,8 +17,9 @@ export function App() {
       <Navbar theme={theme} onToggle={setTheme} />
       <main id="main-content" className="flex-1">
         <Hero />
-        {/* Placeholder container for downstream stage stepper & content */}
-        <div id="downstream-stages-placeholder" className="content-placeholder hidden" aria-hidden="true" />
+        <StageStepper />
+        {/* Placeholder container for downstream tradeoffs and quickstart sections */}
+        <div id="downstream-tradeoffs-placeholder" className="content-placeholder hidden" aria-hidden="true" />
       </main>
       <Footer />
     </div>
