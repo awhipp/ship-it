@@ -62,7 +62,7 @@ export function StageStepper() {
           Structured delivery across <span className="gradient-text">five sequential stages</span>
         </h2>
         <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300">
-          Select any stage to inspect its boundaries, operational role, inputs, outputs, phase checkpoints, and anti-drift guarantees.
+          Select any stage to inspect its boundaries, agent execution, human oversight, inputs, outputs, phase checkpoints, and anti-drift guarantees.
         </p>
       </div>
 
@@ -75,7 +75,6 @@ export function StageStepper() {
       >
         {STAGES.map((stage, index) => {
           const isSelected = stage.id === activeStage.id;
-          const isAgent = stage.role === 'agent';
 
           return (
             <button
@@ -98,15 +97,6 @@ export function StageStepper() {
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
                   0{index + 1}
-                </span>
-                <span
-                  className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                    isAgent
-                      ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300'
-                      : 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'
-                  }`}
-                >
-                  {isAgent ? 'Agent' : 'Human'}
                 </span>
               </div>
               <div className="font-bold text-base sm:text-lg text-slate-900 dark:text-white">

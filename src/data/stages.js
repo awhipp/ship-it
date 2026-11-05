@@ -1,11 +1,10 @@
 /**
- * @typedef {'agent' | 'human'} StageRole
- *
  * @typedef {Object} StageDefinition
  * @property {string} id - Unique identifier for the stage ('plan' | 'spec' | 'tickets' | 'implement' | 'review')
  * @property {string} name - Display name for the stage
  * @property {string} boundary - Canonical boundary assignment
- * @property {StageRole} role - Binary role ('agent' | 'human')
+ * @property {string} agentExecution - Autonomous agent execution responsibilities
+ * @property {string} humanOversight - Human oversight and gate checkpoint responsibilities
  * @property {string} purpose - Summary of stage objective
  * @property {string[]} inputs - Required input artifacts and context
  * @property {string[]} outputs - Produced artifacts and outcomes
@@ -18,7 +17,8 @@ export const STAGES = [
     id: 'plan',
     name: 'Plan',
     boundary: 'Boundary 1: Mapping',
-    role: 'agent',
+    agentExecution: 'Agent maps/researches',
+    humanOversight: 'Human approves Boundary 1',
     purpose: 'Resolve architectural uncertainty, clear technical fog, and settle decisions before drafting specifications.',
     inputs: [
       'Problem statement or feature request',
@@ -41,7 +41,8 @@ export const STAGES = [
     id: 'spec',
     name: 'Spec',
     boundary: 'Boundary 2: Definition',
-    role: 'agent',
+    agentExecution: 'Agent drafts & validates',
+    humanOversight: 'Human answers blockers',
     purpose: 'Draft detailed user stories, implementation decisions, and explicit test seams for settled requirements.',
     inputs: [
       'Settled Decision Map or clear feature destination',
@@ -64,7 +65,8 @@ export const STAGES = [
     id: 'tickets',
     name: 'Tickets',
     boundary: 'Boundary 2: Definition',
-    role: 'agent',
+    agentExecution: 'Agent slices & validates',
+    humanOversight: 'Human approves Boundary 2',
     purpose: 'Decompose the validated specification into ordered, self-contained tracer-bullet tickets as vertical slices.',
     inputs: [
       'Validated Feature Specification',
@@ -87,7 +89,8 @@ export const STAGES = [
     id: 'implement',
     name: 'Implement',
     boundary: 'Boundary 3: Execution',
-    role: 'agent',
+    agentExecution: 'Agent builds Red-Green & reviews diffs',
+    humanOversight: 'Human handles rework retries',
     purpose: 'Build vertical slices sequentially from recorded git fixed points with test-driven verification.',
     inputs: [
       'Assigned tracer-bullet ticket and parent spec',
@@ -110,7 +113,8 @@ export const STAGES = [
     id: 'review',
     name: 'Review',
     boundary: 'Boundary 3: Execution',
-    role: 'human',
+    agentExecution: 'Agent runs final review & annotates PR',
+    humanOversight: 'Human reviews and merges PR',
     purpose: 'Audit implementation correctness against specification using two-axis evaluation and human oversight.',
     inputs: [
       'Working branch commits and fixed-point diff',

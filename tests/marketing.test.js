@@ -449,7 +449,7 @@ describe('Marketing Site Architecture & Shell', () => {
   // DOMAIN: Interactive SDLC Stage Stepper & Inspector
   // =========================================================================
   describe('Domain: Interactive SDLC Stage Stepper & Inspector', () => {
-    it('should define all five stages in src/data/stages.js conforming to StageDefinition with canonical boundaries and roles', async () => {
+    it('should define all five stages in src/data/stages.js conforming to StageDefinition with canonical boundaries and dual roles', async () => {
       const { STAGES, STAGES_BY_ID } = await import('../src/data/stages.js');
 
       expect(Array.isArray(STAGES)).toBe(true);
@@ -465,19 +465,32 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(STAGES_BY_ID.implement.boundary).toBe('Boundary 3: Execution');
       expect(STAGES_BY_ID.review.boundary).toBe('Boundary 3: Execution');
 
-      // Canonical binary roles
-      expect(STAGES_BY_ID.plan.role).toBe('agent');
-      expect(STAGES_BY_ID.spec.role).toBe('agent');
-      expect(STAGES_BY_ID.tickets.role).toBe('agent');
-      expect(STAGES_BY_ID.implement.role).toBe('agent');
-      expect(STAGES_BY_ID.review.role).toBe('human');
+      // Canonical dual roles
+      expect(STAGES_BY_ID.plan.agentExecution).toBe('Agent maps/researches');
+      expect(STAGES_BY_ID.plan.humanOversight).toBe('Human approves Boundary 1');
+
+      expect(STAGES_BY_ID.spec.agentExecution).toBe('Agent drafts & validates');
+      expect(STAGES_BY_ID.spec.humanOversight).toBe('Human answers blockers');
+
+      expect(STAGES_BY_ID.tickets.agentExecution).toBe('Agent slices & validates');
+      expect(STAGES_BY_ID.tickets.humanOversight).toBe('Human approves Boundary 2');
+
+      expect(STAGES_BY_ID.implement.agentExecution).toBe('Agent builds Red-Green & reviews diffs');
+      expect(STAGES_BY_ID.implement.humanOversight).toBe('Human handles rework retries');
+
+      expect(STAGES_BY_ID.review.agentExecution).toBe('Agent runs final review & annotates PR');
+      expect(STAGES_BY_ID.review.humanOversight).toBe('Human reviews and merges PR');
 
       // Schema completeness
       STAGES.forEach((stage) => {
         expect(typeof stage.id).toBe('string');
         expect(typeof stage.name).toBe('string');
         expect(typeof stage.boundary).toBe('string');
-        expect(['agent', 'human']).toContain(stage.role);
+        expect(typeof stage.agentExecution).toBe('string');
+        expect(stage.agentExecution.length).toBeGreaterThan(5);
+        expect(typeof stage.humanOversight).toBe('string');
+        expect(stage.humanOversight.length).toBeGreaterThan(5);
+        expect(stage.role).toBeUndefined();
         expect(typeof stage.purpose).toBe('string');
         expect(stage.purpose.length).toBeGreaterThan(10);
         expect(Array.isArray(stage.inputs)).toBe(true);
@@ -520,6 +533,7 @@ describe('Marketing Site Architecture & Shell', () => {
       tabs.forEach((tab, index) => {
         expect(tab.getAttribute('id')).toBe(expectedIds[index]);
         expect(tab.getAttribute('aria-controls')).toBe('stage-inspector-panel');
+        expect(tab.querySelector('.role-badge')).toBeNull();
       });
 
       // Default stage is plan
@@ -551,26 +565,33 @@ describe('Marketing Site Architecture & Shell', () => {
       });
     });
 
-    it('should render distinct visual badges distinguishing autonomous agent tasks from human-in-the-loop checkpoints', async () => {
+    it('should render side-by-side dual cards for agent execution and human oversight across all five stages', async () => {
+      const { STAGES } = await import('../src/data/stages.js');
       const inspector = document.querySelector('#stage-inspector-panel');
       expect(inspector).not.toBeNull();
 
-      // For plan stage (agent role)
-      const agentBadge = inspector.querySelector('.role-badge.role-agent');
-      expect(agentBadge, 'Agent role badge must exist for Plan stage').not.toBeNull();
-      expect(agentBadge.getAttribute('data-role')).toBe('agent');
-      expect(agentBadge.textContent).toMatch(/Agent/i);
+      for (const stage of STAGES) {
+        const tab = document.getElementById(`stage-tab-${stage.id}`);
+        await act(async () => {
+          tab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+        });
 
-      // Switch to review stage (human role)
-      const reviewTab = document.getElementById('stage-tab-review');
-      await act(async () => {
-        reviewTab.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-      });
+        // Verify Indigo Agent Execution card
+        const agentCard = inspector.querySelector('.stage-agent-card');
+        expect(agentCard, `Agent card must exist for ${stage.id} stage`).not.toBeNull();
+        expect(agentCard.textContent).toContain('Agent Execution & Verification');
+        expect(agentCard.textContent).toContain(stage.agentExecution);
 
-      const humanBadge = inspector.querySelector('.role-badge.role-human');
-      expect(humanBadge, 'Human role badge must exist for Review stage').not.toBeNull();
-      expect(humanBadge.getAttribute('data-role')).toBe('human');
-      expect(humanBadge.textContent).toMatch(/Human/i);
+        // Verify Amber Human Oversight card
+        const humanCard = inspector.querySelector('.stage-human-card');
+        expect(humanCard, `Human card must exist for ${stage.id} stage`).not.toBeNull();
+        expect(humanCard.textContent).toContain('Human Oversight & Gate Checkpoint');
+        expect(humanCard.textContent).toContain(stage.humanOversight);
+      }
+
+      // Ensure binary role badge is completely removed
+      const legacyBadge = inspector.querySelector('.stage-role-badge, .role-badge');
+      expect(legacyBadge, 'Legacy binary role badge must not exist in inspector').toBeNull();
 
       // Return back to plan
       const planTab = document.getElementById('stage-tab-plan');

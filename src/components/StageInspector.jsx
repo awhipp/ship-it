@@ -4,8 +4,6 @@ import { STAGES } from '../data/stages.js';
 export function StageInspector({ stage = STAGES[0] }) {
   if (!stage) return null;
 
-  const isAgent = stage.role === 'agent';
-
   return (
     <div
       id="stage-inspector-panel"
@@ -19,20 +17,6 @@ export function StageInspector({ stage = STAGES[0] }) {
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="stage-boundary-badge inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-mono">
             {stage.boundary}
-          </span>
-          <span
-            className={`stage-role-badge role-badge ${
-              isAgent ? 'role-agent' : 'role-human'
-            } inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border`}
-            data-role={stage.role}
-          >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                isAgent ? 'bg-indigo-500 animate-pulse' : 'bg-amber-500'
-              }`}
-              aria-hidden="true"
-            />
-            {isAgent ? 'Autonomous Agent Task' : 'Human-in-the-Loop Checkpoint'}
           </span>
         </div>
         <span className="text-xs font-mono font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">
@@ -51,6 +35,51 @@ export function StageInspector({ stage = STAGES[0] }) {
         <p className="stage-purpose text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
           {stage.purpose}
         </p>
+      </div>
+
+      {/* Dual Cards: Agent Execution and Human Oversight */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Agent Execution Card (Indigo) */}
+        <div className="stage-card stage-agent-card p-5 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800/50">
+          <div className="flex items-center gap-2 mb-2">
+            <svg
+              className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">
+              Agent Execution & Verification
+            </h4>
+          </div>
+          <p className="stage-agent-execution text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
+            {stage.agentExecution}
+          </p>
+        </div>
+
+        {/* Human Oversight Card (Amber) */}
+        <div className="stage-card stage-human-card p-5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50">
+          <div className="flex items-center gap-2 mb-2">
+            <svg
+              className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+              Human Oversight & Gate Checkpoint
+            </h4>
+          </div>
+          <p className="stage-human-oversight text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
+            {stage.humanOversight}
+          </p>
+        </div>
       </div>
 
       {/* Two-column Inputs and Outputs */}
