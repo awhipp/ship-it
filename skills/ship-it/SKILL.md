@@ -48,16 +48,19 @@ When a `ship-it <slug>` directive matches no issue, report that no feature uses 
 ## 2. Query state
 
 Run these queries at the start of every routing pass.
-Keep only results whose title starts with `[<slug>]`.
+When the issue query returns exactly 100 results, print `"Warning: Search returned 100 results; GitHub search may be truncated."`.
+Filter results matching title prefix `[<slug>]`.
 
 ```shell
-gh issue list --label "ship-it:map" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state
-gh issue list --label "ship-it:spec" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state
-gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,assignees,blockedBy,state
-gh issue list --label "ship-it:bug" --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state,stateReason
+gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,assignees,blockedBy,state,stateReason
 gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
+- **In-memory partition**: Partition issues into `map`, `spec`, `ticket`, and `bug` sets by label:
+  - `map`: issues bearing `ship-it:map`
+  - `spec`: issues bearing `ship-it:spec`
+  - `ticket`: issues bearing `ship-it:ticket`
+  - `bug`: issues bearing `ship-it:bug`
 - **Ticket and bug sets**: Treat issues bearing `ship-it:ticket` as the ticket set across Rows 5, 6, 8, 9, and 11, deduplicated by issue number. Partition issues bearing `ship-it:bug` and lacking `ship-it:ticket` as unprepared bug issues for Row 10.
 - **Branch name**: Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body --jq .body`. Retain that branch name across routing passes.
 - **Pull requests**: Run the pull request query only once a spec exists. A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`. Evaluate multiple pull requests for the branch in priority order: `MERGED` > `OPEN` > `CLOSED`.
