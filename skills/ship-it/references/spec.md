@@ -56,6 +56,7 @@ State each high-level contract, boundary, or rule once across the feature:
 - **Architecture and module boundaries**: Name the components, modules, or subsystems involved and define their responsibilities.
 - **Contracts and schemas**: Specify shared interfaces, API contracts, data models, and state transitions across components.
 - **Cross-cutting invariants and failure handling**: State error-handling rules, edge-case policies, backward-compatibility constraints, and system invariants.
+- **Deferred to slicing**: <detail>
 
 Omit line numbers and low-level function bodies unless a prototype established a concrete schema or state machine.
 
@@ -86,7 +87,7 @@ Conductors must never post comments or author `## Answers` headings for autonomo
 
    Resolve every cited Blocker using one of four remediation paths while preserving untouched text verbatim:
    - **In-body edit**: Apply surgical edits to the spec body (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) to resolve high-level architectural gaps.
-   - **Defer to slicing**: Record slice-local details or caller edge cases directly in the spec body for ticket slicing without prompting the user.
+   - **Defer to slicing**: Record slice-local details or caller edge cases directly under `## Implementation Decisions` in the spec body as `- **Deferred to slicing**: <detail>` without prompting the user.
    - **Descope**: Remove capabilities and record them under `## Out of Scope` only after obtaining explicit user approval.
    - **Split scope**: Create a follow-up GitHub issue for the deferred work and link the issue under `## Out of Scope` only after obtaining explicit user approval.
 3. **Remove label**: Clear `ship-it:changes-requested` (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).

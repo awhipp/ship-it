@@ -77,7 +77,7 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 
 ### Resolving (map is open)
 
-1. Read the map body (`gh issue view <map-number> --json body --jq .body`) and list its decision tickets (`gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,state`), keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`. When the query returns exactly 100 results, print `"Warning: Search returned 100 results; GitHub search may be truncated."`.
+1. Read the map body once via `gh issue view <map-number> --json body --jq .body`. Evaluate decision tickets directly from the batch query payload obtained during state querying in `SKILL.md § 2`, keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`.
 2. Select the lowest-numbered open decision ticket whose blockers are all closed, checking open decision tickets in ascending number order against the closed set.
 3. Claim the ticket (`gh issue edit <n> --add-assignee "@me"`).
 4. Resolve the ticket per its type and [isolation.md](isolation.md):
