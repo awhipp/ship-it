@@ -113,7 +113,7 @@ Incorporate settled guidance into the remediation, and query state and route aga
 **Final review loop guard** (Row 12): count final review rejections posted after the latest `## Answers` comment on the spec via `gh issue view <spec> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Answers:1}|keys[])) == 3) | .key] | last) as $ans | (if $ans == null then . else .[($ans + 1):] end) | [.[] | select(index(({Review:1}|keys[])) == 3 and (index(({Final:1}|keys[])) != null) and (index(({Changes:1}|keys[])) != null))] | length'`.
 At three or more cycles, halt and ask the user for guidance (using an interactive question tool when available; otherwise ask in plain text and end the turn).
 Post the reply as a `## Answers` comment on the spec to reset the retry counter.
-Incorporate settled decisions into the acceptance criteria of fix tickets, and continue Row 12.
+Delegate fix ticket acceptance criteria updates to the final review subagent, and continue Row 12.
 
 ## 4. Dispatch and verdicts
 

@@ -25,7 +25,7 @@ Evaluate every file against these five audit axes:
 
 ### 1. `agentskills.io` and cross-harness compliance
 
-- **Frontmatter validity**: Confirm `SKILL.md` starts with valid YAML frontmatter where `name` matches the parent folder (`1–64` lowercase alphanumeric or hyphen characters) and `description` is `1–1024` characters written in third person with explicit trigger conditions.
+- **Frontmatter validity**: Confirm `SKILL.md` starts with valid YAML frontmatter where `name` matches the parent folder (`1–64` lowercase alphanumeric or hyphen characters) and `description` is `1–1024` characters written in third person with explicit trigger conditions. Confirm that `SKILL.md` retains `disable-model-invocation: true` at the root to ensure manual execution gating across major agent runtimes.
 - **No XML tags in frontmatter**: Confirm the YAML frontmatter contains zero `<` or `>` characters so system prompt parsers never misinterpret placeholders as XML tags.
 - **One-level progressive disclosure**: Confirm `SKILL.md` links directly to its `references/*.md` files (`<500` lines each) and that cross-phase citations inside reference files are self-explanatory inline so subagents load only their assigned reference file plus `writing.md`.
 - **Harness agnosticism**: Confirm instructions avoid vendor-specific model switches, proprietary configuration files, or single-harness assumptions. Verify [`isolation.md`](../../../skills/ship-it/references/isolation.md) requires execution-capable leaf subagents with unforked context rather than read-only exploration subagents. Verify [`isolation.md`](../../../skills/ship-it/references/isolation.md) mandates Tier 2 fallback for harnesses supporting only full-context session forking.
