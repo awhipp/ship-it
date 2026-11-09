@@ -8,7 +8,8 @@ Every feature produces at least one ticket.
 
 ### 1. Read the spec and explore the codebase
 
-Read the validated spec body (`gh issue view <spec-number> --json body --jq .body`) and any `## Deferred to Slicing` comments on the spec (`gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Deferred:1}|keys[])) == 3)]'`).
+Read the validated spec body (`gh issue view <spec-number> --json body --jq .body`) without comment queries.
+Inspect any `- **Deferred to slicing**: <detail>` entries under `## Implementation Decisions`.
 Use targeted symbol and path searches anchored on the specification's modules and contracts to locate the exact files, symbols, types, and test suites each slice touches.
 Read only the relevant sections of large files rather than scanning the entire repository.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
@@ -17,7 +18,7 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 
 - Cut each slice as a narrow, complete path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
 - Specify the low-level design for every slice through `Touchpoints` and `Design deltas` referencing `Spec § <section>` rather than repeating spec contracts. State concrete slice-local symbol signatures, step numbers, or behavior subsets. Define explicit inter-slice transition boundaries covering what the slice introduces, leaves in place, or removes relative to sibling tickets. Never write bare pointer stubs such as `"Apply rules in Spec § ..."`.
-- Incorporate every deferred item from `## Deferred to Slicing` spec comments into ticket acceptance criteria, ensuring full coverage across the ticket set.
+- Incorporate all `- **Deferred to slicing**:` entries from the spec body into ticket acceptance criteria, ensuring full coverage across the ticket set.
 - Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](writing.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
 - When prefactoring earns a dedicated ticket under collapse rule 5, sequence that ticket first so the ticket blocks the slices that use it.
@@ -32,7 +33,7 @@ Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, an
 gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket" --parent <spec-id>
 ```
 
-After creating all tickets, return `done` with `Evidence: None`.
+After creating all tickets, return `done` with all published ticket numbers in `Issues: #<n>, ...` and `Evidence: None`.
 
 ## Granularity thresholds
 
