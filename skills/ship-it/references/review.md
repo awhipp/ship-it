@@ -25,7 +25,7 @@ Return `failed` when the fallback procedure cannot derive a fixed point, the com
    3. When steps 1 and 2 find no matching commits, and the ticket is the first ticket on the branch, resolve `git merge-base origin/<default-branch> HEAD`.
    4. Use the resolved commit as `<fixed-point>` for `git diff <fixed-point>...HEAD`. Return `failed` when no commit resolves.
    Run `git diff --stat <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline` first to survey changed files, then inspect `git diff <fixed-point>...HEAD` (scoping per path or skipping generated lockfiles when large).
-2. **Check verification evidence**: For ticket review, inspect the `## Handoff` and `## Rework` comments fetched in step 1 for passing tests or the direct checks required by [implement.md](implement.md#2-verify). For final review, run or verify the test suite and direct checks specified in the spec's `## Testing Decisions` and ticket `## Acceptance criteria` directly against the branch without reading issue comments. Missing verification is a Blocker.
+2. **Check verification evidence**: For ticket review, inspect the `## Handoff` and `## Rework` comments fetched in step 1 for passing tests or allowable direct verification checks (including linting, type checks, builds, CLI checks, or manual inspection for non-executable changes). For final review, run or verify the test suite and direct checks specified in the spec's `## Testing Decisions` and ticket `## Acceptance criteria` directly against the branch without reading issue comments. Missing verification is a Blocker.
 3. **Find standards sources**: Read `CONTRIBUTING.md`, coding standards, style guides, and linter configuration. Skip issues that automated linters catch.
 4. **Standards pass**: Report each breach with file and line.
 5. **Spec pass**: Audit the diff against the spec's cross-cutting architecture and the ticket's low-level design (touchpoints, design deltas, and acceptance criteria). For bug tickets, audit the diff against `## Root cause`, `## Reproduction seam`, and `## Acceptance criteria` instead of `## Low-level design`. Report missing requirements, partial implementations, unapproved architectural inventions, scope creep, and incorrect behavior, quoting the requirement for each finding.
@@ -62,7 +62,7 @@ Flag duplicated logic, unclear names, unused abstractions, primitive obsession, 
 | :--- | :--- | :--- |
 | **Blocker** | The diff is wrong, incomplete, unverified, or breaks a standard. | Requests changes. |
 | **Question** | A fact needed to judge the diff is unwritten. | Withholds approval until answered. |
-| **Nit** | The diff is correct but improves with a typo or naming fix. | Fix in place, commit as `<type>(<slug>): <summary> (#<ticket-or-spec>)`, and push. |
+| **Nit** | The diff is correct but improves with a typo or naming fix. | Fix in place, stage modified files explicitly (`git add <file>...`), commit as `<type>(<slug>): <summary> (#<ticket-or-spec>)`, and push. |
 
 ## Report
 
@@ -73,10 +73,10 @@ Post the report on the ticket, or on the spec for a final review:
 **Audited**: `<fixed-point>..<head-sha>` (<diff stat summary>; <verification summary>)
 
 ### Standards
-- <file#Lx: finding>
+- **S-1** [<file#Lx>]: <finding>
 
 ### Spec
-- <quoted requirement: divergence>
+- **D-1** [<spec § heading>]: <quoted requirement: divergence>
 
 ### Clarifying Questions
 - **Q-1**: <question>

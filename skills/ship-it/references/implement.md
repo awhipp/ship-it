@@ -82,7 +82,7 @@ When the ticket carries `ship-it:changes-requested`:
 When `Mode` is `sync`, skip directly to [Synchronization](#synchronization).
 When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-branch> <branch>`), check out `<branch>`, and run these steps after the final review approves the spec:
 
-1. Read the spec body (`gh issue view <spec> --json body --jq .body`) and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`, keeping titles starting with `[<slug>]`). Open the pull request and delete the temporary body file once the command completes:
+1. Read the spec body (`gh issue view <spec> --json body --jq .body`) and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`), keeping titles starting with `[<slug>]`. Open the pull request and delete the temporary body file once the command completes:
 
    ```shell
    gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
