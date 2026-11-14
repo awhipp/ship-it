@@ -41,3 +41,13 @@ Exclude changes exclusively outside `skills/ship-it/` (such as root `README.md`,
 - **Single bump per pull request**: Apply one version increment per pull request regardless of how many build tickets touch `skills/ship-it/`.
 - **Safety check on pull requests**: `.github/workflows/version-check.yml` compares pull request changes against `origin/<base>` and emits a non-blocking warning when `skills/ship-it/` changes without a `version.json` update.
 - **Automated release publication**: Merging a `skills/ship-it/version.json` change into `main` triggers `.github/workflows/release.yml` to create tag `v<version>` and publish a GitHub Release with auto-generated release notes.
+
+## Skill Maintenance Invariants
+
+When auditing or refactoring `skills/ship-it/` (for example via `/skill-judge` or `/skill-creator`), preserve these repository-specific invariants:
+
+- **Core workflow preservation**: Keep `ship-it`'s five phases, three boundaries, first-match routing table, zero-assumption verification, two-tier isolation (`isolation.md`), two-axis review, annotated pull requests, and GitHub-native state intact unless explicitly directed otherwise.
+- **Writing standard**: Author all skill, reference, and `README.md` edits per `skills/ship-it/references/writing.md` without scripts or word counters.
+- **Cross-platform shell & `gh` efficiency**: Preserve PowerShell 5.1 quoting (`"@me"`, inner-double-quote-free `--jq '...'`), `--body-file` temp cleanup, bounded `gh` queries (`--limit 100`, `--force`), and search-first codebase exploration.
+- **Loop-guard & routing parity**: Keep loop guards consistent across `SKILL.md` Rows 5–7, 9, 11, and 12, and keep `README.md` concise and synchronized with `skills/ship-it/`.
+- **Frontmatter gating**: Retain `disable-model-invocation: true` and avoid `<` or `>` characters in `SKILL.md` YAML frontmatter.
