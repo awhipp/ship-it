@@ -78,7 +78,8 @@ gh label create "ship-it:changes-requested" --description "Unresolved validation
 ### Bounded comment queries
 
 - **View latest validation report**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`
-- **View latest review and answers**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1,Answers:1}|keys[])) == 3)] | (if (last | index(({Answers:1}|keys[])) == 3) then .[-2:] else [last] end)[]'`
+- **View latest answers or loop guard reset**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Answers:1}|keys[])) == 3 or (index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14))] | last // empty'`
+- **View latest review and answers**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1,Answers:1}|keys[])) == 3 or (index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14))] | (if (last | index(({Review:1}|keys[])) != 3) then .[-2:] else [last] end)[]'`
 - **View ticket review metadata**: `gh issue view <n> --json comments --jq '.comments[].body | select((index(({Fixed:1}|keys[])) == 0 and index(({point:1}|keys[])) == 6) or index(({Handoff:1,Rework:1}|keys[])) == 3)'`
 
 ## Cross-platform shell conventions

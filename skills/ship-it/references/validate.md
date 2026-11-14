@@ -19,19 +19,19 @@ Ground every check in these inputs:
 
 - **Spec altitude**: Restrict the two-implementer test for `Target: spec` to cross-cutting architecture, shared contracts, module boundaries, system invariants, and high-level test seams.
 - **Ticket-set altitude**: Reserve checks on low-level design, slice-local helpers, caller edge cases, and low-level agreement between implementers for `Target: ticket-set`.
-- **Architectural choice escalation**: Record a Question whenever an unwritten choice on behavior, scope, boundaries, contracts, or state transitions has multiple valid designs. Raise a Question even when active code suggests a plausible default.
-- **Single-outcome gaps**: Reserve Blocker for factual drift against active code, contradictions with settled decisions, or single-outcome gaps where requirements and code dictate one resolution.
+- **Architectural choice escalation**: Record a Question whenever an unwritten choice at the active target altitude has multiple valid designs, even when active code suggests a plausible default. For `Target: spec`, restrict Questions to `Spec altitude`, product behavior, and scope; reserve slice-local questions (`Ticket-set altitude`) for `Target: ticket-set` or `- **Deferred to slicing**:`.
+- **Single-outcome gaps**: Reserve Blocker for factual drift against active code, contradictions with settled decisions, or single-outcome gaps at the active target altitude where requirements and code dictate one resolution. For `Target: spec`, restrict Blockers to `Spec altitude`; reserve slice-local gaps (`Ticket-set altitude`) for `Target: ticket-set` or `- **Deferred to slicing**:`.
 - **Zero inference**: Never infer intent, fill a gap, or rationalize the author's choice.
 - **Source fidelity**: Verify that the artifact honors every requirement and settled decision in the source issue, map body, or parent spec body without contradiction.
 
 ## What to look for
 
 - **Contradictions**: Two statements that cannot both be true, or a decision that quietly reverses an earlier one.
-- **Codebase alignment**: References to nonexistent modules or symbols, conflicts with existing architecture, or missed touchpoints in active code.
-- **Design completeness**: Specs missing cross-cutting context, module boundaries, shared contracts, or invariants; tickets missing concrete `Touchpoints`, actionable slice-local `Design deltas` (including inter-slice transition boundaries when sibling tickets touch the same files or follow `expand → migrate → contract`), or edge-case checks. Flag bare pointer-only `Design deltas` (such as `"Apply rules in Spec § ..."`) as Blockers.
+- **Codebase alignment**: For `Target: spec`, check high-level module alignment and shared contracts against active code without requiring exhaustive caller lists or slice-local symbol inventories. For `Target: ticket-set`, check every named file, symbol signature, and caller touchpoint in active code.
+- **Design completeness**: For `Target: spec`, check cross-cutting context, module boundaries, shared contracts, and system invariants without requiring slice-local helpers, per-caller touchpoints, or low-level error checklists. For `Target: ticket-set`, check that every ticket defines concrete `Touchpoints`, actionable slice-local `Design deltas` (including inter-slice boundaries when sibling tickets touch the same files or follow `expand → migrate → contract`), and caller edge-case checks. Flag bare pointer-only `Design deltas` (such as `"Apply rules in Spec § ..."`) as Blockers on `Target: ticket-set`.
 - **Repetition and bloat**: Cross-section restatement within an artifact, verbatim copying of multi-line parent spec contracts into tickets instead of citing `Spec § <section>` and stating slice-local deltas, or walls of text violating [writing.md](writing.md) Rule 7. Classify Rule 7 repetition as Warning unless restated text contradicts canonical sources.
 - **Traceability**: Unrequested behavior, or a requirement with no coverage across open tickets and `COMPLETED` closed tickets. For `Target: spec`, skip items listed under `- **Deferred to slicing**:` in the spec body. For `Target: ticket-set`, verify coverage of all `- **Deferred to slicing**:` items from the spec body across the ticket set.
-- **Verification**: Untestable acceptance criteria, unhandled errors, or missing failure paths.
+- **Verification**: For `Target: spec`, check high-level test seams (plus `Root cause` and `Reproduction seam` on `fix` specs) without requiring slice-local error checklists or low-level failure paths. For `Target: ticket-set`, check every acceptance criterion, unhandled error, and low-level failure path across the tickets.
 - **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the five slicing anti-patterns (`Docs-Tail`, `Config-Preamble`, `Horizontal Slice`, `Orphaned Scaffolding`, and `Micro-Refactor`). Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
 - **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, or rationales failing to justify scope, touched layers, and reasoning depth. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
 - **Bug tickets**: Audit tickets bearing `ship-it:bug` against the bug ticket template ([tickets.md](tickets.md#bug-ticket-template)): `Part of #<spec-id>`, `## Complexity`, `## Root cause`, `## Reproduction seam`, `## Acceptance criteria`, and `## Blocked by`. Verify consistency with the parent spec, and skip low-level design, slicing, and full-spec coverage checks for bug tickets.
@@ -40,9 +40,9 @@ Ground every check in these inputs:
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | The artifact is wrong, contradicts a requirement or the codebase, leaves gaps in the high-level design, the low-level design, or the root cause and reproduction seam of a bug ticket, uses bare pointer-only `Design deltas`, repeats contracts across sections or from spec to ticket with conflicting details, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
+| **Blocker** | The artifact contradicts a requirement or active code, or repeats contracts with conflicting details. For `Target: spec`, the spec leaves gaps in high-level design, module boundaries, shared contracts, system invariants, or high-level test seams (plus `Root cause` and `Reproduction seam` on `fix` specs). For `Target: ticket-set`, a ticket leaves gaps in low-level design, slice-local touchpoints, caller edge cases, or the root cause and reproduction seam of a bug ticket, uses bare pointer-only `Design deltas`, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
 | **Warning** | Non-conflicting repetition, style improvements, or prose polish. | Advisory; applies `ship-it:validated` and permits progression without revalidation. |
-| **Question** | A user decision on scope, product behavior, or unsettled architecture is unwritten, or an unwritten choice has multiple valid designs. | Withholds approval until answered. |
+| **Question** | For `Target: spec`, a user decision on scope, product behavior, or cross-cutting architecture is unwritten, or a high-level design choice has multiple valid designs. For `Target: ticket-set`, an unwritten choice on low-level design, slice-local touchpoints, or caller edge cases has multiple valid designs. | Withholds approval until answered. |
 
 Validation is strictly read-only on issue bodies.
 Do not downgrade a Blocker to avoid delaying work.
@@ -69,7 +69,7 @@ When findings exist, post the report on the **spec** for both artifact types (`g
 Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
 Never output `- None` placeholder subsections.
 Specify `**Verdict**: Validated` for warning-only reports.
-Avoid using the word `Changes` in warning text to prevent false-positive matches in queries for conductor loop guards.
+Omit the words `Changes` and `Questions` from `### Warnings` prose so loop-guard queries in `SKILL.md` § 3 match only non-approved verdicts.
 
 ## Outcomes
 
