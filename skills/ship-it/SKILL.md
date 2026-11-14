@@ -111,10 +111,12 @@ gh issue view <issue> --json comments --jq '[.comments[].body] | ([to_entries[] 
 ```
 
 Comments bearing `## Loop Guard Reset` originate exclusively from user responses at the three-retry threshold.
-Skip the query when the guard's skip rules apply.
-Otherwise run the query above with the guard's `<issue>` and `<heading-filter>`.
-At three or more non-approved reports (`>= 3`), halt before executing the step or row action and ask the user for guidance (using an interactive question tool when available, or in plain text before ending the turn).
-Post the reply as a `## Loop Guard Reset` comment on `<issue>`, fold settled guidance into the guard's folding target, then query state and route again.
+Enforce the active guard in sequence:
+
+- **Skip check**: Skip the query when the guard's skip rules apply.
+- **Count check**: Otherwise run the query above with the guard's `<issue>` and `<heading-filter>`.
+- **Threshold halt**: At three or more non-approved reports (`>= 3`), halt before executing the step or row action. Ask the user for guidance using an interactive question tool when available, or in plain text before ending the turn.
+- **Reset and fold**: Post the user's reply as a `## Loop Guard Reset` comment on `<issue>`. Fold settled guidance into the guard's folding target, then query state and route again.
 
 | Guard | Target issue | Heading filter | Skip rules | Guidance-folding target |
 | :--- | :--- | :--- | :--- | :--- |

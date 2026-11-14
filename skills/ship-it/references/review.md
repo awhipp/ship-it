@@ -87,10 +87,10 @@ Post the report on the ticket, or on the spec for a final review:
 **Verdict**: Approved | Changes requested | Questions pending
 ```
 
-Render only subsections that contain findings (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`), omitting empty subsections and `- None` placeholders.
-When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, the `**Audited**:` proof-of-work line, any truncation note, and `**Verdict**: Approved`.
-When the closed-ticket query in final review returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a report note inside `## Review: Final` while keeping the four-line return block in [isolation.md](isolation.md) unchanged.
-The `**Verdict**:` line is exact; the conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Loop Guard Reset` comment to enforce the retry limit.
+- **Populated subsections**: Render only subsections that contain findings (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`). Omit empty subsections and `- None` placeholders.
+- **Clean pass**: When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, the `**Audited**:` proof-of-work line, any truncation note, and `**Verdict**: Approved`.
+- **Truncation notice**: When the closed-ticket query in final review returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a report note inside `## Review: Final`. Keep the four-line return block in [isolation.md](isolation.md) unchanged.
+- **Exact verdict line**: Format the `**Verdict**:` line verbatim. The conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Loop Guard Reset` comment to enforce the retry limit.
 
 ## Ticket review outcomes
 
@@ -117,11 +117,13 @@ Apply the same passes, then check across tickets:
 | Questions, no Blocker | None. | `questions` |
 | Nits or nothing | Add `ship-it:reviewed` to the spec. | `approved` |
 
-Create each fix ticket with the title `[<slug>] Ticket: Fix <gist>`, labels `ship-it:ticket,ship-it:validated`, and `--parent <spec-id>`.
-Write the ticket body using a temporary payload file.
-Fold final-review answers from the conductor directly into the acceptance criteria of fix tickets.
-List blockers under `## Blocked by` as `- [ ] Blocked by #<blocker-id>` when blockers exist.
-Delete the temporary `--body-file` payload after creation.
+Follow this procedure with the template below:
+
+- **Creation flags**: Create each fix ticket with title `[<slug>] Ticket: Fix <gist>`, labels `ship-it:ticket,ship-it:validated`, and `--parent <spec-id>`.
+- **Payload file**: Write the ticket body using a temporary payload file.
+- **Settled answers**: Fold final-review answers from the conductor directly into the acceptance criteria of fix tickets.
+- **Blockers**: List blockers under `## Blocked by` as `- [ ] Blocked by #<blocker-id>` when blockers exist.
+- **Cleanup**: Delete the temporary `--body-file` payload after creation.
 
 ```markdown
 Part of #<spec-id>
