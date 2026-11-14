@@ -1,6 +1,6 @@
 ---
 name: ship-it
-description: "Conducts one feature through plan, spec, tickets, implement, and review, using GitHub issues as the only state. Requires a directive: `ship-it [slug]`, `ship-it #[issue]`, `ship-it \"[idea]\"`, `ship-it preflight`, `ship-it init`, or `ship-it version`. Manual-only workflow: invoke only when the user explicitly types ship-it or /ship-it."
+description: "Conducts one feature through plan, spec, tickets, implement, and review, using GitHub issues as the only state. Requires a directive: `ship-it [slug]`, `ship-it #[issue]`, `ship-it \"[idea]\"`, `ship-it preflight`, `ship-it init`, `ship-it version`, `ship-it --version`, or `ship-it -v`. Manual-only workflow: invoke only when the user explicitly types ship-it or /ship-it."
 compatibility: Git repository, GitHub CLI (gh) 2.94.0 or later, and a cross-platform shell.
 disable-model-invocation: true
 ---
@@ -38,7 +38,7 @@ Run no `gh` command before a directive exists.
 **New feature setup** (idea, or an issue without a `[<slug>]` prefix):
 
 1. Propose a kebab-case slug and a Conventional Commits type (`feat`, `fix`, `refactor`, `docs`, `chore`, `perf`, `test`, `build`, `ci`).
-2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. When the query returns exactly 100 results, print `"Warning: Search returned 100 results; GitHub search may be truncated."`. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug when the slug is taken.
+2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. Check the returned count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug when the slug is taken.
 3. When starting from `ship-it #<n>`, capture the source issue title and issue number for in-place adoption during initial artifact publication.
 4. Ask the user to confirm the slug and type, and to choose between charting a map first and writing the spec directly.
    Recommend a map when the idea leaves a scope or architecture decision open.
@@ -48,7 +48,7 @@ When a `ship-it <slug>` directive matches no issue, report that no feature uses 
 ## 2. Query state
 
 Run these queries at the start of every routing pass.
-When the issue query returns exactly 100 results, print `"Warning: Search returned 100 results; GitHub search may be truncated."`.
+Check the issue query count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return.
 Filter results matching title prefix `[<slug>]`.
 
 ```shell
@@ -153,7 +153,7 @@ End with exactly one next step:
 
 ## Reference index
 
-Load only the reference file for the active step plus [writing.md](references/writing.md).
+Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file for the active step.
 
 | File | Read the file when |
 | :--- | :--- |
@@ -162,7 +162,7 @@ Load only the reference file for the active step plus [writing.md](references/wr
 | [spec.md](references/spec.md) | Rows 1, 4, and 5 |
 | [tickets.md](references/tickets.md) | Rows 6, 8, and 10, and blocker checks |
 | [validate.md](references/validate.md) | Rows 7 and 9 |
-| [implement.md](references/implement.md) | Implementation, rework, close-out, and synchronization |
-| [review.md](references/review.md) | Ticket review and final review |
+| [implement.md](references/implement.md) | Rows 11, 13, and 14 (implementation, rework, close-out, and synchronization) |
+| [review.md](references/review.md) | Rows 11 and 12 (ticket review and final review) |
 | [preflight.md](references/preflight.md) | `ship-it preflight` or `ship-it init`, or a `gh` command fails |
 | [writing.md](references/writing.md) | Writing any artifact |

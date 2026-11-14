@@ -30,4 +30,21 @@ Organize tests by domain, module, or feature seam (such as `tests/auth.test.ts`)
 ### Ad-hoc test harness prohibition
 
 Never invent test runners or string-matching scripts to simulate coverage for non-code changes.
-Never write scripts that count words or measure prose; evaluate writing by reading it.
+
+## Cross-platform shell conventions
+
+- **Multi-line bodies**: Use a file-writing tool or a single-quoted PowerShell here-string (`@' ... '@`) instead of Bash heredocs or double-quoted PowerShell strings (`"..."`) so Markdown backticks stay literal. Write multi-line text to a temporary file, pass `--body-file <path>` or `-F body=@<path>`, and delete the temporary file once the `gh` command completes.
+- **UTF-8 file persistence**: Write UTF-8 files without BOM using native file-writing tools or `[IO.File]::WriteAllText($path, $text, [System.Text.UTF8Encoding]::new($false))` so PowerShell 5.1 passes valid UTF-8 rather than UTF-16LE to `gh --body-file`.
+- **Surgical body edits**: Fetch the raw issue body (`gh issue view <n> --json body --jq .body`) to a temporary file, and edit only the target section with a file-editing tool so remaining sections and `- [ ]` tasklists stay intact. Inspect the diff with `git diff --no-index`. Apply the update via `gh issue edit <n> --body-file <path>`, then delete the temporary file.
+- **Diff exit codes**: Treat exit code `1` from `git diff --no-index` as differences detected rather than command failure.
+- **Quote-free `--jq` filters**: Build `--jq '...'` strings using bare-identifier object keys (`index(({Validation:1}|keys[])) == 3`) and `implode` (`[58,32] | implode`) instead of inner double quotes. Windows PowerShell 5.1 strips unescaped inner `"` when spawning native processes, while `pwsh` 7 and POSIX shells reject `\"`.
+- **PowerShell special characters**: Quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
+- **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.
+
+## Bounded search truncation
+
+Check the returned item count after every `gh` query that specifies `--limit 100`.
+
+- **Threshold warning**: Emit `"Warning: Search returned 100 results; GitHub search may be truncated."` whenever the query returns 100 items.
+- **Subagent reporting**: Embed that warning inside the GitHub output of isolated subagents (`### Warnings` for `validate`, `## Review: Final` for `final-review`, or the pull request body for `close-out`).
+- **Return block**: Preserve the four-line return block defined in [isolation.md](isolation.md).
