@@ -89,7 +89,8 @@ Post the report on the ticket, or on the spec for a final review:
 
 Render only subsections that contain findings (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`), omitting empty subsections and `- None` placeholders.
 When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, the `**Audited**:` proof-of-work line, and `**Verdict**: Approved`.
-The `**Verdict**:` line is exact; the conductor counts `Changes requested` verdicts to enforce the retry limit.
+The `**Verdict**:` line is exact; the conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Loop Guard Reset` comment to enforce the retry limit.
+Omit the words `Changes` and `Questions` from `### In-place Resolutions` prose so loop-guard queries in `SKILL.md` § 3 match only non-approved verdicts.
 
 ## Ticket review outcomes
 
