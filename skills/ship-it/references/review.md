@@ -13,7 +13,7 @@ Evaluating each axis separately keeps strength on one axis from masking defects 
 | Mode | Fixed point | Requirements |
 | :--- | :--- | :--- |
 | Ticket review | The `Fixed point: <sha>` comment on the ticket, or derived via fallback below | The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) |
-| Final review | `git merge-base origin/<default-branch> HEAD` | The spec body (`gh issue view <spec> --json body --jq .body`) and every closed ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,body`). Keep only results whose title starts with `[<slug>]`, with zero comment reads. |
+| Final review | `git merge-base origin/<default-branch> HEAD` | The spec body (`gh issue view <spec> --json body --jq .body`) and every closed ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,body`). Check the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping results whose title starts with `[<slug>]`, with zero comment reads. |
 
 Return `failed` when the fallback procedure cannot derive a fixed point, the commit does not resolve, or the diff is empty.
 
@@ -88,9 +88,9 @@ Post the report on the ticket, or on the spec for a final review:
 ```
 
 Render only subsections that contain findings (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`), omitting empty subsections and `- None` placeholders.
-When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, the `**Audited**:` proof-of-work line, and `**Verdict**: Approved`.
+When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, the `**Audited**:` proof-of-work line, any truncation note, and `**Verdict**: Approved`.
+When the closed-ticket query in final review returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a report note inside `## Review: Final` while keeping the four-line return block in [isolation.md](isolation.md) unchanged.
 The `**Verdict**:` line is exact; the conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Loop Guard Reset` comment to enforce the retry limit.
-Omit the words `Changes` and `Questions` from `**Audited**:` summaries and `### In-place Resolutions` prose so loop-guard queries in `SKILL.md` § 3 match only non-approved verdicts.
 
 ## Ticket review outcomes
 
@@ -119,13 +119,8 @@ Apply the same passes, then check across tickets:
 
 Create each fix ticket with the title `[<slug>] Ticket: Fix <gist>`, labels `ship-it:ticket,ship-it:validated`, and `--parent <spec-id>`.
 Write the ticket body using a temporary payload file.
-Include `Part of #<spec-id>` on the first line.
-Include `## Complexity` with the tier (`low`, `medium`, or `high`) and a single-sentence rationale.
-Include `## Slice goal` quoting the Blocker and citing `Spec § <section>`.
-Include `## Low-level design` with `- **Touchpoints**:` and `- **Design deltas**:` bullets.
-Include `## Acceptance criteria` with single-sentence imperative checks.
 Fold final-review answers from the conductor directly into the acceptance criteria of fix tickets.
-Include `## Blocked by` with `None (can start immediately).` or `- [ ] Blocked by #<blocker-id>`.
+List blockers under `## Blocked by` as `- [ ] Blocked by #<blocker-id>` when blockers exist.
 Delete the temporary `--body-file` payload after creation.
 
 ```markdown
