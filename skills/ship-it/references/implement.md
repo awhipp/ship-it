@@ -71,7 +71,7 @@ When the ticket's low-level design, root cause, reproduction seam, or acceptance
 
 When the ticket carries `ship-it:changes-requested`:
 
-1. Read the latest review report (plus any subsequent `## Answers` comment posted after that review) on the ticket via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1,Answers:1}|keys[])) == 3)] | (if (last | index(({Answers:1}|keys[])) == 3) then .[-2:] else [last] end)[]'`. Fold settled decisions from `## Answers` into the ticket body (and spec body when shared contracts change) via surgical body edit before modifying code.
+1. Read the latest review report (plus any subsequent `## Answers` or `## Loop Guard Reset` comment posted after that review) on the ticket via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1,Answers:1}|keys[])) == 3 or (index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14))] | (if (last | index(({Review:1}|keys[])) != 3) then .[-2:] else [last] end)[]'`. Fold settled decisions from `## Answers` and `## Loop Guard Reset` into the ticket body (and spec body when shared contracts change) via surgical body edit before modifying code.
 2. Fix every Blocker, and add a test or direct check for each fix.
 3. Commit and push per step 5. Keep the existing fixed point.
 4. Write a `## Rework` comment explaining the fix and verification evidence for each Blocker to a temporary file, post the comment (`gh issue comment <n> --body-file <file>`), and delete the temporary file.

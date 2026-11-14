@@ -80,7 +80,7 @@ Merge the pull request to approve Boundary 3 and complete the feature.
 
 ## Core guarantees
 
-- **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub issues, labels, and assignees, enforcing bounded validation loops.
+- **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub issues, labels, and assignees, enforcing bounded validation and review loops.
 - **Explicit Directives Only**: Invoking `ship-it` without a slug, issue number, idea, `preflight`, or `version` halts immediately instead of scanning or guessing.
 - **Zero-Assumption Verification**: Evaluators conduct read-only audits classifying findings as **Blocker**, **Warning**, or **Question** without in-place edits, matching audit altitude to artifact scope and withholding approval on unwritten facts.
 - **Two-Tier Context Isolation**: A single conductor dispatches execution-capable leaf subagents with fresh, unforked context in Tier 1 per [`isolation.md`](skills/ship-it/references/isolation.md), falling back to Tier 2 for session-forking harnesses.
