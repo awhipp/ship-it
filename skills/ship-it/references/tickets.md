@@ -16,12 +16,12 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 
 ### 2. Draft vertical slices
 
-- Cut each slice as a narrow, complete path through every touched layer (schema, API, UI, verification). Never create horizontal single-layer slices.
-- Specify the low-level design for every slice through `Touchpoints` and `Design deltas` referencing `Spec § <section>` rather than repeating spec contracts. State concrete slice-local symbol signatures, step numbers, or behavior subsets. Define explicit inter-slice transition boundaries covering what the slice introduces, leaves in place, or removes relative to sibling tickets. Never write bare pointer stubs such as `"Apply rules in Spec § ..."`.
+- Cut each slice as a narrow, complete vertical path through every touched layer per [Slicing anti-patterns](#slicing-anti-patterns).
+- Author each slice using [Ticket template](#ticket-template), citing `Spec § <section>` for shared contracts rather than restating spec prose.
 - Incorporate all `- **Deferred to slicing**:` entries from the spec body into ticket acceptance criteria, ensuring full coverage across the ticket set.
 - Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](writing.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
-- When prefactoring earns a dedicated ticket under collapse rule 5, sequence that ticket first so the ticket blocks the slices that use it.
+- When prefactoring earns a dedicated ticket under **Require Multiple Consumers for Prefactoring** ([Collapse rules](#collapse-rules)), sequence that prefactoring ticket first to block every dependent slice.
 - For mechanical refactors spanning the codebase, use **expand → migrate → contract**: add the new interface alongside the old one, migrate callers in blocked tickets, and remove the old interface in a final ticket.
 
 ### 3. Publish in dependency order
@@ -39,18 +39,15 @@ After creating all tickets, return `done` with all published ticket numbers in `
 
 Apply qualitative bounds to ticket sizing:
 
-- **Lower Bound (Minimum Viable Ticket)**: Introduce or modify executable behavior verified by tests or direct checks. Keep passive artifacts such as documentation, comments, or unused configuration keys attached to functional slices rather than standalone tickets. Collapse work lacking an independent, testable consumer seam into adjacent functional slices.
+- **Lower Bound (Minimum Viable Ticket)**: Introduce or modify executable behavior verified by tests or direct checks, collapsing work lacking a testable consumer seam per [Slicing anti-patterns](#slicing-anti-patterns).
 - **Upper Bound (Maximum Ticket Size)**: Keep every ticket within a single fresh subagent context window without reasoning degradation. Touch a single coherent domain rather than multiple disconnected systems.
 
 ## Collapse rules
 
-Follow five rules to prevent unnecessary isolation overhead:
+Follow two rules to prevent unnecessary isolation overhead:
 
-1. **Colocate Documentation with Functional Slices**: Update documentation within the functional ticket altering behavior. Reserve standalone documentation tickets for full documentation rewrites.
-2. **Fold Configuration into Consumers**: Declare configuration settings, environment variables, and package dependencies in the earliest ticket consuming them. Prohibit standalone configuration tickets.
-3. **Absorb Mechanical Cleanups**: Bundle localized symbol renames, parameter adjustments, and file reorganizations into the functional ticket touching those files. Reserve dedicated refactoring tickets for codebase-wide migrations.
-4. **Default to Single Tickets for Small Specs**: Default a specification with a compact architectural footprint and localized changes spanning a single coherent concern to a single vertical ticket.
-5. **Require Multiple Consumers for Prefactoring**: Create a dedicated prefactoring ticket only when restructuring prepares shared interfaces for two or more subsequent tickets. Merge prefactoring into the dependent functional slice when only one ticket benefits.
+1. **Default to Single Tickets for Small Specs**: Default a specification with a compact architectural footprint and localized changes spanning a single coherent concern to a single vertical ticket.
+2. **Require Multiple Consumers for Prefactoring**: Create a dedicated prefactoring ticket only when restructuring prepares shared interfaces for two or more subsequent tickets. Merge prefactoring into the dependent functional slice when only one ticket benefits.
 
 ## Slicing anti-patterns
 
@@ -58,11 +55,11 @@ Avoid these five anti-patterns during ticket slicing:
 
 | Anti-Pattern | Description | Failure Mode | Required Remediation |
 | :--- | :--- | :--- | :--- |
-| **The Docs-Tail** | Creating a trailing ticket solely for README updates or documentation synchronization. | Dispatches two isolated subagents to edit passive prose. Wastes tokens and execution time on zero code risk. | Bundle documentation updates into the functional ticket that modified the behavior. |
-| **The Config-Preamble** | Creating an initial ticket to declare an unused configuration option, environment variable, or package dependency. | Delivers passive declarations with no executable behavior or meaningful test seam. | Fold the configuration declaration into the first ticket executing the feature logic. |
+| **The Docs-Tail** | Creating a trailing ticket solely for README updates, comments, or documentation synchronization. | Dispatches two isolated subagents to edit passive prose. Wastes tokens and execution time on zero code risk. | Bundle documentation updates into the functional ticket modifying that behavior. Reserve standalone documentation tickets for full documentation rewrites. |
+| **The Config-Preamble** | Creating an initial ticket to declare unused configuration settings, environment variables, or package dependencies. | Delivers passive declarations with no executable behavior or meaningful test seam. | Fold configuration settings, environment variables, and package dependencies into the earliest ticket consuming them. |
 | **The Horizontal Slice** | Separating data models, business logic, and user interfaces into sequential tickets. | Violates tracer-bullet principles. Leaves dead code and non-functional intermediate states. | Cut vertically through data, logic, interface, and verification within each ticket. |
 | **The Orphaned Scaffolding** | Creating empty module files, blank classes, or stub functions as an independent ticket. | Stubs lack behavioral contracts, invariants, and automated verification evidence. | Create and wire scaffolding directly inside the ticket connecting real callers. |
-| **The Micro-Refactor** | Carving a localized symbol rename or import cleanup into a dedicated ticket blocking functional work. | Setup overhead for branch checkouts, fixed points, and reviews exceeds the diff size. | Absorb the localized cleanup into the functional ticket touching that module. |
+| **The Micro-Refactor** | Carving a localized symbol rename, parameter adjustment, import cleanup, or file reorganization into a dedicated ticket blocking functional work. | Setup overhead for branch checkouts, fixed points, and reviews exceeds the diff size. | Absorb localized cleanups into the functional ticket touching those files. Reserve dedicated refactoring tickets for codebase-wide migrations. |
 
 ## Complexity taxonomy
 

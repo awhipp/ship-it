@@ -40,12 +40,12 @@ Every invocation requires an explicit directive so the conductor never guesses w
 /ship-it "add search caching"   # Start a new feature from an idea
 /ship-it #42                    # Start from an existing issue, or resume a ship-it artifact
 /ship-it search-cache           # Resume an existing feature by slug
-/ship-it preflight              # Verify repo setup and provision labels
-/ship-it version                # Check the installed version and latest upstream release
+/ship-it preflight              # Verify repo setup and provision labels (alias: init)
+/ship-it version                # Check installed version and latest upstream release (aliases: --version, -v)
 ```
 
 A bare `/ship-it` halts immediately and asks for one of these five directives before running any GitHub queries.
-Starting from an existing issue (`/ship-it #<n>`) prompts the user to adopt the source issue in place as the initial map or spec.
+Starting from an existing issue (`/ship-it #<n>`) prompts the user to adopt the source issue in place or create a new issue for the initial map or spec.
 
 ---
 
@@ -81,7 +81,7 @@ Merge the pull request to approve Boundary 3 and complete the feature.
 ## Core guarantees
 
 - **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub issues, labels, and assignees, enforcing bounded validation and review loops.
-- **Explicit Directives Only**: Invoking `ship-it` without a slug, issue number, idea, `preflight`, or `version` halts immediately instead of scanning or guessing.
+- **Explicit Directives Only**: Invoking `ship-it` without a slug, issue number, idea, `preflight` (`init`), or `version` (`--version`, `-v`) halts immediately instead of scanning or guessing.
 - **Zero-Assumption Verification**: Evaluators conduct read-only audits classifying findings as **Blocker**, **Warning**, or **Question** without in-place edits, matching audit altitude to artifact scope and withholding approval on unwritten facts.
 - **Two-Tier Context Isolation**: A single conductor dispatches execution-capable leaf subagents with fresh, unforked context in Tier 1 per [`isolation.md`](skills/ship-it/references/isolation.md), falling back to Tier 2 for session-forking harnesses.
 - **Two-Axis Review and Final Audit**: Reviewers audit each ticket diff across Standards and Spec axes from a recorded or derived `Fixed point: <sha>`, followed by a full-branch final review against the specification.

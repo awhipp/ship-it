@@ -65,13 +65,9 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 ### Charting (no map exists)
 
 1. Grill the user to settle the destination and surface open decisions, asking strictly one question per turn.
-2. Publish the map issue.
-   When sourced from `ship-it #<n>`, prompt the user with interactive options:
-   - Option 1 (Recommended): `Adopt source issue #<n> in place (updates title, adds artifact label, and overwrites body with the artifact template)`
-   - Option 2: `Create a new issue (retains original source issue #<n> untouched as external reference)`
-   On Option 1, record `- Adopted in place from source issue #<n> (<original-title>).` under `## Notes` in the map body and execute `gh issue edit <n> --title "[<slug>] Map: <gist>" --add-label "ship-it:map" --body-file <file>`.
-   On Option 2 or when not sourced from an issue, execute `gh issue create --title "[<slug>] Map: <gist>" --body-file <file> --label "ship-it:map"` and leave source issue `#<n>` untouched.
-   Delete the temporary body file immediately after executing `gh issue edit` or `gh issue create`.
+2. Publish the map issue:
+   - **Sourced from `ship-it #<n>`**: Run [source-issue adoption](isolation.md#source-issue-adoption) with title `[<slug>] Map: <gist>`, label `ship-it:map`, and `## Notes` bullet `- Adopted in place from source issue #<n> (<original-title>).`.
+   - **Started without a source issue**: Write the map body to a temporary payload file, create the issue via `gh issue create --title "[<slug>] Map: <gist>" --body-file <file> --label "ship-it:map"`, and delete the temporary file immediately.
 3. Create decision tickets for every question that has a clear phrasing now. Write `Part of #<map-id>` and `## Blocked by` in the body, and pass `--parent <map-id>` and `--blocked-by <blocker-id>` when supported.
 4. Continue straight into resolving decision tickets.
 
