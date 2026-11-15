@@ -90,3 +90,32 @@ The conductor reads only this block.
 Run every action in the current session, with one exception.
 A session may validate or review only as the session's first action.
 When the next routing row is validation or review after any other action, halt and print `ship-it <slug>` for a fresh session.
+
+## Source-issue adoption
+
+Publish a new map or spec when the phase precondition applies, using four parameters:
+
+- **Precondition**: Applicability rule supplied by [plan.md](plan.md#charting-no-map-exists) or [spec.md](spec.md#process).
+- **Title**: `[<slug>] Map: <gist>` or `[<slug>] Spec: <gist>`.
+- **Type label**: `ship-it:map` or `ship-it:spec`.
+- **Notes bullet**: Optional line recorded under `## Notes` during in-place adoption.
+
+When the precondition holds, follow these steps:
+
+1. Present two interactive options:
+   - **Option 1 (Recommended)**: `Adopt source issue #<n> in place (updates title, adds artifact label, and overwrites body with the artifact template)`
+   - **Option 2**: `Create a new issue (retains original source issue #<n> untouched as external reference)`
+2. Write the artifact body to a temporary payload file per [writing.md](writing.md#cross-platform-shell-conventions).
+3. On **Option 1**, include the `## Notes` bullet when configured, then run:
+
+   ```shell
+   gh issue edit <n> --title "<title>" --add-label "<type-label>" --body-file <file>
+   ```
+
+4. On **Option 2**, leave source issue `#<n>` untouched and run:
+
+   ```shell
+   gh issue create --title "<title>" --body-file <file> --label "<type-label>"
+   ```
+
+5. Delete the temporary payload file immediately after `gh issue edit` or `gh issue create` completes.

@@ -1,6 +1,6 @@
 ---
 name: ship-it
-description: "Conducts one feature through plan, spec, tickets, implement, and review, using GitHub issues as the only state. Requires a directive: `ship-it [slug]`, `ship-it #[issue]`, `ship-it \"[idea]\"`, `ship-it preflight`, `ship-it init`, or `ship-it version`. Manual-only workflow: invoke only when the user explicitly types ship-it or /ship-it."
+description: "Conducts one feature through plan, spec, tickets, implement, and review, using GitHub issues as the only state. Requires a directive: `ship-it [slug]`, `ship-it #[issue]`, `ship-it \"[idea]\"`, `ship-it preflight`, `ship-it init`, `ship-it version`, `ship-it --version`, or `ship-it -v`. Manual-only workflow: invoke only when the user explicitly types ship-it or /ship-it."
 compatibility: Git repository, GitHub CLI (gh) 2.94.0 or later, and a cross-platform shell.
 disable-model-invocation: true
 ---
@@ -38,7 +38,7 @@ Run no `gh` command before a directive exists.
 **New feature setup** (idea, or an issue without a `[<slug>]` prefix):
 
 1. Propose a kebab-case slug and a Conventional Commits type (`feat`, `fix`, `refactor`, `docs`, `chore`, `perf`, `test`, `build`, `ci`).
-2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. When the query returns exactly 100 results, print `"Warning: Search returned 100 results; GitHub search may be truncated."`. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug when the slug is taken.
+2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. Check the returned count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug when the slug is taken.
 3. When starting from `ship-it #<n>`, capture the source issue title and issue number for in-place adoption during initial artifact publication.
 4. Ask the user to confirm the slug and type, and to choose between charting a map first and writing the spec directly.
    Recommend a map when the idea leaves a scope or architecture decision open.
@@ -48,7 +48,7 @@ When a `ship-it <slug>` directive matches no issue, report that no feature uses 
 ## 2. Query state
 
 Run these queries at the start of every routing pass.
-When the issue query returns exactly 100 results, print `"Warning: Search returned 100 results; GitHub search may be truncated."`.
+Check the issue query count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return.
 Filter results matching title prefix `[<slug>]`.
 
 ```shell
@@ -100,20 +100,29 @@ Apply the first matching step:
 
 1. No open ticket is unblocked: report each open ticket with its open blockers and **halt**.
 2. Has `ship-it:reviewed`: close the ticket (`gh issue close <n> --comment "<summary>"`), then query state and route again.
-3. Has `ship-it:changes-requested`: check the review loop guard before dispatching rework by counting non-approved review reports posted after the latest `## Loop Guard Reset` comment on the ticket via `gh issue view <n> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14) | .key] | last) as $rst | (if $rst == null then . else .[($rst + 1):] end) | [.[] | select(index(({Review:1}|keys[])) == 3 and (index(({Changes:1}|keys[])) != null or index(({Questions:1}|keys[])) != null))] | length'`. Skip the query when the current session already cleared the guard via `## Loop Guard Reset`. At three or more non-approved reports, ask the user for guidance (using an interactive question tool when available; otherwise ask in plain text and end the turn). Post the reply as a `## Loop Guard Reset` comment on the ticket to reset the retry counter. Fold settled guidance into the ticket body (and spec body when shared contracts change) via surgical edit, then query state and route again. Below three retries, dispatch rework, then query state and route again.
-4. Has an assignee: count handoff comments via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Handoff:1}|keys[])) == 3)] | length'`. When the count is at least one, check the review loop guard from step 3 when re-entering after a non-approved review or rework pass (skipping the query on the initial review right after step 5); below three retries, dispatch review, then query state and route again. When the handoff count is zero, re-dispatch implementation, then query state and route again.
+3. Has `ship-it:changes-requested`: enforce the `Review` loop guard (below) before dispatching rework. Below three retries, dispatch rework, then query state and route again.
+4. Has an assignee: count handoff comments via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Handoff:1}|keys[])) == 3)] | length'`. When the count is at least one, enforce the `Review` loop guard (below) when re-entering after a non-approved review or rework pass; below three retries, dispatch review, then query state and route again. When the handoff count is zero, re-dispatch implementation, then query state and route again.
 5. Otherwise: claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation, then query state and route again.
 
-**Validation loop guard** (Rows 5–7 and 9): check before executing remediation or re-running validation (skipping the query on initial entry right after Row 1, 4, or 8, or right after clearing Row 5 or Row 6) by counting non-approved validation reports posted after the latest `## Loop Guard Reset` comment on the spec for the active phase via `gh issue view <spec> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14) | .key] | last) as $rst | (if $rst == null then . else .[($rst + 1):] end) | [.[] | select(index(({Validation:1}|keys[])) == 3 and index(({<phase>:1}|keys[])) == 15 and (index(({Changes:1}|keys[])) != null or index(({Questions:1}|keys[])) != null))] | length'`, where `<phase>` is `Spec` for Rows 5 and 7 and `Ticket` for Rows 6 and 9.
-Comments bearing `## Loop Guard Reset` originate exclusively from user responses at the three-retry loop-guard threshold.
-At three or more non-approved reports, halt before executing the row action and ask the user for guidance (using an interactive question tool when available; otherwise ask in plain text and end the turn).
-Post the reply as a `## Loop Guard Reset` comment on the spec to reset the retry counter.
-Fold settled guidance into the spec body or open ticket bodies via surgical edit, then query state and route again.
+**Loop-guard queries**: Rows 5–7, 9, 11 (Steps 3 and 4), and 12 enforce the three-retry limit with one shared query skeleton:
 
-**Final review loop guard** (Row 12): check before dispatching the final review (skipping the query on initial entry right after closing the final ticket in Row 11) by counting non-approved final review reports posted after the latest `## Loop Guard Reset` comment on the spec via `gh issue view <spec> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14) | .key] | last) as $rst | (if $rst == null then . else .[($rst + 1):] end) | [.[] | select(index(({Review:1}|keys[])) == 3 and index(({Final:1}|keys[])) == 11 and (index(({Changes:1}|keys[])) != null or index(({Questions:1}|keys[])) != null))] | length'`.
-At three or more non-approved reports, halt before dispatching the final review and ask the user for guidance (using an interactive question tool when available; otherwise ask in plain text and end the turn).
-Post the reply as a `## Loop Guard Reset` comment on the spec to reset the retry counter.
-Fold settled guidance into the spec body via surgical edit, or pass the guidance to the final-review subagent to update fix-ticket acceptance criteria, then query state and route again.
+```shell
+gh issue view <issue> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14) | .key] | last) as $rst | (if $rst == null then . else .[($rst + 1):] end) | (([42,42]|implode) + ({Verdict:1}|keys[]) + ([42,42,58,32]|implode)) as $v | [.[] | select(<heading-filter> and any(split(([10]|implode))[]; startswith($v + ({Changes:1}|keys[]) + ([32]|implode) + ({requested:1}|keys[])) or startswith($v + ({Questions:1}|keys[]) + ([32]|implode) + ({pending:1}|keys[]))))] | length'
+```
+
+Comments bearing `## Loop Guard Reset` originate exclusively from user responses at the three-retry threshold.
+Enforce the active guard in sequence:
+
+- **Skip check**: Skip the query when the guard's skip rules apply.
+- **Count check**: Otherwise run the query above with the guard's `<issue>` and `<heading-filter>`.
+- **Threshold halt**: At three or more non-approved reports (`>= 3`), halt before executing the step or row action. Ask the user for guidance using an interactive question tool when available, or in plain text before ending the turn.
+- **Reset and fold**: Post the user's reply as a `## Loop Guard Reset` comment on `<issue>`. Fold settled guidance into the guard's folding target, then query state and route again.
+
+| Guard | Target issue | Heading filter | Skip rules | Guidance-folding target |
+| :--- | :--- | :--- | :--- | :--- |
+| **Review** (Row 11, Steps 3–4) | `<n>` | `index(({Review:1}|keys[])) == 3` | Initial review right after Step 5, or in-session `## Loop Guard Reset` before a subsequent non-approved report | Ticket body (and spec body when shared contracts change) via surgical edit |
+| **Validation** (Rows 5–7 and 9) | `<spec>` | `index(({Validation:1}|keys[])) == 3 and index(({<phase>:1}|keys[])) == 15` (`Spec` for Rows 5 and 7; `Ticket` for Rows 6 and 9) | Initial entry right after Row 1, 4, or 8, right after clearing Row 5 or Row 6, or in-session `## Loop Guard Reset` before a subsequent non-approved report | Spec body or open ticket bodies via surgical edit |
+| **Final review** (Row 12) | `<spec>` | `index(({Review:1}|keys[])) == 3 and index(({Final:1}|keys[])) == 11` | Initial entry right after closing the final ticket in Row 11, or in-session `## Loop Guard Reset` before a subsequent non-approved report | Spec body via surgical edit, or pass to `final-review` subagent to update acceptance criteria on fix tickets |
 
 ## 4. Dispatch and verdicts
 
@@ -126,7 +135,7 @@ Forbid subagents from loading `skills/ship-it/SKILL.md`, running routing queries
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
 - **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`):
   - **Triage spec validation questions**: When `validate` runs with `Target: spec`, triage each question before prompting the user. Append slice-local implementation, touchpoint, or low-level error-path questions directly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` in the spec body via surgical edit (`gh issue edit <spec> --body-file <file>`, deleting the temporary file immediately) without prompting the user or posting a comment. When every question is deferred to slicing and zero cross-cutting questions remain, skip user prompting and comment posting, then query state and route again (the pre-dispatch loop guard on Row 5 or Row 7 halts on the next pass if this report reached three non-approved passes).
-  - **Prompt and record replies**: For `Target: spec` validation with cross-cutting scope, product behavior, or high-level architecture questions, prompt the user only for those cross-cutting questions. For all other subagent runs, ask the user every question (using an interactive question tool when available, or in plain text before ending the turn). When the report is the third or later non-approved validation or review pass since the latest reset, combine the questions with a request for Blocker guidance and post the reply as `## Loop Guard Reset` (resetting the counter in one turn without a second loop-guard query); otherwise post the reply as `## Answers`.
+  - **Prompt and record replies**: For `Target: spec` validation with cross-cutting scope, product behavior, or high-level architecture questions, prompt the user only for those cross-cutting questions. For all other subagent runs, ask the user every question (using an interactive question tool when available, or in plain text before ending the turn). Post the reply as a `## Answers` comment on the target issue (`<spec>` for validation and final review; the ticket or bug issue otherwise).
   - **Fold settled answers**: For implementation questions, delegate folding answers to the next implementation subagent. For bug-preparation, validation, ticket-review, or final-review questions, fold settled answers into the map, spec, bug issue, or ticket body via surgical body edit (`gh issue edit <n> --body-file <file>`, deleting the temporary file immediately), or into fix-ticket acceptance criteria. Halt when Row 12 created fix tickets; otherwise query state and route again.
 - **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit or bug-ticket approval at row 9, fix-ticket approval at row 12, or Boundary 3 exit at row 13, and otherwise query state and route again).
 
@@ -153,7 +162,7 @@ End with exactly one next step:
 
 ## Reference index
 
-Load only the reference file for the active step plus [writing.md](references/writing.md).
+Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file for the active step.
 
 | File | Read the file when |
 | :--- | :--- |
@@ -162,7 +171,7 @@ Load only the reference file for the active step plus [writing.md](references/wr
 | [spec.md](references/spec.md) | Rows 1, 4, and 5 |
 | [tickets.md](references/tickets.md) | Rows 6, 8, and 10, and blocker checks |
 | [validate.md](references/validate.md) | Rows 7 and 9 |
-| [implement.md](references/implement.md) | Implementation, rework, close-out, and synchronization |
-| [review.md](references/review.md) | Ticket review and final review |
+| [implement.md](references/implement.md) | Rows 11, 13, and 14 (implementation, rework, close-out, and synchronization) |
+| [review.md](references/review.md) | Rows 11 and 12 (ticket review and final review) |
 | [preflight.md](references/preflight.md) | `ship-it preflight` or `ship-it init`, or a `gh` command fails |
 | [writing.md](references/writing.md) | Writing any artifact |

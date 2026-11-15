@@ -15,7 +15,7 @@ Run every check before reporting findings so the user sees all issues at once:
 2. **GitHub remote**: Run `git remote -v` and confirm a `github.com` remote exists.
 3. **Authentication**: Run `gh auth status` and confirm an active login.
 4. **Writable issues**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`. Confirm `hasIssuesEnabled` is `true` and `viewerPermission` is `WRITE`, `MAINTAIN`, or `ADMIN`.
-5. **Labels**: Run `gh label list --search "ship-it:" --limit 100 --json name` and verify that every label below exists. Create or update any missing labels automatically.
+5. **Labels**: Run `gh label list --search "ship-it:" --limit 100 --json name`. Inspect the returned array count and emit the warning in [writing.md](writing.md#bounded-search-truncation) when 100 labels return before checking missing labels. Verify that every label below exists, and create or update any missing labels automatically.
 
 ## Label set
 
@@ -50,44 +50,3 @@ gh label create "ship-it:validated" --description "Passed adversarial validation
 gh label create "ship-it:reviewed" --description "Passed independent diff review" --color "0E8A16" --force
 gh label create "ship-it:changes-requested" --description "Unresolved validation or review blockers" --color "D93F0B" --force
 ```
-
-## Canonical `gh` CLI commands
-
-| Action | Command |
-| :--- | :--- |
-| Query issues by slug and partition by label | `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number,title,labels,assignees,blockedBy,state,stateReason` |
-| View issue body | `gh issue view <n> --json body --jq .body` or `gh issue view <n> --json number,title,body,labels,assignees,state` |
-| Create issue | `gh issue create --title "<title>" --body-file <file> --label "<labels>"` |
-| Edit issue | `gh issue edit <n> --title "<title>" --body-file <file> --add-label "<label>" --remove-label "<label>"` |
-| Comment on issue | `gh issue comment <n> --body-file <file>` or `gh issue comment <n> --body "<text>"` |
-| Claim ticket | `gh issue edit <n> --add-assignee "@me"` |
-| Unclaim ticket | `gh issue edit <n> --remove-assignee "@me"` |
-| Close issue | `gh issue close <n> --comment "<text>"` |
-| Link sub-issue or blocker | `gh issue create --parent <parent> --blocked-by <blocker>` or `gh issue edit <n> --add-blocked-by <blocker>` |
-| Query dependencies | `gh issue view <n> --json blockedBy,parent,subIssues` |
-| Query pull requests | `gh pr list --head "<branch>" --state all --json number,state,url` |
-| View pull request body | `gh pr view <pr> --json body --jq .body` |
-| Query closing references | `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'` |
-| Create pull request | `gh pr create --base <default-branch> --head <branch> --title "<title>" --body-file <file>` |
-| Edit pull request | `gh pr edit <pr> --body-file <file>` |
-| List pull request files | `gh pr diff <pr> --name-only` |
-| Get pull request head SHA | `gh pr view <pr> --json headRefOid --jq .headRefOid` |
-| Annotate pull request file | `gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<sha> -f path=<file> -f subject_type=file -F body=@<file>` |
-| Query latest release | `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'` |
-
-### Bounded comment queries
-
-- **View latest validation report**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`
-- **View latest answers or loop guard reset**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Answers:1}|keys[])) == 3 or (index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14))] | last // empty'`
-- **View latest review and answers**: `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1,Answers:1}|keys[])) == 3 or (index(({Loop:1}|keys[])) == 3 and index(({Guard:1}|keys[])) == 8 and index(({Reset:1}|keys[])) == 14))] | (if (last | index(({Review:1}|keys[])) != 3) then .[-2:] else [last] end)[]'`
-- **View ticket review metadata**: `gh issue view <n> --json comments --jq '.comments[].body | select((index(({Fixed:1}|keys[])) == 0 and index(({point:1}|keys[])) == 6) or index(({Handoff:1,Rework:1}|keys[])) == 3)'`
-
-## Cross-platform shell conventions
-
-- **Multi-line bodies**: Write multi-line text to a temporary file using a file-writing tool or a single-quoted PowerShell here-string (`@' ... '@`), pass `--body-file <path>` or `-F body=@<path>`, and delete the temporary file immediately after the `gh` command completes. Never use Bash heredocs or double-quoted PowerShell strings (`"..."`), which interpret Markdown backticks as escape characters.
-- **UTF-8 file persistence**: Write UTF-8 files without BOM using native file-writing tools or `[IO.File]::WriteAllText($path, $text, [System.Text.UTF8Encoding]::new($false))` to avoid UTF-16LE corruption in `gh --body-file` under PowerShell 5.1.
-- **Surgical body edits**: Fetch the raw issue body (`gh issue view <n> --json body --jq .body`) to a temporary file. Edit only the target section with a file-editing tool so untouched sections and `- [ ]` tasklists stay intact. Inspect the diff (`git diff --no-index`). Run `gh issue edit <n> --body-file <path>`, and delete the temporary file.
-- **Diff exit codes**: Treat exit code 1 from `git diff --no-index` as differences detected rather than command failure.
-- **Quote-free `--jq` filters**: Keep `--jq '...'` expressions free of inner double quotes by matching heading prefixes with bare-identifier object keys (`index(({Validation:1}|keys[])) == 3`). Windows PowerShell 5.1 strips unescaped inner `"` when spawning native processes, while `pwsh` 7 and POSIX shells reject `\"`.
-- **PowerShell special characters**: Always quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
-- **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.

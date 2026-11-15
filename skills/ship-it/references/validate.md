@@ -13,7 +13,7 @@ Ground every check in these inputs:
 | Artifact | Requirements | Artifact under audit |
 | :--- | :--- | :--- |
 | Spec | The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`; skip reading the request issue body when `<spec-number> == n`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), `- **Deferred to slicing**:` entries under `## Implementation Decisions` in the spec body, and the active codebase | The spec body (`gh issue view <spec> --json body --jq .body`) |
-| Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`), `- **Deferred to slicing**:` entries under `## Implementation Decisions` in the spec body, completed closed tickets (`state: "CLOSED"` with `stateReason: "COMPLETED"`), and active code on `<branch>` when present on `origin` (or `origin/<default-branch>` otherwise, after fetching those target refs) | Every open ticket body from `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,body,labels,state,stateReason` (keeping titles starting with `[<slug>]`) |
+| Ticket set | The parent spec body (`gh issue view <spec> --json body --jq .body`), `- **Deferred to slicing**:` entries under `## Implementation Decisions` in the spec body, completed closed tickets (`state: "CLOSED"` with `stateReason: "COMPLETED"`), and active code on `<branch>` when present on `origin` (or `origin/<default-branch>` otherwise, after fetching those target refs) | Every open ticket body from `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state all --limit 100 --json number,title,body,labels,state,stateReason`. Check the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping titles starting with `[<slug>]`, and record any truncation warning under `### Warnings`. |
 
 ## Zero-assumption rule
 
@@ -69,7 +69,6 @@ When findings exist, post the report on the **spec** for both artifact types (`g
 Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
 Never output `- None` placeholder subsections.
 Specify `**Verdict**: Validated` for warning-only reports.
-Omit the words `Changes` and `Questions` from `### Warnings` prose so loop-guard queries in `SKILL.md` § 3 match only non-approved verdicts.
 
 ## Outcomes
 
@@ -77,7 +76,8 @@ Omit the words `Changes` and `Questions` from `### Warnings` prose so loop-guard
 | :--- | :--- | :--- |
 | Any Blocker | Add `ship-it:changes-requested` to the spec. | `changes-requested`, listing any Questions too, with `Evidence: <comment-url>` |
 | Questions, no Blocker | None. | `questions`, with `Evidence: <comment-url>` |
-| Warnings, no Blocker or Question | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: <comment-url>` |
+| Warnings (including `--limit 100` truncation), no Blocker or Question | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: <comment-url>` |
 | Clean pass (zero findings) | Add `ship-it:validated` to the spec, or to every open ticket for a ticket set. | `approved` with `Evidence: None` (skip posting a report comment) |
 
-Preserve the four-line return packet schema in [isolation.md](isolation.md) by recording warnings exclusively within report comments linked via `Evidence: <comment-url>`.
+When a `--limit 100` query returns 100 items with zero other findings, post the `**Verdict**: Validated` report containing `### Warnings` with the warning in [writing.md](writing.md#bounded-search-truncation) and return `Evidence: <comment-url>` instead of `Evidence: None`.
+Preserve the four-line return block in [isolation.md](isolation.md) by recording warnings exclusively inside report comments linked via `Evidence: <comment-url>`.

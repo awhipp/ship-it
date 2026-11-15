@@ -12,22 +12,12 @@ When a point remains unsettled, ask the user directly instead of guessing.
 3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories, preferring high-level seams with minimal touchpoints. For `fix` feature types, specify `Root cause: <mechanism>` and `Reproduction seam: <test or CLI command failing before fix>`. When automated tests do not apply, define direct checks rather than custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
 4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Write concise single-contract bullet points covering cross-cutting concerns. Pause and obtain explicit user approval of the draft before creating the GitHub issue.
 5. **Publish the spec**:
-   When sourced from `ship-it #<n>` without a map, prompt the user with interactive options:
-   - Option 1 (Recommended): `Adopt source issue #<n> in place (updates title, adds artifact label, and overwrites body with the artifact template)`
-   - Option 2: `Create a new issue (retains original source issue #<n> untouched as external reference)`
-   On Option 1, execute atomic edit:
+   - **Sourced from `ship-it #<n>` without a map**: Run [source-issue adoption](isolation.md#source-issue-adoption) with title `[<slug>] Spec: <gist>`, label `ship-it:spec`, and no `## Notes` bullet.
+   - **Map exists or no source issue exists**: Leave `#<n>` untouched, write the spec body to a temporary payload file, create a new issue via `gh issue create`, and delete the temporary file immediately:
 
-   ```shell
-   gh issue edit <n> --title "[<slug>] Spec: <gist>" --add-label "ship-it:spec" --body-file <file>
-   ```
-
-   On Option 2, when a map exists, or when not sourced from an issue, create a new issue and leave source issue `#<n>` untouched:
-
-   ```shell
-   gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec"
-   ```
-
-   Delete the temporary body file immediately after executing `gh issue edit` or `gh issue create`.
+     ```shell
+     gh issue create --title "[<slug>] Spec: <gist>" --body-file <file> --label "ship-it:spec"
+     ```
 
 6. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing advances to Row 7 (spec validation).
 
