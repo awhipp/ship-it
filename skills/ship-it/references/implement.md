@@ -16,9 +16,9 @@ The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) a
 
 Tailor verification to the repository, change type, and complexity tier:
 
-- **Use existing test conventions**: Find the repository's test runner (such as `npm test`, `pytest`, `cargo test`, or `go test`) and test directories before writing code. Follow the existing conventions.
+- **Use existing test conventions**: Locate and run the repository's existing test runner and the test seams named in the spec and ticket before writing code. Follow existing test directories and conventions.
 - **Reproduce defects first**: For `fix` feature types or `ship-it:bug` tickets, execute the reproduction seam in the spec's `## Testing Decisions` or the bug ticket's `## Reproduction seam` to confirm failure before modifying code.
-- **Red-Green where tests apply**: Write a test for the next unit of behavior and watch the test fail. Write the minimal code that passes the test. Repeat for each acceptance criterion.
+- **Red-Green where tests apply**: Write a failing test first for each acceptance criterion where tests apply. Write the minimal code needed to pass the test.
 - **Direct checks elsewhere**: For documentation, configuration, assets, or repositories without a runner, verify each acceptance criterion with linting, type checks, builds, CLI checks, or inspection.
 
 #### Complexity tiers
@@ -30,13 +30,6 @@ Scale verification scope to the complexity tier recorded on the ticket:
 | `low` | Restrict tests and direct checks to touched files. |
 | `medium` | Execute domain module suites and test named edge cases. |
 | `high` | Run broad test suites, audit cross-cutting invariants, and sweep callers outside touched files. |
-
-#### Universal testing standards
-
-Follow the universal testing standards defined in [writing.md](writing.md):
-
-- Follow the [ticket-naming prohibition](writing.md#ticket-naming-prohibition). Organize tests by domain, module, or feature seam rather than issue numbers.
-- Follow the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition). Never invent test runners or string-matching scripts to simulate coverage for non-code changes.
 
 ### 3. Check as you go
 
@@ -75,21 +68,22 @@ When the ticket carries `ship-it:changes-requested`:
 2. Fix every Blocker, and add a test or direct check for each fix.
 3. Commit and push per step 5. Keep the existing fixed point.
 4. Write a `## Rework` comment explaining the fix and verification evidence for each Blocker to a temporary file, post the comment (`gh issue comment <n> --body-file <file>`), and delete the temporary file.
-5. Remove the label (`gh issue edit <n> --remove-label "ship-it:changes-requested"`) and return `done`.
+5. Remove `ship-it:changes-requested` and restore the assignee (`gh issue edit <n> --remove-label "ship-it:changes-requested" --add-assignee "@me"`). Return `done`.
 
 ## Close-out
 
 When `Mode` is `sync`, skip directly to [Synchronization](#synchronization).
 When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-branch> <branch>`), check out `<branch>`, and run these steps after the final review approves the spec:
 
-1. Read the spec body (`gh issue view <spec> --json body --jq .body`) and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`), keeping titles starting with `[<slug>]`. Open the pull request and delete the temporary body file once the command completes:
+1. Read the spec body (`gh issue view <spec> --json body --jq .body`) and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`). Check the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping titles starting with `[<slug>]`. Open the pull request using a temporary body file, then delete that file once the command completes:
 
    ```shell
    gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
    ```
 
-   List each closed ticket by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue and `<spec-number> != <issue>`) so merging the pull request closes the spec.
-   When closed `ship-it:bug` tickets with `stateReason` `COMPLETED` exist, append an `### Addendum Bugs` section listing each completed bug ticket as `- #<n> (<title>) - Closes #<n>`.
+   - **Closing references**: List each closed ticket by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue and `<spec-number> != <issue>`) so merging the pull request closes the spec.
+   - **Addendum bugs**: When closed `ship-it:bug` tickets with `stateReason` `COMPLETED` exist, append an `### Addendum Bugs` section listing each completed bug ticket as `- #<n> (<title>) - Closes #<n>`.
+   - **Truncation notice**: When the closed-ticket query returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a note inside the pull request body. Keep the four-line return block (`Evidence: None`) in [isolation.md](isolation.md) unchanged.
 
 2. Annotate every changed file with one file-level review comment, deleting each temporary `<annotation-file>` after posting:
 
