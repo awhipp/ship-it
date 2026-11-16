@@ -42,13 +42,14 @@ Scale audit depth to the ticket's complexity tier:
 
 ### Standards when the repository has none
 
-Flag duplicated logic, unclear names, unused abstractions, primitive obsession, and changes scattered across many files.
+Flag duplicated logic, unclear names, unused abstractions, and scattered changes.
 
 ### Ship-it standards for every diff
 
 - **Ticket-named artifacts**: Files named after issue numbers break the [ticket-naming prohibition](writing.md#ticket-naming-prohibition).
 - **Ad-hoc test harnesses**: Scripts simulating coverage for non-code changes break the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
-- **Unclear prose**: Documentation that breaks [writing.md](writing.md).
+- **Unclear prose**: Documentation in `skills/ship-it/` or `ship-it` artifacts that breaks [writing.md](writing.md) is a Blocker. Classify prose polish in other repository files as a Nit unless local style guides require more.
+- **Transient references**: `Spec § ...` citations, ticket identifiers, or `#<n>` issue references in product code, tests, comments, or docstrings break the [transient-reference prohibition](writing.md#transient-reference-prohibition). Classify violations as Blocker findings unless local standards loaded in step 3 require them.
 
 ## Zero-assumption rule
 

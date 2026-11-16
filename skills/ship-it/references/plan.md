@@ -59,6 +59,7 @@ Link issues by title in user-facing messages rather than bare issue numbers.
 State questions that have a clear phrasing right now as decision tickets, even when blocked by earlier tickets.
 Place questions that depend on open decisions under `## Not yet specified` until resolving an earlier ticket clears the fog.
 Work outside the destination belongs under `## Out of scope` and never becomes a ticket.
+Reserve decision tickets for open architectural, scope, or user-preference forks. Settle trivial implementation choices (such as local naming or formatting) during specification or implementation instead of creating decision tickets.
 
 ## Process
 

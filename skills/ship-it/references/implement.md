@@ -22,9 +22,9 @@ The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) a
 
 Tailor verification to the repository, change type, and complexity tier:
 
-- **Use existing test conventions**: Locate and run the repository's existing test runner and the test seams named in the spec and ticket before writing code. Follow existing test directories and conventions.
+- **Use existing test conventions**: Run the repository's existing test runner and the test seams named in the spec and ticket before writing code.
 - **Reproduce defects first**: For `fix` feature types or `ship-it:bug` tickets, execute the reproduction seam in the spec's `## Testing Decisions` or the bug ticket's `## Reproduction seam` to confirm failure before modifying code.
-- **Red-Green where tests apply**: Write a failing test first for each acceptance criterion where tests apply. Write the minimal code needed to pass the test.
+- **Red-Green where tests apply**: Write a failing test first for each acceptance criterion where tests apply.
 - **Direct checks elsewhere**: For documentation, configuration, assets, or repositories without a runner, verify each acceptance criterion with linting, type checks, builds, CLI checks, or inspection.
 
 #### Complexity tiers
@@ -41,7 +41,8 @@ Scale verification scope to the complexity tier recorded on the ticket:
 
 Run type checks and targeted tests throughout development.
 Before handoff, execute the full verification scope required by the ticket's complexity tier.
-Sweep for negative invariants (such as "no callers of the old API remain") after implementation, using targeted search.
+Follow the [ticket-naming prohibition](writing.md#ticket-naming-prohibition) and [transient-reference prohibition](writing.md#transient-reference-prohibition) across source files, tests, comments, and docstrings.
+Sweep for negative invariants (such as "no callers of the old API remain") and transient references after implementation, using targeted search.
 
 ### 4. Ask instead of guessing
 
