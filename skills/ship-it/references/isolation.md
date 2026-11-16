@@ -15,7 +15,7 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 | Chart map, resolve grilling ticket | [plan.md](plan.md) | Conductor (needs the user) |
 | Draft spec, remediate spec | [spec.md](spec.md) | Conductor (needs the user) |
 | Remediate ticket set | [tickets.md](tickets.md#remediation) | Conductor (needs the user) |
-| Resolve research, prototype, or task ticket | [plan.md#ticket-types](plan.md#ticket-types), [plan.md#resolving-map-is-open](plan.md#resolving-map-is-open) | Subagent: `decide` |
+| Resolve research, prototype, or task ticket | [plan.md#ticket-types](plan.md#ticket-types), [plan.md#subagent-execution](plan.md#subagent-execution) | Subagent: `decide` |
 | Slice tickets | [tickets.md](tickets.md) | Subagent: `slice` |
 | Prepare bug | [tickets.md](tickets.md#bug-preparation) | Subagent: `prepare-bug` |
 | Implement ticket | [implement.md](implement.md) | Subagent: `implement` |
