@@ -5,6 +5,11 @@ The specification provides cross-cutting architectural context that guides every
 This phase is synthesis, not an open-ended interview.
 When a point remains unsettled, ask the user directly instead of guessing.
 
+| Role | Scope | Skip |
+| :--- | :--- | :--- |
+| Draft spec (conductor) | [## Process](#process), [## Spec template](#spec-template) | [## Remediation](#remediation) |
+| Remediate spec (conductor) | [## Remediation](#remediation) | [## Process](#process), [## Spec template](#spec-template) |
+
 ## Process
 
 1. **Gather settled context**: When a map exists for the feature, read the full map body via `gh issue view <map-number> --json body --jq .body` without `--comments`. When sourced from an issue (`ship-it #<n>`), read the source issue body via `gh issue view <n> --json body --jq .body`. Otherwise, read the verbatim directive text from setup.

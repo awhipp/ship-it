@@ -10,7 +10,7 @@ Run this checklist only in two situations:
 
 Run every check before reporting findings so the user sees all issues at once:
 
-0. **Skill version**: Read `skills/ship-it/version.json` to report the installed version and release date. Query the latest upstream release with `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. On network or API failure, report local version details and continue the checklist.
+0. **Skill version**: Read `version.json` in the skill directory to report the installed version and release date. Query the latest upstream release with `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. On network or API failure, report local version details and continue the checklist.
 1. **`gh` version**: Run `gh --version`. Require version `2.94.0` or later for native sub-issue and dependency flags (`--parent`, `--blocked-by`, and JSON fields `subIssues`, `blockedBy`).
 2. **GitHub remote**: Run `git remote -v` and confirm a `github.com` remote exists.
 3. **Authentication**: Run `gh auth status` and confirm an active login.

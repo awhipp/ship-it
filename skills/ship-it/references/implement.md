@@ -3,6 +3,12 @@
 Build exactly what one ticket describes.
 The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) are the only requirements.
 
+| Role | Scope | Skip |
+| :--- | :--- | :--- |
+| `implement` | [## Process](#process) ([### 1. Branch and fixed point](#1-branch-and-fixed-point) through [### 5. Commit, push, and hand off](#5-commit-push-and-hand-off)) | [## Rework](#rework), [## Close-out](#close-out) |
+| `rework` | [## Rework](#rework) | [### 1. Branch and fixed point](#1-branch-and-fixed-point) through [### 4. Ask instead of guessing](#4-ask-instead-of-guessing), [## Close-out](#close-out) |
+| `close-out` | [## Close-out](#close-out) | [## Process](#process), [## Rework](#rework) |
+
 ## Process
 
 ### 1. Branch and fixed point

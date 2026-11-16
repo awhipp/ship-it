@@ -4,6 +4,12 @@ Break a validated specification into vertical tracer-bullet tickets that serve a
 Each ticket provides concrete implementation details for its slice so the implementer faces zero design ambiguity.
 Every feature produces at least one ticket.
 
+| Role | Scope | Skip |
+| :--- | :--- | :--- |
+| `slice` | [## Process](#process) through [## Relationships](#relationships) | [## Remediation](#remediation), [## Bug preparation](#bug-preparation) |
+| Remediate ticket set (conductor) | [## Remediation](#remediation) | [## Process](#process) through [## Relationships](#relationships), [## Bug preparation](#bug-preparation) |
+| `prepare-bug` | [## Bug preparation](#bug-preparation) | [## Process](#process) through [## Ticket template](#ticket-template), [## Remediation](#remediation) |
+
 ## Process
 
 ### 1. Read the spec and explore the codebase

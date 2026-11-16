@@ -15,7 +15,7 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 | Chart map, resolve grilling ticket | [plan.md](plan.md) | Conductor (needs the user) |
 | Draft spec, remediate spec | [spec.md](spec.md) | Conductor (needs the user) |
 | Remediate ticket set | [tickets.md](tickets.md#remediation) | Conductor (needs the user) |
-| Resolve research, prototype, or task ticket | [plan.md](plan.md#ticket-types) | Subagent: `decide` |
+| Resolve research, prototype, or task ticket | [plan.md#ticket-types](plan.md#ticket-types), [plan.md#resolving-map-is-open](plan.md#resolving-map-is-open) | Subagent: `decide` |
 | Slice tickets | [tickets.md](tickets.md) | Subagent: `slice` |
 | Prepare bug | [tickets.md](tickets.md#bug-preparation) | Subagent: `prepare-bug` |
 | Implement ticket | [implement.md](implement.md) | Subagent: `implement` |
@@ -40,7 +40,7 @@ Pass only these fields to the subagent:
 - **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
 
 Never pass conversation history, summaries of user intent, or opinions.
-Forbid subagents from loading `skills/ship-it/SKILL.md`, running routing queries, or spawning subagents.
+Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents.
 Every requirement a subagent needs lives in the issues.
 A subagent that finds a requirement missing returns the missing requirement as a question.
 

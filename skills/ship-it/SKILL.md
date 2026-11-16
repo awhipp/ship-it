@@ -30,7 +30,7 @@ Ignore earlier conversation when choosing the feature.
 | `ship-it #<n>` | Run `gh issue view <n> --json title,body`. A `[<slug>]` title prefix resumes that slug. Any other issue is an idea, and the issue becomes the spec's source. |
 | `ship-it "<idea>"` | Start a new feature from the idea. |
 | `ship-it preflight` or `ship-it init` | Run [preflight.md](references/preflight.md) and stop. |
-| `ship-it version`, `ship-it --version`, or `ship-it -v` | Read `skills/ship-it/version.json` to report the installed version and release date. Query the latest upstream release via `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. Fall back to local version details on network or API failure. Halt immediately after reporting the version. |
+| `ship-it version`, `ship-it --version`, or `ship-it -v` | Read `version.json` in the skill directory to report the installed version and release date. Query the latest upstream release via `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. Fall back to local version details on network or API failure. Halt immediately after reporting the version. |
 
 With no directive, ask for one of these forms and stop.
 Run no `gh` command before a directive exists.
@@ -70,6 +70,22 @@ gh pr list --head "<branch>" --state all --json number,state,url
 - **Pull requests**: Run the pull request query only once a spec exists. A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`. Evaluate multiple pull requests for the branch in priority order: `MERGED` > `OPEN` > `CLOSED`.
 - **Closing references**: When Rows 1–13 miss, an `OPEN` pull request exists, and a closed issue bears both `ship-it:bug` and `ship-it:ticket` with `stateReason` `COMPLETED`, query closing references via `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'` to compute `unsynced_completed_bugs`.
 - **Query errors**: Treat any failed query as an environment error and run [preflight.md](references/preflight.md). Never interpret a failed query as "no artifacts".
+
+## Reference index
+
+Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file for the active step. Do NOT load non-active reference files until their row matches.
+
+| File | Read the file when |
+| :--- | :--- |
+| [isolation.md](references/isolation.md) | Running any action |
+| [plan.md](references/plan.md) | Rows 1 and 2 (map) |
+| [spec.md](references/spec.md) | Rows 1, 4, and 5 |
+| [tickets.md](references/tickets.md) | Rows 6, 8, and 10, and blocker checks |
+| [validate.md](references/validate.md) | Rows 7 and 9 |
+| [implement.md](references/implement.md) | Rows 11, 13, and 14 (implementation, rework, close-out, and synchronization) |
+| [review.md](references/review.md) | Rows 11 and 12 (ticket review and final review) |
+| [preflight.md](references/preflight.md) | `ship-it preflight` or `ship-it init`, or a `gh` command fails |
+| [writing.md](references/writing.md) | Writing any artifact |
 
 ## 3. Route: the first matching row wins
 
@@ -134,7 +150,7 @@ Enforce the active breaker in sequence:
 Run every action per [isolation.md](references/isolation.md).
 Dispatch at most one leaf subagent at a time.
 Await the subagent's four-line return block before resuming the routing loop.
-Forbid subagents from loading `skills/ship-it/SKILL.md`, running routing queries, or spawning subagents.
+Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents.
 
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
@@ -165,19 +181,3 @@ End with exactly one next step:
 | 1. Mapping | 1 (map), 2 | Map closed with all decisions resolved |
 | 2. Definition | 1 (spec), 4–9 | Ticket set validated |
 | 3. Execution | 10–15 | Pull request opened and annotated; also halts when the final review creates fix tickets or bug tickets await approval |
-
-## Reference index
-
-Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file for the active step.
-
-| File | Read the file when |
-| :--- | :--- |
-| [isolation.md](references/isolation.md) | Running any action |
-| [plan.md](references/plan.md) | Rows 1 and 2 (map) |
-| [spec.md](references/spec.md) | Rows 1, 4, and 5 |
-| [tickets.md](references/tickets.md) | Rows 6, 8, and 10, and blocker checks |
-| [validate.md](references/validate.md) | Rows 7 and 9 |
-| [implement.md](references/implement.md) | Rows 11, 13, and 14 (implementation, rework, close-out, and synchronization) |
-| [review.md](references/review.md) | Rows 11 and 12 (ticket review and final review) |
-| [preflight.md](references/preflight.md) | `ship-it preflight` or `ship-it init`, or a `gh` command fails |
-| [writing.md](references/writing.md) | Writing any artifact |
