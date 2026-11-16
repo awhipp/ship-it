@@ -51,3 +51,25 @@ When auditing or refactoring `skills/ship-it/` (for example via `/skill-judge` o
 - **Cross-platform shell & `gh` efficiency**: Preserve PowerShell 5.1 quoting (`"@me"`, inner-double-quote-free `--jq '...'`), `--body-file` temp cleanup, bounded `gh` queries (`--limit 100`, `--force`), and search-first codebase exploration.
 - **Loop-guard & routing parity**: Keep loop guards consistent across `SKILL.md` Rows 5–7, 9, 11, and 12, and keep `README.md` concise and synchronized with `skills/ship-it/`.
 - **Frontmatter gating**: Retain `disable-model-invocation: true` and avoid `<` or `>` characters in `SKILL.md` YAML frontmatter.
+
+## Post-PR Skill Evaluation
+
+Pull requests that modify files inside `skills/ship-it/` undergo an advisory `skill-judge` evaluation after close-out completes.
+
+### Advisory Trigger and Gate Isolation
+
+- **Modified skill trigger**: Run an advisory `skill-judge` evaluation on modified `skills/ship-it/` files strictly after creating the pull request and posting close-out annotations.
+- **Gate isolation**: Execute the `skill-judge` check outside the `final-review` gate of `ship-it`.
+- **Boundary preservation**: Preserve `skills/ship-it/references/isolation.md` and exit behavior at `Boundary 3`.
+
+### Invariant Filtering and Triage
+
+- **Invariant filter**: Filter `skill-judge` recommendations against [Skill Maintenance Invariants](#skill-maintenance-invariants), including `disable-model-invocation: true`, the five-phase workflow, and `README.md` parity.
+- **Pre-merge report**: Present explicit findings to the user before merge so the user decides whether to file follow-up `ship-it:bug` issues.
+- **Confirmed triage**: Open `ship-it:bug` issues only after the user confirms each finding.
+
+### Installation and Fallback
+
+- **Install command**: Install the skill with `npx skills add softaworks/agent-toolkit@skill-judge`.
+- **Global availability**: Add the optional `-g` flag to install `skill-judge` globally across workspaces.
+- **Unavailable-skill fallback**: Skip the advisory evaluation and report a brief note to the user when `skill-judge` is unavailable in the harness.
