@@ -8,6 +8,11 @@ Review a diff along two independent axes, reported side by side:
 A diff can follow standards yet build the wrong behavior, or build the right behavior badly.
 Evaluating each axis separately keeps strength on one axis from masking defects on the other.
 
+| Role | Scope | Skip |
+| :--- | :--- | :--- |
+| `review` (`Mode: ticket`) | `Ticket review` in [## Modes](#modes), [## Process](#process) through [## Report](#report), [## Ticket review outcomes](#ticket-review-outcomes) | `Final review` in [## Modes](#modes), [## Final review](#final-review) |
+| `final-review` (`Mode: final`) | `Final review` in [## Modes](#modes), [## Process](#process) through [## Report](#report), [## Final review](#final-review) | `Ticket review` in [## Modes](#modes), [## Ticket review outcomes](#ticket-review-outcomes) |
+
 ## Modes
 
 | Mode | Fixed point | Requirements |
