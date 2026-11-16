@@ -5,6 +5,11 @@ Verify that the specification and tickets are crystal clear on implementation ag
 Try to break the artifact before anyone turns the design into code.
 Validate every spec and every ticket set without exception.
 
+| Role | Scope | Skip |
+| :--- | :--- | :--- |
+| `validate` (`Target: spec`) | `Spec` in [## Inputs](#inputs), `Target: spec` rules across [## Zero-assumption rule](#zero-assumption-rule) through [## Outcomes](#outcomes) | `Ticket set` in [## Inputs](#inputs), `Ticket-set altitude` in [## Zero-assumption rule](#zero-assumption-rule), `Ticket slicing and seams`, `Complexity declarations`, and `Bug tickets` in [## What to look for](#what-to-look-for), `Target: ticket-set` clauses in [## Severity](#severity) and [## Outcomes](#outcomes) |
+| `validate` (`Target: ticket-set`) | `Ticket set` in [## Inputs](#inputs), `Target: ticket-set` rules across [## Zero-assumption rule](#zero-assumption-rule) through [## Outcomes](#outcomes) | `Spec` in [## Inputs](#inputs), `Spec altitude` in [## Zero-assumption rule](#zero-assumption-rule), and `Target: spec` clauses in [## What to look for](#what-to-look-for), [## Severity](#severity), and [## Outcomes](#outcomes) |
+
 ## Inputs
 
 Read the requirements and the artifact under audit first, then verify every named touchpoint, module boundary, symbol contract, and caller against active code using targeted search.

@@ -23,7 +23,7 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 | Validate spec or ticket set | [validate.md](validate.md) | Subagent: `validate` |
 | Review ticket | [review.md](review.md) | Subagent: `review` |
 | Final review | [review.md](review.md#final-review) | Subagent: `final-review` |
-| Close out | [implement.md](implement.md#close-out) | Subagent: `close-out` |
+| Close out | [implement.md#close-out](implement.md#close-out) (`Mode: initial`), [implement.md#synchronization](implement.md#synchronization) (`Mode: sync`) | Subagent: `close-out` |
 
 ## Tier 1: dispatch packet
 
