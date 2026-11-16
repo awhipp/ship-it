@@ -47,6 +47,9 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
 - **Quote-free `--jq` filters**: Build `--jq '...'` strings using bare-identifier object keys (`index(({Validation:1}|keys[])) == 3`) and `implode` (`[58,32] | implode`) instead of inner double quotes. Windows PowerShell 5.1 strips unescaped inner `"` when spawning native processes, while `pwsh` 7 and POSIX shells reject `\"`.
 - **PowerShell special characters**: Quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
 - **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.
+- **Explicit-path search**: Supply an explicit file or directory path in every `rg`, `grep`, or `find` search (`rg -n "pattern" skills/ship-it/` or `grep -rn "pattern" .`) so searches target paths rather than standard input. Reserve pathless `grep` or `rg` exclusively for upstream pipeline filters (`<cmd> | grep -q ...`). On Windows, unpathed `find` invokes `find.exe` against standard input.
+- **Non-stdin execution**: Pass non-interactive flags (such as `--yes`) and set `GIT_TERMINAL_PROMPT=0` in POSIX shells or `$env:GIT_TERMINAL_PROMPT = '0'` in PowerShell 5.1 and `pwsh` for commands that might prompt. Pipe `$null | <cmd>` in PowerShell 5.1 and `pwsh`, or redirect `< /dev/null` in POSIX shells, when a command might read standard input in a non-TTY shell. PowerShell reserves the `<` operator and rejects `< /dev/null` and `< NUL`.
+- **Non-pager CLI invocation**: Suppress interactive pagers in `git` and `gh` using `git --no-pager <subcommand>` or structured output (`gh ... --json ... --jq '...'`). When no non-paged flag applies, set inline `GIT_PAGER=cat` or `GH_PAGER=cat` in POSIX shells, or set `$env:GIT_PAGER = 'cat'` or `$env:GH_PAGER = 'cat'` in PowerShell 5.1 and `pwsh`.
 
 ## Bounded search truncation
 

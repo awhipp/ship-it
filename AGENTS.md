@@ -48,7 +48,7 @@ When auditing or refactoring `skills/ship-it/` (for example via `/skill-judge` o
 
 - **Core workflow preservation**: Keep `ship-it`'s five phases, three boundaries, first-match routing table, zero-assumption verification, two-tier isolation (`isolation.md`), two-axis review, annotated pull requests, and GitHub-native state intact unless explicitly directed otherwise.
 - **Writing standard**: Author all skill, reference, and `README.md` edits per `skills/ship-it/references/writing.md` without scripts or word counters.
-- **Cross-platform shell & `gh` efficiency**: Preserve PowerShell 5.1 quoting (`"@me"`, inner-double-quote-free `--jq '...'`), `--body-file` temp cleanup, bounded `gh` queries (`--limit 100`, `--force`), and search-first codebase exploration.
+- **Cross-platform shell & `gh` efficiency**: Preserve PowerShell 5.1 quoting (`"@me"`, inner-double-quote-free `--jq '...'`), `--body-file` temp cleanup, bounded `gh` queries (`--limit 100`, `--force`), and search-first codebase exploration. Also preserve explicit-path search targets (`rg`, `grep`, `find`), non-stdin execution (`< /dev/null` or `$null | <cmd>`), and non-pager `git` or `gh` flags and environment variables.
 - **Circuit-breaker & routing parity**: Keep circuit breakers consistent across `SKILL.md` Rows 5–7, 9, 11, and 12, and keep `README.md` concise and synchronized with `skills/ship-it/`.
 - **Frontmatter gating**: Retain `disable-model-invocation: true` and avoid `<` or `>` characters in `SKILL.md` YAML frontmatter.
 
