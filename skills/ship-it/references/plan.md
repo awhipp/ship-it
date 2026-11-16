@@ -4,6 +4,11 @@ Chart a map when setup selects mapping before specification.
 The map tracks open architectural and scope questions and resolves them one decision ticket at a time.
 Planning produces settled decisions, not product code.
 
+| Role | Scope | Skip |
+| :--- | :--- | :--- |
+| `conductor` | [## The map](#the-map) through [### Resolving (map is open)](#resolving-map-is-open) (steps 1–6) | [#### Subagent execution](#subagent-execution) |
+| `decide` | [## Ticket types](#ticket-types), [#### Subagent execution](#subagent-execution) | [## The map](#the-map), [## Fog of war](#fog-of-war), [### Charting (no map exists)](#charting-no-map-exists), steps 1–6 of [### Resolving (map is open)](#resolving-map-is-open) |
+
 ## The map
 
 The map is a GitHub issue titled `[<slug>] Map: <destination gist>` with the `ship-it:map` label. Keep `## Notes` and `## Decisions so far` to concise single-sentence bullets:
@@ -59,6 +64,7 @@ Link issues by title in user-facing messages rather than bare issue numbers.
 State questions that have a clear phrasing right now as decision tickets, even when blocked by earlier tickets.
 Place questions that depend on open decisions under `## Not yet specified` until resolving an earlier ticket clears the fog.
 Work outside the destination belongs under `## Out of scope` and never becomes a ticket.
+Reserve decision tickets for open architectural, scope, or user-preference forks. Settle trivial implementation choices (such as local naming or formatting) during specification or implementation instead of creating decision tickets.
 
 ## Process
 
@@ -76,10 +82,18 @@ Work outside the destination belongs under `## Out of scope` and never becomes a
 1. Read the map body once via `gh issue view <map-number> --json body --jq .body`. Evaluate decision tickets directly from the batch query payload obtained during state querying in `SKILL.md § 2`, keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`.
 2. Select the lowest-numbered open decision ticket whose blockers are all closed, checking open decision tickets in ascending number order against the closed set.
 3. Claim the ticket (`gh issue edit <n> --add-assignee "@me"`).
-4. Resolve the ticket per its type and [isolation.md](isolation.md):
-   - Dispatch `research`, `prototype`, and `task` tickets per `isolation.md`. The subagent closes the ticket (`gh issue close <n> --comment "<settled decision and rationale>"`) and returns `done`. When blocked on user input, the subagent leaves the ticket open and returns `questions`.
-   - Run `grilling` tickets in the conductor, asking one question per turn until settled, then close the ticket (`gh issue close <n> --comment "<settled decision and rationale>"`).
+4. Resolve the ticket by its type:
+   - **`research`, `prototype`, or `task`**: Dispatch a `decide` subagent per [isolation.md](isolation.md).
+   - **`grilling`**: Run in the conductor, asking one question per turn until settled. Close the ticket with `--comment` for single-line settlements, or post multi-line findings via `gh issue comment <n> --body-file <file>`, delete the temporary file immediately, and run `gh issue close <n>`.
 5. Once the ticket closes, update the map body (`gh issue edit <map-number> --body-file <file>`), deleting the temporary file immediately:
    - Append a self-contained single-sentence decision summary and issue link under `## Decisions so far`.
    - Graduate newly specifiable items from `## Not yet specified` into new decision tickets, and move ruled-out items to `## Out of scope`. When no open decision tickets remain, graduate or rule out every remaining item under `## Not yet specified` before proceeding.
 6. While open decision tickets remain, return to `SKILL.md` § 2 (`Query state`) to resolve the next decision ticket. When none remain, close the map (`gh issue close <map-number> --comment "<summary>"`) and halt at Boundary 1 exit.
+
+#### Subagent execution
+
+Execute `research`, `prototype`, and `task` tickets in a `decide` subagent per [## Ticket types](#ticket-types):
+
+- **Single-line settlement**: Close the ticket (`gh issue close <n> --comment "<settled decision and rationale>"`) and return `done` with `Evidence: None`.
+- **Multi-line findings**: Post findings via `gh issue comment <n> --body-file <file>`, delete the temporary file immediately, close the ticket (`gh issue close <n>`), and return `done` with `Evidence: <comment-url>`.
+- **Blocked on user input**: Leave the ticket open and return `questions`.

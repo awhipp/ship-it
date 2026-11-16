@@ -14,16 +14,16 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 | :--- | :--- | :--- |
 | Chart map, resolve grilling ticket | [plan.md](plan.md) | Conductor (needs the user) |
 | Draft spec, remediate spec | [spec.md](spec.md) | Conductor (needs the user) |
-| Remediate ticket set | [tickets.md](tickets.md#remediation) | Conductor (needs the user) |
-| Resolve research, prototype, or task ticket | [plan.md](plan.md#ticket-types) | Subagent: `decide` |
+| Remediate ticket set | [tickets.md#remediation](tickets.md#remediation) | Conductor (needs the user) |
+| Resolve research, prototype, or task ticket | [plan.md#ticket-types](plan.md#ticket-types), [plan.md#subagent-execution](plan.md#subagent-execution) | Subagent: `decide` |
 | Slice tickets | [tickets.md](tickets.md) | Subagent: `slice` |
-| Prepare bug | [tickets.md](tickets.md#bug-preparation) | Subagent: `prepare-bug` |
-| Implement ticket | [implement.md](implement.md) | Subagent: `implement` |
-| Rework ticket | [implement.md](implement.md#rework) | Subagent: `rework` |
+| Prepare bug | [tickets.md#bug-preparation](tickets.md#bug-preparation) | Subagent: `prepare-bug` |
+| Implement ticket | [implement.md#process](implement.md#process) | Subagent: `implement` |
+| Rework ticket | [implement.md#rework](implement.md#rework) | Subagent: `rework` |
 | Validate spec or ticket set | [validate.md](validate.md) | Subagent: `validate` |
 | Review ticket | [review.md](review.md) | Subagent: `review` |
-| Final review | [review.md](review.md#final-review) | Subagent: `final-review` |
-| Close out | [implement.md](implement.md#close-out) | Subagent: `close-out` |
+| Final review | [review.md#final-review](review.md#final-review) | Subagent: `final-review` |
+| Close out | [implement.md#close-out](implement.md#close-out) (`Mode: initial`), [implement.md#synchronization](implement.md#synchronization) (`Mode: sync`) | Subagent: `close-out` |
 
 ## Tier 1: dispatch packet
 
@@ -40,7 +40,7 @@ Pass only these fields to the subagent:
 - **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
 
 Never pass conversation history, summaries of user intent, or opinions.
-Forbid subagents from loading `skills/ship-it/SKILL.md`, running routing queries, or spawning subagents.
+Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents.
 Every requirement a subagent needs lives in the issues.
 A subagent that finds a requirement missing returns the missing requirement as a question.
 

@@ -12,11 +12,12 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 | **4. Affirmative Phrasing** | State what to do directly. Avoid double negatives and negative constructions when an affirmative instruction exists. | *Good*: Retain existing comments (*not* do not fail to avoid deleting existing comments). |
 | **5. High Scannability** | Structure text with bulleted lists, bold lead-ins, short paragraphs, and clear tables. Keep paragraphs under four sentences. | Use bulleted lists for multi-item sequences. |
 | **6. Controlled Vocabulary** | Use one consistent term per concept across all files. State explicit antecedents instead of bare pronouns like "this" or "it". | *Good*: The ticket defines acceptance criteria (*not* It defines them). |
-| **7. Single Source of Truth** | State each requirement, contract, or decision once in its canonical section. Reference parent sections from child artifacts instead of restating parent content. | *Good*: Implement the retry policy in Spec § Implementation Decisions (*not* restating the full retry contract in the ticket). |
+| **7. Single Source of Truth** | State each requirement, contract, or decision once in its canonical section. Reference parent sections from child `ship-it` artifacts instead of restating parent content. | *Good*: Implement the retry policy in Spec § Implementation Decisions (*not* restating the full retry contract in the ticket). |
 
 ## Application Across Artifacts
 
 Apply these seven rules across all `ship-it` documentation, maps, specs, tickets, validation reports, and reviews.
+Scope Rule 7 cross-referencing to `ship-it` GitHub artifacts, commit subjects (`(#<ticket>)`), and pull request descriptions, closing lists, and file annotations rather than durable source files.
 Evaluate clarity and brevity qualitatively through direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics.
 
 ## Universal Testing Standards
@@ -30,6 +31,12 @@ Organize tests by domain, module, or feature seam (such as `tests/auth.test.ts`)
 ### Ad-hoc test harness prohibition
 
 Never invent test runners or string-matching scripts to simulate coverage for non-code changes.
+
+### Transient-reference prohibition
+
+Omit `Spec § ...` citations, ticket identifiers, and `#<n>` issue references from product code, tests, code comments, and docstrings.
+Follow local repository rules when `CONTRIBUTING.md`, style guides, or repository conventions explicitly require issue references in comments or tests.
+Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)`), pull request descriptions, closing lists, and pull request `**Traces to**:` annotations retain required traceability.
 
 ## Cross-platform shell conventions
 

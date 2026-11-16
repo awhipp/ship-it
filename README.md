@@ -51,9 +51,11 @@ Starting from an existing issue (`/ship-it #<n>`) prompts the user to adopt the 
 
 ## How it works
 
-`ship-it` guides feature development through five phases across three execution boundaries.
-The conductor dispatches discrete tasks to isolated subagents or fresh sessions.
-Work runs continuously within each boundary and halts at the boundary exit for human review.
+`ship-it` guides feature delivery through five phases across three execution boundaries.
+The conductor routes GitHub state and dispatches role-scoped tasks to isolated subagents or fresh sessions.
+
+Work runs continuously within each boundary and pauses at the boundary exit for human review.
+Circuit Breakers halt repeated validation failures, review loops, or blocker deadlocks for user direction.
 
 Run `ship-it <slug>` to approve Boundary 1 or Boundary 2 and advance to the next boundary.
 Merge the pull request to approve Boundary 3 and complete the feature.
@@ -80,14 +82,14 @@ Merge the pull request to approve Boundary 3 and complete the feature.
 
 ## Core guarantees
 
-- **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub issues, labels, and assignees, enforcing bounded validation and review loops.
+- **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub queries, comments, and session state, enforcing Circuit Breakers for validation, review, and deadlock limits.
 - **Explicit Directives Only**: Invoking `ship-it` without a slug, issue number, idea, `preflight` (`init`), or `version` (`--version`, `-v`) halts immediately instead of scanning or guessing.
 - **Zero-Assumption Verification**: Evaluators conduct read-only audits classifying findings as **Blocker**, **Warning**, or **Question** without in-place edits, matching audit altitude to artifact scope and withholding approval on unwritten facts.
-- **Two-Tier Context Isolation**: A single conductor dispatches execution-capable leaf subagents with fresh, unforked context in Tier 1 per [`isolation.md`](skills/ship-it/references/isolation.md), falling back to Tier 2 for session-forking harnesses.
+- **Two-Tier Context Isolation**: A single conductor dispatches role-scoped leaf subagents with fresh, unforked context in Tier 1 per [`isolation.md`](skills/ship-it/references/isolation.md), falling back to Tier 2 fresh-session handoffs for session-forking harnesses.
 - **Two-Axis Review and Final Audit**: Reviewers audit each ticket diff across Standards and Spec axes from a recorded or derived `Fixed point: <sha>`, followed by a full-branch final review against the specification.
 - **Annotated Pull Requests**: The `close-out` subagent posts a file-level comment on every changed file tracing the change to its ticket and specification section.
-- **Pragmatic, Domain-Aligned Verification**: Implementation verifies behavior using existing repository test runners or direct checks while prohibiting ticket-named test files and ad-hoc string-matching test scripts.
-- **Search-First Context Efficiency**: Conductor and subagent passes use bounded GitHub queries, one-level reference loading, and targeted symbol search to stay fast on large codebases.
+- **Pragmatic, Domain-Aligned Verification**: Implementation verifies behavior using existing test runners or direct checks while prohibiting ticket-named files, ad-hoc test scripts, and transient issue or spec citations in product code.
+- **Search-First Context Efficiency**: Conductor and subagent passes use bounded GitHub queries, role-scoped reference loading, and targeted symbol search to stay fast across repositories.
 
 ---
 

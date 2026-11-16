@@ -8,6 +8,11 @@ Review a diff along two independent axes, reported side by side:
 A diff can follow standards yet build the wrong behavior, or build the right behavior badly.
 Evaluating each axis separately keeps strength on one axis from masking defects on the other.
 
+| Role | Scope | Skip |
+| :--- | :--- | :--- |
+| `review` (`Mode: ticket`) | `Ticket review` in [## Modes](#modes), [## Process](#process) through [## Report](#report), [## Ticket review outcomes](#ticket-review-outcomes) | `Final review` in [## Modes](#modes), [## Final review](#final-review) |
+| `final-review` (`Mode: final`) | `Final review` in [## Modes](#modes), [## Process](#process) through [## Report](#report), [## Final review](#final-review) | `Ticket review` in [## Modes](#modes), [## Ticket review outcomes](#ticket-review-outcomes) |
+
 ## Modes
 
 | Mode | Fixed point | Requirements |
@@ -42,13 +47,14 @@ Scale audit depth to the ticket's complexity tier:
 
 ### Standards when the repository has none
 
-Flag duplicated logic, unclear names, unused abstractions, primitive obsession, and changes scattered across many files.
+Flag duplicated logic, unclear names, unused abstractions, and scattered changes.
 
 ### Ship-it standards for every diff
 
 - **Ticket-named artifacts**: Files named after issue numbers break the [ticket-naming prohibition](writing.md#ticket-naming-prohibition).
 - **Ad-hoc test harnesses**: Scripts simulating coverage for non-code changes break the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
-- **Unclear prose**: Documentation that breaks [writing.md](writing.md).
+- **Unclear prose**: Documentation in `skills/ship-it/` or `ship-it` artifacts that breaks [writing.md](writing.md) is a Blocker. Classify prose polish in other repository files as a Nit unless local style guides require more.
+- **Transient references**: `Spec § ...` citations, ticket identifiers, or `#<n>` issue references in product code, tests, comments, or docstrings break the [transient-reference prohibition](writing.md#transient-reference-prohibition). Classify violations as Blocker findings unless local standards loaded in step 3 require them.
 
 ## Zero-assumption rule
 
@@ -90,7 +96,7 @@ Post the report on the ticket, or on the spec for a final review:
 - **Populated subsections**: Render only subsections that contain findings (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`). Omit empty subsections and `- None` placeholders.
 - **Clean pass**: When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, the `**Audited**:` proof-of-work line, any truncation note, and `**Verdict**: Approved`.
 - **Truncation notice**: When the closed-ticket query in final review returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a report note inside `## Review: Final`. Keep the four-line return block in [isolation.md](isolation.md) unchanged.
-- **Exact verdict line**: Format the `**Verdict**:` line verbatim. The conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Loop Guard Reset` comment to enforce the retry limit.
+- **Exact verdict line**: Format the `**Verdict**:` line verbatim. The conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Circuit Breaker Reset` comment to enforce the retry limit.
 
 ## Ticket review outcomes
 
