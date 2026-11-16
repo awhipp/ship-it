@@ -90,7 +90,7 @@ Post the report on the ticket, or on the spec for a final review:
 - **Populated subsections**: Render only subsections that contain findings (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`). Omit empty subsections and `- None` placeholders.
 - **Clean pass**: When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, the `**Audited**:` proof-of-work line, any truncation note, and `**Verdict**: Approved`.
 - **Truncation notice**: When the closed-ticket query in final review returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a report note inside `## Review: Final`. Keep the four-line return block in [isolation.md](isolation.md) unchanged.
-- **Exact verdict line**: Format the `**Verdict**:` line verbatim. The conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Loop Guard Reset` comment to enforce the retry limit.
+- **Exact verdict line**: Format the `**Verdict**:` line verbatim. The conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Circuit Breaker Reset` comment to enforce the retry limit.
 
 ## Ticket review outcomes
 

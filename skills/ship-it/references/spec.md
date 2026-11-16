@@ -68,10 +68,10 @@ List explicitly excluded capabilities.
 When validation applies `ship-it:changes-requested` to the specification:
 
 Conductors update the spec body directly via surgical edits without posting issue comments.
-Conductors must never post comments or author `## Answers` or `## Loop Guard Reset` headings during autonomous blocker resolutions or deferrals of slice-local questions.
+Conductors must never post comments or author `## Answers` or `## Circuit Breaker Reset` headings during autonomous blocker resolutions or deferrals of slice-local questions.
 
 1. **Read the report**: Inspect the latest validation report via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
-2. **Resolve cited Blockers**: Fold settled decisions from `## Answers` and `## Loop Guard Reset` comments into the spec body.
+2. **Resolve cited Blockers**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into the spec body.
    Append any remaining slice-local `Clarifying Questions` from the report directly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` via surgical edit without prompting the user or posting a comment per `SKILL.md` § 4 (`Dispatch and verdicts`).
    Conductors may opportunistically fold advisory warnings into spec bodies while editing for blockers or while folding settled decisions.
    Warnings never trigger independent remediation passes or revalidation loops.

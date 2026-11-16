@@ -117,13 +117,13 @@ Maintain compatibility across GitHub repository tiers with dual-channel relation
 When ticket-set validation applies `ship-it:changes-requested` to the spec:
 
 1. **Read the report**: Inspect the latest validation report comment on the spec via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
-2. **Update the tickets**: Fold settled decisions from `## Answers` and `## Loop Guard Reset` comments into ticket bodies.
+2. **Update the tickets**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into ticket bodies.
    Conductors may opportunistically fold advisory warnings into ticket bodies while editing for blockers or while folding settled decisions.
    Warnings never trigger independent remediation passes or revalidation loops.
 
    Conductors resolve every Blocker in open ticket bodies via surgical body edits (`gh issue edit <n> --body-file <file>`, deleting each temporary file immediately):
    - Update ticket bodies directly without posting issue comments.
-   - Never author `## Answers` or `## Loop Guard Reset` comments during autonomous blocker resolutions.
+   - Never author `## Answers` or `## Circuit Breaker Reset` comments during autonomous blocker resolutions.
    - Correct the root cause, reproduction seam, or acceptance criteria on bug tickets, or update low-level design, create missing slices, and close redundant slices on feature tickets.
    - Obtain user approval when changes alter scope.
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets.
