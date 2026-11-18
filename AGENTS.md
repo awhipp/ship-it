@@ -5,19 +5,11 @@ Keep repository-specific release rules inside `AGENTS.md` so the files under `sk
 
 ## Version Manifest
 
-`skills/ship-it/version.json` serves as the canonical version manifest for the `ship-it` skill.
-
-```json
-{
-  "version": "0.22.0",
-  "released": "2026-11-03",
-  "minGhVersion": "2.94.0"
-}
-```
+[`skills/ship-it/version.json`](skills/ship-it/version.json) serves as the canonical version manifest for the `ship-it` skill.
 
 - **`version`**: Semantic version (`MAJOR.MINOR.PATCH`) of the skill.
 - **`released`**: Release date in `YYYY-MM-DD` format.
-- **`minGhVersion`**: Minimum required version of the GitHub CLI (`gh`).
+- **`minGhVersion`**: Minimum required version of the GitHub CLI (`gh`), synchronized with the `compatibility` field in [`skills/ship-it/SKILL.md`](skills/ship-it/SKILL.md) YAML frontmatter and the prerequisites line in [`README.md`](README.md).
 
 ## SemVer Bump Rules
 
@@ -44,21 +36,23 @@ Exclude changes exclusively outside `skills/ship-it/` (such as root `README.md`,
 
 ## Skill Maintenance Invariants
 
-When auditing or refactoring `skills/ship-it/` (for example via `/skill-judge` or `/skill-creator`), preserve these repository-specific invariants:
+When auditing or refactoring `skills/ship-it/` (for example via `/skill-judge` or `/skill-creator`), review settled audit decisions in [`docs/audit-decisions.md`](docs/audit-decisions.md) before reopening resolved questions, and preserve these repository-specific invariants:
 
 - **Core workflow preservation**: Keep `ship-it`'s five phases, three boundaries, first-match routing table, zero-assumption verification, two-tier isolation (`isolation.md`), two-axis review, annotated pull requests, and GitHub-native state intact unless explicitly directed otherwise.
 - **Writing standard**: Author all skill, reference, and `README.md` edits per `skills/ship-it/references/writing.md` without scripts or word counters.
-- **Cross-platform shell & `gh` efficiency**: Preserve PowerShell 5.1 quoting (`"@me"`, inner-double-quote-free `--jq '...'`), `--body-file` temp cleanup, bounded `gh` queries (`--limit 100`, `--force`), and search-first codebase exploration. Also preserve explicit-path search targets (`rg`, `grep`, `find`), non-stdin execution (`< /dev/null` or `$null | <cmd>`), and non-pager `git` or `gh` flags and environment variables.
-- **Circuit-breaker & routing parity**: Keep circuit breakers consistent across `SKILL.md` Rows 5–7, 9, 11, and 12, and keep `README.md` concise and synchronized with `skills/ship-it/`.
-- **Frontmatter gating**: Retain `disable-model-invocation: true` and avoid `<` or `>` characters in `SKILL.md` YAML frontmatter.
+- **Reference layout**: Maintain the 15 role-scoped reference files under `skills/ship-it/references/` (`plan.md`, `spec.md`, `tickets.md`, `bug-prep.md`, `validate-spec.md`, `validate-tickets.md`, `implement.md`, `rework.md`, `close-out.md`, `review-core.md`, `review-ticket.md`, `review-final.md`, `isolation.md`, `writing.md`, and `preflight.md`) without `Role / Scope / Skip` tables.
+- **Cross-platform shell & `gh` efficiency**: Preserve PowerShell 5.1 quoting (`"@me"`), trivial quote-free `--jq` selectors with in-agent filtering and counting, `--body-file` temp cleanup, bounded `gh` queries (`--limit 100`, `--force`), and search-first codebase exploration. Also preserve explicit-path search targets (`rg`, `grep`, `find`), non-stdin execution (`< /dev/null` or `$null | <cmd>`), and non-pager `git` or `gh` flags and environment variables.
+- **Circuit-breaker & routing parity**: Enforce one shared circuit-breaker rule and four-column table in `SKILL.md` across Rows 5–7, 9, 11, and 12. Keep `README.md` linked to `skills/ship-it/SKILL.md` instead of restating phase internals, synchronizing `SKILL.md` § 1 directive forms and `minGhVersion`.
+- **Frontmatter gating**: Retain `disable-model-invocation: true` (a Claude Code extension outside the `agentskills.io` specification), retain the manual-only sentence in `SKILL.md`'s `description` as the portable manual-invocation guarantee across harnesses, and avoid `<` or `>` characters in `SKILL.md` YAML frontmatter.
 
 ## Post-PR Skill Evaluation
 
-Pull requests that modify files inside `skills/ship-it/` undergo an advisory `skill-judge` evaluation after close-out completes.
+Pull requests that apply a minor or major SemVer bump in `skills/ship-it/version.json` undergo an advisory `skill-judge` evaluation after close-out completes.
+Skip the evaluation for patch bumps unless requested on demand.
 
 ### Advisory Trigger and Gate Isolation
 
-- **Modified skill trigger**: Run an advisory `skill-judge` evaluation on modified `skills/ship-it/` files strictly after creating the pull request and posting close-out annotations.
+- **Minor or major bump trigger**: Run an advisory `skill-judge` evaluation on modified `skills/ship-it/` files strictly after creating the pull request and posting close-out annotations when the pull request applies a minor or major SemVer bump in `skills/ship-it/version.json` (or on demand for patch bumps).
 - **Gate isolation**: Execute the `skill-judge` check outside the `final-review` gate of `ship-it`.
 - **Boundary preservation**: Preserve `skills/ship-it/references/isolation.md` and exit behavior at `Boundary 3`.
 

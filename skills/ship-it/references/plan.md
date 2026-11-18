@@ -4,11 +4,6 @@ Chart a map when setup selects mapping before specification.
 The map tracks open architectural and scope questions and resolves them one decision ticket at a time.
 Planning produces settled decisions, not product code.
 
-| Role | Scope | Skip |
-| :--- | :--- | :--- |
-| `conductor` | [## The map](#the-map) through [### Resolving (map is open)](#resolving-map-is-open) (steps 1–6) | [#### Subagent execution](#subagent-execution) |
-| `decide` | [## Ticket types](#ticket-types), [#### Subagent execution](#subagent-execution) | [## The map](#the-map), [## Fog of war](#fog-of-war), [### Charting (no map exists)](#charting-no-map-exists), steps 1–6 of [### Resolving (map is open)](#resolving-map-is-open) |
-
 ## The map
 
 The map is a GitHub issue titled `[<slug>] Map: <destination gist>` with the `ship-it:map` label. Keep `## Notes` and `## Decisions so far` to concise single-sentence bullets:

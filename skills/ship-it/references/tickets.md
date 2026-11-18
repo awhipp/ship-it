@@ -4,12 +4,6 @@ Break a validated specification into vertical tracer-bullet tickets that serve a
 Each ticket provides concrete implementation details for its slice so the implementer faces zero design ambiguity.
 Every feature produces at least one ticket.
 
-| Role | Scope | Skip |
-| :--- | :--- | :--- |
-| `slice` | [## Process](#process) through [## Relationships](#relationships) | [## Remediation](#remediation), [## Bug preparation](#bug-preparation) |
-| Remediate ticket set (conductor) | [## Remediation](#remediation) | [## Process](#process) through [## Relationships](#relationships), [## Bug preparation](#bug-preparation) |
-| `prepare-bug` | [## Bug preparation](#bug-preparation) | [## Process](#process) through [## Ticket template](#ticket-template), [## Remediation](#remediation) |
-
 ## Process
 
 ### 1. Read the spec and explore the codebase
@@ -122,7 +116,7 @@ Maintain compatibility across GitHub repository tiers with dual-channel relation
 
 When ticket-set validation applies `ship-it:changes-requested` to the spec:
 
-1. **Read the report**: Inspect the latest validation report comment on the spec via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
+1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[].body]'` and select the latest `## Validation: Ticket set` report in-agent.
 2. **Update the tickets**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into ticket bodies.
    Conductors may opportunistically fold advisory warnings into ticket bodies while editing for blockers or while folding settled decisions.
    Warnings never trigger independent remediation passes or revalidation loops.
@@ -135,43 +129,3 @@ When ticket-set validation applies `ship-it:changes-requested` to the spec:
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets.
 4. **Remove label**: Clear `ship-it:changes-requested` from the spec (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 9 (ticket-set validation).
-
-## Bug preparation
-
-The conductor dispatches `prepare-bug` to inspect open `ship-it:bug` issues lacking `ship-it:ticket`.
-The subagent diagnoses the root cause, defines a reproduction seam, and formats the bug ticket for execution without re-slicing the feature.
-File bug issues as `[<slug>] <gist>` with the `ship-it:bug` label so routing discovers the issues.
-
-### Preparation process
-
-1. **Investigate active code**: Read the bug issue body and parent spec body via `gh issue view <n> --json body --jq .body` without reading comments. Fetch `origin/<default-branch>` (and `origin/<branch>` when present on `origin`), check out `<branch>` when present or `origin/<default-branch>` otherwise, and locate the defect mechanism using targeted symbol and path searches rather than full-repository scans. When unwritten product facts block diagnosis, post the questions on the bug issue (`gh issue comment <n> --body-file <file>`, deleting the temporary file immediately) and return `questions` without adding `ship-it:ticket`.
-2. **Establish reproduction seam**: Identify or verify a targeted test or CLI command that fails reliably before code changes. Discard any temporary workspace edits after verification so the working tree stays clean.
-3. **Persist bug ticket**: Write the formatted bug ticket body (following the template below, including `Part of #<spec-id>`) to a temporary file. Update the issue and apply `ship-it:ticket` (`gh issue edit <n> --body-file <file> --add-label "ship-it:ticket"`), then delete the temporary file immediately. Retain `ship-it:bug` to preserve defect provenance.
-4. **Link parent spec**: Attempt native parent linking (`gh issue edit <n> --parent <spec-id>`), ignoring errors on unsupported tiers per [Relationships](#relationships). Fresh-context validation runs next in Row 9 of the routing table.
-5. **Handoff**: Return `done` with `Evidence: None`.
-
-### Bug ticket template
-
-```markdown
-Part of #<spec-id>
-
-## Complexity
-
-<level> - <Single-sentence rationale justifying the chosen level based on scope, touched layers, and reasoning depth.>
-
-## Root cause
-
-<mechanism>
-
-## Reproduction seam
-
-<test or CLI command failing before fix>
-
-## Acceptance criteria
-
-- [ ] <Single-sentence imperative verification or edge-case check adhering to writing.md>
-
-## Blocked by
-
-None (can start immediately).
-```

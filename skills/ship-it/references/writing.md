@@ -18,7 +18,8 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 
 Apply these seven rules across all `ship-it` documentation, maps, specs, tickets, validation reports, and reviews.
 Scope Rule 7 cross-referencing to `ship-it` GitHub artifacts, commit subjects (`(#<ticket>)`), and pull request descriptions, closing lists, and file annotations rather than durable source files.
-Evaluate clarity and brevity qualitatively through direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics.
+
+Evaluate clarity and brevity qualitatively through direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics. Mechanical word counters optimize for arbitrary metrics instead of reader clarity and waste tool turns.
 
 ## Universal Testing Standards
 
@@ -44,7 +45,7 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
 - **UTF-8 file persistence**: Write UTF-8 files without BOM using native file-writing tools or `[IO.File]::WriteAllText($path, $text, [System.Text.UTF8Encoding]::new($false))` so PowerShell 5.1 passes valid UTF-8 rather than UTF-16LE to `gh --body-file`.
 - **Surgical body edits**: Fetch the raw issue body (`gh issue view <n> --json body --jq .body`) to a temporary file, and edit only the target section with a file-editing tool so remaining sections and `- [ ]` tasklists stay intact. Inspect the diff with `git diff --no-index`. Apply the update via `gh issue edit <n> --body-file <path>`, then delete the temporary file.
 - **Diff exit codes**: Treat exit code `1` from `git diff --no-index` as differences detected rather than command failure.
-- **Quote-free `--jq` filters**: Build `--jq '...'` strings using bare-identifier object keys (`index(({Validation:1}|keys[])) == 3`) and `implode` (`[58,32] | implode`) instead of inner double quotes. Windows PowerShell 5.1 strips unescaped inner `"` when spawning native processes, while `pwsh` 7 and POSIX shells reject `\"`.
+- **Trivial quote-free `--jq` filters**: Restrict `--jq '...'` expressions to field selection and prefix slicing (such as `.body`, `[.comments[].body]`, or `[.comments[].body[:120]]`) without inner string literals, object-key tricks, or character-code constructions. Filter comment headings and verdict lines in-agent. Windows PowerShell 5.1 strips unescaped inner `"` when spawning native processes, while `pwsh` 7 and POSIX shells reject `\"`.
 - **PowerShell special characters**: Quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
 - **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.
 - **Explicit-path search**: Supply an explicit file or directory path in every `rg`, `grep`, or `find` search (`rg -n "pattern" skills/ship-it/` or `grep -rn "pattern" .`) so searches target paths rather than standard input. Reserve pathless `grep` or `rg` exclusively for upstream pipeline filters (`<cmd> | grep -q ...`). On Windows, unpathed `find` invokes `find.exe` against standard input.
