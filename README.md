@@ -60,13 +60,13 @@ Circuit Breakers halt repeated validation failures, review loops, or blocker dea
 Run `ship-it <slug>` to approve Boundary 1 or Boundary 2 and advance to the next boundary.
 Merge the pull request to approve Boundary 3 and complete the feature.
 
-| Boundary | Phase | What happens | Phase exit / Boundary halt | Reference |
-| :--- | :--- | :--- | :--- | :--- |
-| **1. Mapping** | **Plan** | Charts open decisions as a map and resolves research, prototype, grilling, and task tickets. | **Halt (Boundary 1 exit)**: Map closes with all decisions settled. | [`plan.md`](skills/ship-it/references/plan.md) |
-| **2. Definition** | **Spec** | Synthesizes settled decisions into a high-level design specification with cross-cutting architecture and test seams, then evaluates the draft in read-only validation against the codebase. | **Continues to Tickets** once the spec carries `ship-it:validated`. | [`spec.md`](skills/ship-it/references/spec.md), [`validate.md`](skills/ship-it/references/validate.md) |
-| **2. Definition** | **Tickets** | Slices the specification and deferred items into ordered low-level design tickets with concrete touchpoints and contracts, then evaluates the set in read-only validation against the spec and codebase. | **Halt (Boundary 2 exit)**: Every ticket carries `ship-it:validated`. | [`tickets.md`](skills/ship-it/references/tickets.md), [`validate.md`](skills/ship-it/references/validate.md) |
-| **3. Execution** | **Implement & Review** | Implements each unblocked ticket on `<type>/<slug>`, reviews diffs across Standards and Spec axes, and closes approved tickets. | **Continues to Final Review** once all tickets close. | [`implement.md`](skills/ship-it/references/implement.md), [`review.md`](skills/ship-it/references/review.md) |
-| **3. Execution** | **Final Review & PR** | Audits the complete branch diff against the specification, opens the pull request, and adds rationale comments to each changed file. Prepares, validates, fixes, reviews, and synchronizes addendum bugs filed as `[<slug>] <gist>` with `ship-it:bug`. | **Halt (Boundary 3 exit)**: PR opens and awaits human merge. | [`review.md`](skills/ship-it/references/review.md#final-review), [`implement.md`](skills/ship-it/references/implement.md#close-out), [`tickets.md`](skills/ship-it/references/tickets.md#bug-preparation) |
+| Boundary | Phase | Phase exit / Boundary halt | Reference |
+| :--- | :--- | :--- | :--- |
+| **1. Mapping** | **Plan** | **Halt (Boundary 1 exit)**: Map closes with all decisions settled. | [`SKILL.md`](skills/ship-it/SKILL.md) |
+| **2. Definition** | **Spec** | **Continues to Tickets** once the spec carries `ship-it:validated`. | [`SKILL.md`](skills/ship-it/SKILL.md) |
+| **2. Definition** | **Tickets** | **Halt (Boundary 2 exit)**: Every ticket carries `ship-it:validated`. | [`SKILL.md`](skills/ship-it/SKILL.md) |
+| **3. Execution** | **Implement & Review** | **Continues to Final Review** once all tickets close. | [`SKILL.md`](skills/ship-it/SKILL.md) |
+| **3. Execution** | **Final Review & PR** | **Halt (Boundary 3 exit)**: PR opens and awaits human merge. | [`SKILL.md`](skills/ship-it/SKILL.md) |
 
 ### Map vs. Spec
 

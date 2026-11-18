@@ -10,8 +10,8 @@ Run this checklist only in two situations:
 
 Run every check before reporting findings so the user sees all issues at once:
 
-0. **Skill version**: Read `version.json` in the skill directory to report the installed version and release date. Query the latest upstream release with `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. On network or API failure, report local version details and continue the checklist.
-1. **`gh` version**: Run `gh --version`. Require version `2.94.0` or later for native sub-issue and dependency flags (`--parent`, `--blocked-by`, and JSON fields `subIssues`, `blockedBy`).
+0. **Skill version**: Read `version.json` in the skill directory to report the installed `version`, `released` date, and `minGhVersion`. Query the latest upstream release with `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. On network or API failure, report local version details and continue the checklist.
+1. **`gh` version**: Run `gh --version`. Require `gh` at or above the `minGhVersion` value read from `version.json` in Check 0 for native sub-issue and dependency flags (`--parent`, `--blocked-by`, and JSON fields `subIssues`, `blockedBy`).
 2. **GitHub remote**: Run `git remote -v` and confirm a `github.com` remote exists.
 3. **Authentication**: Run `gh auth status` and confirm an active login.
 4. **Writable issues**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`. Confirm `hasIssuesEnabled` is `true` and `viewerPermission` is `WRITE`, `MAINTAIN`, or `ADMIN`.
@@ -26,14 +26,14 @@ Apply at most one type label per issue, plus any applicable status and provenanc
 | `ship-it:map` | type | Feature map ([plan.md](plan.md)) |
 | `ship-it:spec` | type | Feature specification ([spec.md](spec.md)) |
 | `ship-it:ticket` | type | Build ticket ([tickets.md](tickets.md)) |
-| `ship-it:bug` | provenance | Addendum defect ticket ([tickets.md](tickets.md#bug-preparation)) |
+| `ship-it:bug` | provenance | Addendum defect ticket ([bug-prep.md](bug-prep.md)) |
 | `ship-it:research` | type | Research decision ticket ([plan.md](plan.md)) |
 | `ship-it:prototype` | type | Prototype decision ticket ([plan.md](plan.md)) |
 | `ship-it:grilling` | type | Grilling decision ticket ([plan.md](plan.md)) |
 | `ship-it:task` | type | Task decision ticket ([plan.md](plan.md)) |
-| `ship-it:validated` | status | Spec or ticket that passed validation ([validate.md](validate.md)) |
-| `ship-it:reviewed` | status | Ticket diff or full feature PR diff that passed review ([review.md](review.md)) |
-| `ship-it:changes-requested` | status | Spec or ticket with unresolved Blockers ([validate.md](validate.md), [review.md](review.md)) |
+| `ship-it:validated` | status | Spec or ticket that passed validation ([validate-spec.md](validate-spec.md), [validate-tickets.md](validate-tickets.md)) |
+| `ship-it:reviewed` | status | Ticket diff or full feature PR diff that passed review ([review-ticket.md](review-ticket.md), [review-final.md](review-final.md)) |
+| `ship-it:changes-requested` | status | Spec or ticket with unresolved Blockers ([validate-spec.md](validate-spec.md), [validate-tickets.md](validate-tickets.md), [review-ticket.md](review-ticket.md), [review-final.md](review-final.md)) |
 
 Create or update labels with these idempotent commands:
 

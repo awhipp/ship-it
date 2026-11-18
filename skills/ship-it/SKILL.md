@@ -69,21 +69,27 @@ gh pr list --head "<branch>" --state all --json number,state,url
 - **Branch name**: Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body --jq .body`. Retain that branch name across routing passes.
 - **Pull requests**: Run the pull request query only once a spec exists. A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`. Evaluate multiple pull requests for the branch in priority order: `MERGED` > `OPEN` > `CLOSED`.
 - **Closing references**: When Rows 1–13 miss, an `OPEN` pull request exists, and a closed issue bears both `ship-it:bug` and `ship-it:ticket` with `stateReason` `COMPLETED`, query closing references via `gh pr view <pr> --json closingIssuesReferences --jq '[.closingIssuesReferences[].number]'` to compute `unsynced_completed_bugs`.
-- **Query errors**: Treat any failed query as an environment error and run [preflight.md](references/preflight.md). Never interpret a failed query as "no artifacts".
+- **Query errors**: Treat any failed query as an environment error and run [preflight.md](references/preflight.md). Never interpret a failed query as "no artifacts". An authentication, network, or permission failure would otherwise match Row 1 or Row 4 and create duplicate maps or specs.
 
 ## Reference index
 
-Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file for the active step. Do NOT load non-active reference files until their row matches.
+Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file(s) for the active step. Do NOT load non-active reference files until their row matches. Leaving non-active reference files unloaded keeps the conductor's context lean and prevents rules for other phases from bleeding into the active step.
 
 | File | Read the file when |
 | :--- | :--- |
 | [isolation.md](references/isolation.md) | Running any action |
 | [plan.md](references/plan.md) | Rows 1 and 2 (map) |
 | [spec.md](references/spec.md) | Rows 1, 4, and 5 |
-| [tickets.md](references/tickets.md) | Rows 6, 8, and 10, and blocker checks |
-| [validate.md](references/validate.md) | Rows 7 and 9 |
-| [implement.md](references/implement.md) | Rows 11, 13, and 14 (implementation, rework, close-out, and synchronization) |
-| [review.md](references/review.md) | Rows 11 and 12 (ticket review and final review) |
+| [validate-spec.md](references/validate-spec.md) | Row 7 (spec validation) |
+| [tickets.md](references/tickets.md) | Rows 6 and 8, and Row 11 blocker checks |
+| [bug-prep.md](references/bug-prep.md) | Row 10 (bug preparation) |
+| [validate-tickets.md](references/validate-tickets.md) | Row 9 (ticket-set validation) |
+| [implement.md](references/implement.md) | Row 11 Steps 4 (zero handoffs) and 5 (implementation) |
+| [rework.md](references/rework.md) | Row 11 Step 3 (ticket rework) |
+| [review-core.md](references/review-core.md) | Row 11 Step 4 and Row 12 (shared two-axis review passes and report template) |
+| [review-ticket.md](references/review-ticket.md) | Row 11 Step 4 (ticket review, loaded with [review-core.md](references/review-core.md)) |
+| [review-final.md](references/review-final.md) | Row 12 (final review, loaded with [review-core.md](references/review-core.md)) |
+| [close-out.md](references/close-out.md) | Rows 13 and 14 (initial close-out and bug synchronization) |
 | [preflight.md](references/preflight.md) | `ship-it preflight` or `ship-it init`, or a `gh` command fails |
 | [writing.md](references/writing.md) | Writing any artifact |
 
@@ -91,25 +97,27 @@ Load only [isolation.md](references/isolation.md), [writing.md](references/writi
 
 Execute a continuous **Query → Route → Act** loop.
 Complete the matched action, then follow the row's **Transition** column.
-Each row's **Source** column classifies its condition and dispatch inputs as `Query` (§ 2 `gh` queries), `Derived` (§ 2 predicates and fallback body reads), `Comments` (on-demand comment queries), or `Session` (in-session choices, confirmations, or `## Circuit Breaker Reset` context).
 
-| # | State | Action | Source | Transition |
-| :-- | :--- | :--- | :--- | :--- |
-| 1 | No map and no spec | Chart the map ([plan.md](references/plan.md)) or draft and publish the spec ([spec.md](references/spec.md)), per the setup choice. | Condition: `Query`; Dispatch: `Session` | Query state and route again (hits row 2 when charting a map, or row 7 when publishing a spec directly). |
-| 2 | Map is open | Resolve the next decision ticket ([plan.md](references/plan.md)). When none remain, close the map. | Condition: `Query`; Dispatch: `Query` | While open decision tickets remain: query state and route again. When the map closes: **halt (Boundary 1 exit)**. |
-| 3 | Spec is closed, or a pull request for the branch is `MERGED` | Close the spec when open (`gh issue close <spec> --comment "Merged in <pr-url>"`), then report the feature complete. | Condition: `Query`; Dispatch: `Query` | **Stop.** |
-| 4 | No spec | Draft and publish the spec ([spec.md](references/spec.md)). | Condition: `Query`; Dispatch: `Query` | Query state and route again (hits row 7). |
-| 5 | Spec has `ship-it:changes-requested` and `ticket_set` is empty | Remediate the spec through direct body updates without posting issue comments ([spec.md](references/spec.md#remediation)), enforcing the circuit breaker (below). | Condition: `Query`, `Derived` (`ticket_set`); Dispatch: `Query`, `Comments`, `Session` | At three or more retries: **halt** for user guidance. Otherwise: query state and route again (hits row 7). |
-| 6 | Spec has `ship-it:changes-requested` and `ticket_set` is non-empty | Remediate `ticket_set` through direct body updates without posting issue comments ([tickets.md](references/tickets.md#remediation)), enforcing the circuit breaker (below). | Condition: `Query`, `Derived` (`ticket_set`); Dispatch: `Derived` (`ticket_set`), `Comments`, `Session` | At three or more retries: **halt** for user guidance. Otherwise: query state and route again (hits row 9). |
-| 7 | Spec lacks `ship-it:validated` | Validate the spec ([validate.md](references/validate.md)), enforcing the circuit breaker (below) when re-entering after a non-approved pass. | Condition: `Query`; Dispatch: `Query`, `Comments`, `Session` | At three or more retries: **halt** for user guidance. Otherwise: query state and route again (hits row 8 on pass, row 5 on blockers, or row 7 after handling questions) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
-| 8 | `ticket_set` is empty | Slice tickets ([tickets.md](references/tickets.md)). | Condition: `Derived` (`ticket_set`); Dispatch: `Query` | Query state and route again (hits row 9). |
-| 9 | An open issue in `ticket_set` lacks `ship-it:validated` and `unprepared_bugs` is empty | Validate `ticket_set` ([validate.md](references/validate.md)), enforcing the circuit breaker (below) when re-entering after a non-approved pass. | Condition: `Query`, `Derived` (`ticket_set`, `unprepared_bugs`); Dispatch: `Derived` (`ticket_set`), `Comments`, `Session` | At three or more retries: **halt** for user guidance. On `approved`: **halt (Boundary 2 exit)** when no open ticket has `ship-it:bug`, or **halt** for approval of the bug tickets when an open ticket has `ship-it:bug`. Otherwise: query state and route again (hits row 6 on blockers, or row 9 after handling questions) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
-| 10 | `unprepared_bugs` is non-empty | Prepare the lowest-numbered issue in `unprepared_bugs` ([tickets.md](references/tickets.md#bug-preparation)). | Condition: `Derived` (`unprepared_bugs`); Dispatch: `Derived` (`unprepared_bugs`) | Query state and route again (hits row 10 when `unprepared_bugs` remains non-empty, or row 9). |
-| 11 | An open issue exists in `ticket_set` | Work `frontier_ticket` (below). | Condition: `Query`, `Derived` (`ticket_set`); Dispatch: `Derived` (`frontier_ticket`), `Query`, `Comments`, `Session` | Query state and route again after each frontier step. |
-| 12 | Spec lacks `ship-it:reviewed` | Run the final review ([review.md](references/review.md#final-review)), enforcing the circuit breaker (below) when re-entering after a non-approved pass. | Condition: `Query`; Dispatch: `Query`, `Comments`, `Session` | At three or more retries: **halt** for user guidance. On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets. Otherwise: query state and route again (hits row 12 after handling questions) (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)). |
-| 13 | No pull request exists for the branch | Close out in initial mode ([implement.md](references/implement.md#close-out)). | Condition: `Query`; Dispatch: `Query` | **Halt (Boundary 3 exit).** |
-| 14 | An `OPEN` pull request exists and `unsynced_completed_bugs` is non-empty | Close out in sync mode for the lowest-numbered issue in `unsynced_completed_bugs` ([implement.md](references/implement.md#synchronization)). | Condition: `Query`, `Derived` (`unsynced_completed_bugs`); Dispatch: `Derived` (`unsynced_completed_bugs`), `Query` | Query state and route again (hits row 14 when `unsynced_completed_bugs` remains non-empty, or row 15). |
-| 15 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and prompt the user to reopen it. On confirmation, run `gh pr reopen <pr>` and query state and route again. When declined, report the feature abandoned and stop. | Condition: `Query`; Dispatch: `Query`, `Session` | Query state and route again on reopen (hits row 15 in `OPEN` state); otherwise **stop**. |
+| # | State | Action | Transition |
+| :-- | :--- | :--- | :--- |
+| 1 | No map and no spec | Chart the map ([plan.md](references/plan.md)) or draft and publish the spec ([spec.md](references/spec.md)), per the setup choice. | Query state and route again (hits row 2 when charting a map, or row 7 when publishing a spec directly). |
+| 2 | Map is open | Resolve the next decision ticket ([plan.md](references/plan.md)). When none remain, close the map. | While open decision tickets remain: query state and route again. When the map closes: **halt (Boundary 1 exit)**. |
+| 3 | Spec is closed, or a pull request for the branch is `MERGED` | Close the spec when open (`gh issue close <spec> --comment "Merged in <pr-url>"`), then report the feature complete. | **Stop.** |
+| 4 | No spec | Draft and publish the spec ([spec.md](references/spec.md)). | Query state and route again (hits row 7). |
+| 5 | Spec has `ship-it:changes-requested` and `ticket_set` is empty | Remediate the spec through direct body updates without posting issue comments ([spec.md](references/spec.md#remediation)), enforcing the circuit breaker (below). | Query state and route again (hits row 7). |
+| 6 | Spec has `ship-it:changes-requested` and `ticket_set` is non-empty | Remediate `ticket_set` through direct body updates without posting issue comments ([tickets.md](references/tickets.md#remediation)), enforcing the circuit breaker (below). | Query state and route again (hits row 9). |
+| 7 | Spec lacks `ship-it:validated` | Validate the spec ([validate-spec.md](references/validate-spec.md)), enforcing the circuit breaker (below). | Query state and route again (hits row 8 on pass, row 5 on blockers, or row 7 after handling questions). |
+| 8 | `ticket_set` is empty | Slice tickets ([tickets.md](references/tickets.md)). | Query state and route again (hits row 9). |
+| 9 | An open issue in `ticket_set` lacks `ship-it:validated` and `unprepared_bugs` is empty | Validate `ticket_set` ([validate-tickets.md](references/validate-tickets.md)), enforcing the circuit breaker (below). | On `approved`: **halt (Boundary 2 exit)** when no open ticket has `ship-it:bug`, or **halt** for approval of the bug tickets when an open ticket has `ship-it:bug`. Otherwise: query state and route again (hits row 6 on blockers, or row 9 after handling questions). |
+| 10 | `unprepared_bugs` is non-empty | Prepare the lowest-numbered issue in `unprepared_bugs` ([bug-prep.md](references/bug-prep.md)). | Query state and route again (hits row 10 when `unprepared_bugs` remains non-empty, or row 9). |
+| 11 | An open issue exists in `ticket_set` | Work `frontier_ticket` (below). | Query state and route again after each frontier step. |
+| 12 | Spec lacks `ship-it:reviewed` | Run the final review ([review-final.md](references/review-final.md), [review-core.md](references/review-core.md)), enforcing the circuit breaker (below). | On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets. Otherwise: query state and route again (hits row 12 after handling questions). |
+| 13 | No pull request exists for the branch | Close out in initial mode ([close-out.md](references/close-out.md#initial-close-out)). | **Halt (Boundary 3 exit).** |
+| 14 | An `OPEN` pull request exists and `unsynced_completed_bugs` is non-empty | Close out in sync mode for the lowest-numbered issue in `unsynced_completed_bugs` ([close-out.md](references/close-out.md#synchronization)). | Query state and route again (hits row 14 when `unsynced_completed_bugs` remains non-empty, or row 15). |
+| 15 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and prompt the user to reopen it. On confirmation, run `gh pr reopen <pr>` and query state and route again. When declined, report the feature abandoned and stop. | Query state and route again on reopen (hits row 15 in `OPEN` state); otherwise **stop**. |
+
+- **On-demand comment reads**: Rows 5–7, 9, 11, and 12 read issue comments on demand for circuit-breaker checks, handoff counts, and remediation reports.
+- **Tier 2 fresh-session halts**: In Tier 2, Rows 7, 9, 11 (Step 4), and 12 halt for a fresh session per [isolation.md](references/isolation.md) whenever validation or review is not the session's first action.
 
 **Bug tickets after final review**: Bug tickets prepared after the final review receive ticket review only. Merging the pull request is the final gate.
 
@@ -121,36 +129,34 @@ Apply the first matching step:
 
 1. No open ticket is unblocked: report each open ticket with its open blockers and **halt**.
 2. Has `ship-it:reviewed`: close the ticket (`gh issue close <n> --comment "<summary>"`), then query state and route again.
-3. Has `ship-it:changes-requested`: enforce the `Review` circuit breaker (below) before dispatching rework. Below three retries, dispatch rework, then query state and route again.
-4. Has an assignee: count handoff comments via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Handoff:1}|keys[])) == 3)] | length'`. When the count is at least one, enforce the `Review` circuit breaker (below) when re-entering after a non-approved review or rework pass; below three retries, dispatch review (Tier 2: halt for fresh session per [isolation.md](references/isolation.md)), then query state and route again. When the handoff count is zero, re-dispatch implementation, then query state and route again.
-5. Otherwise: claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation, then query state and route again.
+3. Has `ship-it:changes-requested`: enforce the `Review` circuit breaker (below) before dispatching rework ([rework.md](references/rework.md)), then query state and route again.
+4. Has an assignee: fetch comment prefixes via `gh issue view <n> --json comments --jq '[.comments[].body[:120]]'` and count array elements starting with `## Handoff` in-agent. When the count is at least one, enforce the `Review` circuit breaker (below) before dispatching review ([review-ticket.md](references/review-ticket.md), [review-core.md](references/review-core.md)), then query state and route again. When the handoff count is zero, re-dispatch implementation ([implement.md](references/implement.md)), then query state and route again.
+5. Otherwise: claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation ([implement.md](references/implement.md)), then query state and route again.
 
-**Circuit Breaker queries**: Rows 5–7, 9, 11 (Steps 3 and 4), and 12 enforce the three-retry limit with one shared query skeleton:
+**Circuit Breaker protocol**: Rows 5–7, 9, 11 (Steps 3 and 4), and 12 enforce the three-retry limit with one shared query:
 
 ```shell
-gh issue view <issue> --json comments --jq '[.comments[].body] | ([to_entries[] | select(.value | index(({Circuit:1}|keys[])) == 3 and index(({Breaker:1}|keys[])) == 11 and index(({Reset:1}|keys[])) == 19) | .key] | last) as $rst | (if $rst == null then . else .[($rst + 1):] end) | (([42,42]|implode) + ({Verdict:1}|keys[]) + ([42,42,58,32]|implode)) as $v | [.[] | select(<heading-filter> and any(split(([10]|implode))[]; startswith($v + ({Changes:1}|keys[]) + ([32]|implode) + ({requested:1}|keys[])) or startswith($v + ({Questions:1}|keys[]) + ([32]|implode) + ({pending:1}|keys[]))))] | length'
+gh issue view <issue> --json comments --jq '[.comments[].body[:120]]'
 ```
 
 Comments bearing `## Circuit Breaker Reset` originate solely from user replies.
-Enforce the active breaker in sequence:
+Enforce the active breaker in sequence before running the row or step action:
 
-- **Skip check**: Skip the query when the breaker's skip rules apply.
-- **Count check**: Otherwise run the query above with the breaker's `<issue>` and `<heading-filter>`.
+- **Count check**: Run the query above on the breaker's **Verdict issue** (reusing the array already fetched in Row 11 Step 4 when checking `Review` there). In-agent, find the last array element starting with `## Circuit Breaker Reset`, inspect only elements after that index (or all elements when no reset exists), and count elements starting with the breaker's **Report heading** whose verdict line is `**Verdict**: Changes requested` or `**Verdict**: Questions pending`.
 - **Threshold halt**: At three or more non-approved reports (`>= 3`), halt before executing the step or row action. Tell the user in plain language which circuit breaker tripped (`Review`, `Validation`, or `Final review`), which issue (`<issue>`) holds the verdict count, and that only the user's reply posts `## Circuit Breaker Reset` on `<issue>` to reset that breaker. Ask the user for guidance using an interactive question tool when available, or in plain text before ending the turn.
-- **Reset and fold**: Post the user's reply as a `## Circuit Breaker Reset` comment on `<issue>`. Fold settled guidance into the breaker's folding target, then query state and route again.
+- **Reset and fold**: Post the user's reply as a `## Circuit Breaker Reset` comment on `<issue>`. Fold settled guidance into the breaker's **Guidance-folding target**, then query state and route again.
 
-| Breaker | Target issue | Heading filter | Skip rules | Guidance-folding target |
-| :--- | :--- | :--- | :--- | :--- |
-| **Review** (Row 11, Steps 3–4) | `<n>` | `index(({Review:1}|keys[])) == 3` | Initial review right after Step 5, or in-session `## Circuit Breaker Reset` before a subsequent non-approved report | Ticket body (and spec body when shared contracts change) via surgical edit |
-| **Validation** (Rows 5–7 and 9) | `<spec>` | `index(({Validation:1}|keys[])) == 3 and index(({<phase>:1}|keys[])) == 15` (`Spec` for Rows 5 and 7; `Ticket` for Rows 6 and 9) | Initial entry right after Row 1, 4, or 8, right after clearing Row 5 or Row 6, or in-session `## Circuit Breaker Reset` before a subsequent non-approved report | Spec body or open ticket bodies via surgical edit |
-| **Final review** (Row 12) | `<spec>` | `index(({Review:1}|keys[])) == 3 and index(({Final:1}|keys[])) == 11` | First `Final review` entry when zero `## Review: Final` comments exist on `<spec>`, or after an in-session `## Circuit Breaker Reset` before a subsequent non-approved report | Spec body via surgical edit, or pass to `final-review` subagent to update acceptance criteria on fix tickets |
+| Breaker | Verdict issue | Report heading | Guidance-folding target |
+| :--- | :--- | :--- | :--- |
+| **Review** (Row 11, Steps 3–4) | `<n>` | `## Review: Ticket` | Ticket body (and spec body when shared contracts change) via surgical edit |
+| **Validation** (Rows 5–7 and 9) | `<spec>` | `## Validation: Spec` (Rows 5 and 7) or `## Validation: Ticket set` (Rows 6 and 9) | Spec body or open ticket bodies via surgical edit |
+| **Final review** (Row 12) | `<spec>` | `## Review: Final` | Spec body via surgical edit, or pass to `final-review` subagent to update acceptance criteria on fix tickets |
 
 ## 4. Dispatch and verdicts
 
-Run every action per [isolation.md](references/isolation.md).
+Run every action per [isolation.md](references/isolation.md) (including the subagent dispatch packet and prohibitions in [Tier 1: dispatch packet](references/isolation.md#tier-1-dispatch-packet)).
 Dispatch at most one leaf subagent at a time.
 Await the subagent's four-line return block before resuming the routing loop.
-Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents.
 
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
