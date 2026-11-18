@@ -3,21 +3,14 @@
 Build exactly what one ticket describes.
 The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) are the only requirements.
 
-| Role | Scope | Skip |
-| :--- | :--- | :--- |
-| `implement` | [## Process](#process) ([### 1. Branch and fixed point](#1-branch-and-fixed-point) through [### 5. Commit, push, and hand off](#5-commit-push-and-hand-off)) | [## Rework](#rework), [## Close-out](#close-out) |
-| `rework` | [## Rework](#rework) | [### 1. Branch and fixed point](#1-branch-and-fixed-point) through [### 4. Ask instead of guessing](#4-ask-instead-of-guessing), [## Close-out](#close-out) |
-| `close-out` (`Mode: initial`) | [## Close-out](#close-out) (steps 1–3) | [## Process](#process), [## Rework](#rework), [### Synchronization](#synchronization) |
-| `close-out` (`Mode: sync`) | [### Synchronization](#synchronization) | [## Process](#process), [## Rework](#rework), steps 1–3 of [## Close-out](#close-out) |
-
 ## Process
 
 ### 1. Branch and fixed point
 
 1. Read the branch name from the spec's `## Source` (`<type>/<slug>`).
 2. Fetch the target refs (`git fetch origin <default-branch>` and `git fetch origin <branch>` when the branch exists on `origin`). Check out the branch when it exists on `origin`; otherwise create the branch from `origin/<default-branch>` and push the branch with `git push -u origin <branch>`.
-3. Check for an existing `Fixed point:` comment via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Fixed:1}|keys[])) == 0 and index(({point:1}|keys[])) == 6)] | last // empty'`. When no `Fixed point:` comment exists, post the comment before the first change on a best-effort basis: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`. Proceed with implementation when an enterprise policy blocks the comment, as ticket-tagged commits (`(#<ticket>)`) allow review to derive the fixed point from Git history.
-4. Fold settled decisions before modifying code. Query `## Answers` and `## Circuit Breaker Reset` comments via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Answers:1}|keys[])) == 3 or (index(({Circuit:1}|keys[])) == 3 and index(({Breaker:1}|keys[])) == 11 and index(({Reset:1}|keys[])) == 19))] | last // empty'`. Fold settled decisions into the ticket body via surgical body edit. When a decision alters a shared contract in the spec, update both the ticket body and the spec body.
+3. Fetch the ticket comments once via `gh issue view <n> --json comments --jq '[.comments[].body]'`, and check the returned array in-agent for an existing `Fixed point:` comment. When no `Fixed point:` comment exists, post the comment before the first change on a best-effort basis: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`. Proceed with implementation when an enterprise policy blocks the comment, as ticket-tagged commits (`(#<ticket>)`) allow review to derive the fixed point from Git history.
+4. Inspect the comment array fetched in step 3 in-agent for the latest `## Answers` or `## Circuit Breaker Reset` comment, and fold settled decisions into the ticket body via surgical body edit before modifying code. When a decision alters a shared contract in the spec, update both the ticket body and the spec body.
 
 ### 2. Verify
 
@@ -48,6 +41,7 @@ Sweep for negative invariants (such as "no callers of the old API remain") and t
 ### 4. Ask instead of guessing
 
 Never edit or reinterpret acceptance criteria, low-level design contracts, root causes, or reproduction seams.
+Silent contract edits bypass validation and hide design drift from review.
 When the ticket's low-level design, root cause, reproduction seam, or acceptance criteria conflict with active code or leave a design decision unwritten:
 
 1. Post the question on the ticket.
@@ -72,7 +66,7 @@ When the ticket's low-level design, root cause, reproduction seam, or acceptance
 
 When the ticket carries `ship-it:changes-requested`:
 
-1. Read the latest review report (plus any subsequent `## Answers` or `## Circuit Breaker Reset` comments posted after that review) on the ticket via `gh issue view <n> --json comments --jq '[.comments[].body | select(index(({Review:1}|keys[])) == 3 or index(({Answers:1}|keys[])) == 3 or (index(({Circuit:1}|keys[])) == 3 and index(({Breaker:1}|keys[])) == 11 and index(({Reset:1}|keys[])) == 19))] | if length == 0 then empty else .[([to_entries[] | select(.value | index(({Review:1}|keys[])) == 3) | .key] | last // 0):][] end'`. Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` into the ticket body (and spec body when shared contracts change) via surgical body edit before modifying code.
+1. Read the latest review report (plus any subsequent `## Answers` or `## Circuit Breaker Reset` comments posted after that review) on the ticket via `gh issue view <n> --json comments --jq '[.comments[].body]'`, filtering the returned array in-agent for the latest `## Review:` comment and any `## Answers` or `## Circuit Breaker Reset` comments after that index. Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` into the ticket body (and spec body when shared contracts change) via surgical body edit before modifying code.
 2. Fix every Blocker, and add a test or direct check for each fix.
 3. Commit and push per step 5. Keep the existing fixed point.
 4. Write a `## Rework` comment explaining the fix and verification evidence for each Blocker to a temporary file, post the comment (`gh issue comment <n> --body-file <file>`), and delete the temporary file.
