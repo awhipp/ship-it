@@ -5,11 +5,6 @@ The specification provides cross-cutting architectural context that guides every
 This phase is synthesis, not an open-ended interview.
 When a point remains unsettled, ask the user directly instead of guessing.
 
-| Role | Scope | Skip |
-| :--- | :--- | :--- |
-| Draft spec (conductor) | [## Process](#process), [## Spec template](#spec-template) | [## Remediation](#remediation) |
-| Remediate spec (conductor) | [## Remediation](#remediation) | [## Process](#process), [## Spec template](#spec-template) |
-
 ## Process
 
 1. **Gather settled context**: When a map exists for the feature, read the full map body via `gh issue view <map-number> --json body --jq .body` without `--comments`. When sourced from an issue (`ship-it #<n>`), read the source issue body via `gh issue view <n> --json body --jq .body`. Otherwise, read the verbatim directive text from setup.
@@ -75,7 +70,7 @@ When validation applies `ship-it:changes-requested` to the specification:
 Conductors update the spec body directly via surgical edits without posting issue comments.
 Conductors must never post comments or author `## Answers` or `## Circuit Breaker Reset` headings during autonomous blocker resolutions or deferrals of slice-local questions.
 
-1. **Read the report**: Inspect the latest validation report via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
+1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[].body]'` and select the latest `## Validation: Spec` report in-agent.
 2. **Resolve cited Blockers**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into the spec body.
    Append any remaining slice-local `Clarifying Questions` from the report directly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` via surgical edit without prompting the user or posting a comment per `SKILL.md` § 4 (`Dispatch and verdicts`).
    Conductors may opportunistically fold advisory warnings into spec bodies while editing for blockers or while folding settled decisions.

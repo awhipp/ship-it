@@ -4,12 +4,6 @@ Break a validated specification into vertical tracer-bullet tickets that serve a
 Each ticket provides concrete implementation details for its slice so the implementer faces zero design ambiguity.
 Every feature produces at least one ticket.
 
-| Role | Scope | Skip |
-| :--- | :--- | :--- |
-| `slice` | [## Process](#process) through [## Relationships](#relationships) | [## Remediation](#remediation), [## Bug preparation](#bug-preparation) |
-| Remediate ticket set (conductor) | [## Remediation](#remediation) | [## Process](#process) through [## Relationships](#relationships), [## Bug preparation](#bug-preparation) |
-| `prepare-bug` | [## Bug preparation](#bug-preparation) | [## Process](#process) through [## Ticket template](#ticket-template), [## Remediation](#remediation) |
-
 ## Process
 
 ### 1. Read the spec and explore the codebase
@@ -122,7 +116,7 @@ Maintain compatibility across GitHub repository tiers with dual-channel relation
 
 When ticket-set validation applies `ship-it:changes-requested` to the spec:
 
-1. **Read the report**: Inspect the latest validation report comment on the spec via `gh issue view <spec-number> --json comments --jq '[.comments[].body | select(index(({Validation:1}|keys[])) == 3)] | last // empty'`.
+1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[].body]'` and select the latest `## Validation: Ticket set` report in-agent.
 2. **Update the tickets**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into ticket bodies.
    Conductors may opportunistically fold advisory warnings into ticket bodies while editing for blockers or while folding settled decisions.
    Warnings never trigger independent remediation passes or revalidation loops.
