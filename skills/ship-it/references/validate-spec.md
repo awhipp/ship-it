@@ -19,7 +19,10 @@ Ground every check in these inputs:
 - **Deferred items**: Exempt `- **Deferred to slicing**:` entries under `## Implementation Decisions` from `Clarifying Questions` and design-gap Blockers. Raise a Blocker only when a deferred entry directly contradicts stated requirements, settled map decisions, or active code.
 - **Architectural choice escalation**: When an unwritten choice at spec altitude has an unambiguous active-code default that does not conflict with stated requirements or settled decisions, record an advisory Warning naming the inherited default and permit `**Verdict**: Validated`. Reserve withholding `Clarifying Questions` for open spec-altitude choices lacking an unambiguous default or conflicting with stated requirements or settled decisions. Reserve slice-local questions for ticket-set validation or `- **Deferred to slicing**:`.
 - **Single-outcome gaps**: Reserve Blocker for factual drift against active code, contradictions with stated requirements or settled decisions, or single-outcome cross-component gaps at spec altitude where requirements and code dictate one resolution. Omit slice-local gaps or record them only as advisory Warnings, reserving slice-local gaps for ticket-set validation or `- **Deferred to slicing**:`.
-- **Monotonic re-validation (pass 2+)**: Trigger monotonic rules whenever the comment query returns at least one prior `## Validation: Spec` report. Never re-raise items settled via `## Answers`, `## Circuit Breaker Reset`, or spec edits. Also skip `- **Deferred to slicing**:` entries and previously passing items. Restrict new Blockers and `Clarifying Questions` on pass 2 and later to unresolved prior findings, claims added or edited since the prior `## Validation: Spec` report, or concrete factual regressions and contradictions. Record belated non-regression notes on untouched prose at most as advisory Warnings.
+- **Monotonic re-validation (pass 2+)**: Trigger monotonic rules whenever the comment query returns at least one prior `## Validation: Spec` report.
+   - **Excluded items**: Never re-raise `- **Deferred to slicing**:` entries, previously passing items, or items settled via `## Answers`, `## Circuit Breaker Reset`, or spec edits.
+   - **Allowed Blockers and Questions**: Restrict new Blockers and `Clarifying Questions` on pass 2 and later to unresolved prior findings, claims added or edited since the prior `## Validation: Spec` report, or concrete factual regressions and contradictions.
+   - **Untouched prose**: Record belated non-regression notes on untouched prose at most as advisory Warnings.
 - **Zero inference**: Never infer intent, rationalize the author's choice, or edit the spec. Report unambiguous active-code defaults explicitly as advisory Warnings instead of filling gaps silently.
 - **Source fidelity**: Verify that the spec honors every requirement and settled decision in the source issue or map body without contradiction.
 
@@ -61,10 +64,10 @@ When findings exist, post the report on the **spec** (`gh issue comment <spec> -
 - **Q-1** [<section>]: <question>
 ```
 
-Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
-Never output `- None` placeholder subsections.
-Specify `**Verdict**: Validated` for warning-only reports.
-When reporting an active-code default as a Warning, name the inherited default in the corresponding `W-<n>` bullet.
+- **Populated subsections**: Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
+- **Placeholder omission**: Omit `- None` placeholder subsections.
+- **Warning-only verdict**: Specify `**Verdict**: Validated` for warning-only reports.
+- **Inherited defaults**: When reporting an active-code default as a Warning, name the inherited default in the corresponding `W-<n>` bullet.
 
 ## Outcomes
 
