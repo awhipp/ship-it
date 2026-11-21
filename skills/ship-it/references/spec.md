@@ -10,7 +10,10 @@ When a point remains unsettled, ask the user directly instead of guessing.
 1. **Gather settled context**: When a map exists for the feature, read the full map body via `gh issue view <map-number> --json body --jq .body` without `--comments`. When sourced from an issue (`ship-it #<n>`), read the source issue body via `gh issue view <n> --json body --jq .body`. Otherwise, read the verbatim directive text from setup.
 2. **Explore the codebase**: Ground the specification in active code using targeted symbol and path searches rather than full-repository directory scans. Read relevant interface and module sections to identify affected modules, shared contracts, data models, and system invariants. Use the repository's vocabulary and respect existing Architecture Decision Records (ADRs).
 3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories, preferring high-level seams with minimal touchpoints. For `fix` feature types, specify `Root cause: <mechanism>` and `Reproduction seam: <test or CLI command failing before fix>`. When automated tests do not apply, define direct checks rather than custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
-4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Write concise single-contract bullet points covering cross-cutting concerns. Pause and obtain explicit user approval of the draft before creating the GitHub issue.
+4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Write concise single-contract bullet points covering cross-cutting concerns.
+   - **Keep spec altitude**: Name modules, boundaries, and shared contracts rather than internal functions, file paths, CLI flags, or commands. Exempt public interface contracts and `Reproduction seam` commands under `## Testing Decisions` on `fix` specs.
+   - **Check subsystem cohesion**: Before pausing for approval, warn the user when a draft spans unrelated subsystems lacking a shared runtime contract or joint acceptance path. Suggest one spec per subsystem or a tighter cross-cutting altitude. Keep that subsystem warning strictly advisory without blocking publication after user approval.
+   - **Obtain draft approval**: Pause and obtain explicit user approval of the draft before creating the GitHub issue.
 5. **Publish the spec**:
    - **Sourced from `ship-it #<n>` without a map**: Run [source-issue adoption](isolation.md#source-issue-adoption) with title `[<slug>] Spec: <gist>`, label `ship-it:spec`, and no `## Notes` bullet.
    - **Map exists or no source issue exists**: Leave `#<n>` untouched, write the spec body to a temporary payload file, create a new issue via `gh issue create`, and delete the temporary file immediately:
@@ -48,6 +51,8 @@ State each high-level contract, boundary, or rule once across the feature:
 - **Cross-cutting invariants and failure handling**: State error-handling rules, edge-case policies, backward-compatibility constraints, and system invariants.
 - **Deferred to slicing**: <detail>
 
+Name modules, boundaries, and shared contracts rather than internal functions, file paths, CLI flags, or commands.
+Exempt public interface contracts and `Reproduction seam` commands under `## Testing Decisions` on `fix` specs.
 Omit line numbers and low-level function bodies unless a prototype established a concrete schema or state machine.
 
 ## Testing Decisions
@@ -71,10 +76,10 @@ Conductors update the spec body directly via surgical edits without posting issu
 Conductors must never post comments or author `## Answers` or `## Circuit Breaker Reset` headings during autonomous blocker resolutions or deferrals of slice-local questions.
 
 1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[].body]'` and select the latest `## Validation: Spec` report in-agent.
-2. **Resolve cited Blockers**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into the spec body.
-   Append any remaining slice-local `Clarifying Questions` from the report directly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` via surgical edit without prompting the user or posting a comment per `SKILL.md` § 4 (`Dispatch and verdicts`).
-   Conductors may opportunistically fold advisory warnings into spec bodies while editing for blockers or while folding settled decisions.
-   Warnings never trigger independent remediation passes or revalidation loops.
+2. **Resolve cited Blockers**: Limit remediation edits to cited Blockers, settled cross-cutting guidance from `## Answers` or `## Circuit Breaker Reset` comments, and stray slice-local `Clarifying Questions`:
+   - **Settled guidance**: Fold cross-cutting `## Answers` and `## Circuit Breaker Reset` decisions into the spec body.
+   - **Slice-local questions**: Append slice-local `Clarifying Questions` strictly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` via surgical edit (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) without prompting the user or posting a comment per `SKILL.md` § 4 (`Dispatch and verdicts`).
+   - **Advisory warnings**: Leave advisory Warnings untouched. Warnings never trigger independent remediation passes or revalidation loops.
 
    Resolve every cited Blocker using one of four remediation paths while preserving untouched text verbatim:
    - **In-body edit**: Apply surgical edits to the spec body (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) to resolve high-level architectural gaps.
