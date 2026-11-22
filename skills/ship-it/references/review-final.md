@@ -33,7 +33,7 @@ Follow this procedure with the template below:
 
 - **Creation flags**: Create each fix ticket with title `[<slug>] Ticket: Fix <gist>`, labels `ship-it:ticket,ship-it:validated`, and `--parent <spec-id>`.
 - **Payload file**: Write the ticket body using a temporary payload file.
-- **Settled answers**: Fold final-review answers from the conductor directly into the acceptance criteria of fix tickets.
+- **Settled answers**: Carry settled guidance that the conductor folded into the spec body into the acceptance criteria of fix tickets.
 - **Blockers**: List blockers under `## Blocked by` as `- [ ] Blocked by #<blocker-id>` when blockers exist.
 - **Cleanup**: Delete the temporary `--body-file` payload after creation.
 

@@ -122,6 +122,8 @@ Complete the matched action, then follow the row's **Transition** column.
 
 **Bug tickets after final review**: Bug tickets prepared after the final review run ticket-set validation (Row 9) and ticket review (Row 11) but no repeat final review, because the spec keeps `ship-it:reviewed`. Merging the pull request is the final gate.
 
+**Fix tickets after final review**: Final review creates fix tickets already labeled `ship-it:validated`, so they skip Row 9. The user's approval at the Row 12 halt stands in for ticket-set validation, and ticket review (Row 11) plus the next final review still audit the fixes.
+
 **Frontier ticket** (`frontier_ticket` in § 2): Resolve each open ticket's blockers per [tickets.md](references/tickets.md#relationships), running `gh issue view <n> --json body --jq .body` to read its `## Blocked by` tasklist when `blockedBy` is empty.
 Apply the first matching step:
 
@@ -154,7 +156,7 @@ Enforce the active breaker in sequence before running the row or step action:
 | :--- | :--- | :--- | :--- |
 | **Review** (Row 11, Steps 3–4) | `<n>` | `## Review: Ticket` | Ticket body (and spec body when shared contracts change) via surgical edit |
 | **Validation** (Rows 5–7 and 9) | `<spec>` | `## Validation: Spec` (Rows 5 and 7) or `## Validation: Ticket set` (Rows 6 and 9) | Spec body or open ticket bodies via surgical edit |
-| **Final review** (Row 12) | `<spec>` | `## Review: Final` | Spec body via surgical edit, or pass to `final-review` subagent to update acceptance criteria on fix tickets |
+| **Final review** (Row 12) | `<spec>` | `## Review: Final` | Spec body, or open fix-ticket acceptance criteria, via surgical edit |
 
 ## 4. Dispatch and verdicts
 
