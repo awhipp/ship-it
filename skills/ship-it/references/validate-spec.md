@@ -69,6 +69,7 @@ When findings exist, post the report on the **spec** (`gh issue comment <spec> -
 - **Populated subsections**: Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
 - **Placeholder omission**: Omit `- None` placeholder subsections.
 - **Warning-only verdict**: Specify `**Verdict**: Validated` for warning-only reports.
+- **Exact verdict line**: Write the `**Verdict**:` line verbatim on line 2, directly under the heading, because the conductor's circuit breaker reads verdicts from each comment's first 120 characters.
 - **Inherited defaults**: When reporting an active-code default as a Warning, name both the inherited default and its active-code anchor (module or symbol) in the corresponding `W-<n>` bullet.
 
 ## Outcomes

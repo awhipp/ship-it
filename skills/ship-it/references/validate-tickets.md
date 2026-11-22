@@ -64,6 +64,7 @@ When findings exist, post the report on the **spec** (`gh issue comment <spec> -
 Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
 Never output `- None` placeholder subsections.
 Specify `**Verdict**: Validated` for warning-only reports.
+Write the `**Verdict**:` line verbatim on line 2, directly under the heading, because the conductor's circuit breaker reads verdicts from each comment's first 120 characters.
 
 ## Outcomes
 
