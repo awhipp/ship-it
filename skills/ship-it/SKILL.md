@@ -165,7 +165,7 @@ Dispatch at most one leaf subagent at a time.
 Await the subagent's four-line return block before resuming the routing loop.
 
 - **Conductor action completes** ([plan.md](references/plan.md), [spec.md](references/spec.md), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
-- **Subagent returns `failed`**: **Halt** and report the error, the issue, and the step.
+- **Subagent returns `failed` or no valid [return block](references/isolation.md#return-schema)**: **Halt** and report the error, the issue, and the step, so a crashed subagent never passes as a success.
 - **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`):
   - **Triage spec validation questions**: When `validate` runs with `Target: spec`, triage every question before prompting the user:
     - Append stray slice-local questions on implementation, touchpoints, or error paths strictly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` in `<spec>`.
