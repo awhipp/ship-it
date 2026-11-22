@@ -80,7 +80,7 @@ Reserve decision tickets for open architectural, scope, or user-preference forks
 ### Resolving (map is open)
 
 1. Read the map body once via `gh issue view <map-number> --json body --jq .body`. Evaluate decision tickets directly from the batch query payload obtained during state querying in `SKILL.md § 2`, keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`.
-2. Select the lowest-numbered open decision ticket whose blockers are all closed, checking open decision tickets in ascending number order against the closed set.
+2. Select the lowest-numbered open decision ticket whose blockers are all closed, checking open decision tickets in ascending number order against the closed set. When every open decision ticket is blocked, report each one with its open blockers and halt.
 3. Claim the ticket (`gh issue edit <n> --add-assignee "@me"`).
 4. Resolve the ticket by its type:
    - **`research`, `prototype`, or `task`**: Dispatch a `decide` subagent per [isolation.md](isolation.md).
