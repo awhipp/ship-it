@@ -38,7 +38,7 @@ Run no `gh` command before a directive exists.
 **New feature setup** (idea, or an issue that does not resume a slug):
 
 1. Propose a kebab-case slug and a Conventional Commits type (`feat`, `fix`, `refactor`, `docs`, `chore`, `perf`, `test`, `build`, `ci`).
-2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. Check the returned count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug when the slug is taken.
+2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. Check the returned count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return. Treat the slug as taken when any title starts with `[<slug>]` or when 100 results return, because a truncated search can hide a matching title. Propose another slug when the slug is taken.
 3. When starting from `ship-it #<n>`, capture the source issue title and issue number for in-place adoption during initial artifact publication.
 4. Ask the user to confirm the slug and type, and to choose between charting a map first and writing the spec directly.
    Recommend a map when the idea leaves a scope or architecture decision open.
@@ -48,7 +48,6 @@ When a `ship-it <slug>` directive matches no issue, report that no feature uses 
 ## 2. Query state
 
 Run these queries at the start of every routing pass, skipping the pull request query until a spec names the branch.
-Check the issue query count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return.
 Filter results matching title prefix `[<slug>]`.
 
 ```shell
@@ -56,6 +55,8 @@ gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number
 gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
+- **Truncated search**: GitHub search matches the slug's words anywhere in a title, so other features' issues count toward the 100-result limit. When the issue query returns 100 results, emit the warning in [writing.md](references/writing.md#bounded-search-truncation) and rerun the query once per type label by adding `--label "<label>"` for `ship-it:map`, `ship-it:spec`, `ship-it:ticket`, `ship-it:bug`, `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, and `ship-it:task`. Merge the rerun results, deduplicated by issue number. Halt when any rerun also returns 100, because a truncated set can hide the map or spec and recreate it.
+- **Fresh reads after writes**: GitHub search indexes new issues and label changes with a delay. On the pass after an action, re-read each issue that the action created or changed (the dispatch packet's and the returned `Issues:` numbers, plus the conductor's own writes) via `gh issue view <n> --json number,title,labels,assignees,blockedBy,state,stateReason`. Use each read in place of that issue's search entry, and add the issue when the search missed it.
 - **In-memory partition**: Partition issues into `map`, `spec`, `ticket`, and `bug` sets by label:
   - `map`: issues bearing `ship-it:map`
   - `spec`: issues bearing `ship-it:spec`
