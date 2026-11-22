@@ -104,10 +104,10 @@ Publish a new map or spec when the phase precondition applies, using four parame
 When the precondition holds, follow these steps:
 
 1. Present two interactive options:
-   - **Option 1 (Recommended)**: `Adopt source issue #<n> in place (updates title, adds artifact label, and overwrites body with the artifact template)`
+   - **Option 1 (Recommended)**: `Adopt source issue #<n> in place (updates title, adds artifact label, keeps the original body as a comment, and replaces the body with the artifact template)`
    - **Option 2**: `Create a new issue (retains original source issue #<n> untouched as external reference)`
 2. Write the artifact body to a temporary payload file per [writing.md](writing.md#cross-platform-shell-conventions).
-3. On **Option 1**, include the `## Notes` bullet when configured, then run:
+3. On **Option 1**, keep the original request before replacing the body. Write `## Original request` and the current body (`gh issue view <n> --json body --jq .body`) to a second temporary file, post it with `gh issue comment <n> --body-file <file>`, and delete that file. Skip this comment when the body is empty. Then include the `## Notes` bullet when configured, and run:
 
    ```shell
    gh issue edit <n> --title "<title>" --add-label "<type-label>" --body-file <file>
