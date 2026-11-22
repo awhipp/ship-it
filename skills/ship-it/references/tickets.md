@@ -10,6 +10,7 @@ Every feature produces at least one ticket.
 
 Read the validated spec body (`gh issue view <spec-number> --json body --jq .body`) without comment queries.
 Inspect any `- **Deferred to slicing**: <detail>` entries under `## Implementation Decisions`.
+Run `git fetch origin <default-branch>`, and inspect `origin/<default-branch>` with read-only git commands (`git --no-pager show` or `git --no-pager grep` on explicit paths) so local branches and dirty trees remain untouched.
 Use targeted symbol and path searches anchored on the specification's modules and contracts to locate the exact files, symbols, types, and test suites each slice touches.
 Read only the relevant sections of large files rather than scanning the entire repository.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
