@@ -9,11 +9,6 @@ Planning produces settled decisions, not product code.
 The map is a GitHub issue titled `[<slug>] Map: <destination gist>` with the `ship-it:map` label. Keep `## Notes` and `## Decisions so far` to concise single-sentence bullets:
 
 ```markdown
-## Source
-
-- **Request**: #<n> (<original-title>) when sourced from an issue, or verbatim "<idea>" directive text.
-- **Branch**: <type>/<slug>
-
 ## Destination
 
 <One or two sentences naming what completing this map produces: a specification ready for spec.md.>
