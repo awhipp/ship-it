@@ -24,6 +24,8 @@ Install and authenticate `git` and the GitHub CLI (`gh` 2.94.0 or later):
 gh auth status
 ```
 
+On Windows, run the skill in `pwsh` 7.4 or later. Windows PowerShell 5.1 is unsupported; install `pwsh` 7.4 or later to migrate.
+
 ### 2. Install
 
 ```bash

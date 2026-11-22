@@ -13,7 +13,7 @@ Return `failed` when the fallback procedure cannot derive a fixed point, the com
 
 ## Process
 
-1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. Fetch the ticket comments via `gh issue view <n> --json comments --jq '[.comments[].body]'`, and filter the returned array in-agent for the `Fixed point:`, `## Handoff`, and `## Rework` comments. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
+1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. Fetch the ticket comments via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Handoff") or startswith("## Rework") or startswith("Fixed point:")) | .body]'`, which returns only the `Fixed point:`, `## Handoff`, and `## Rework` comments. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
    1. Extract commit hashes from the `## Handoff` comment on the ticket. Resolve the parent of the earliest commit using `<earliest-sha>~1`.
    2. When extraction yields no commits, inspect `git log origin/<default-branch>..HEAD` for commits referencing `(#<ticket>)`. Resolve the parent of the earliest match using `<earliest-sha>~1`.
    3. When steps 1 and 2 find no matching commits, and the ticket is the first ticket on the branch, resolve `git merge-base origin/<default-branch> HEAD`.

@@ -116,7 +116,7 @@ Maintain compatibility across GitHub repository tiers with dual-channel relation
 
 When ticket-set validation applies `ship-it:changes-requested` to the spec:
 
-1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[].body]'` and select the latest `## Validation: Ticket set` report in-agent.
+1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Ticket set") or startswith("## Answers") or startswith("## Circuit Breaker Reset")) | .body]'` and select the latest `## Validation: Ticket set` report in-agent.
 2. **Update the tickets**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into ticket bodies.
    Conductors may opportunistically fold advisory warnings into ticket bodies while editing for blockers or while folding settled decisions.
    Warnings never trigger independent remediation passes or revalidation loops.

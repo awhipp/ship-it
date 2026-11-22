@@ -16,6 +16,7 @@ Run every check before reporting findings so the user sees all issues at once:
 3. **Authentication**: Run `gh auth status` and confirm an active login.
 4. **Writable issues**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`. Confirm `hasIssuesEnabled` is `true` and `viewerPermission` is `WRITE`, `MAINTAIN`, or `ADMIN`.
 5. **Labels**: Run `gh label list --search "ship-it:" --limit 100 --json name`. Inspect the returned array count and emit the warning in [writing.md](writing.md#bounded-search-truncation) when 100 labels return before checking missing labels. Verify that every label below exists, and create or update any missing labels automatically.
+6. **PowerShell session**: Read `$PSVersionTable` in the current session shell only, spawning no other shell. When `$PSVersionTable` is undefined, report nothing. When `PSEdition` is not `Core` or `PSVersion` is below 7.4, add an advisory finding that names the migration to `pwsh` 7.4 or later. This check never gates routing, and mid-run `gh` failures reach it through the existing failed-`gh`-command route.
 
 ## Label set
 

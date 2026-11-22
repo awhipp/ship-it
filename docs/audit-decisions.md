@@ -8,7 +8,7 @@ Review these records before proposing changes that reopen settled trade-offs.
 | ID | Topic | Decision | Record |
 | :--- | :--- | :--- | :--- |
 | **H1** | Behavioral routing-fixture evals | **No-go** | [H1: Behavioral routing-fixture evals](#h1-behavioral-routing-fixture-evals) |
-| **H2** | Trivial quote-free `--jq` filters | **Modified-go** | [H2: Trivial quote-free `--jq` filters](#h2-trivial-quote-free---jq-filters) |
+| **H2** | Trivial quote-free `--jq` filters | **Superseded** | [H2: Trivial quote-free `--jq` filters](#h2-trivial-quote-free---jq-filters) |
 | **H3** | Role-split reference files | **Go** | [H3: Role-split reference files](#h3-role-split-reference-files) |
 | **H4** | Unified circuit-breaker rule and table | **Modified-go** | [H4: Unified circuit-breaker rule and table](#h4-unified-circuit-breaker-rule-and-table) |
 | **M1** | Stable string row identifiers | **No-go** | [M1: Stable string row identifiers](#m1-stable-string-row-identifiers) |
@@ -36,7 +36,7 @@ Review these records before proposing changes that reopen settled trade-offs.
 
 ### H2: Trivial quote-free `--jq` filters
 
-- **Decision**: **Modified-go** ([decision record](https://github.com/awhipp/ship-it/issues/298), [shell evaluation](https://github.com/awhipp/ship-it/issues/294)).
+- **Decision**: **Superseded** ([decision record](https://github.com/awhipp/ship-it/issues/298), [shell evaluation](https://github.com/awhipp/ship-it/issues/294), [decision record](https://github.com/awhipp/ship-it/issues/343)).
 - **Rationale**: Windows PowerShell 5.1 strips unescaped inner double quotes while `pwsh` 7 and POSIX shells reject backslash or doubled quotes, so trivial quote-free selectors (`.body[:120]` and `.body`) with in-agent heading and verdict counting eliminate fragile `implode` and `|keys[]` filters without bundled scripts.
 - **Revisit condition**: Revisit only if GitHub CLI changes `--jq` argument parsing on Windows PowerShell 5.1; never adopt backslash-escaped quotes, doubled quotes, or bundled helper scripts.
 

@@ -8,7 +8,7 @@ The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) a
 ### 1. Branch and review findings
 
 1. Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out `<branch>`.
-2. Fetch the ticket comments once via `gh issue view <n> --json comments --jq '[.comments[].body]'`, and filter the returned array in-agent for the latest `## Review:` report and any subsequent `## Answers` or `## Circuit Breaker Reset` comments posted after that review.
+2. Fetch the ticket comments once via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Review:") or startswith("## Answers") or startswith("## Circuit Breaker Reset")) | .body]'`, and filter the returned array in-agent for the latest `## Review:` report and any subsequent `## Answers` or `## Circuit Breaker Reset` comments posted after that review.
 3. Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` into the ticket body (and the spec body when shared contracts change) via surgical body edit before modifying code.
 
 ### 2. Ask instead of guessing
