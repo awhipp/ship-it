@@ -33,7 +33,7 @@ Pass only these fields to the subagent:
 - **Target**: `spec` | `ticket-set`, for `validate`.
 - **Mode**: `initial` | `sync`, for `close-out`.
 - **Complexity**: `low` | `medium` | `high`.
-- **Reference**: The assigned reference file(s) to follow, plus [writing.md](writing.md). Load only the assigned reference file(s) and `writing.md`; treat links to other reference files as citations rather than files to load.
+- **Reference**: The assigned reference file(s) to follow, plus [writing.md](writing.md). Load only the assigned reference file(s) and `writing.md`; treat links to other reference files as citations rather than files to load. When an assignment names a section anchor, follow only that section of the file.
 - **Issues**: The target issue number and the parent spec or map number.
 - **Slug**: The feature slug.
 - **Default branch**: The default branch name (such as `main`), read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
