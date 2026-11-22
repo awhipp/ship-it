@@ -59,5 +59,5 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
 Check the returned item count after every `gh` query that specifies `--limit 100`.
 
 - **Threshold warning**: Emit `"Warning: Search returned 100 results; GitHub search may be truncated."` whenever the query returns 100 items.
-- **Subagent reporting**: Embed that warning inside the GitHub output of isolated subagents (`### Warnings` for `validate`, `## Review: Final` for `final-review`, or the pull request body for `close-out`).
+- **Subagent reporting**: Embed that warning inside the GitHub output of isolated subagents (`### Warnings` for `validate`, `## Review: Final` for `final-review`, or the pull request body for `close-out`). Subagents then continue, because a truncated audit list narrows coverage instead of recreating artifacts.
 - **Return block**: Preserve the four-line return block defined in [isolation.md](isolation.md).
