@@ -1,6 +1,6 @@
 # Audit Decision Log
 
-This document records the 18 user-approved decisions settled during the `skills/ship-it/` best-practice alignment audit.
+This document records the 19 user-approved decisions settled during the `skills/ship-it/` best-practice alignment audit and later `skill-judge` runs.
 Review these records before proposing changes that reopen settled trade-offs.
 
 ## Summary Table
@@ -18,6 +18,7 @@ Review these records before proposing changes that reopen settled trade-offs.
 | **M5** | Versioning and `minGhVersion` sync | **Modified-go** | [M5: Versioning and `minGhVersion` sync](#m5-versioning-and-minghversion-sync) |
 | **M6** | Post-PR `skill-judge` cadence | **Modified-go** | [M6: Post-PR `skill-judge` cadence](#m6-post-pr-skill-judge-cadence) |
 | **M7** | Static CI link and frontmatter checks | **No-go** | [M7: Static CI link and frontmatter checks](#m7-static-ci-link-and-frontmatter-checks) |
+| **M8** | Circuit-breaker prose layout | **Modified-go** | [M8: Circuit-breaker prose layout](#m8-circuit-breaker-prose-layout) |
 | **L1** | Deduplicate subagent prohibitions | **Modified-go** | [L1: Deduplicate subagent prohibitions](#l1-deduplicate-subagent-prohibitions) |
 | **L2** | Reason clauses for bare prohibitions | **Modified-go** | [L2: Reason clauses for bare prohibitions](#l2-reason-clauses-for-bare-prohibitions) |
 | **L3** | Trimmed `README.md` boundary table | **Modified-go** | [L3: Trimmed `README.md` boundary table](#l3-trimmed-readmemd-boundary-table) |
@@ -51,6 +52,7 @@ Review these records before proposing changes that reopen settled trade-offs.
 - **Decision**: **Modified-go** ([decision record](https://github.com/awhipp/ship-it/issues/301)).
 - **Rationale**: Collapsing three repeated circuit-breaker protocols into one shared counting rule, an inline trip-and-reset procedure, and one four-column lookup table in [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md) without skip rules removes six per-entry conditions without adding a separate reference file.
 - **Note**: The human-override clause at six total non-approved `## Validation: Spec` reports (Rows 5 and 7) operates inline inside [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md)'s unified circuit-breaker rule without adding a skip column or separate reference file.
+- **Note** ([PR #348](https://github.com/awhipp/ship-it/pull/348)): Resets stay unscoped, so a reset on `<spec>` restarts every breaker counted there, and the extra passes this allows stay bounded and follow a human reply. Deferral-only spec-validation passes stay counted, because excluding them would add a skip rule and unbound the validate-and-defer loop.
 - **Revisit condition**: Revisit if a new validation or review gate requires its own verdict issue or report heading in the shared lookup table.
 
 ### M1: Stable string row identifiers
@@ -94,6 +96,12 @@ Review these records before proposing changes that reopen settled trade-offs.
 - **Decision**: **No-go** ([decision record](https://github.com/awhipp/ship-it/issues/306), [tool evaluation](https://github.com/awhipp/ship-it/issues/296)).
 - **Rationale**: Tool evaluation showed `markdown-link-check` lacks anchor checking, `lychee --offline --include-fragments` is unverified locally, and `skills-ref validate` is demonstration-only and rejects `disable-model-invocation: true`, so one-time anchor verification during refactors replaces permanent CI jobs.
 - **Revisit condition**: Revisit if broken markdown links or intra-file anchors repeatedly reach `main` between structural refactors.
+
+### M8: Circuit-breaker prose layout
+
+- **Decision**: **Modified-go** ([decision record](https://github.com/awhipp/ship-it/pull/348)).
+- **Rationale**: Restating the circuit breaker in [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md) as flat single-purpose bullets states the trip condition once in `Threshold halt` and makes the spec-validation override a branch of a tripped breaker, which answers repeated `skill-judge` readability findings while keeping H4's single shared rule and four-column table. Threshold or option tables are rejected because they add a second circuit-breaker table.
+- **Revisit condition**: Revisit if a new breaker, threshold, or override option no longer fits the single trip rule.
 
 ### L1: Deduplicate subagent prohibitions
 

@@ -39,7 +39,7 @@ Flag duplicated logic, unclear names, unused abstractions, and scattered changes
 | :--- | :--- | :--- |
 | **Blocker** | The diff is wrong, incomplete, unverified, or breaks a standard. | Requests changes. |
 | **Question** | A fact needed to judge the diff is unwritten. | Withholds approval until answered. |
-| **Nit** | The diff is correct but improves with a typo or naming fix. | Fix in place, stage modified files explicitly (`git add <file>...`), commit as `<type>(<slug>): <summary> (#<ticket-or-spec>)`, and push. |
+| **Nit** | The diff is correct but improves with a typo or naming fix. | Fix in place, stage modified files explicitly (`git add <file>...`), commit as `<type>(<slug>): <summary> (#<ticket-or-spec>)` with `<type>` taken from the branch prefix before `/`, and push. |
 
 ## Report
 

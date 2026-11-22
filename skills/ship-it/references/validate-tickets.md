@@ -29,14 +29,14 @@ Ground every check in these inputs:
 - **Traceability**: Unrequested behavior, or a requirement (including all `- **Deferred to slicing**:` items from the spec body) with no coverage across open tickets and `COMPLETED` closed tickets.
 - **Verification**: Check every acceptance criterion, unhandled error, and low-level failure path across the tickets.
 - **Ticket slicing and seams**: Horizontal slices, broken intermediate states between tickets, sequencing preferences disguised as blockers, or tickets exceeding context boundaries. Audit ticket sets against qualitative granularity thresholds and the five slicing anti-patterns (`Docs-Tail`, `Config-Preamble`, `Horizontal Slice`, `Orphaned Scaffolding`, and `Micro-Refactor`). Flag trivial standalone tickets lacking executable verification seams as Blockers requiring consolidation.
-- **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, or rationales failing to justify scope, touched layers, and reasoning depth. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
+- **Complexity declarations**: Tickets assigning tiers outside `low`, `medium`, or `high`, tiers that contradict the [Complexity taxonomy](tickets.md#complexity-taxonomy), or rationales failing to justify scope, touched layers, and reasoning depth. When an open ticket omits complexity, apply the fallback default to `high` instead of recording a Blocker.
 - **Bug tickets**: Audit tickets bearing `ship-it:bug` against the bug ticket template ([bug-prep.md](bug-prep.md#bug-ticket-template)): `Part of #<spec-id>`, `## Complexity`, `## Root cause`, `## Reproduction seam`, `## Acceptance criteria`, and `## Blocked by`. Verify consistency with the parent spec, and skip low-level design, slicing, and full-spec coverage checks for bug tickets.
 
 ## Severity
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | A ticket contradicts a requirement or active code, repeats contracts with conflicting details, leaves gaps in low-level design, slice-local touchpoints, caller edge cases, or the root cause and reproduction seam of a bug ticket, uses bare pointer-only `Design deltas`, assigns a mismatched complexity tier, or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
+| **Blocker** | A ticket contradicts a requirement or active code, repeats contracts with conflicting details, leaves gaps in low-level design, slice-local touchpoints, caller edge cases, or the root cause and reproduction seam of a bug ticket, uses bare pointer-only `Design deltas`, assigns a tier that contradicts the [Complexity taxonomy](tickets.md#complexity-taxonomy), or exhibits a slicing anti-pattern. | Applies `ship-it:changes-requested`. |
 | **Warning** | Non-conflicting repetition, style improvements, or prose polish. | Advisory; applies `ship-it:validated` and permits progression without revalidation. |
 | **Question** | An unwritten choice on low-level design, slice-local touchpoints, or caller edge cases has multiple valid designs. | Withholds approval until answered. |
 
@@ -64,6 +64,7 @@ When findings exist, post the report on the **spec** (`gh issue comment <spec> -
 Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
 Never output `- None` placeholder subsections.
 Specify `**Verdict**: Validated` for warning-only reports.
+Write the `**Verdict**:` line verbatim on line 2, directly under the heading, because the conductor's circuit breaker reads verdicts from each comment's first 120 characters.
 
 ## Outcomes
 

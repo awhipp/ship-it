@@ -9,6 +9,11 @@ Planning produces settled decisions, not product code.
 The map is a GitHub issue titled `[<slug>] Map: <destination gist>` with the `ship-it:map` label. Keep `## Notes` and `## Decisions so far` to concise single-sentence bullets:
 
 ```markdown
+## Source
+
+- **Request**: #<n> (<original-title>) when sourced from an issue, or verbatim "<idea>" directive text.
+- **Branch**: <type>/<slug>
+
 ## Destination
 
 <One or two sentences naming what completing this map produces: a specification ready for spec.md.>
@@ -69,13 +74,13 @@ Reserve decision tickets for open architectural, scope, or user-preference forks
 2. Publish the map issue:
    - **Sourced from `ship-it #<n>`**: Run [source-issue adoption](isolation.md#source-issue-adoption) with title `[<slug>] Map: <gist>`, label `ship-it:map`, and `## Notes` bullet `- Adopted in place from source issue #<n> (<original-title>).`.
    - **Started without a source issue**: Write the map body to a temporary payload file, create the issue via `gh issue create --title "[<slug>] Map: <gist>" --body-file <file> --label "ship-it:map"`, and delete the temporary file immediately.
-3. Create decision tickets for every question that has a clear phrasing now. Write `Part of #<map-id>` and `## Blocked by` in the body, and pass `--parent <map-id>` and `--blocked-by <blocker-id>` when supported.
+3. Create decision tickets for every question that has a clear phrasing now. Write `Part of #<map-id>` and `## Blocked by` in the body. After each `gh issue create`, link the ticket with `gh issue edit <n> --parent <map-id> --add-blocked-by <blocker-id>`, ignoring errors on unsupported tiers.
 4. Continue straight into resolving decision tickets.
 
 ### Resolving (map is open)
 
 1. Read the map body once via `gh issue view <map-number> --json body --jq .body`. Evaluate decision tickets directly from the batch query payload obtained during state querying in `SKILL.md § 2`, keeping issues whose title starts with `[<slug>]` and whose labels include `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, or `ship-it:task`.
-2. Select the lowest-numbered open decision ticket whose blockers are all closed, checking open decision tickets in ascending number order against the closed set.
+2. Select the lowest-numbered open decision ticket whose blockers are all closed, checking open decision tickets in ascending number order against the closed set. When every open decision ticket is blocked, report each one with its open blockers and halt.
 3. Claim the ticket (`gh issue edit <n> --add-assignee "@me"`).
 4. Resolve the ticket by its type:
    - **`research`, `prototype`, or `task`**: Dispatch a `decide` subagent per [isolation.md](isolation.md).

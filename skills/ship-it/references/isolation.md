@@ -17,12 +17,12 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 | Remediate ticket set | [tickets.md#remediation](tickets.md#remediation) | Conductor (needs the user) |
 | Resolve research, prototype, or task ticket | [plan.md#ticket-types](plan.md#ticket-types), [plan.md#subagent-execution](plan.md#subagent-execution) | Subagent: `decide` |
 | Slice tickets | [tickets.md](tickets.md) | Subagent: `slice` |
-| Prepare bug | [bug-prep.md](bug-prep.md) | Subagent: `prepare-bug` |
+| Prepare bug | [bug-prep.md](bug-prep.md), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `prepare-bug` |
 | Implement ticket | [implement.md](implement.md) | Subagent: `implement` |
 | Rework ticket | [rework.md](rework.md) | Subagent: `rework` |
-| Validate spec or ticket set | [validate-spec.md](validate-spec.md) (`Target: spec`), [validate-tickets.md](validate-tickets.md) (`Target: ticket-set`) | Subagent: `validate` |
+| Validate spec or ticket set | [validate-spec.md](validate-spec.md) (`Target: spec`), [validate-tickets.md](validate-tickets.md) with [tickets.md#granularity-thresholds](tickets.md#granularity-thresholds), [tickets.md#slicing-anti-patterns](tickets.md#slicing-anti-patterns), and [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) (`Target: ticket-set`) | Subagent: `validate` |
 | Review ticket | [review-ticket.md](review-ticket.md), [review-core.md](review-core.md) | Subagent: `review` |
-| Final review | [review-final.md](review-final.md), [review-core.md](review-core.md) | Subagent: `final-review` |
+| Final review | [review-final.md](review-final.md), [review-core.md](review-core.md), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `final-review` |
 | Close out | [close-out.md#initial-close-out](close-out.md#initial-close-out) (`Mode: initial`), [close-out.md#synchronization](close-out.md#synchronization) (`Mode: sync`) | Subagent: `close-out` |
 
 ## Tier 1: dispatch packet
@@ -33,11 +33,12 @@ Pass only these fields to the subagent:
 - **Target**: `spec` | `ticket-set`, for `validate`.
 - **Mode**: `initial` | `sync`, for `close-out`.
 - **Complexity**: `low` | `medium` | `high`.
-- **Reference**: The assigned reference file(s) to follow, plus [writing.md](writing.md). Load only the assigned reference file(s) and `writing.md`; treat links to other reference files as citations rather than files to load.
+- **Reference**: The assigned reference file(s) to follow, plus [writing.md](writing.md). Load only the assigned reference file(s) and `writing.md`; treat links to other reference files as citations rather than files to load. When an assignment names a section anchor, follow only that section of the file.
 - **Issues**: The target issue number and the parent spec or map number.
 - **Slug**: The feature slug.
-- **Default branch**: The default branch name (such as `main`).
+- **Default branch**: The default branch name (such as `main`), read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
 - **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
+- **Return block**: The [Return schema](#return-schema) block, copied verbatim, because subagents never load `isolation.md`.
 
 Never pass conversation history, summaries of user intent, or opinions.
 Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents. Each subagent executes one bounded leaf action and returns control to the conductor's routing loop.
@@ -46,11 +47,11 @@ A subagent that finds a requirement missing returns the missing requirement as a
 
 ### Role complexity matrix
 
-Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section, falling back to `high` when a ticket omits complexity:
+Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section (`gh issue view <n> --json body --jq .body`). Fall back to the Default Complexity column, or to `high` when an inherited `## Complexity` section is missing:
 
 | Role | Lifecycle Phase | Complexity Source | Default Complexity |
 | :--- | :--- | :--- | :--- |
-| **`decide`** | Plan | Ticket or Default | `low` for research, `medium` for prototypes and tasks |
+| **`decide`** | Plan | Fixed Default | `low` for research, `medium` for prototypes and tasks |
 | **`slice`** | Tickets | Fixed Default | `high` |
 | **`prepare-bug`** | Tickets | Fixed Default | `medium` |
 | **`validate`** | Spec / Tickets | Target | `medium` for `Target: spec`, `high` for `Target: ticket-set` |
@@ -103,10 +104,10 @@ Publish a new map or spec when the phase precondition applies, using four parame
 When the precondition holds, follow these steps:
 
 1. Present two interactive options:
-   - **Option 1 (Recommended)**: `Adopt source issue #<n> in place (updates title, adds artifact label, and overwrites body with the artifact template)`
+   - **Option 1 (Recommended)**: `Adopt source issue #<n> in place (updates title, adds artifact label, keeps the original body as a comment, and replaces the body with the artifact template)`
    - **Option 2**: `Create a new issue (retains original source issue #<n> untouched as external reference)`
 2. Write the artifact body to a temporary payload file per [writing.md](writing.md#cross-platform-shell-conventions).
-3. On **Option 1**, include the `## Notes` bullet when configured, then run:
+3. On **Option 1**, keep the original request before replacing the body. Write `## Original request` and the current body (`gh issue view <n> --json body --jq .body`) to a second temporary file, post it with `gh issue comment <n> --body-file <file>`, and delete that file. Skip this comment when the body is empty. Then include the `## Notes` bullet when configured, and run:
 
    ```shell
    gh issue edit <n> --title "<title>" --add-label "<type-label>" --body-file <file>

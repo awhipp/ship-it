@@ -10,6 +10,7 @@ Every feature produces at least one ticket.
 
 Read the validated spec body (`gh issue view <spec-number> --json body --jq .body`) without comment queries.
 Inspect any `- **Deferred to slicing**: <detail>` entries under `## Implementation Decisions`.
+Run `git fetch origin <default-branch>`, and inspect `origin/<default-branch>` with read-only git commands (`git --no-pager show` or `git --no-pager grep` on explicit paths) so local branches and dirty trees remain untouched.
 Use targeted symbol and path searches anchored on the specification's modules and contracts to locate the exact files, symbols, types, and test suites each slice touches.
 Read only the relevant sections of large files rather than scanning the entire repository.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
@@ -27,11 +28,14 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 ### 3. Publish in dependency order
 
 Publish blockers first so dependent tickets can reference their issue numbers.
-Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the spec via `--parent <spec-id>`:
+Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the spec and blockers per [§ Relationships](#relationships):
 
 ```shell
-gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket" --parent <spec-id>
+gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket"
+gh issue edit <n> --parent <spec-id> --add-blocked-by <blocker-id>
 ```
+
+Repeat `--add-blocked-by` once per blocker, and omit the flag for tickets without blockers.
 
 After creating all tickets, return `done` with all published ticket numbers in `Issues: #<n>, ...` and `Evidence: None`.
 
@@ -64,6 +68,7 @@ Avoid these five anti-patterns during ticket slicing:
 ## Complexity taxonomy
 
 Assign a complexity tier to each ticket based on scope, touched layers, verification seams, and reasoning requirements.
+When columns or file counts fit two tiers, assign the higher tier.
 
 | Level | Architectural Scope and Touchpoints | Verification Seam | Reasoning Need |
 | :--- | :--- | :--- | :--- |
@@ -71,7 +76,7 @@ Assign a complexity tier to each ticket based on scope, touched layers, verifica
 | **`medium`** | Conventional vertical slice across 2 to 4 files. Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning with step-by-step verification. Routine edge-case handling. |
 | **`high`** | Broad slice across 4 or more files, or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning with thorough invariant auditing. |
 
-A slice that needs more than `high` exceeds the upper bounds in § Granularity thresholds. Split the slice into smaller vertical tickets.
+Split any slice that exceeds the Upper Bound in § Granularity thresholds into smaller vertical tickets, whatever its tier.
 
 ## Ticket template
 
@@ -109,7 +114,7 @@ Omit line numbers and literal code blocks while naming exact file paths, modules
 
 Maintain compatibility across GitHub repository tiers with dual-channel relationships:
 
-- **Dual-write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. Also attempt native linking via `--parent <spec-id>` and `--blocked-by <blocker-id>`, ignoring errors on unsupported tiers.
+- **Dual-write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. After `gh issue create` succeeds, attempt native linking in a separate `gh issue edit` call (`--parent <spec-id>` and `--add-blocked-by <blocker-id>`), ignoring its errors on unsupported tiers, so a rejected link never blocks or duplicates a ticket.
 - **Dual-read on inspection**: Evaluate open tickets in ascending number order against the already-queried closed-ticket set. Inspect native blockers in-memory from the batch ticket query's `blockedBy` field, falling back to the ticket's `## Blocked by` tasklist when native relationships are empty. Stop at the first ticket whose blockers all have `state: "CLOSED"`.
 
 ## Remediation
@@ -124,7 +129,7 @@ When ticket-set validation applies `ship-it:changes-requested` to the spec:
    Conductors resolve every Blocker in open ticket bodies via surgical body edits (`gh issue edit <n> --body-file <file>`, deleting each temporary file immediately):
    - Update ticket bodies directly without posting issue comments.
    - Never author `## Answers` or `## Circuit Breaker Reset` comments during autonomous blocker resolutions.
-   - Correct the root cause, reproduction seam, or acceptance criteria on bug tickets, or update low-level design, create missing slices, and close redundant slices on feature tickets.
+   - Correct the root cause, reproduction seam, or acceptance criteria on bug tickets, or update low-level design, create missing slices, and close redundant slices as not planned (`gh issue close <n> --reason "not planned"`) on feature tickets.
    - Obtain user approval when changes alter scope.
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets.
 4. **Remove label**: Clear `ship-it:changes-requested` from the spec (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).

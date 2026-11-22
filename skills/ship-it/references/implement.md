@@ -7,10 +7,9 @@ The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) a
 
 ### 1. Branch and fixed point
 
-1. Read the branch name from the spec's `## Source` (`<type>/<slug>`).
-2. Fetch the target refs (`git fetch origin <default-branch>` and `git fetch origin <branch>` when the branch exists on `origin`). Check out the branch when it exists on `origin`; otherwise create the branch from `origin/<default-branch>` and push the branch with `git push -u origin <branch>`.
-3. Fetch the ticket comments once via `gh issue view <n> --json comments --jq '[.comments[].body]'`, and check the returned array in-agent for an existing `Fixed point:` comment. When no `Fixed point:` comment exists, post the comment before the first change on a best-effort basis: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`. Proceed with implementation when an enterprise policy blocks the comment, as ticket-tagged commits (`(#<ticket>)`) allow review to derive the fixed point from Git history.
-4. Inspect the comment array fetched in step 3 in-agent for the latest `## Answers` or `## Circuit Breaker Reset` comment, and fold settled decisions into the ticket body via surgical body edit before modifying code. When a decision alters a shared contract in the spec, update both the ticket body and the spec body.
+1. Fetch the target refs (`git fetch origin <default-branch>` and `git fetch origin <branch>` when the branch exists on `origin`). Check out the branch when it exists on `origin`; otherwise create the branch from `origin/<default-branch>` and push the branch with `git push -u origin <branch>`.
+2. Fetch the ticket comments once via `gh issue view <n> --json comments --jq '[.comments[].body]'`, and check the returned array in-agent for an existing `Fixed point:` comment. When no `Fixed point:` comment exists, post the comment before the first change on a best-effort basis: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`. Proceed with implementation when an enterprise policy blocks the comment, as ticket-tagged commits (`(#<ticket>)`) allow review to derive the fixed point from Git history.
+3. Inspect the comment array fetched in step 2 in-agent for the latest `## Answers` or `## Circuit Breaker Reset` comment, and fold settled decisions into the ticket body via surgical body edit before modifying code. When a decision alters a shared contract in the spec, update both the ticket body and the spec body.
 
 ### 2. Verify
 

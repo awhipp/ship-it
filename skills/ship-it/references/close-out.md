@@ -15,7 +15,7 @@ When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-bran
    gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
    ```
 
-   - **Closing references**: List each closed ticket by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue and `<spec-number> != <issue>`) so merging the pull request closes the spec.
+   - **Closing references**: List each closed ticket with `stateReason` `COMPLETED` by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue and `<spec-number> != <issue>`) so merging the pull request closes the spec.
    - **Addendum bugs**: When closed `ship-it:bug` tickets with `stateReason` `COMPLETED` exist, append an `### Addendum Bugs` section listing each completed bug ticket as `- #<n> (<title>) - Closes #<n>`.
    - **Truncation notice**: When the closed-ticket query returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a note inside the pull request body. Keep the four-line return block (`Evidence: None`) in [isolation.md](isolation.md) unchanged.
 
@@ -25,7 +25,7 @@ When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-bran
    gh pr diff <pr> --name-only
    gh pr view <pr> --json headRefOid --jq .headRefOid
    git merge-base origin/<default-branch> HEAD
-   git log --format=%s <merge-base>..HEAD -- <file>
+   git --no-pager log --format=%s <merge-base>..HEAD -- <file>
    gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
    ```
 
@@ -42,7 +42,7 @@ When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-bran
 
 ## Synchronization
 
-Run when `Mode` is `sync` for a closed `ship-it:bug` ticket absent from the open pull request's closing references.
+Run when `Mode` is `sync` for a closed `ship-it:bug` ticket with no `Closes #<n>` line in the open pull request's body.
 Fetch the target refs (`git fetch origin <default-branch> <branch>`), check out `<branch>`, and resolve `<pr>` via `gh pr list --head "<branch>" --state open --json number --jq '.[0].number'`.
 
 1. Update the pull request description:
@@ -61,7 +61,7 @@ Fetch the target refs (`git fetch origin <default-branch> <branch>`), check out 
 
    ```shell
    gh pr diff <pr> --name-only
-   git log -F --grep="(#<bug-ticket>)" origin/<default-branch>..HEAD --name-only --format=
+   git --no-pager log -F --grep="(#<bug-ticket>)" origin/<default-branch>..HEAD --name-only --format=
    gh pr view <pr> --json headRefOid --jq .headRefOid
    gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
    ```
