@@ -55,7 +55,7 @@ gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number
 gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
-- **Truncated search**: GitHub search matches the slug's words anywhere in a title, so other features' issues count toward the 100-result limit. When the issue query returns 100 results, emit the warning in [writing.md](references/writing.md#bounded-search-truncation) and rerun the query once per type label by adding `--label "<label>"` for `ship-it:map`, `ship-it:spec`, `ship-it:ticket`, `ship-it:bug`, `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, and `ship-it:task`. Merge the rerun results, deduplicated by issue number. Halt when any rerun also returns 100, because a truncated set can hide the map or spec and recreate it.
+- **Truncated search**: GitHub search matches the slug's words anywhere in a title, so other features' issues count toward the 100-result limit. When the issue query returns 100 results, emit the warning in [writing.md](references/writing.md#bounded-search-truncation) and rerun the query once per label by adding `--label "<label>"` for `ship-it:map`, `ship-it:spec`, `ship-it:ticket`, `ship-it:bug`, `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, and `ship-it:task`. Merge the rerun results, deduplicated by issue number. Halt when any rerun also returns 100, because a truncated set can hide the map or spec and recreate it.
 - **Fresh reads after writes**: GitHub search indexes new issues and label changes with a delay. On the pass after an action, re-read each issue that the action created or changed (the dispatch packet's and the returned `Issues:` numbers, plus the conductor's own writes) via `gh issue view <n> --json number,title,labels,assignees,blockedBy,state,stateReason`. Use each read in place of that issue's search entry, and add the issue when the search missed it.
 - **In-memory partition**: Partition issues into `map`, `spec`, `ticket`, and `bug` sets by label:
   - `map`: issues bearing `ship-it:map`
@@ -74,9 +74,9 @@ gh pr list --head "<branch>" --state all --json number,state,url
 
 ## Reference index
 
-Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file(s) for the active step. Do NOT load non-active reference files until their row matches. Leaving non-active reference files unloaded keeps the conductor's context lean and prevents rules for other phases from bleeding into the active step. In Tier 1, load a step's file only when the conductor runs that step itself (the `Runs in` column of [isolation.md](references/isolation.md#actions)), and name subagent-run files in the dispatch packet instead.
+Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file(s) for the active step. Do NOT load non-active reference files until their row matches. Leaving non-active reference files unloaded keeps the conductor's context lean and prevents rules for other phases from bleeding into the active step. In Tier 1, name subagent-run files (the `Runs in` column of [isolation.md](references/isolation.md#actions)) in the dispatch packet instead of loading them.
 
-| File | Read the file when |
+| File | Read the file when (Tier 2, or a conductor-run step) |
 | :--- | :--- |
 | [isolation.md](references/isolation.md) | Running any action |
 | [plan.md](references/plan.md) | Rows 1 and 2 (map) |
