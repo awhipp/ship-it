@@ -39,6 +39,7 @@ Review these records before proposing changes that reopen settled trade-offs.
 - **Decision**: **Superseded** ([decision record](https://github.com/awhipp/ship-it/issues/298), [shell evaluation](https://github.com/awhipp/ship-it/issues/294), [decision record](https://github.com/awhipp/ship-it/issues/343)).
 - **Rationale**: Windows PowerShell 5.1 strips unescaped inner double quotes while `pwsh` 7 and POSIX shells reject backslash or doubled quotes, so trivial quote-free selectors (`.body[:120]` and `.body`) with in-agent heading and verdict counting eliminate fragile `implode` and `|keys[]` filters without bundled scripts.
 - **Revisit condition**: Revisit only if GitHub CLI changes `--jq` argument parsing on Windows PowerShell 5.1; never adopt backslash-escaped quotes, doubled quotes, or bundled helper scripts.
+
 ### H3: Role-split reference files
 
 - **Decision**: **Go** ([decision record](https://github.com/awhipp/ship-it/issues/299)).
