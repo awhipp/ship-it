@@ -32,6 +32,7 @@ Organize tests by domain, module, or feature seam (such as `tests/auth.test.ts`)
 ### Ad-hoc test harness prohibition
 
 Never invent test runners or string-matching scripts to simulate coverage for non-code changes.
+A string match passes whenever the text exists, so it proves presence rather than behavior.
 
 ### Transient-reference prohibition
 

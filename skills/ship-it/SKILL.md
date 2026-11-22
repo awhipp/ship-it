@@ -55,7 +55,7 @@ gh issue list --search "[<slug>] in:title" --state all --limit 100 --json number
 gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
-- **Truncated search**: GitHub search matches the slug's words anywhere in a title, so other features' issues count toward the 100-result limit. When the issue query returns 100 results, emit the warning in [writing.md](references/writing.md#bounded-search-truncation) and rerun the query once per label by adding `--label "<label>"` for `ship-it:map`, `ship-it:spec`, `ship-it:ticket`, `ship-it:bug`, `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, and `ship-it:task`. Merge the rerun results, deduplicated by issue number. Halt when any rerun also returns 100, because a truncated set can hide the map or spec and recreate it.
+- **Truncated search**: GitHub search matches the slug's words anywhere in a title, so other features' issues count toward the 100-result limit. When the issue query returns 100 results, emit the warning in [writing.md](references/writing.md#bounded-search-truncation) and rerun the query once per label by adding `--label "<label>"` for `ship-it:map`, `ship-it:spec`, `ship-it:ticket`, `ship-it:bug`, `ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, and `ship-it:task`. Merge the rerun results, deduplicated by issue number. Halt when any rerun also returns 100, because a truncated set can hide the map or spec and recreate it. Subagent audit queries only warn, because their truncation narrows review coverage instead of recreating artifacts.
 - **Fresh reads after writes**: GitHub search indexes new issues and label changes with a delay. On the pass after an action, re-read each issue that the action created or changed (the dispatch packet's and the returned `Issues:` numbers, plus the conductor's own writes) via `gh issue view <n> --json number,title,labels,assignees,blockedBy,state,stateReason`. Use each read in place of that issue's search entry, and add the issue when the search missed it.
 - **In-memory partition**: Partition issues into `map`, `spec`, `ticket`, and `bug` sets by label:
   - `map`: issues bearing `ship-it:map`
@@ -181,7 +181,8 @@ Await the subagent's four-line return block before resuming the routing loop.
 ## 5. Report at every halt
 
 State the boundary and link each changed issue by title.
-End with exactly one next step:
+When the halt asks the user a question, end with that question, because the reply resumes routing in the current session.
+Otherwise, end with exactly one next step:
 
 | Halt | Next step |
 | :--- | :--- |

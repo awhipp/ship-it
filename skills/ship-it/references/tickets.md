@@ -76,7 +76,7 @@ When columns or file counts fit two tiers, assign the higher tier.
 | **`medium`** | Conventional vertical slice across 2 to 4 files. Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning with step-by-step verification. Routine edge-case handling. |
 | **`high`** | Broad slice across 4 or more files, or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning with thorough invariant auditing. |
 
-A slice that needs more than `high` exceeds the upper bounds in § Granularity thresholds. Split the slice into smaller vertical tickets.
+Split any slice that exceeds the Upper Bound in § Granularity thresholds into smaller vertical tickets, whatever its tier.
 
 ## Ticket template
 
