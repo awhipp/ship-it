@@ -92,7 +92,7 @@ Load only [isolation.md](references/isolation.md), [writing.md](references/writi
 | [review-final.md](references/review-final.md) | Row 12 (final review, loaded with [review-core.md](references/review-core.md)) |
 | [close-out.md](references/close-out.md) | Rows 13 and 14 (initial close-out and bug synchronization) |
 | [preflight.md](references/preflight.md) | `ship-it preflight`, `ship-it init`, or `ship-it version` (Check 0 only), or a `gh` command fails |
-| [writing.md](references/writing.md) | Writing any artifact |
+| [writing.md](references/writing.md) | Every step (prose, shell, and search-truncation rules) |
 
 ## 3. Route: the first matching row wins
 
