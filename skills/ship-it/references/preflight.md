@@ -12,7 +12,7 @@ Run this checklist only in three situations:
 Run every check, then report all findings at once and halt:
 
 0. **Skill version**: Read `version.json` in the skill directory to report the installed `version`, `released` date, and `minGhVersion`. Query the latest upstream release with `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. On network or API failure, report the local version details instead.
-1. **`gh` version**: Run `gh --version`. Require `gh` at or above the `minGhVersion` value read from `version.json` in Check 0 for native sub-issue and dependency flags (`--parent`, `--blocked-by`, and JSON fields `subIssues`, `blockedBy`).
+1. **`gh` version**: Run `gh --version`. Require `gh` at or above the `minGhVersion` value read from `version.json` in Check 0 for native sub-issue and dependency flags (`--parent`, `--add-blocked-by`, and JSON fields `subIssues`, `blockedBy`).
 2. **GitHub remote**: Run `git remote -v` and confirm a `github.com` remote exists.
 3. **Authentication**: Run `gh auth status` and confirm an active login.
 4. **Writable issues**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`. Confirm `hasIssuesEnabled` is `true` and `viewerPermission` is `WRITE`, `MAINTAIN`, or `ADMIN`.

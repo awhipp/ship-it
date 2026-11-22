@@ -74,7 +74,7 @@ Reserve decision tickets for open architectural, scope, or user-preference forks
 2. Publish the map issue:
    - **Sourced from `ship-it #<n>`**: Run [source-issue adoption](isolation.md#source-issue-adoption) with title `[<slug>] Map: <gist>`, label `ship-it:map`, and `## Notes` bullet `- Adopted in place from source issue #<n> (<original-title>).`.
    - **Started without a source issue**: Write the map body to a temporary payload file, create the issue via `gh issue create --title "[<slug>] Map: <gist>" --body-file <file> --label "ship-it:map"`, and delete the temporary file immediately.
-3. Create decision tickets for every question that has a clear phrasing now. Write `Part of #<map-id>` and `## Blocked by` in the body, and pass `--parent <map-id>` and `--blocked-by <blocker-id>` when supported.
+3. Create decision tickets for every question that has a clear phrasing now. Write `Part of #<map-id>` and `## Blocked by` in the body. After each `gh issue create`, link the ticket with `gh issue edit <n> --parent <map-id> --add-blocked-by <blocker-id>`, ignoring errors on unsupported tiers.
 4. Continue straight into resolving decision tickets.
 
 ### Resolving (map is open)

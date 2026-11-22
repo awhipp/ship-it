@@ -31,10 +31,11 @@ Publish blockers first so dependent tickets can reference their issue numbers.
 Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the spec and blockers per [§ Relationships](#relationships):
 
 ```shell
-gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket" --parent <spec-id> --blocked-by <blocker-id>
+gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket"
+gh issue edit <n> --parent <spec-id> --add-blocked-by <blocker-id>
 ```
 
-Repeat `--blocked-by` once per blocker, and omit the flag for tickets without blockers.
+Repeat `--add-blocked-by` once per blocker, and omit the flag for tickets without blockers.
 
 After creating all tickets, return `done` with all published ticket numbers in `Issues: #<n>, ...` and `Evidence: None`.
 
@@ -113,7 +114,7 @@ Omit line numbers and literal code blocks while naming exact file paths, modules
 
 Maintain compatibility across GitHub repository tiers with dual-channel relationships:
 
-- **Dual-write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. Also attempt native linking via `--parent <spec-id>` and `--blocked-by <blocker-id>`, ignoring errors on unsupported tiers.
+- **Dual-write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. After `gh issue create` succeeds, attempt native linking in a separate `gh issue edit` call (`--parent <spec-id>` and `--add-blocked-by <blocker-id>`), ignoring its errors on unsupported tiers, so a rejected link never blocks or duplicates a ticket.
 - **Dual-read on inspection**: Evaluate open tickets in ascending number order against the already-queried closed-ticket set. Inspect native blockers in-memory from the batch ticket query's `blockedBy` field, falling back to the ticket's `## Blocked by` tasklist when native relationships are empty. Stop at the first ticket whose blockers all have `state: "CLOSED"`.
 
 ## Remediation
