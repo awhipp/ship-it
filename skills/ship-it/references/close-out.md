@@ -42,7 +42,7 @@ When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-bran
 
 ## Synchronization
 
-Run when `Mode` is `sync` for a closed `ship-it:bug` ticket absent from the open pull request's closing references.
+Run when `Mode` is `sync` for a closed `ship-it:bug` ticket with no `Closes #<n>` line in the open pull request's body.
 Fetch the target refs (`git fetch origin <default-branch> <branch>`), check out `<branch>`, and resolve `<pr>` via `gh pr list --head "<branch>" --state open --json number --jq '.[0].number'`.
 
 1. Update the pull request description:
