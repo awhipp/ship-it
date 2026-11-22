@@ -51,8 +51,6 @@ State each high-level contract, boundary, or rule once across the feature:
 - **Cross-cutting invariants and failure handling**: State error-handling rules, edge-case policies, backward-compatibility constraints, and system invariants.
 - **Deferred to slicing**: <detail>
 
-Name modules, boundaries, and shared contracts rather than internal functions, file paths, CLI flags, or commands.
-Exempt public interface contracts and `Reproduction seam` commands under `## Testing Decisions` on `fix` specs.
 Omit line numbers and low-level function bodies unless a prototype established a concrete schema or state machine.
 
 ## Testing Decisions
@@ -76,10 +74,10 @@ Conductors update the spec body directly via surgical edits without posting issu
 Conductors must never post comments or author `## Answers` or `## Circuit Breaker Reset` headings during autonomous blocker resolutions or deferrals of slice-local questions.
 
 1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[].body]'` and select the latest `## Validation: Spec` report in-agent.
-2. **Resolve cited Blockers**: Limit remediation edits to cited Blockers, settled cross-cutting guidance from `## Answers` or `## Circuit Breaker Reset` comments, and stray slice-local `Clarifying Questions`:
+2. **Resolve cited Blockers**: Limit remediation edits to cited Blockers, settled cross-cutting guidance from `## Answers` or `## Circuit Breaker Reset` comments, and any remaining slice-local `Clarifying Questions`:
    - **Settled guidance**: Fold cross-cutting `## Answers` and `## Circuit Breaker Reset` decisions into the spec body.
-   - **Slice-local questions**: Append slice-local `Clarifying Questions` strictly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` via surgical edit (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) without prompting the user or posting a comment per `SKILL.md` § 4 (`Dispatch and verdicts`).
-   - **Advisory warnings**: Leave advisory Warnings untouched. Warnings never trigger independent remediation passes or revalidation loops.
+   - **Slice-local questions**: Append any remaining slice-local `Clarifying Questions` not already recorded by `SKILL.md` § 4 strictly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions`. Apply that surgical edit (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) without prompting the user or posting a comment per `SKILL.md` § 4 (`Dispatch and verdicts`).
+   - **Advisory warnings**: Leave advisory Warnings untouched. Editing warning-only sections expands the active edit surface on later validation passes. Warnings never trigger independent remediation passes or revalidation loops.
 
    Resolve every cited Blocker using one of four remediation paths while preserving untouched text verbatim:
    - **In-body edit**: Apply surgical edits to the spec body (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) to resolve high-level architectural gaps.
