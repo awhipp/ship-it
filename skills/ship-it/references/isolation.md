@@ -38,6 +38,7 @@ Pass only these fields to the subagent:
 - **Slug**: The feature slug.
 - **Default branch**: The default branch name (such as `main`).
 - **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
+- **Return block**: The [Return schema](#return-schema) block, copied verbatim, because subagents never load `isolation.md`.
 
 Never pass conversation history, summaries of user intent, or opinions.
 Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents. Each subagent executes one bounded leaf action and returns control to the conductor's routing loop.
@@ -46,7 +47,7 @@ A subagent that finds a requirement missing returns the missing requirement as a
 
 ### Role complexity matrix
 
-Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section, falling back to `high` when a ticket omits complexity:
+Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section. Fall back to the Default Complexity column, or to `high` when an inherited `## Complexity` section is missing:
 
 | Role | Lifecycle Phase | Complexity Source | Default Complexity |
 | :--- | :--- | :--- | :--- |

@@ -13,7 +13,7 @@ Every run derives its next action from that state alone.
 
 ## Hard rules
 
-1. **Never guess.** Ask the user whenever a fact is missing from the directive, an issue, or a reference file, because unverified assumptions cause silent drift across issues and code.
+1. **Never guess.** Ask the user whenever a fact is missing from the directive, an issue, or a reference file, because unverified assumptions cause silent drift across issues and code. Slice-local spec-validation questions defer to slicing per § 4 instead.
 2. **Never verify your own work.** Validation and review run in a fresh context per [isolation.md](references/isolation.md).
 3. **Run every boundary to its exit halt.** Loop through query, route, and action until a row halts or requires user input, so artifacts reach the human approval gate instead of stalling mid-phase. The developer approves Boundaries 1 and 2 by invoking `ship-it <slug>` again, and approves Boundary 3 by merging the pull request.
 4. **Never merge a pull request.** Merging serves as the developer's final approval gate for Boundary 3 and publishes the feature to the default branch.
@@ -30,7 +30,7 @@ Ignore earlier conversation when choosing the feature.
 | `ship-it #<n>` | Run `gh issue view <n> --json title,body`. A `[<slug>]` title prefix resumes that slug. Any other issue is an idea, and the issue becomes the spec's source. |
 | `ship-it "<idea>"` | Start a new feature from the idea. |
 | `ship-it preflight` or `ship-it init` | Run [preflight.md](references/preflight.md) and stop. |
-| `ship-it version`, `ship-it --version`, or `ship-it -v` | Read `version.json` in the skill directory to report the installed version and release date. Query the latest upstream release via `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. Fall back to local version details on network or API failure. Halt immediately after reporting the version. |
+| `ship-it version`, `ship-it --version`, or `ship-it -v` | Run only Check 0 in [preflight.md](references/preflight.md), report the version, and halt. |
 
 With no directive, ask for one of these forms and stop.
 Run no `gh` command before a directive exists.
@@ -47,7 +47,7 @@ When a `ship-it <slug>` directive matches no issue, report that no feature uses 
 
 ## 2. Query state
 
-Run these queries at the start of every routing pass.
+Run these queries at the start of every routing pass, skipping the pull request query until a spec names the branch.
 Check the issue query count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return.
 Filter results matching title prefix `[<slug>]`.
 
@@ -90,7 +90,7 @@ Load only [isolation.md](references/isolation.md), [writing.md](references/writi
 | [review-ticket.md](references/review-ticket.md) | Row 11 Step 4 (ticket review, loaded with [review-core.md](references/review-core.md)) |
 | [review-final.md](references/review-final.md) | Row 12 (final review, loaded with [review-core.md](references/review-core.md)) |
 | [close-out.md](references/close-out.md) | Rows 13 and 14 (initial close-out and bug synchronization) |
-| [preflight.md](references/preflight.md) | `ship-it preflight` or `ship-it init`, or a `gh` command fails |
+| [preflight.md](references/preflight.md) | `ship-it preflight`, `ship-it init`, or `ship-it version` (Check 0 only), or a `gh` command fails |
 | [writing.md](references/writing.md) | Writing any artifact |
 
 ## 3. Route: the first matching row wins
@@ -119,7 +119,7 @@ Complete the matched action, then follow the row's **Transition** column.
 - **On-demand comment reads**: Rows 5–7, 9, 11, and 12 read issue comments on demand for circuit-breaker checks, handoff counts, and remediation reports.
 - **Tier 2 fresh-session halts**: In Tier 2, Rows 7, 9, 11 (Step 4), and 12 halt for a fresh session per [isolation.md](references/isolation.md) whenever validation or review is not the session's first action.
 
-**Bug tickets after final review**: Bug tickets prepared after the final review receive ticket review only. Merging the pull request is the final gate.
+**Bug tickets after final review**: Bug tickets prepared after the final review run ticket-set validation (Row 9) and ticket review (Row 11) but no repeat final review, because the spec keeps `ship-it:reviewed`. Merging the pull request is the final gate.
 
 **Frontier ticket** (`frontier_ticket`): the lowest-numbered open ticket in `ticket_set` whose blockers are all `CLOSED` ([tickets.md](references/tickets.md#relationships)).
 Check open tickets in ascending number order against the closed issues in `ticket_set`.
@@ -145,7 +145,7 @@ Enforce the active breaker in sequence before running the row or step action:
 - **Count check**: Run the query above on the breaker's **Verdict issue** (reusing the array already fetched in Row 11 Step 4 when checking `Review` there). In-agent, find the last array element starting with `## Circuit Breaker Reset`, inspect elements after that index (or all elements when no reset exists), and count elements starting with the breaker's **Report heading** whose verdict line is `**Verdict**: Changes requested` or `**Verdict**: Questions pending`. For `## Validation: Spec` (Rows 5 and 7), also count total non-approved `## Validation: Spec` reports (`**Verdict**: Changes requested` or `**Verdict**: Questions pending`) across all resets in that same array.
 - **Threshold halt**: At three or more non-approved reports since the latest reset (`>= 3`), halt before executing the step or row action (or on short-circuit from § 4):
   - **Standard halt** (`Review`, ticket-set `Validation` on Rows 6 and 9, `Final review` on Row 12, or `## Validation: Spec` below six total reports): Tell the user in plain language which circuit breaker tripped (`Review`, `Validation`, or `Final review`), which issue (`<issue>`) holds the verdict count, and that only the user's reply posts `## Circuit Breaker Reset` on `<issue>` to reset that breaker. When § 4 short-circuits on cross-cutting `Questions`, read the latest `## Validation: Spec` report (`gh issue view <spec> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Spec")) | .body] | last'`, where an empty result means no report exists) and present unresolved findings alongside those `Questions`. Ask the user for guidance using an interactive question tool when available, or in plain text before ending the turn.
-  - **Spec-validation override** (`## Validation: Spec` on Rows 5 and 7 when the `>= 3` post-reset halt trips and total non-approved reports reach `>= 6`, waiting for the third post-reset report even if total reports reach six earlier to preserve Option 2's three-pass cycle): Fetch the latest `## Validation: Spec` report (`gh issue view <spec> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Spec")) | .body] | last'`) and read it in-agent. State `<spec>` and the total count of non-approved reports, link or summarize unresolved `Blockers` and `Questions`, and note Option 1's Row 9 caveat. Present these three options using an interactive question tool when available, or in plain text before ending the turn:
+  - **Spec-validation override** (`## Validation: Spec` on Rows 5 and 7 when post-reset reports reach `>= 3` and total non-approved reports reach `>= 6`; six total reports alone never trip the override, which preserves Option 2's three-pass cycle): Fetch the latest `## Validation: Spec` report (`gh issue view <spec> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Spec")) | .body] | last'`) and read it in-agent. State `<spec>` and the total count of non-approved reports, link or summarize unresolved `Blockers` and `Questions`, and note Option 1's Row 9 caveat. Present these three options using an interactive question tool when available, or in plain text before ending the turn:
     1. **Proceed to slicing as-is**: Post a `## Validation Override` comment on `<spec>` via temporary `--body-file` (deleting the temporary file immediately) recording a human approval waiver under Hard rule 2 (distinct from conductor self-verification) and listing unresolved `Blockers` and `Questions` from the latest `## Validation: Spec` report. Leave the spec body strictly as-is (omitting waived findings from `- **Deferred to slicing**:`), remove `ship-it:changes-requested` when present, add `ship-it:validated`, and query state and route again (advancing to Row 8). Slicing and ticket-set validation do not read `## Validation Override`, so waived contradictions or cross-cutting gaps can resurface in Row 9.
     2. **Reset with revised guidance**: Collect the user's revised guidance text (prompting for it if omitted) before posting it as `## Circuit Breaker Reset` on `<spec>` via temporary `--body-file` (deleting the temporary file immediately). Fold settled guidance into `<spec>`, then query state and route again to start the next three-pass cycle.
     3. **Stop and rescope**: Halt without applying `ship-it:validated` or posting a reset or override comment.

@@ -27,11 +27,13 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 ### 3. Publish in dependency order
 
 Publish blockers first so dependent tickets can reference their issue numbers.
-Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the spec via `--parent <spec-id>`:
+Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the spec and blockers per [§ Relationships](#relationships):
 
 ```shell
-gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket" --parent <spec-id>
+gh issue create --title "[<slug>] Ticket: <gist>" --body-file <file> --label "ship-it:ticket" --parent <spec-id> --blocked-by <blocker-id>
 ```
+
+Repeat `--blocked-by` once per blocker, and omit the flag for tickets without blockers.
 
 After creating all tickets, return `done` with all published ticket numbers in `Issues: #<n>, ...` and `Evidence: None`.
 
@@ -64,6 +66,7 @@ Avoid these five anti-patterns during ticket slicing:
 ## Complexity taxonomy
 
 Assign a complexity tier to each ticket based on scope, touched layers, verification seams, and reasoning requirements.
+When columns or file counts fit two tiers, assign the higher tier.
 
 | Level | Architectural Scope and Touchpoints | Verification Seam | Reasoning Need |
 | :--- | :--- | :--- | :--- |

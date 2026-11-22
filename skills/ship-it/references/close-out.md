@@ -25,7 +25,7 @@ When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-bran
    gh pr diff <pr> --name-only
    gh pr view <pr> --json headRefOid --jq .headRefOid
    git merge-base origin/<default-branch> HEAD
-   git log --format=%s <merge-base>..HEAD -- <file>
+   git --no-pager log --format=%s <merge-base>..HEAD -- <file>
    gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
    ```
 
@@ -61,7 +61,7 @@ Fetch the target refs (`git fetch origin <default-branch> <branch>`), check out 
 
    ```shell
    gh pr diff <pr> --name-only
-   git log -F --grep="(#<bug-ticket>)" origin/<default-branch>..HEAD --name-only --format=
+   git --no-pager log -F --grep="(#<bug-ticket>)" origin/<default-branch>..HEAD --name-only --format=
    gh pr view <pr> --json headRefOid --jq .headRefOid
    gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
    ```

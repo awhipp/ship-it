@@ -13,7 +13,7 @@ Return `failed` when the merge-base commit does not resolve or the diff is empty
 
 ## Process
 
-1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. Resolve `<fixed-point>` via `git merge-base origin/<default-branch> HEAD`. Run `git diff --stat <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline` first to survey changed files, then inspect `git diff <fixed-point>...HEAD` (scoping per path or skipping generated lockfiles when large).
+1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. Resolve `<fixed-point>` via `git merge-base origin/<default-branch> HEAD`. Run `git --no-pager diff --stat <fixed-point>...HEAD` and `git --no-pager log <fixed-point>..HEAD --oneline` first to survey changed files, then inspect `git --no-pager diff <fixed-point>...HEAD` (scoping per path or skipping generated lockfiles when large).
 2. **Check verification evidence**: Run or verify the test suite and direct checks specified in the spec's `## Testing Decisions` and ticket `## Acceptance criteria` directly against the branch without reading issue comments. Missing verification is a Blocker.
 3. **Run two-axis passes and cross-ticket checks**: Execute steps 3 through 5 (`Find standards sources`, `Standards pass`, and `Spec pass`) in [review-core.md#two-axis-passes](review-core.md#two-axis-passes), apply the [Zero-assumption rule](review-core.md#zero-assumption-rule) and [Severity](review-core.md#severity) table, and check across tickets:
    - The branch delivers every `Scope and Behaviors` item and `Implementation Decisions` item in the spec.
