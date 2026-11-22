@@ -73,7 +73,7 @@ When validation applies `ship-it:changes-requested` to the specification:
 Conductors update the spec body directly via surgical edits without posting issue comments.
 Conductors must never post comments or author `## Answers` or `## Circuit Breaker Reset` headings during autonomous blocker resolutions or deferrals of slice-local questions.
 
-1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[].body]'` and select the latest `## Validation: Spec` report in-agent.
+1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Spec") or startswith("## Answers") or startswith("## Circuit Breaker Reset")) | .body]'` and select the latest `## Validation: Spec` report in-agent.
 2. **Resolve cited Blockers**: Limit remediation edits to cited Blockers, settled cross-cutting guidance from `## Answers` or `## Circuit Breaker Reset` comments, and any remaining slice-local `Clarifying Questions`:
    - **Active-code checks**: Run `git fetch origin <default-branch>`, and compare active-code claims against `origin/<default-branch>` using read-only git commands (`git --no-pager show` or `git --no-pager grep` on explicit paths) so local branches and dirty trees remain untouched. Warn the user when local `HEAD` diverges from `origin/<default-branch>`.
    - **Settled guidance**: Fold cross-cutting `## Answers` and `## Circuit Breaker Reset` decisions into the spec body.
