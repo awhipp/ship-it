@@ -52,6 +52,7 @@ Review these records before proposing changes that reopen settled trade-offs.
 - **Decision**: **Modified-go** ([decision record](https://github.com/awhipp/ship-it/issues/301)).
 - **Rationale**: Collapsing three repeated circuit-breaker protocols into one shared counting rule, an inline trip-and-reset procedure, and one four-column lookup table in [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md) without skip rules removes six per-entry conditions without adding a separate reference file.
 - **Note**: The human-override clause at six total non-approved `## Validation: Spec` reports (Rows 5 and 7) operates inline inside [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md)'s unified circuit-breaker rule without adding a skip column or separate reference file.
+- **Note** ([PR #348](https://github.com/awhipp/ship-it/pull/348)): Resets stay unscoped, so a reset on `<spec>` restarts every breaker counted there, and the extra passes this allows stay bounded and follow a human reply. Deferral-only spec-validation passes stay counted, because excluding them would add a skip rule and unbound the validate-and-defer loop.
 - **Revisit condition**: Revisit if a new validation or review gate requires its own verdict issue or report heading in the shared lookup table.
 
 ### M1: Stable string row identifiers
