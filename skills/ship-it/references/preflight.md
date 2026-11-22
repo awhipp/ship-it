@@ -11,12 +11,12 @@ Run this checklist only in three situations:
 
 Run every check before reporting findings so the user sees all issues at once:
 
-0. **Skill version**: Read `version.json` in the skill directory to report the installed `version`, `released` date, and `minGhVersion`. Query the latest upstream release with `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. On network or API failure, report local version details and continue the checklist.
+0. **Skill version**: Read `version.json` in the skill directory to report the installed `version`, `released` date, and `minGhVersion`. Query the latest upstream release with `gh api repos/awhipp/ship-it/releases/latest --jq '{tag: .tag_name, date: .published_at}'`. On network or API failure, report the local version details instead.
 1. **`gh` version**: Run `gh --version`. Require `gh` at or above the `minGhVersion` value read from `version.json` in Check 0 for native sub-issue and dependency flags (`--parent`, `--blocked-by`, and JSON fields `subIssues`, `blockedBy`).
 2. **GitHub remote**: Run `git remote -v` and confirm a `github.com` remote exists.
 3. **Authentication**: Run `gh auth status` and confirm an active login.
 4. **Writable issues**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`. Confirm `hasIssuesEnabled` is `true` and `viewerPermission` is `WRITE`, `MAINTAIN`, or `ADMIN`.
-5. **Labels**: Run `gh label list --search "ship-it:" --limit 100 --json name`. Inspect the returned array count and emit the warning in [writing.md](writing.md#bounded-search-truncation) when 100 labels return before checking missing labels. Verify that every label below exists, and create or update any missing labels automatically.
+5. **Labels**: Run `gh label list --search "ship-it:" --limit 100 --json name`. Inspect the returned array count and emit the warning in [writing.md](writing.md#bounded-search-truncation) when 100 labels return before checking missing labels. Verify that every label below exists, and run the matching command below only for each missing label, so customized existing labels keep their colors and descriptions.
 6. **PowerShell session**: Read `$PSVersionTable` in the current session shell only, spawning no other shell. When `$PSVersionTable` is undefined, report nothing. When `PSEdition` is not `Core` or `PSVersion` is below 7.4, add an advisory finding that names the migration to `pwsh` 7.4 or later. This check never gates routing, and mid-run `gh` failures reach it through the existing failed-`gh`-command route.
 
 ## Label set
@@ -37,7 +37,7 @@ Apply at most one type label per issue, plus any applicable status and provenanc
 | `ship-it:reviewed` | status | Ticket diff or full feature PR diff that passed review ([review-ticket.md](review-ticket.md), [review-final.md](review-final.md)) |
 | `ship-it:changes-requested` | status | Spec or ticket with unresolved Blockers ([validate-spec.md](validate-spec.md), [validate-tickets.md](validate-tickets.md), [review-ticket.md](review-ticket.md)) |
 
-Create or update labels with these idempotent commands:
+Create each missing label with its idempotent command:
 
 ```shell
 gh label create "ship-it:map" --description "Feature map of open decisions" --color "5319E7" --force
