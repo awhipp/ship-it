@@ -6,39 +6,47 @@ Try to break the specification before anyone slices tickets or writes code.
 
 ## Inputs
 
-Read the requirements and the spec under audit first, then verify every named module boundary, shared contract, and system invariant against active code using targeted search.
+Read the requirements, the spec under audit, and prior spec comments first, then verify every named module boundary, shared contract, and system invariant against active code using targeted search.
 Ground every check in these inputs:
 
-- **Requirements**: The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`; skip reading the request issue body when `<spec-number> == n`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), `- **Deferred to slicing**:` entries under `## Implementation Decisions` in the spec body, and the active codebase.
+- **Requirements**: The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`; skip reading the request issue body when `<spec-number> == n`), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), and `- **Deferred to slicing**:` entries under `## Implementation Decisions` in the spec body.
+- **Active code**: Run `git fetch origin <default-branch>`, and inspect `origin/<default-branch>` silently via read-only git commands (`git --no-pager show` or `git --no-pager grep` on explicit paths) so local branches and dirty trees remain untouched. When `git fetch origin <default-branch>` fails, fall back to local `HEAD` and record a single `### Warnings` entry naming `HEAD` as the ref used.
 - **Artifact under audit**: The spec body (`gh issue view <spec> --json body --jq .body`).
+- **Prior comments**: Spec comments fetched once via `gh issue view <spec> --json comments --jq '[.comments[].body]'` and filtered in-agent for prior `## Validation: Spec`, `## Answers`, and `## Circuit Breaker Reset` comments.
 
 ## Zero-assumption rule
 
-- **Spec altitude**: Restrict the two-implementer test to cross-cutting architecture, shared contracts, module boundaries, system invariants, and high-level test seams.
-- **Architectural choice escalation**: Record a Question whenever an unwritten choice at spec altitude has multiple valid designs, even when active code suggests a plausible default. Restrict Questions to spec altitude, product behavior, and scope; reserve slice-local questions for ticket-set validation or `- **Deferred to slicing**:`.
-- **Single-outcome gaps**: Reserve Blocker for factual drift against active code, contradictions with settled decisions, or single-outcome gaps at spec altitude where requirements and code dictate one resolution. Reserve slice-local gaps for ticket-set validation or `- **Deferred to slicing**:`.
-- **Zero inference**: Never infer intent, fill a gap, or rationalize the author's choice.
+- **Spec altitude**: Restrict the two-implementer test, Blockers, and `Clarifying Questions` to cross-component observable behavior where two implementers could disagree on module boundaries, shared contracts (including public CLI or interface contracts exposed by the feature to users or callers), data models, system invariants, or high-level test seams (including `Reproduction seam` on `fix` specs). Omit slice-local observations (internal functions, caller inventories, file paths, flags of invoked external tools, internal CLI flags, or low-level error checklists) or record them only as advisory Warnings without withholding approval.
+- **Deferred items**: Exempt `- **Deferred to slicing**:` entries under `## Implementation Decisions` from `Clarifying Questions` and design-gap Blockers. Raise a Blocker only when a deferred entry directly contradicts stated requirements, settled map decisions, or active code.
+- **Architectural choice escalation**: When an unwritten spec-altitude choice has an unambiguous active-code default that does not conflict with stated requirements or settled decisions, record an advisory Warning naming both the inherited default and its active-code anchor (module or symbol), and permit `**Verdict**: Validated`. Reserve withholding `Clarifying Questions` for open spec-altitude choices lacking an unambiguous default or conflicting with stated requirements or settled decisions. Reserve slice-local questions for ticket-set validation or `- **Deferred to slicing**:`.
+- **Single-outcome gaps**: Treat unimplemented requirements as work to build rather than drift, raising a factual-drift Blocker only when the spec misstates existing code. Reserve remaining Blockers for contradictions against stated requirements or settled decisions, or single-outcome cross-component gaps at spec altitude (such as unspecified module boundaries) where requirements and code dictate one resolution. Omit slice-local gaps or record them as advisory Warnings, reserving them for ticket-set validation or `- **Deferred to slicing**:`.
+- **Monotonic re-validation (pass 2+)**: Trigger monotonic rules whenever the comment query returns at least one prior `## Validation: Spec` report:
+   - **Active edit surface**: Limit the active edit surface to sections and claims cited in `### Blockers` or `### Clarifying Questions` of the latest `## Validation: Spec` report, plus subsequent `## Answers` or `## Circuit Breaker Reset` comments. Leave warning-only and uncited sections as untouched prose unless a concrete factual contradiction against active code or source requirements appears. A broad rescope recorded in a subsequent `## Circuit Breaker Reset` lifts monotonic shielding on rewritten sections covered by that reset.
+   - **Excluded items**: Continue honoring all prior `## Answers` and `## Circuit Breaker Reset` comments, and never re-raise previously passing items or settled decisions unless a broad rescope in a subsequent `## Circuit Breaker Reset` rewrites the sections covering them. Keep `- **Deferred to slicing**:` entries exempt from `Clarifying Questions` and design-gap Blockers unless directly contradicting stated requirements, settled map decisions, or active code.
+   - **Allowed Blockers and Questions**: Restrict new Blockers and `Clarifying Questions` on pass 2 and later to unresolved prior findings, claims on the active edit surface (including rewritten sections covered by a broad rescope in a subsequent `## Circuit Breaker Reset`), or concrete factual regressions and contradictions.
+   - **Untouched prose**: Record belated non-regression notes on untouched prose at most as advisory Warnings.
+- **Zero inference**: Never infer intent, rationalize the author's choice, or edit the spec. Report unambiguous active-code defaults explicitly as advisory Warnings instead of filling gaps silently.
 - **Source fidelity**: Verify that the spec honors every requirement and settled decision in the source issue or map body without contradiction.
 
 ## What to look for
 
-- **Contradictions**: Two statements that cannot both be true, or a decision that quietly reverses an earlier one.
-- **Codebase alignment**: Check high-level module alignment and shared contracts against active code without requiring exhaustive caller lists or slice-local symbol inventories.
-- **Design completeness**: Check cross-cutting context, module boundaries, shared contracts, and system invariants without requiring slice-local helpers, per-caller touchpoints, or low-level error checklists.
-- **Repetition and bloat**: Cross-section restatement within the spec, or walls of text violating [writing.md](writing.md) Rule 7. Classify Rule 7 repetition as Warning unless restated text contradicts canonical sources.
-- **Traceability**: Unrequested behavior, or a source requirement with no coverage in the spec. Skip items listed under `- **Deferred to slicing**:` in the spec body.
-- **Verification**: Check high-level test seams (plus `Root cause` and `Reproduction seam` on `fix` specs) without requiring slice-local error checklists or low-level failure paths.
+- **Contradictions**: Check for conflicting claims, reversed decisions, or contradictions against active code, stated requirements, or settled map decisions across the spec and `- **Deferred to slicing**:` entries.
+- **Codebase alignment**: Check cross-component module boundaries, shared contracts, data models, and system invariants against active code per `Spec altitude` and `Architectural choice escalation` in `## Zero-assumption rule`.
+- **Design completeness**: Check cross-component observable behavior across boundaries, shared contracts, data models, and system invariants per `Spec altitude`, `Deferred items`, and `Monotonic re-validation (pass 2+)` in `## Zero-assumption rule`.
+- **Repetition and bloat**: Check for cross-section restatement or walls of text violating [writing.md](writing.md) Rule 7, classifying non-conflicting repetition as `Warning`.
+- **Traceability**: Check for unrequested behavior or uncovered source requirements per `Deferred items` and `Monotonic re-validation (pass 2+)` in `## Zero-assumption rule`.
+- **Verification**: Check high-level test seams across components (plus `Root cause` and `Reproduction seam` on `fix` specs) per `Spec altitude` and `Monotonic re-validation (pass 2+)` in `## Zero-assumption rule`.
 
 ## Severity
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | The spec contradicts a requirement or active code, repeats contracts with conflicting details, or leaves gaps in high-level design, module boundaries, shared contracts, system invariants, or high-level test seams (plus `Root cause` and `Reproduction seam` on `fix` specs). | Applies `ship-it:changes-requested`. |
-| **Warning** | Non-conflicting repetition, style improvements, or prose polish. | Advisory; applies `ship-it:validated` and permits progression without revalidation. |
-| **Question** | A user decision on scope, product behavior, or cross-cutting architecture is unwritten, or a high-level design choice has multiple valid designs. | Withholds approval until answered. |
+| **Blocker** | A spec claim or `- **Deferred to slicing**:` entry contradicts stated requirements, settled map decisions, or active code, conflicts internally, or leaves a qualifying cross-component gap under `## Zero-assumption rule` (including `Root cause` or `Reproduction seam` on `fix` specs). | Applies `ship-it:changes-requested`. |
+| **Warning** | Non-conflicting repetition, style polish, optional slice-local observations, qualifying active-code defaults, or belated non-regression notes on untouched prose under `## Zero-assumption rule`. | Advisory; applies `ship-it:validated` and permits progression without revalidation. |
+| **Question** | An open cross-component choice on scope, product behavior, or architecture lacks an unambiguous active-code default or conflicts with stated requirements or settled decisions under `## Zero-assumption rule`. | Withholds approval until answered. |
 
 Validation is strictly read-only on issue bodies.
-Do not downgrade a Blocker to avoid delaying work.
+Do not downgrade a qualifying Blocker to avoid delaying work.
 
 ## Report
 
@@ -58,9 +66,10 @@ When findings exist, post the report on the **spec** (`gh issue comment <spec> -
 - **Q-1** [<section>]: <question>
 ```
 
-Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
-Never output `- None` placeholder subsections.
-Specify `**Verdict**: Validated` for warning-only reports.
+- **Populated subsections**: Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
+- **Placeholder omission**: Omit `- None` placeholder subsections.
+- **Warning-only verdict**: Specify `**Verdict**: Validated` for warning-only reports.
+- **Inherited defaults**: When reporting an active-code default as a Warning, name both the inherited default and its active-code anchor (module or symbol) in the corresponding `W-<n>` bullet.
 
 ## Outcomes
 
