@@ -17,12 +17,12 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 | Remediate ticket set | [tickets.md#remediation](tickets.md#remediation) | Conductor (needs the user) |
 | Resolve research, prototype, or task ticket | [plan.md#ticket-types](plan.md#ticket-types), [plan.md#subagent-execution](plan.md#subagent-execution) | Subagent: `decide` |
 | Slice tickets | [tickets.md](tickets.md) | Subagent: `slice` |
-| Prepare bug | [bug-prep.md](bug-prep.md) | Subagent: `prepare-bug` |
+| Prepare bug | [bug-prep.md](bug-prep.md), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `prepare-bug` |
 | Implement ticket | [implement.md](implement.md) | Subagent: `implement` |
 | Rework ticket | [rework.md](rework.md) | Subagent: `rework` |
-| Validate spec or ticket set | [validate-spec.md](validate-spec.md) (`Target: spec`), [validate-tickets.md](validate-tickets.md) (`Target: ticket-set`) | Subagent: `validate` |
+| Validate spec or ticket set | [validate-spec.md](validate-spec.md) (`Target: spec`), [validate-tickets.md](validate-tickets.md) with [tickets.md#granularity-thresholds](tickets.md#granularity-thresholds), [tickets.md#slicing-anti-patterns](tickets.md#slicing-anti-patterns), and [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) (`Target: ticket-set`) | Subagent: `validate` |
 | Review ticket | [review-ticket.md](review-ticket.md), [review-core.md](review-core.md) | Subagent: `review` |
-| Final review | [review-final.md](review-final.md), [review-core.md](review-core.md) | Subagent: `final-review` |
+| Final review | [review-final.md](review-final.md), [review-core.md](review-core.md), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `final-review` |
 | Close out | [close-out.md#initial-close-out](close-out.md#initial-close-out) (`Mode: initial`), [close-out.md#synchronization](close-out.md#synchronization) (`Mode: sync`) | Subagent: `close-out` |
 
 ## Tier 1: dispatch packet
@@ -36,7 +36,7 @@ Pass only these fields to the subagent:
 - **Reference**: The assigned reference file(s) to follow, plus [writing.md](writing.md). Load only the assigned reference file(s) and `writing.md`; treat links to other reference files as citations rather than files to load.
 - **Issues**: The target issue number and the parent spec or map number.
 - **Slug**: The feature slug.
-- **Default branch**: The default branch name (such as `main`).
+- **Default branch**: The default branch name (such as `main`), read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
 - **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
 - **Return block**: The [Return schema](#return-schema) block, copied verbatim, because subagents never load `isolation.md`.
 

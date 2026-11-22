@@ -27,7 +27,7 @@ Ignore earlier conversation when choosing the feature.
 | Directive | Meaning |
 | :--- | :--- |
 | `ship-it <slug>` | Resume the feature with that slug. |
-| `ship-it #<n>` | Run `gh issue view <n> --json title,body`. A `[<slug>]` title prefix resumes that slug. Any other issue is an idea, and the issue becomes the spec's source. |
+| `ship-it #<n>` | Run `gh issue view <n> --json title,body,labels`. A `[<slug>]` title prefix on an issue bearing a `ship-it:` label resumes that slug. Any other issue is an idea, and the issue becomes the spec's source. |
 | `ship-it "<idea>"` | Start a new feature from the idea. |
 | `ship-it preflight` or `ship-it init` | Run [preflight.md](references/preflight.md) and stop. |
 | `ship-it version`, `ship-it --version`, or `ship-it -v` | Run only Check 0 in [preflight.md](references/preflight.md), report the version, and halt. |
@@ -35,7 +35,7 @@ Ignore earlier conversation when choosing the feature.
 With no directive, ask for one of these forms and stop.
 Run no `gh` command before a directive exists.
 
-**New feature setup** (idea, or an issue without a `[<slug>]` prefix):
+**New feature setup** (idea, or an issue that does not resume a slug):
 
 1. Propose a kebab-case slug and a Conventional Commits type (`feat`, `fix`, `refactor`, `docs`, `chore`, `perf`, `test`, `build`, `ci`).
 2. Confirm the slug is unused: `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. Check the returned count and emit the warning in [writing.md](references/writing.md#bounded-search-truncation) when 100 results return. Treat the slug as taken when any title starts with `[<slug>]`. Propose another slug when the slug is taken.
@@ -81,7 +81,7 @@ Load only [isolation.md](references/isolation.md), [writing.md](references/writi
 | [plan.md](references/plan.md) | Rows 1 and 2 (map) |
 | [spec.md](references/spec.md) | Rows 1, 4, and 5 |
 | [validate-spec.md](references/validate-spec.md) | Row 7 (spec validation) |
-| [tickets.md](references/tickets.md) | Rows 6 and 8, and Row 11 blocker checks |
+| [tickets.md](references/tickets.md) | Rows 6 and 8, Row 11 blocker checks, and Rows 9, 10, and 12 (sections assigned in [isolation.md](references/isolation.md#actions)) |
 | [bug-prep.md](references/bug-prep.md) | Row 10 (bug preparation) |
 | [validate-tickets.md](references/validate-tickets.md) | Row 9 (ticket-set validation) |
 | [implement.md](references/implement.md) | Row 11 Steps 4 (zero handoffs) and 5 (implementation) |
@@ -121,10 +121,7 @@ Complete the matched action, then follow the row's **Transition** column.
 
 **Bug tickets after final review**: Bug tickets prepared after the final review run ticket-set validation (Row 9) and ticket review (Row 11) but no repeat final review, because the spec keeps `ship-it:reviewed`. Merging the pull request is the final gate.
 
-**Frontier ticket** (`frontier_ticket`): the lowest-numbered open ticket in `ticket_set` whose blockers are all `CLOSED` ([tickets.md](references/tickets.md#relationships)).
-Check open tickets in ascending number order against the closed issues in `ticket_set`.
-Inspect native blockers in-memory from the batch query's `blockedBy` field; when `blockedBy` is empty for an open ticket, run `gh issue view <n> --json body --jq .body` to inspect its `## Blocked by` tasklist.
-Stop at the first unblocked ticket.
+**Frontier ticket** (`frontier_ticket` in § 2): Resolve each open ticket's blockers per [tickets.md](references/tickets.md#relationships), running `gh issue view <n> --json body --jq .body` to read its `## Blocked by` tasklist when `blockedBy` is empty.
 Apply the first matching step:
 
 1. No open ticket is unblocked: report each open ticket with its open blockers and **halt**.
@@ -174,8 +171,8 @@ Await the subagent's four-line return block before resuming the routing loop.
     - When zero cross-cutting questions remain, query state and route again. Row 5 or Row 7 enforces the § 3 circuit breaker on the next pass.
     - When cross-cutting questions remain, run the § 3 `Count check` on `<spec>` before prompting for `## Answers`.
     - At three or more post-reset reports (`>= 3`), short-circuit into the matching § 3 `Threshold halt` (`Standard halt` below six total reports, or `Spec-validation override` at `>= 6` total reports). Present unresolved findings and cross-cutting `Questions` together alongside reset or override choices.
-  - **Prompt and record replies**: For `Target: spec` validation below three post-reset reports, prompt the user only for cross-cutting questions on scope, product behavior, or high-level architecture. For all other subagent runs, ask the user every question (using an interactive question tool when available, or in plain text before ending the turn). Post the reply as a `## Answers` comment on the target issue (`<spec>` for validation and final review; the ticket or bug issue otherwise).
-  - **Fold settled answers**: For implementation questions, delegate folding answers to the next implementation subagent. For bug-preparation, validation, ticket-review, or final-review questions, fold settled answers into the map, spec, bug issue, or ticket body via surgical body edit (`gh issue edit <n> --body-file <file>`, deleting the temporary file immediately), or into fix-ticket acceptance criteria. Halt when Row 12 created fix tickets; otherwise query state and route again.
+  - **Prompt and record replies**: For `Target: spec` validation below three post-reset reports, prompt the user only for cross-cutting questions on scope, product behavior, or high-level architecture. For all other subagent runs, ask the user every question (using an interactive question tool when available, or in plain text before ending the turn). Post the reply as a `## Answers` comment on the target issue (`<spec>` for slicing, validation, and final review; the ticket or bug issue otherwise).
+  - **Fold settled answers**: For implementation questions, delegate folding answers to the next implementation subagent. For decision-ticket, slicing, bug-preparation, validation, ticket-review, or final-review questions, fold settled answers into the map, decision ticket, spec, bug issue, or ticket body via surgical body edit (`gh issue edit <n> --body-file <file>`, deleting the temporary file immediately), or into fix-ticket acceptance criteria. Halt when Row 12 created fix tickets; otherwise query state and route again.
 - **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit or bug-ticket approval at row 9, fix-ticket approval at row 12, or Boundary 3 exit at row 13, and otherwise query state and route again).
 
 ## 5. Report at every halt

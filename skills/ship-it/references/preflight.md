@@ -1,10 +1,11 @@
 # Preflight: verify repository setup, only when needed
 
 `ship-it` assumes an installed and authenticated `gh` CLI, a `github.com` remote, writable GitHub Issues, and the required label set.
-Run this checklist only in two situations:
+Run this checklist only in three situations:
 
 - The user runs `ship-it preflight` or `ship-it init`.
 - A `gh` command fails during a run.
+- The user runs a version directive from `SKILL.md` § 1, which runs Check 0 only.
 
 ## Checklist
 
@@ -34,7 +35,7 @@ Apply at most one type label per issue, plus any applicable status and provenanc
 | `ship-it:task` | type | Task decision ticket ([plan.md](plan.md)) |
 | `ship-it:validated` | status | Spec or ticket that passed validation ([validate-spec.md](validate-spec.md), [validate-tickets.md](validate-tickets.md)) |
 | `ship-it:reviewed` | status | Ticket diff or full feature PR diff that passed review ([review-ticket.md](review-ticket.md), [review-final.md](review-final.md)) |
-| `ship-it:changes-requested` | status | Spec or ticket with unresolved Blockers ([validate-spec.md](validate-spec.md), [validate-tickets.md](validate-tickets.md), [review-ticket.md](review-ticket.md), [review-final.md](review-final.md)) |
+| `ship-it:changes-requested` | status | Spec or ticket with unresolved Blockers ([validate-spec.md](validate-spec.md), [validate-tickets.md](validate-tickets.md), [review-ticket.md](review-ticket.md)) |
 
 Create or update labels with these idempotent commands:
 

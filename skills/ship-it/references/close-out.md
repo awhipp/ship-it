@@ -15,7 +15,7 @@ When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-bran
    gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
    ```
 
-   - **Closing references**: List each closed ticket by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue and `<spec-number> != <issue>`) so merging the pull request closes the spec.
+   - **Closing references**: List each closed ticket with `stateReason` `COMPLETED` by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue and `<spec-number> != <issue>`) so merging the pull request closes the spec.
    - **Addendum bugs**: When closed `ship-it:bug` tickets with `stateReason` `COMPLETED` exist, append an `### Addendum Bugs` section listing each completed bug ticket as `- #<n> (<title>) - Closes #<n>`.
    - **Truncation notice**: When the closed-ticket query returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a note inside the pull request body. Keep the four-line return block (`Evidence: None`) in [isolation.md](isolation.md) unchanged.
 

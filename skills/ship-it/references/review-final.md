@@ -7,7 +7,7 @@ Run after every ticket closes, auditing the whole feature branch diff along the 
 | Input | Source |
 | :--- | :--- |
 | Fixed point | `git merge-base origin/<default-branch> HEAD` |
-| Requirements | The spec body (`gh issue view <spec> --json body --jq .body`) and every closed ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,body`). Check the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping results whose title starts with `[<slug>]`, with zero comment reads. |
+| Requirements | The spec body (`gh issue view <spec> --json body --jq .body`) and every closed ticket body (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,body,stateReason`). Check the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping results whose title starts with `[<slug>]` and whose `stateReason` is `COMPLETED`, with zero comment reads. |
 
 Return `failed` when the merge-base commit does not resolve or the diff is empty.
 

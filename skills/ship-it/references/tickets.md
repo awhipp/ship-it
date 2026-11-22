@@ -127,7 +127,7 @@ When ticket-set validation applies `ship-it:changes-requested` to the spec:
    Conductors resolve every Blocker in open ticket bodies via surgical body edits (`gh issue edit <n> --body-file <file>`, deleting each temporary file immediately):
    - Update ticket bodies directly without posting issue comments.
    - Never author `## Answers` or `## Circuit Breaker Reset` comments during autonomous blocker resolutions.
-   - Correct the root cause, reproduction seam, or acceptance criteria on bug tickets, or update low-level design, create missing slices, and close redundant slices on feature tickets.
+   - Correct the root cause, reproduction seam, or acceptance criteria on bug tickets, or update low-level design, create missing slices, and close redundant slices as not planned (`gh issue close <n> --reason "not planned"`) on feature tickets.
    - Obtain user approval when changes alter scope.
 3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets.
 4. **Remove label**: Clear `ship-it:changes-requested` from the spec (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
