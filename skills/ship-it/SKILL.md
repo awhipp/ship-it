@@ -74,7 +74,7 @@ gh pr list --head "<branch>" --state all --json number,state,url
 
 ## Reference index
 
-Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file(s) for the active step. Do NOT load non-active reference files until their row matches. Leaving non-active reference files unloaded keeps the conductor's context lean and prevents rules for other phases from bleeding into the active step.
+Load only [isolation.md](references/isolation.md), [writing.md](references/writing.md), and the reference file(s) for the active step. Do NOT load non-active reference files until their row matches. Leaving non-active reference files unloaded keeps the conductor's context lean and prevents rules for other phases from bleeding into the active step. In Tier 1, load a step's file only when the conductor runs that step itself (the `Runs in` column of [isolation.md](references/isolation.md#actions)), and name subagent-run files in the dispatch packet instead.
 
 | File | Read the file when |
 | :--- | :--- |

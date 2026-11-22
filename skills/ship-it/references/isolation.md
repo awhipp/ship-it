@@ -47,11 +47,11 @@ A subagent that finds a requirement missing returns the missing requirement as a
 
 ### Role complexity matrix
 
-Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section. Fall back to the Default Complexity column, or to `high` when an inherited `## Complexity` section is missing:
+Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section (`gh issue view <n> --json body --jq .body`). Fall back to the Default Complexity column, or to `high` when an inherited `## Complexity` section is missing:
 
 | Role | Lifecycle Phase | Complexity Source | Default Complexity |
 | :--- | :--- | :--- | :--- |
-| **`decide`** | Plan | Ticket or Default | `low` for research, `medium` for prototypes and tasks |
+| **`decide`** | Plan | Fixed Default | `low` for research, `medium` for prototypes and tasks |
 | **`slice`** | Tickets | Fixed Default | `high` |
 | **`prepare-bug`** | Tickets | Fixed Default | `medium` |
 | **`validate`** | Spec / Tickets | Target | `medium` for `Target: spec`, `high` for `Target: ticket-set` |
