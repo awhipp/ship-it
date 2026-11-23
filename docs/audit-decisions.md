@@ -53,6 +53,7 @@ Review these records before proposing changes that reopen settled trade-offs.
 - **Rationale**: Collapsing three repeated circuit-breaker protocols into one shared counting rule, an inline trip-and-reset procedure, and one four-column lookup table in [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md) without skip rules removes six per-entry conditions without adding a separate reference file.
 - **Note**: The human-override clause at six total non-approved `## Validation: Spec` reports (Rows 5 and 7) operates inline inside [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md)'s unified circuit-breaker rule without adding a skip column or separate reference file.
 - **Note** ([PR #348](https://github.com/awhipp/ship-it/pull/348)): Resets stay unscoped, so a reset on `<spec>` restarts every breaker counted there, and the extra passes this allows stay bounded and follow a human reply. Deferral-only spec-validation passes stay counted, because excluding them would add a skip rule and unbound the validate-and-defer loop.
+- **Note**: Progress-based breaker state resets Blocker trajectories and trailing `Questions pending` streaks at the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Approved` or `**Verdict**: Validated` report matching the active `Report heading` (whichever is more recent), while `## Validation: Spec` preserves the full-history count of non-approved reports for the six-report `Spec-validation override` branch.
 - **Revisit condition**: Revisit if a new validation or review gate requires its own verdict issue or report heading in the shared lookup table.
 
 ### M1: Stable string row identifiers
@@ -100,7 +101,7 @@ Review these records before proposing changes that reopen settled trade-offs.
 ### M8: Circuit-breaker prose layout
 
 - **Decision**: **Modified-go** ([decision record](https://github.com/awhipp/ship-it/pull/348)).
-- **Rationale**: Restating the circuit breaker in [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md) as flat single-purpose bullets states the trip condition once in `Threshold halt` and makes the spec-validation override a branch of a tripped breaker, which answers repeated `skill-judge` readability findings while keeping H4's single shared rule and four-column table. Threshold or option tables are rejected because they add a second circuit-breaker table.
+- **Rationale**: Restating the circuit breaker in [`skills/ship-it/SKILL.md`](../skills/ship-it/SKILL.md) as flat single-purpose bullets states the progress-based trip conditions (`M > 0`, non-decreasing consecutive `Changes requested` counts, five strictly decreasing passes, or two trailing `Questions pending` passes) and cycle boundary (`## Circuit Breaker Reset` or intervening `**Verdict**: Approved` or `**Verdict**: Validated` matching the active `Report heading`) once in `Threshold halt` and makes the spec-validation override a branch of a tripped breaker, which answers repeated `skill-judge` readability findings while keeping H4's single shared rule and four-column table. Threshold or option tables are rejected because they add a second circuit-breaker table.
 - **Revisit condition**: Revisit if a new breaker, threshold, or override option no longer fits the single trip rule.
 
 ### L1: Deduplicate subagent prohibitions

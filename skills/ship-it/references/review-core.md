@@ -48,6 +48,7 @@ Post the report on the ticket, or on the spec for a final review:
 ```markdown
 ## Review: <Ticket #n | Final>
 **Verdict**: Approved | Changes requested | Questions pending
+**Blockers**: <N>, **Reintroduced**: <M>
 **Audited**: `<fixed-point>..<head-sha>` (<diff stat summary>; <verification summary>)
 
 ### Standards
@@ -66,4 +67,4 @@ Post the report on the ticket, or on the spec for a final review:
 - **Populated subsections**: Render only subsections that contain findings (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`). Omit empty subsections and `- None` placeholders.
 - **Clean pass**: When a ticket review or final review has zero findings and zero Nits, output only `## Review: <Ticket #n | Final>`, `**Verdict**: Approved`, the `**Audited**:` proof-of-work line, and any truncation note.
 - **Truncation notice**: When the closed-ticket query in final review returns 100 items, embed the warning in [writing.md](writing.md#bounded-search-truncation) as a report note inside `## Review: Final`. Keep the four-line return block in [isolation.md](isolation.md) unchanged.
-- **Exact verdict line**: Format the `**Verdict**:` line verbatim on line 2 immediately under the report heading. The conductor counts non-approved verdicts (`Changes requested` and `Questions pending`) posted after the latest `## Circuit Breaker Reset` comment to enforce the retry limit.
+- **Exact verdict line**: Write `**Verdict**:` verbatim on line 2 immediately under the report heading. On `Changes requested` reports, write `**Blockers**: <N>, **Reintroduced**: <M>` on line 3 directly before `**Audited**:`. Keep the `## Review: Ticket #<n>` or `## Review: Final` heading, verdict line, and line-3 counts within the first 120 characters (`.body[:120]`) including CRLF line endings. Set `<N>` to the total Blocker count across `### Standards` and `### Spec`, excluding `### Clarifying Questions` and `### In-place Resolutions` (in-place Nits). Treat `**Reintroduced**: <M>` as optional on pass 1, and default an omitted `<M>` to `0`. Omit line 3 when the verdict is `Approved` or `Questions pending`. The conductor tracks progress-based breaker state from the `.body[:120]` prefixes of prior review reports after the latest `## Circuit Breaker Reset` or `Clean pass` `**Verdict**: Approved` comment marking a cycle boundary.

@@ -18,6 +18,9 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 
 Apply these seven rules across all `ship-it` documentation, maps, specs, tickets, validation reports, and reviews.
 Scope Rule 7 cross-referencing to `ship-it` GitHub artifacts, commit subjects (`(#<ticket>)`), and pull request descriptions, closing lists, and file annotations rather than durable source files.
+Apply section-scoped precedence inside tickets:
+- **Ticket acceptance criteria**: Prioritize self-contained verification over cross-referencing under Rule 7 while preserving controlled vocabulary under Rule 6.
+- **Slice goal and low-level design**: Prioritize cross-referencing under Rule 7 over restatement inside `## Slice goal` and for spec-owned contracts inside `## Low-level design`, while keeping slice-local `Design deltas` concrete.
 
 Evaluate clarity and brevity qualitatively through direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics. Mechanical word counters optimize for arbitrary metrics instead of reader clarity and waste tool turns.
 
@@ -53,6 +56,12 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
 - **Non-stdin execution**: Pass non-interactive flags (such as `--yes`) and set `GIT_TERMINAL_PROMPT=0` in POSIX shells or `$env:GIT_TERMINAL_PROMPT = '0'` in `pwsh` for commands that might prompt. Pipe `$null | <cmd>` in `pwsh`, or redirect `< /dev/null` in POSIX shells, when a command might read standard input in a non-TTY shell. PowerShell reserves the `<` operator and rejects `< /dev/null` and `< NUL`.
 - **Non-pager CLI invocation**: Suppress interactive pagers in `git` and `gh` using `git --no-pager <subcommand>` or structured output (`gh ... --json ... --jq '...'`). When no non-paged flag applies, set inline `GIT_PAGER=cat` or `GH_PAGER=cat` in POSIX shells, or set `$env:GIT_PAGER = 'cat'` or `$env:GH_PAGER = 'cat'` in `pwsh`.
 - **Command chaining**: Chain dependent commands with `&&` or `||` in POSIX shells and `pwsh` 7.4 or later.
+- **Transient write retry**: Inspect target state before retrying once when `gh issue edit`, `gh issue create`, `gh issue comment`, `gh issue close`, `gh pr create`, `gh pr edit`, `gh pr reopen`, or a `gh api` comment write fails with a transient GraphQL, HTTP 5xx, or timeout error. Retain any temporary `--body-file` until the retry completes. Retry once only when inspection confirms the mutation is absent from target state; route to [preflight.md](preflight.md) (conductor) or return `failed` (subagent) on repeated or non-transient errors:
+  - **Issue edits and closes**: `gh issue view <n> --json title,body,labels,assignees,state,parent,blockedBy`
+  - **Issue comments**: `gh issue view <n> --json comments --jq '[.comments[-3:][].body[:120]]'`
+  - **Issue creates**: `gh issue list --state open --limit 100 --json number,title` (checking the returned count per [bounded search truncation](#bounded-search-truncation) before matching the expected title in-agent)
+  - **Pull request create, edit, or reopen**: `gh pr list --head "<branch>" --state all --json number,state,url` and `gh pr view <pr> --json state,body`
+  - **Comments on pull request files**: `gh api "repos/{owner}/{repo}/pulls/<pr>/comments?per_page=100" --jq '[.[] | {path, commit_id, body: .body[:120]}]'`
 
 ## Bounded search truncation
 

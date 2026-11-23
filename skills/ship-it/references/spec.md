@@ -11,7 +11,7 @@ When a point remains unsettled, ask the user directly instead of guessing.
 2. **Explore the codebase**: Run `git fetch origin <default-branch>`, and inspect `origin/<default-branch>` using read-only git commands (`git --no-pager show` or `git --no-pager grep` on explicit paths) so local branches and dirty trees remain untouched. Warn the user when local `HEAD` diverges from `origin/<default-branch>`. Identify affected modules, shared contracts, data models, and system invariants using targeted searches, the repository's vocabulary, and Architecture Decision Records (ADRs).
 3. **Define test seams**: Determine where and how to verify the feature using existing test runners and directories, preferring high-level seams with minimal touchpoints. For `fix` feature types, specify `Root cause: <mechanism>` and `Reproduction seam: <test or CLI command failing before fix>`. When automated tests do not apply, define direct checks rather than custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition). Confirm the verification seams with the user before drafting.
 4. **Draft the spec**: Draft the specification using the template below, following [writing.md](writing.md). Write concise single-contract bullet points covering cross-cutting concerns.
-   - **Keep spec altitude**: Name modules, boundaries, and shared contracts rather than internal functions, file paths, internal CLI flags, flags of invoked external tools, or shell commands. Prefer naming a module boundary over asserting unneeded existing behavior. Exempt public CLI or interface contracts exposed by the feature to users or callers and `Reproduction seam` commands under `## Testing Decisions` on `fix` specs.
+   - **Keep spec altitude**: Name modules, boundaries, and shared contracts rather than internal functions, file paths, internal CLI flags, flags of invoked external tools, or shell commands. Prefer naming a module boundary over asserting unneeded existing behavior. Exempt public CLI or interface contracts exposed by the feature to users or callers, `Reproduction seam` commands under `## Testing Decisions` on `fix` specs, and shared cross-slice flags recorded in `- **Decision Register**:`. Keep single-slice flags and internals excluded at spec altitude unless registered, and place them in `- **Deferred to slicing**:`.
    - **Check subsystem cohesion**: Before pausing for approval, warn the user when a draft spans unrelated subsystems lacking a shared runtime contract or joint acceptance path. Suggest one spec per subsystem or a tighter cross-cutting altitude. Keep that subsystem warning strictly advisory without blocking publication after user approval.
    - **Obtain draft approval**: Pause and obtain explicit user approval of the draft before creating the GitHub issue.
 5. **Publish the spec**:
@@ -49,8 +49,10 @@ State each high-level contract, boundary, or rule once across the feature:
 - **Architecture and module boundaries**: Name the components, modules, or subsystems involved and define their responsibilities.
 - **Contracts and schemas**: Specify shared interfaces, API contracts, data models, and state transitions across components.
 - **Cross-cutting invariants and failure handling**: State error-handling rules, edge-case policies, backward-compatibility constraints, and system invariants.
+- **Decision Register**: <shared cross-slice contracts or None>
 - **Deferred to slicing**: <detail>
 
+Record shared thresholds, module homes, lifecycle timing rules, and shared external tool or CLI flags in `- **Decision Register**:`.
 Omit line numbers and low-level function bodies unless a prototype established a concrete schema or state machine.
 
 ## Testing Decisions
@@ -81,7 +83,7 @@ Conductors must never post comments or author `## Answers` or `## Circuit Breake
    - **Advisory warnings**: Leave advisory Warnings untouched. Editing warning-only sections expands the active edit surface on later validation passes. Warnings never trigger independent remediation passes or revalidation loops.
 
    Resolve every cited Blocker using one of four remediation paths while preserving untouched text verbatim:
-   - **In-body edit**: Apply the minimal surgical edit (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) needed to remove the cited contradiction or architectural gap without adding unrequested claims. Route any new implementation detail required by that fix to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions`.
+   - **In-body edit**: Apply the minimal surgical edit (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) needed to remove the cited contradiction or architectural gap without adding unrequested claims. Under `## Implementation Decisions`, route newly added cross-slice contract fixes to `- **Decision Register**:` and route single-slice implementation details to `- **Deferred to slicing**: <detail>`.
    - **Defer to slicing**: Record slice-local details or caller edge cases directly under `## Implementation Decisions` in the spec body as `- **Deferred to slicing**: <detail>` without prompting the user.
    - **Descope**: Remove capabilities and record them under `## Out of Scope` only after obtaining explicit user approval.
    - **Split scope**: Create a follow-up GitHub issue for the deferred work and link the issue under `## Out of Scope` only after obtaining explicit user approval.
