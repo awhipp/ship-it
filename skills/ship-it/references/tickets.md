@@ -9,7 +9,7 @@ Every feature produces at least one ticket.
 ### 1. Read the spec and explore the codebase
 
 Read the validated spec body (`gh issue view <spec-number> --json body --jq .body`) without comment queries.
-Inspect any `- **Deferred to slicing**: <detail>` entries under `## Implementation Decisions`.
+Inspect `- **Decision Register**:` and `- **Deferred to slicing**:` entries under `## Implementation Decisions`.
 Run `git fetch origin <default-branch>`, and inspect `origin/<default-branch>` with read-only git commands (`git --no-pager show` or `git --no-pager grep` on explicit paths) so local branches and dirty trees remain untouched.
 Use targeted symbol and path searches anchored on the specification's modules and contracts to locate the exact files, symbols, types, and test suites each slice touches.
 Read only the relevant sections of large files rather than scanning the entire repository.
@@ -18,8 +18,10 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 ### 2. Draft vertical slices
 
 - Cut each slice as a narrow, complete vertical path through every touched layer per [Slicing anti-patterns](#slicing-anti-patterns).
-- Author each slice using [Ticket template](#ticket-template), citing `Spec § <section>` for shared contracts rather than restating spec prose.
-- Incorporate all `- **Deferred to slicing**:` entries from the spec body into ticket acceptance criteria, ensuring full coverage across the ticket set.
+- Author each slice using [Ticket template](#ticket-template), honoring `- **Decision Register**:` entries and citing `Spec § <section>` for spec-owned contracts in `## Slice goal` and `## Low-level design` while keeping slice-local `Design deltas` concrete.
+- Make `## Acceptance criteria` self-contained using Rule 6 controlled vocabulary per [writing.md](writing.md#application-across-artifacts), and cover all `- **Deferred to slicing**:` entries across the ticket set.
+- Auto-resolve reversible slice-local defaults into ticket bodies when active code or spec context supports a safe default, and record each resolved item for `## Auto-resolved Decisions` on `<spec>`.
+- Batch any `Question` requiring an irreversible scope, observable product behavior, or architecture choice and return `Verdict: questions` with `Evidence: None` before creating any tickets, keeping `ticket_set` empty so Row 8 cleanly re-runs after `## Answers` fold into `<spec>`.
 - Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](writing.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
 - Deliver verifiable behavior in each completed slice, scoped to fit in one fresh context window.
 - When prefactoring earns a dedicated ticket under **Require Multiple Consumers for Prefactoring** ([Collapse rules](#collapse-rules)), sequence that prefactoring ticket first to block every dependent slice.
@@ -27,6 +29,7 @@ Look for prefactoring opportunities that reshape existing code in an initial tic
 
 ### 3. Publish in dependency order
 
+Publish tickets only when zero irreversible `Questions` remain.
 Publish blockers first so dependent tickets can reference their issue numbers.
 Title each issue `[<slug>] Ticket: <gist>`, apply the `ship-it:ticket` label, and link to the spec and blockers per [§ Relationships](#relationships):
 
@@ -36,8 +39,15 @@ gh issue edit <n> --parent <spec-id> --add-blocked-by <blocker-id>
 ```
 
 Repeat `--add-blocked-by` once per blocker, and omit the flag for tickets without blockers.
+When slice-local defaults were auto-resolved, write one `## Auto-resolved Decisions` comment to a temporary file using this bullet format, post it on `<spec>` (`gh issue comment <spec-number> --body-file <file>`), and delete the temporary file immediately:
 
-After creating all tickets, return `done` with all published ticket numbers in `Issues: #<n>, ...` and `Evidence: None`.
+```markdown
+## Auto-resolved Decisions
+- **#<ticket>** [<section>]: <chosen reversible default> (<spec or active-code anchor>; reversible: <scope>)
+```
+
+After creating all tickets, return `done` with all published ticket numbers in `Issues: #<n>, ...`.
+Return that `## Auto-resolved Decisions` comment URL in `Evidence:` when posted, and `Evidence: None` otherwise.
 
 ## Granularity thresholds
 
@@ -45,6 +55,7 @@ Apply qualitative bounds to ticket sizing:
 
 - **Lower Bound (Minimum Viable Ticket)**: Introduce or modify executable behavior verified by tests or direct checks, collapsing work lacking a testable consumer seam per [Slicing anti-patterns](#slicing-anti-patterns).
 - **Upper Bound (Maximum Ticket Size)**: Keep every ticket within a single fresh subagent context window without reasoning degradation. Touch a single coherent domain rather than multiple disconnected systems.
+- **Anti-pattern precedence**: Let [Slicing anti-patterns](#slicing-anti-patterns) outrank size-driven splits. Complexity tiers describe effort without triggering splits unless the Upper Bound breaks and every resulting slice keeps a testable vertical seam.
 
 ## Collapse rules
 
@@ -55,7 +66,7 @@ Follow two rules to prevent unnecessary isolation overhead:
 
 ## Slicing anti-patterns
 
-Avoid these five anti-patterns during ticket slicing:
+These five anti-patterns outrank size-driven splits; avoid introducing any of them during ticket slicing:
 
 | Anti-Pattern | Description | Failure Mode | Required Remediation |
 | :--- | :--- | :--- | :--- |
@@ -67,16 +78,16 @@ Avoid these five anti-patterns during ticket slicing:
 
 ## Complexity taxonomy
 
-Assign a complexity tier to each ticket based on scope, touched layers, verification seams, and reasoning requirements.
-When columns or file counts fit two tiers, assign the higher tier.
+Assign a complexity tier to each ticket based on touched source files (excluding test files), scope, verification seams, and reasoning requirements.
+When non-file dimensions fit a higher tier than the source-file count, assign the higher tier.
 
 | Level | Architectural Scope and Touchpoints | Verification Seam | Reasoning Need |
 | :--- | :--- | :--- | :--- |
-| **`low`** | Localized changes in 1 or 2 files. Minor fixes, absorbed cleanups, or colocated docs. | Localized unit tests or direct checks. | Minimal procedural execution with direct steps. Zero architectural ambiguity. |
-| **`medium`** | Conventional vertical slice across 2 to 4 files. Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning with step-by-step verification. Routine edge-case handling. |
-| **`high`** | Broad slice across 4 or more files, or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning with thorough invariant auditing. |
+| **`low`** | Localized changes in 1–2 source files (excluding test files). Minor fixes, absorbed cleanups, or colocated docs. | Localized unit tests or direct checks. | Minimal procedural execution with direct steps. Zero architectural ambiguity. |
+| **`medium`** | Conventional vertical slice across 3–5 source files (excluding test files). Standard feature logic, handlers, or schema additions. | Standard unit tests and integration tests with mocks. | Standard procedural reasoning with step-by-step verification. Routine edge-case handling. |
+| **`high`** | Broad slice across 6+ source files (excluding test files), or cross-cutting subsystems. Complex state machines, concurrency, or security paths. | Comprehensive test suites, failure injection, or regression checks. | Deep exploratory reasoning with thorough invariant auditing. |
 
-Split any slice that exceeds the Upper Bound in § Granularity thresholds into smaller vertical tickets, whatever its tier.
+Complexity tiers describe effort without triggering splits. Split a slice only when the Upper Bound in [§ Granularity thresholds](#granularity-thresholds) breaks and every resulting slice preserves a testable vertical seam.
 
 ## Ticket template
 
@@ -108,6 +119,7 @@ Name the vertical slice in one to two sentences and cite the `Spec § <section>`
 
 When a ticket has no blockers, write `None (can start immediately).` under `## Blocked by`.
 Use `## Acceptance criteria` as the single home for imperative, testable slice verification, happy paths, edge cases, and negative invariants (such as "confirm as a final check that no callers of the old API remain").
+Apply section-scoped precedence per [writing.md](writing.md#application-across-artifacts): self-containment outranks Rule 7 inside `## Acceptance criteria` while preserving Rule 6 controlled vocabulary, whereas Rule 7 outranks restatement inside `## Slice goal` and for spec-owned contracts inside `## Low-level design` while keeping `Design deltas` concrete.
 Omit line numbers and literal code blocks while naming exact file paths, modules, and symbols.
 
 ## Relationships
@@ -119,18 +131,21 @@ Maintain compatibility across GitHub repository tiers with dual-channel relation
 
 ## Remediation
 
-When ticket-set validation applies `ship-it:changes-requested` to the spec:
+When ticket-set validation applies `ship-it:changes-requested` to `<spec>`:
 
-1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Ticket set") or startswith("## Answers") or startswith("## Circuit Breaker Reset")) | .body]'` and select the latest `## Validation: Ticket set` report in-agent.
-2. **Update the tickets**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into ticket bodies.
-   Conductors may opportunistically fold advisory warnings into ticket bodies while editing for blockers or while folding settled decisions.
-   Warnings never trigger independent remediation passes or revalidation loops.
+1. **Read the report and open tickets**:
+   - Read spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Ticket set") or startswith("## Answers") or startswith("## Circuit Breaker Reset") or startswith("## Auto-resolved Decisions")) | .body]'` and select the latest `## Validation: Ticket set` report in-agent.
+   - Fetch open tickets once via `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels,blockedBy`, checking the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping titles starting with `[<slug>]`.
+2. **Update the tickets**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into open ticket bodies.
+   Leave advisory Warnings untouched. Editing warning-only sections or tickets expands the revalidation surface and removes `ship-it:validated`. Warnings never trigger independent remediation passes or revalidation loops.
 
-   Conductors resolve every Blocker in open ticket bodies via surgical body edits (`gh issue edit <n> --body-file <file>`, deleting each temporary file immediately):
-   - Update ticket bodies directly without posting issue comments.
+   Resolve every Blocker in open ticket bodies via surgical body edits (`gh issue edit <n> --body-file <file>`, deleting each temporary file immediately):
+   - Update ticket bodies directly without posting ticket comments.
    - Never author `## Answers` or `## Circuit Breaker Reset` comments during autonomous blocker resolutions.
+   - When resolving a gap with a reversible slice-local default, post one `## Auto-resolved Decisions` comment on `<spec>` (`gh issue comment <spec-number> --body-file <file>`, deleting the temporary file immediately) using the bullet format in [§ 3 Publish in dependency order](#3-publish-in-dependency-order).
    - Correct the root cause, reproduction seam, or acceptance criteria on bug tickets, or update low-level design, create missing slices, and close redundant slices as not planned (`gh issue close <n> --reason "not planned"`) on feature tickets.
    - Obtain user approval when changes alter scope.
-3. **Clear ticket validation labels**: Remove `ship-it:validated` from every open ticket in the set so validators re-audit the entire set rather than skipping untouched open tickets.
-4. **Remove label**: Clear `ship-it:changes-requested` from the spec (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
-5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Routing re-runs Row 9 (ticket-set validation).
+   - **Consistency sweep**: Whenever edits alter a term, numeric threshold, symbol or fixture home, or shared contract, sweep all open ticket bodies from the step 1 fetch to reconcile Rule 6 terminology and contract references in the same pass. Track every newly edited ticket for step 3.
+3. **Selectively update ticket validation labels**: Retain `ship-it:validated` on untouched open tickets. Remove `ship-it:validated` (`gh issue edit <n> --remove-label "ship-it:validated"`) only when present on edited, created, or split tickets and their open direct dependency neighbors. Compute open direct dependency neighbors from both `blockedBy` and `blocks` relationships in the step 1 fetch, falling back to `## Blocked by` tasklists in the fetched ticket bodies per [§ Relationships](#relationships) when native `blockedBy` is empty.
+4. **Remove label**: Clear `ship-it:changes-requested` from `<spec>` (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
+5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Returning to Row 9 runs the conductor mechanical pre-validation gate before dispatching `validate`.

@@ -43,7 +43,8 @@ Pass only these fields to the subagent:
 Never pass conversation history, summaries of user intent, or opinions.
 Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents. Each subagent executes one bounded leaf action and returns control to the conductor's routing loop.
 Every requirement a subagent needs lives in the issues.
-A subagent that finds a requirement missing returns the missing requirement as a question.
+A subagent that finds a requirement missing returns the missing requirement as a question, with one scoped exception for `slice`.
+`slice` may auto-resolve reversible slice-local defaults into ticket bodies and `## Auto-resolved Decisions` on `<spec>`, escalating only scope, observable product behavior, or irreversible architecture choices as `Questions`.
 
 ### Role complexity matrix
 
@@ -83,7 +84,8 @@ Evidence: <link to the issue comment holding the full report, or None>
 ```
 
 Slicing subagents populate `Issues: #<n>, ...` with all created ticket numbers.
-Actions that post no report comment return `Evidence: None`.
+When `slice` posts `## Auto-resolved Decisions` on `<spec>`, `slice` returns that comment URL in `Evidence:` (and `Evidence: None` otherwise).
+Other actions that post no report comment return `Evidence: None`.
 The conductor reads only this block.
 
 ## Tier 2
