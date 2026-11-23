@@ -11,7 +11,7 @@ The map is a GitHub issue titled `[<slug>] Map: <destination gist>` with the `sh
 ```markdown
 ## Source
 
-- **Request**: #<n> (<original-title>) when sourced from an issue, or verbatim "<idea>" directive text.
+- **Request**: #<n> (<original-title>): <confirmed request> when sourced from an issue, or the confirmed request from setup.
 - **Branch**: <type>/<slug>
 
 ## Destination
