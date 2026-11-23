@@ -13,7 +13,7 @@ Every run derives its next action from that state alone.
 
 ## Hard rules
 
-1. **Never guess.** Ask the user whenever a fact on scope, observable product behavior, or irreversible architecture is missing from the directive, an issue, or a reference file, because unverified assumptions cause silent drift across issues and code. Slice-local spec-validation questions defer to slicing per § 4, and reversible slice-local defaults auto-resolve via `## Auto-resolved Decisions` during slicing, ticket-set remediation ([tickets.md](references/tickets.md)), and ticket-set validation question triage (§ 4).
+1. **Never guess.** Ask the user whenever a fact on scope, observable product behavior, or irreversible architecture is missing from the directive, an issue, or a reference file, because unverified assumptions cause silent drift across issues and code. Slice-local spec-validation questions defer to slicing per § 4, and reversible slice-local defaults auto-resolve via `## Auto-resolved Decisions` during slicing, ticket-set remediation ([tickets.md](references/tickets.md)), and triage of ticket-set validation questions (§ 4).
 2. **Never verify your own work.** Validation and review run in a fresh context per [isolation.md](references/isolation.md).
 3. **Run every boundary to its exit halt.** Loop through query, route, and action until a row halts or requires user input, so artifacts reach the human approval gate instead of stalling mid-phase. The developer approves Boundaries 1 and 2 by invoking `ship-it <slug>` again, and approves Boundary 3 by merging the pull request.
 4. **Never merge a pull request.** Merging serves as the developer's final approval gate for Boundary 3 and publishes the feature to the default branch.
