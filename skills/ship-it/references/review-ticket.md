@@ -8,12 +8,13 @@ Audit one ticket's diff along the `Standards` and `Spec` axes defined in [review
 | :--- | :--- |
 | Fixed point | The `Fixed point: <sha>` comment on the ticket, or derived via the four-step fallback below |
 | Requirements | The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) |
+| Prior review reports | Prior `## Review:` and `## Circuit Breaker Reset` comments on `<n>` fetched in step 1 |
 
 Return `failed` when the fallback procedure cannot derive a fixed point, the commit does not resolve, or the diff is empty.
 
 ## Process
 
-1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. Fetch the ticket comments via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Handoff") or startswith("## Rework") or startswith("Fixed point:")) | .body]'`, which returns only the `Fixed point:`, `## Handoff`, and `## Rework` comments. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
+1. **Fetch the diff**: Fetch the target refs (`git fetch origin <default-branch> <branch>`) and check out the feature branch. Fetch the ticket comments via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Handoff") or startswith("## Rework") or startswith("Fixed point:") or startswith("## Review:") or startswith("## Circuit Breaker Reset")) | .body]'`, which returns only `Fixed point:`, `## Handoff`, `## Rework`, `## Review:`, and `## Circuit Breaker Reset` comments. When prior `## Review:` reports exist (pass 2 onward), compare current Blockers only against cleared Blockers from `## Review:` reports posted after the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Approved` report (whichever is more recent) to count `**Reintroduced**: <M>`. Continue honoring all settled guidance. When the ticket lacks a `Fixed point:` comment, execute this fallback procedure:
    1. Extract commit hashes from the `## Handoff` comment on the ticket. Resolve the parent of the earliest commit using `<earliest-sha>~1`.
    2. When extraction yields no commits, inspect `git --no-pager log origin/<default-branch>..HEAD --format=%s` for commits referencing `(#<ticket>)`. Resolve the parent of the earliest match using `<earliest-sha>~1`.
    3. When steps 1 and 2 find no matching commits, and no commit subject in `git --no-pager log origin/<default-branch>..HEAD --format=%s` references another ticket, resolve `git merge-base origin/<default-branch> HEAD`.
