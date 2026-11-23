@@ -9,7 +9,7 @@ Try to break the specification before anyone slices tickets or writes code.
 Read the requirements, the spec under audit, and prior spec comments first, then verify every named module boundary, shared contract, and system invariant against active code using targeted search.
 Ground every check in these inputs:
 
-- **Requirements**: The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`, or its `## Original request` comment via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Original request")) | .body]'` when `#<n>` is the spec or the map adopted in place), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), and `- **Deferred to slicing**:` entries under `## Implementation Decisions` in the spec body.
+- **Requirements**: The spec's `## Source` (including the body of any referenced request issue `#<n>` via `gh issue view <n> --json body --jq .body`, or its `## Original request` comment via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Original request")) | .body]'` when `#<n>` is the spec or the map adopted in place), the linked map body when `Map` is not `None` (`gh issue view <map> --json body --jq .body`), and both `- **Decision Register**:` and `- **Deferred to slicing**:` entries under `## Implementation Decisions` in the spec body.
   Let the confirmed `Request` govern where it differs from the source issue body or `## Original request` comment, and treat leftover ideas under `## Out of Scope` as descoped.
 - **Active code**: Run `git fetch origin <default-branch>`, and inspect `origin/<default-branch>` silently via read-only git commands (`git --no-pager show` or `git --no-pager grep` on explicit paths) so local branches and dirty trees remain untouched. When `git fetch origin <default-branch>` fails, fall back to local `HEAD` and record a single `### Warnings` entry naming `HEAD` as the ref used.
 - **Artifact under audit**: The spec body (`gh issue view <spec> --json body --jq .body`).
@@ -17,7 +17,7 @@ Ground every check in these inputs:
 
 ## Zero-assumption rule
 
-- **Spec altitude**: Restrict Blockers and `Clarifying Questions` to cross-component observable behavior where two implementers reading only the spec could disagree on module boundaries, shared contracts (including public CLI or interface contracts exposed by the feature to users or callers), data models, system invariants, or high-level test seams (including `Reproduction seam` on `fix` specs). Omit slice-local observations (internal functions, caller inventories, file paths, flags of invoked external tools, internal CLI flags, or low-level error checklists) or record them only as advisory Warnings without withholding approval.
+- **Spec altitude**: Restrict Blockers and `Clarifying Questions` to cross-component observable behavior where two implementers reading only the spec could disagree on module boundaries, shared contracts (including public CLI or interface contracts exposed by the feature to users or callers), data models, system invariants, or high-level test seams (including `Reproduction seam` on `fix` specs). Exempt shared cross-slice flags recorded in `- **Decision Register**:` from flag exclusions at spec altitude. Omit slice-local observations (internal functions, caller inventories, file paths, unrecorded external tool or internal CLI flags, or low-level error checklists) or record them only as advisory Warnings without withholding approval.
 - **Deferred items**: Exempt `- **Deferred to slicing**:` entries under `## Implementation Decisions` from `Clarifying Questions` and design-gap Blockers. Raise a Blocker only when a deferred entry directly contradicts stated requirements, settled map decisions, or active code.
 - **Architectural choice escalation**: When an unwritten spec-altitude choice has an unambiguous active-code default that does not conflict with stated requirements or settled decisions, record an advisory Warning naming both the inherited default and its active-code anchor (module or symbol), and permit `**Verdict**: Validated`. Reserve withholding `Clarifying Questions` for open spec-altitude choices lacking an unambiguous default or conflicting with stated requirements or settled decisions. Reserve slice-local questions for ticket-set validation or `- **Deferred to slicing**:`.
 - **Single-outcome gaps**: Treat unimplemented requirements as work to build rather than drift, raising a factual-drift Blocker only when the spec misstates existing code. Reserve remaining Blockers for contradictions against stated requirements or settled decisions, or single-outcome cross-component gaps at spec altitude (such as unspecified module boundaries) where requirements and code dictate one resolution. Omit slice-local gaps or record them as advisory Warnings, reserving them for ticket-set validation or `- **Deferred to slicing**:`.
@@ -25,6 +25,8 @@ Ground every check in these inputs:
    - **Active edit surface**: Limit the active edit surface to sections and claims cited in `### Blockers` or `### Clarifying Questions` of the latest `## Validation: Spec` report, plus subsequent `## Answers` or `## Circuit Breaker Reset` comments. Leave warning-only and uncited sections as untouched prose unless a concrete factual contradiction against active code or source requirements appears. A broad rescope recorded in a subsequent `## Circuit Breaker Reset` lifts monotonic shielding on rewritten sections covered by that reset.
    - **Excluded items**: Continue honoring all prior `## Answers` and `## Circuit Breaker Reset` comments, and never re-raise previously passing items or settled decisions unless a broad rescope in a subsequent `## Circuit Breaker Reset` rewrites the sections covering them. Keep `- **Deferred to slicing**:` entries exempt from `Clarifying Questions` and design-gap Blockers unless directly contradicting stated requirements, settled map decisions, or active code.
    - **Allowed Blockers and Questions**: Restrict new Blockers and `Clarifying Questions` on pass 2 and later to unresolved prior findings, claims on the active edit surface (including rewritten sections covered by a broad rescope in a subsequent `## Circuit Breaker Reset`), or concrete factual regressions and contradictions.
+   - **Reintroduced Blockers**: Inspect prior `## Validation: Spec` reports posted after the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Validated` report (whichever is more recent). Count active Blockers that reintroduce any previously cleared Blocker from that baseline as `**Reintroduced**: <M>`, while continuing to honor all prior settled decisions.
+   - **Verbatim Warning suppression**: Suppress any Warning repeated verbatim from an earlier `## Validation: Spec` pass unless its severity escalates or it reports the `git fetch origin <default-branch>` fallback to local `HEAD`.
    - **Untouched prose**: Record belated non-regression notes on untouched prose at most as advisory Warnings.
 - **Zero inference**: Never infer intent, rationalize the author's choice, or edit the spec. Report unambiguous active-code defaults explicitly as advisory Warnings instead of filling gaps silently.
 - **Source fidelity**: Verify that the spec honors every requirement and settled decision in the source issue or map body without contradiction.
@@ -51,11 +53,13 @@ Do not downgrade a qualifying Blocker to avoid delaying work.
 
 ## Report
 
-When findings exist, post the report on the **spec** (`gh issue comment <spec> --body-file <file>`), deleting the temporary file immediately:
+When findings remain after verbatim Warning suppression, post the report on the **spec** (`gh issue comment <spec> --body-file <file>`), deleting the temporary file immediately.
+When zero findings remain on pass 2 or later and a prior non-approved `## Validation: Spec` report exists after the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Validated` report, post a two-line `Validated` marker (`## Validation: Spec` and `**Verdict**: Validated`) on the **spec**:
 
 ```markdown
 ## Validation: Spec
 **Verdict**: Validated | Changes requested | Questions pending
+**Blockers**: <N>, **Reintroduced**: <M>
 
 ### Blockers
 - **B-1** [<section>]: <defect and why it blocks>
@@ -70,7 +74,7 @@ When findings exist, post the report on the **spec** (`gh issue comment <spec> -
 - **Populated subsections**: Render only subsections that contain findings (`### Blockers`, `### Warnings`, `### Clarifying Questions`).
 - **Placeholder omission**: Omit `- None` placeholder subsections.
 - **Warning-only verdict**: Specify `**Verdict**: Validated` for warning-only reports.
-- **Exact verdict line**: Write the `**Verdict**:` line verbatim on line 2, directly under the heading, because the conductor's circuit breaker reads verdicts from each comment's first 120 characters.
+- **Exact header prefix**: Write `**Verdict**:` verbatim on line 2 and `**Blockers**: <N>, **Reintroduced**: <M>` on line 3 for `Changes requested` reports, keeping heading, verdict, and counts within 120 characters including CRLF newlines. Omit line 3 on `Validated` and `Questions pending` reports. Treat `<M>` as optional on pass 1 and default omitted `<M>` to `0`.
 - **Inherited defaults**: When reporting an active-code default as a Warning, name both the inherited default and its active-code anchor (module or symbol) in the corresponding `W-<n>` bullet.
 
 ## Outcomes
@@ -79,7 +83,9 @@ When findings exist, post the report on the **spec** (`gh issue comment <spec> -
 | :--- | :--- | :--- |
 | Any Blocker | Add `ship-it:changes-requested` to the spec. | `changes-requested`, listing any Questions too, with `Evidence: <comment-url>` |
 | Questions, no Blocker | None. | `questions`, with `Evidence: <comment-url>` |
-| Warnings, no Blocker or Question | Add `ship-it:validated` to the spec. | `approved` with `Evidence: <comment-url>` |
-| Clean pass (zero findings) | Add `ship-it:validated` to the spec. | `approved` with `Evidence: None` (skip posting a report comment) |
+| Remaining Warnings, no Blocker or Question | Add `ship-it:validated` to the spec. | `approved` with `Evidence: <comment-url>` |
+| Pass 1 clean approval (zero findings, no prior non-approved report in cycle) | Add `ship-it:validated` to the spec. | `approved` with `Evidence: None` (skip posting a comment) |
+| Pass 2+ clean approval (zero findings remaining after prior non-approved report in cycle) | Add `ship-it:validated` to the spec. | `approved` with `Evidence: <comment-url>` (post two-line `Validated` marker) |
 
+A validation cycle runs from the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Validated` report (whichever is more recent).
 Preserve the four-line return block in [isolation.md](isolation.md) by recording warnings exclusively inside report comments linked via `Evidence: <comment-url>`.
