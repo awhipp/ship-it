@@ -55,7 +55,7 @@ When any conflict with active code or leave a decision unwritten:
 Resolve every Blocker in the latest review of a `ship-it:changes-requested` ticket per [Implement](#implement), except:
 
 1. Check out `<branch>`; read the latest `## Review:` report and any later `## Answers`, folding settled decisions as in Implement step 1.
-2. Fix every Blocker and sweep unchecked checklist items with tests or checks; escalate ambiguities per [Ask instead of guessing](#4-ask-instead-of-guessing).
+2. Fix every Blocker and sweep every unchecked checklist item, adding a test or direct check for each. A Blocker is also a trigger for [Ask instead of guessing](#4-ask-instead-of-guessing).
 3. Commit and push as in Implement, then post `## Rework`:
 
 ```markdown
@@ -109,5 +109,5 @@ Edit only the `OPEN` pull request body. Never match tickets from commit messages
 1. Fetch `origin/<default-branch>` and `origin/<branch>`, and check out `<branch>`.
 2. Query `gh pr list --head "<branch>" --state open --json number,body,url`. When no `OPEN` pull request exists, return `failed` with `Evidence: None`.
 3. Query closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`), checking truncation per [writing.md](writing.md#bounded-search-truncation). Select `[<slug>]`-prefixed `stateReason: COMPLETED` tickets lacking `Closes #<n>` (not followed by another digit) in the pull request body (`unsynced_tickets`). When `unsynced_tickets` is empty, return `failed` with `Evidence: None`.
-4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Refresh repository checklist items against `origin/<default-branch>..HEAD`. Embed the truncation warning at 100 closed-ticket results.
-5. Write the updated body to a temp file, run `gh pr edit <pr> --body-file <file>`, delete the file, and return `done` with `Evidence: None`.
+4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Refresh repository checklist items against `origin/<default-branch>..HEAD`. Embed the truncation warning at 100 results.
+5. Write the updated body to a temp file, run `gh pr edit <pr> --body-file <file>`, delete the file, and return `done`.
