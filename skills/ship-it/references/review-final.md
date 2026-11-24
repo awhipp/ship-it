@@ -39,7 +39,7 @@ Return `failed` when the merge-base commit (`<fixed-point>`) does not resolve or
 
 Follow this procedure with the template below:
 
-- **Creation flags**: Create each fix ticket with title `[<slug>] Ticket: Fix <gist>` and labels `ship-it:ticket,ship-it:validated`, then link it with `gh issue edit <n> --parent <spec-id>`, adding one `--add-blocked-by <blocker-id>` per blocker, ignoring errors on unsupported tiers.
+- **Creation flags**: Create each fix ticket with title `[<slug>] Ticket: Fix <gist>` and labels `ship-it:ticket,ship-it:validated`, then link it with `gh issue edit <n> --parent <spec-id>`, adding one `--add-blocked-by <blocker-id>` per blocker, optionally, ignoring errors.
 - **Payload file**: Write the ticket body using a temporary payload file.
 - **Settled answers**: Carry settled guidance that the conductor folded into the spec body into the acceptance criteria of fix tickets.
 - **Blockers**: List blockers under `## Blocked by` as `- [ ] Blocked by #<blocker-id>` when blockers exist.

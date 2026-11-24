@@ -134,10 +134,10 @@ Omit line numbers and literal code blocks while naming exact file paths, modules
 
 ## Relationships
 
-Maintain compatibility across GitHub repository tiers with dual-channel relationships:
+Body text is the only relationship data the skill reads:
 
-- **Dual-write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. After `gh issue create` succeeds, attempt native linking in a separate `gh issue edit` call (`--parent <spec-id>` and `--add-blocked-by <blocker-id>`), ignoring its errors on unsupported tiers, so a rejected link never blocks or duplicates a ticket.
-- **Dual-read on inspection**: Evaluate open tickets in ascending number order against the already-queried closed-ticket set. Inspect native blockers in-memory from the batch ticket query's `blockedBy` field, falling back to the ticket's `## Blocked by` tasklist when native relationships are empty. Stop at the first ticket whose blockers all have `state: "CLOSED"`.
+- **Write on creation**: Write `Part of #<spec-id>` on the first line and list blockers under `## Blocked by`. Then optionally decorate with native links in a separate `gh issue edit` call (`--parent <spec-id>` and `--add-blocked-by <blocker-id>`), ignoring its errors, so a rejected link never fails an action, blocks, or duplicates a ticket. No step reads native links.
+- **Read on inspection**: A ticket's blockers are the `#<id>` entries under its `## Blocked by`, and its dependants are the open tickets whose `## Blocked by` names it. Its open direct dependency neighbors are its open blockers and dependants. Evaluate open tickets in ascending number order against the already-queried closed-ticket set, and stop at the first ticket whose blockers all have `state: "CLOSED"`.
 
 ## Remediation
 
@@ -145,7 +145,7 @@ When ticket-set validation applies `ship-it:changes-requested` to `<spec>`:
 
 1. **Read the report and open tickets**:
    - Read spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Ticket set") or startswith("## Answers") or startswith("## Circuit Breaker Reset") or startswith("## Auto-resolved Decisions")) | .body]'` and select the latest `## Validation: Ticket set` report in-agent.
-   - Fetch open tickets once via `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels,blockedBy`, checking the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping titles starting with `[<slug>]`.
+   - Fetch open tickets once via `gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels`, checking the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping titles starting with `[<slug>]`.
 2. **Update the tickets**: Fold settled decisions from `## Answers` and `## Circuit Breaker Reset` comments into open ticket bodies.
    Leave advisory Warnings untouched. Editing warning-only sections or tickets expands the revalidation surface and removes `ship-it:validated`. Warnings never trigger independent remediation passes or revalidation loops.
 
@@ -157,6 +157,6 @@ When ticket-set validation applies `ship-it:changes-requested` to `<spec>`:
    - Obtain user approval when changes alter scope.
    - **Consistency sweep**: Whenever edits alter a term, numeric threshold, symbol or fixture home, or shared contract, sweep all open ticket bodies from the step 1 fetch to reconcile Rule 6 terminology and contract references in the same pass. Track every newly edited ticket for step 3.
    - **Consolidation checklists**: Preserve `## Consolidation checklist` items during surgical edits, retaining existing `- [ ]` and `- [x]` states on tickets bearing `ship-it:reviewed` or `ship-it:changes-requested`. When `- [x]` appears inside `## Consolidation checklist` on a feature ticket lacking both labels, inspect `gh issue view <n> --json comments --jq '[.comments[].body[:120]]'` for a prior `## Review: Ticket` report, retaining existing checkbox states when present and resetting `- [x]` to `- [ ]` when absent. Reconcile checklist members when requirements or active-code members change (leaving added items `- [ ]`), and omit `## Consolidation checklist` on `ship-it:bug` tickets.
-3. **Selectively update ticket validation labels**: Retain `ship-it:validated` on untouched open tickets. Remove `ship-it:validated` (`gh issue edit <n> --remove-label "ship-it:validated"`) only when present on edited, created, or split tickets and their open direct dependency neighbors. Compute open direct dependency neighbors from both `blockedBy` and `blocks` relationships in the step 1 fetch, falling back to `## Blocked by` tasklists in the fetched ticket bodies per [§ Relationships](#relationships) when native `blockedBy` is empty.
+3. **Selectively update ticket validation labels**: Retain `ship-it:validated` on untouched open tickets. Remove `ship-it:validated` (`gh issue edit <n> --remove-label "ship-it:validated"`) only when present on edited, created, or split tickets and their open direct dependency neighbors. Compute open direct dependency neighbors from the `## Blocked by` tasklists in the step 1 fetch per [§ Relationships](#relationships).
 4. **Remove label**: Clear `ship-it:changes-requested` from `<spec>` (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Returning to Row 9 runs the conductor mechanical pre-validation gate before dispatching `validate`.
