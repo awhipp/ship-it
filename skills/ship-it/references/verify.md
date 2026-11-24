@@ -263,7 +263,7 @@ Audit one ticket's diff along the `Standards` and `Spec` axes defined in [Shared
 
 | Input | Source |
 | :--- | :--- |
-| Fixed point | The `Fixed point` field of the dispatch packet (in Tier 2, the ticket row of the `## Ship-it State` comment) |
+| Fixed point | The `Fixed point` field of the dispatch packet |
 | Requirements | The ticket body and its spec body (`gh issue view <n> --json body --jq .body`); save the initial read of the ticket body to a temporary file (`<orig>`) when `## Consolidation checklist` is present |
 | Prior review reports | Prior `## Review:` and `## Answers` comments on `<n>` fetched in step 1 |
 

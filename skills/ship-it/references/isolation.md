@@ -5,11 +5,10 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 
 ## Pick the tier
 
-- **Tier 1**: An execution-capable subagent dispatch tool with shell execution and file-writing capabilities exists. Disable context inheritance when configurable. Select an execution-capable subagent rather than a read-only exploration subagent so the subagent can run `gh` and `git` commands.
+- **Tier 1**: An execution-capable subagent dispatch tool with shell execution and file-writing capabilities exists. Disable context inheritance when configurable, and select a subagent that can run `gh` and `git` rather than a read-only one.
 - **Tier 2**: No execution-capable subagent dispatch tool exists, or the harness supports only full-context session forking.
 
-In Tier 1, launch a fresh, unforked subagent without inherited conversation history for every verification pass (`validate`, `review`, `final-review`) and every non-verification role.
-Across both tiers, use GitHub issues, comments, labels, and branch commits as the sole state across passes instead of tracking subagent handles, resume prompts, or in-memory conductor state.
+Across both tiers, GitHub issues, comments, labels, and branch commits are the sole state across passes and halts.
 
 ## Actions
 
@@ -28,48 +27,45 @@ Across both tiers, use GitHub issues, comments, labels, and branch commits as th
 | Final review | [verify.md](verify.md#target-final), [verify.md](verify.md#shared-rules) (`Target: final`), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `final-review` |
 | Close out | [implement.md#initial-close-out](implement.md#initial-close-out) | Subagent: `close-out` |
 
+## Context packets
+
+A packet holds only these items:
+
+- The artifact under work and its parent (table below).
+- The Decision Register: the spec's `## Implementation Decisions`, or the map's `## Decisions so far` for `decide`.
+- Settled answers: `## Answers` on the issue the conductor posted them to, and `## Auto-resolved Decisions` on the spec.
+- The repository at the named ref.
+- On pass 2+, the delta-audit directive and the gate's prior reports.
+
+A packet never holds conversation history, conductor summaries of intent, prior-phase prose beyond the named artifacts, or the `## Ship-it State` comment.
+A role reads nothing outside its packet.
+
+| Role | Artifact under work | Parent | Complexity |
+| :--- | :--- | :--- | :--- |
+| `decide` | Decision ticket | Map | `low` for research, `medium` for prototypes and tasks |
+| `slice` | Tickets it creates | Spec | `high` |
+| `prepare-bug` | Bug issue | Spec | `medium` |
+| `validate` | Spec, or open tickets | `## Source` request and map, or spec and completed closed tickets | `medium` for `spec`, `high` for `ticket-set` |
+| `implement`, `rework` | Ticket (`rework`: plus latest `## Review:`) | Spec | Ticket `## Complexity`, else `high` |
+| `review` | Diff from the fixed point, plus `## Handoff` and `## Rework` | Ticket and spec | Ticket `## Complexity`, else `high` |
+| `final-review` | Branch diff from the merge-base | Spec and completed closed tickets | `high` |
+| `close-out` | Feature branch | Spec and closed tickets | `low` |
+
+A role that finds a requirement missing returns it as a Question, except `slice`, which may auto-resolve reversible slice-local defaults into ticket bodies and `## Auto-resolved Decisions` on the spec, escalating only scope, observable product behavior, or irreversible architecture choices.
+
 ## Tier 1: dispatch packet
 
-Pass only these fields to the subagent:
+Launch a fresh, unforked subagent per [Context packets](#context-packets) for every action, and forbid it from loading `SKILL.md`, running routing queries, or spawning subagents.
+Pass only these fields:
 
-- **Role**: One of the subagent roles above.
-- **Target**: `spec` | `ticket-set`, for `validate`; `ticket`, for `review`; `final`, for `final-review`.
-- **Complexity**: `low` | `medium` | `high`.
-- **Reference**: The assigned reference file(s) to follow, plus [writing.md](writing.md). Load only the assigned reference file(s) and `writing.md`; treat links to other reference files as citations rather than files to load. When an assignment names a section anchor, follow only that section of the file.
+- **Role**, **Complexity**, and **Target** (`spec` | `ticket-set` for `validate`; `ticket` for `review`; `final` for `final-review`).
+- **Reference**: The assigned reference file(s) and section anchors, plus [writing.md](writing.md). Treat links to other reference files as citations.
 - **Issues**: The target issue number and the parent spec or map number.
-- **Slug**: The feature slug.
-- **Default branch**: The default branch name (such as `main`), read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
-- **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
+- **Slug** and **Default branch** (read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`).
+- **Branch**: For every role except `decide` and `slice`.
 - **Fixed point**: The ticket's starting commit from the `## Ship-it State` comment, for `review` only.
-- **Delta audit**: The [Delta-audit directive](#delta-audit-directive) block, copied verbatim, when the gate's `Passes` in the `## Ship-it State` comment is at least 1 (because subagents never load `isolation.md`). A pass after a reset still carries it. Omit `- **Delta audit**:` on pass 1 and on non-verification roles.
-- **Return block**: The [Return schema](#return-schema) block, copied verbatim, because subagents never load `isolation.md`.
-
-Launch a fresh, unforked subagent for every verification pass (`validate`, `review`, `final-review`) and every non-verification role.
-Use GitHub issues, comments, labels, and branch commits as the sole state across passes instead of subagent handles, resume prompts, or in-memory conductor state.
-Never pass conversation history, summaries of user intent, or opinions.
-
-Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents.
-Each subagent executes one bounded leaf action and returns control to the conductor's routing loop.
-
-Every requirement a subagent needs lives in the issues.
-A subagent that finds a requirement missing returns the missing requirement as a question, with one scoped exception for `slice`.
-`slice` may auto-resolve reversible slice-local defaults into ticket bodies and `## Auto-resolved Decisions` on `<spec>`, escalating only scope, observable product behavior, or irreversible architecture choices as `Questions`.
-
-### Role complexity matrix
-
-Assign subagent complexity from the lifecycle role or the target ticket's `## Complexity` section (`gh issue view <n> --json body --jq .body`). Fall back to the Default Complexity column, or to `high` when an inherited `## Complexity` section is missing:
-
-| Role | Lifecycle Phase | Complexity Source | Default Complexity |
-| :--- | :--- | :--- | :--- |
-| **`decide`** | Plan | Fixed Default | `low` for research, `medium` for prototypes and tasks |
-| **`slice`** | Tickets | Fixed Default | `high` |
-| **`prepare-bug`** | Tickets | Fixed Default | `medium` |
-| **`validate`** | Spec / Tickets | Target | `medium` for `Target: spec`, `high` for `Target: ticket-set` |
-| **`implement`** | Implementation | Target Ticket | Inherited from `## Complexity` |
-| **`rework`** | Implementation | Target Ticket | Inherited from `## Complexity` |
-| **`review`** | Implementation | Target Ticket | Inherited from `## Complexity` |
-| **`final-review`** | Review | Fixed Default | `high` |
-| **`close-out`** | Close-out | Fixed Default | `low` |
+- **Delta audit**: The [Delta-audit directive](#delta-audit-directive) block, copied verbatim, when the gate's `Passes` is at least 1 (a pass after a reset included). Omit it on pass 1 and on non-verification roles.
+- **Return block**: The [Return schema](#return-schema) block, copied verbatim.
 
 ### Complexity directives
 
@@ -105,9 +101,8 @@ Questions: <numbered list, or None>
 Evidence: <link to the issue comment holding the full report, or None>
 ```
 
-Slicing subagents populate `Issues: #<n>, ...` with all created ticket numbers.
-When `slice` posts `## Auto-resolved Decisions` on `<spec>`, `slice` returns that comment URL in `Evidence:` (and `Evidence: None` otherwise).
-Other actions that post no report comment return `Evidence: None`.
+`slice` lists all created tickets in `Issues:` and returns its `## Auto-resolved Decisions` comment URL in `Evidence:` when posted.
+Actions that post no report comment return `Evidence: None`.
 The conductor reads only this block.
 
 ## Tier 2
@@ -117,4 +112,3 @@ A session may validate or review only as the session's first action.
 When the next routing row is validation or review after any other action, halt and print `ship-it <slug>` for a fresh session.
 
 Apply [Delta-audit directive](#delta-audit-directive) directly whenever a first-action verification run executes at pass 2 or later (the gate's `Passes` in the `## Ship-it State` comment is at least 1), and read the `review` fixed point from that comment.
-Use GitHub issues, comments, labels, and branch commits as the sole state across fresh-session halts instead of session handles or in-memory state.

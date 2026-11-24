@@ -3,14 +3,14 @@
 ## Implement
 
 Build exactly what one ticket describes.
-The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) are the only requirements.
+The ticket body, its spec body (`gh issue view <n> --json body --jq .body`), and settled `## Answers` are the only requirements.
 
 ### Process
 
 #### 1. Branch and settled decisions
 
 1. Fetch the target refs (`git fetch origin <default-branch>` and `git fetch origin <branch>` when the branch exists on `origin`). Check out the branch when it exists on `origin`; otherwise create it from `origin/<default-branch>` and push it with `git push -u origin <branch>`.
-2. Fetch the ticket comments once via `gh issue view <n> --json comments --jq '[.comments[].body]'`. Fold settled decisions from the latest `## Answers` comment into the ticket body via surgical body edit before modifying code. When a decision alters a shared contract, update the spec body too.
+2. Fetch the ticket's `## Answers` comments once via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Answers")) | .body]'`. Fold settled decisions from the latest one into the ticket body via surgical body edit before modifying code. When a decision alters a shared contract, update the spec body too.
 
 Only `review` toggles `## Consolidation checklist` checkboxes, after independent verification. Leave every box as it is (`- [ ]` stays `- [ ]`) in every edit.
 
