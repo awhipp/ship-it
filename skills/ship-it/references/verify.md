@@ -2,14 +2,14 @@
 
 ## Shared rules
 
-- **Read-only**: Never edit the artifact under audit, except the Nit fixes and checklist toggles named below.
+- **Read-only**: Never edit the artifact under audit, except the checklist toggles named below.
 - **Zero assumption**: Record a Question when judging needs a fact the requirements omit. Never infer intent or assume edge-case safety.
 - **Command-backed Blockers**: Before raising a Blocker that asserts a repository fact (file, path, symbol, caller, git ref) or environment fact (tool version, CLI behaviour, test failure), run a read-only command in this pass and cite its output.
 - **Pass 1 is complete**: Map every spec behaviour, Decision Register entry, and Deferred entry to the artifact.
 - **Pass 2+ is delta-only**: Apply the packet's [delta-audit directive](isolation.md#delta-audit-directive) and raise nothing outside it.
 - **Altitude is a finding class**: Under `Target: spec`, low-level detail is a Blocker (file paths, internal functions, slice-local flags not registered in `## Decision Register`; public interface contracts and the `Reproduction seam` command are exempt). Under `Target: ticket-set`, missing low-level detail is a Blocker (no exact touchpoints, bare pointer-only `Design deltas`, criteria that are not self-contained). `Not applicable, because <reason>.` counts as content.
 - **Prose**: Text that breaks [writing.md](writing.md) is a Blocker, except non-conflicting restatement, which is a Warning.
-- **Reports**: Render only populated subsections, each finding as `**<B|W|Q|S|D|R>-<n>** [<anchor>]: <text>`. Post the report as a comment and return its URL in `Evidence:` per [isolation.md](isolation.md#return-schema). A clean pass 1 validation posts nothing (`Evidence: None`). A clean pass 2+ validation posts only `## Validation: <Spec|Ticket set>` and `**Verdict**: Validated`.
+- **Reports**: Render only populated subsections, each finding as `**<B|W|Q|S|D>-<n>** [<anchor>]: <text>`. Post the report as a comment and return its URL in `Evidence:` per [isolation.md](isolation.md#return-schema). A clean pass 1 validation posts nothing (`Evidence: None`). A clean pass 2+ validation posts only `## Validation: <Spec|Ticket set>` and `**Verdict**: Validated`.
 
 ### Severity and outcomes
 
@@ -18,7 +18,7 @@
 | **Blocker** | Wrong, incomplete, unverified, or contradicts a requirement, settled decision, invariant, or active code. | Verdict `changes-requested` (list Questions too). Add `ship-it:changes-requested` to the spec, or the ticket under review. |
 | **Question** | A needed fact is unwritten and has no unambiguous active-code or spec-implied default. | Verdict `questions` when no Blocker. No label. |
 | **Warning** | Non-conflicting repetition, polish, an unambiguous inherited default (name default and anchor), or a belated note on unchanged surface. Validation only. | Advisory. |
-| **Nit** | A typo or naming fix on a correct diff. Review only. | Fix in place, stage files explicitly, commit `<type>(<slug>): <summary> (#<ticket-or-spec>)` (`<type>` from the branch prefix), and push. |
+| **Nit** | A typo or naming fix on a correct diff. Review only. | Report only. |
 
 Warnings, Nits, or nothing: verdict `approved`, adding `ship-it:validated` (validation) or `ship-it:reviewed` (review).
 `Target: ticket-set` labels per ticket: add `ship-it:validated` to every open ticket with no Blocker or Question, and remove it from any ticket cited with one. `ship-it:changes-requested` goes on `<spec>`.
@@ -40,7 +40,7 @@ The conductor closes reviewed tickets.
   - Altitude: each spec-owned contract cited by `Spec §`, not restated.
   - Traceability: on pass 1, map every spec behaviour, Decision Register entry, and Deferred entry to an open or `COMPLETED` ticket, and flag unrequested work.
   - Slicing against [Granularity](tickets.md#granularity-thresholds) and [Slicing anti-patterns](tickets.md#slicing-anti-patterns), anti-patterns being Blockers.
-  - Tiers against the [taxonomy](tickets.md#complexity-taxonomy), a missing tier defaulting to `high`. Bug tickets follow the [bug template](tickets.md#bug-preparation) and skip design, slicing, and tier checks.
+  - Bug tickets follow the [bug template](tickets.md#bug-preparation) and skip design and slicing checks.
   - Consolidation checklists: required on a feature ticket whose criteria quantify over an unnamed enumerable set, forbidden on bug tickets. A pre-checked `- [x]` item is a Blocker only when no `ship-it:reviewed`, `ship-it:changes-requested`, or prior `## Review: Ticket` report exists.
 - **Pass 2+**: Deep-audit only unvalidated open tickets and their open direct dependency neighbors per [Relationships](tickets.md#relationships). Downgrade belated notes on untouched `ship-it:validated` tickets to Warnings.
 - **Report**: `## Validation: Ticket set` in the spec format, on `<spec>`, tagging every bullet `[#<n>, ...]` with each affected open ticket.
@@ -51,7 +51,7 @@ Audit one ticket's diff. Return `failed` when the packet's fixed point is missin
 
 1. Fetch and check out `<branch>`, and survey `git --no-pager diff --stat <fixed-point>...HEAD`. On pass 2+, inspect `<prev-head-sha>..HEAD` (from the latest `**Audited**:` line) or the `## Rework` commits, falling back to the full range. When `HEAD` is unchanged, check folded body edits against the full range.
 2. Check verification evidence in `## Handoff` and `## Rework`. Missing evidence is a Blocker.
-3. Run the [diff axes](#diff-axes). Scale depth to `## Complexity`: `low` touched files and direct tests, `medium` plus module suites and named edge cases, `high` plus boundaries, outside callers, and invariants.
+3. Run the [diff axes](#diff-axes). Run the suites for touched modules, test the edge cases the ticket names, and sweep callers outside the touched files when a signature or shared contract changes.
 4. Verify every `- [ ]` item and any regression of `- [x]` items in `## Consolidation checklist`, reporting each failure as a `### Spec` Blocker, and never approve while an item is unchecked. Toggle only verified items with one surgical `gh issue edit <n> --body-file <file>`.
 5. Post `## Review: Ticket #<n>` on the ticket, including on a clean pass 1.
 
@@ -70,7 +70,7 @@ Audit the whole feature diff after every ticket closes. The fixed point is `git 
 - **Standards**: Read `CONTRIBUTING.md`, style guides, and linter configuration, skipping what linters catch. Always flag ticket-numbered files ([prohibition](writing.md#ticket-naming-prohibition)), ad-hoc test harnesses ([prohibition](writing.md#ad-hoc-test-harness-prohibition)), and transient references in code ([prohibition](writing.md#transient-reference-prohibition)) as Blockers.
 - **Spec**: Audit against the spec's cross-cutting design and the ticket's `## Low-level design` and `## Acceptance criteria` (bug tickets: `## Root cause`, `## Reproduction seam`, `## Acceptance criteria`). Quote the requirement for each divergence.
 
-Review report: `## Review: <Ticket #n | Final>`, `**Verdict**: Approved | Changes requested | Questions pending`, ``**Audited**: `<fixed-point>..<head-sha>` (<diff stat>; <verification summary>)``, then `### Standards` (S-n, `[<file#Lx>]`), `### Spec` (D-n, `[<spec § heading>]`), `### Clarifying Questions` (Q-n), and `### In-place Resolutions` (R-n, nit and commit sha). A clean pass keeps only the first three lines, and `**Audited**:` always spans the full range.
+Review report: `## Review: <Ticket #n | Final>`, `**Verdict**: Approved | Changes requested | Questions pending`, ``**Audited**: `<fixed-point>..<head-sha>` (<diff stat>; <verification summary>)``, then `### Standards` (S-n, `[<file#Lx>]`), `### Spec` (D-n, `[<spec § heading>]`), and `### Clarifying Questions` (Q-n). A clean pass keeps only the first three lines, and `**Audited**:` always spans the full range.
 
 ## Gate control
 

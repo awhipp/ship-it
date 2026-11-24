@@ -53,14 +53,6 @@ Return `done` with `Issues: #<n>, ...`, and the comment URL in `Evidence:` when 
 - **Orphaned Scaffolding**: Empty modules or stubs as a ticket. Create scaffolding inside the ticket that wires real callers.
 - **Micro-Refactor**: A rename or cleanup ticket blocking functional work. Absorb it into the ticket touching those files.
 
-## Complexity taxonomy
-
-Assign each ticket a tier from its non-test source files, scope, and reasoning need. Assign the higher tier when non-file dimensions outrank the file count.
-
-- **`low`**: 1–2 source files, direct checks, no architectural ambiguity.
-- **`medium`**: 3–5 source files, a conventional vertical slice with routine edge cases.
-- **`high`**: 6+ source files or cross-cutting subsystems, such as state machines, concurrency, or security paths.
-
 ## Ticket template
 
 Tickets own the low-level design. Cite `Spec § <section>` for every spec-owned contract and never restate it.
@@ -68,10 +60,6 @@ Write `Not applicable, because <reason>.` in any section without content.
 
 ```markdown
 Part of #<spec-id>
-
-## Complexity
-
-<level> - <One-sentence rationale based on scope, touched layers, and reasoning depth.>
 
 ## Slice goal
 
@@ -132,7 +120,6 @@ The conductor runs this inside Row 9 before dispatching `validate` (`Target: tic
    - A missing `ship-it:ticket` label (`gh issue edit <n> --add-label "ship-it:ticket"`).
    - A missing `Part of #<spec>` header.
    - A non-canonical `## Blocked by` tasklist: normalize to `- [ ] Blocked by #<id>` or `None (can start immediately).`, stripping self-links and duplicates.
-   - An under-tiered `## Complexity` per the [taxonomy](#complexity-taxonomy) bands: raise the tier and state the touched source-file count in the rationale. Keep higher tiers justified by non-file dimensions, skip `ship-it:bug` tickets, and leave a missing or invalid tier to `validate`.
 4. **Invalidate and halt**: Strip `ship-it:validated` from every ticket the gate edited and its open direct dependency neighbors (per [Relationships](#relationships)). Halt and ask the user when the open blocker graph holds a multi-ticket semantic cycle.
 
 ## Bug preparation
@@ -147,10 +134,6 @@ File bug issues as `[<slug>] <gist>` with `ship-it:bug`.
 
 ```markdown
 Part of #<spec-id>
-
-## Complexity
-
-<level> - <One-sentence rationale.>
 
 ## Root cause
 
