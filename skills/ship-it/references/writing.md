@@ -41,7 +41,7 @@ A string match passes whenever the text exists, so it proves presence rather tha
 
 ### Transient-reference prohibition
 
-Omit `Spec § ...` citations, ticket identifiers, and `#<n>` issue references from product code, tests, code comments, and docstrings.
+Omit `Spec § ...` citations, ticket identifiers, and `#<n>` issue references from product code, tests, code comments, docstrings, and repository documentation files.
 Follow local repository rules when `CONTRIBUTING.md`, style guides, or repository conventions explicitly require issue references in comments or tests.
 Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)`), pull request descriptions, closing lists, and pull request `**Traces to**:` annotations retain required traceability.
 
