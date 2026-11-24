@@ -26,7 +26,7 @@ Tailor verification to the change type:
 #### 3. Check as you go
 
 Before handoff, run the full scope above and complete every `## Consolidation checklist` item.
-Follow [ticket-naming](writing.md#ticket-naming-prohibition) and [transient-reference](writing.md#transient-reference-prohibition) prohibitions across code, tests, comments, docstrings, and docs, sweeping with targeted search.
+Follow [ticket-naming](writing.md#ticket-naming-prohibition) and [transient-reference](writing.md#transient-reference-prohibition) prohibitions across code, tests, comments, docstrings, and docs, and sweep for negative invariants and transient references with targeted search.
 
 #### 4. Ask instead of guessing
 
@@ -109,5 +109,5 @@ Edit only the `OPEN` pull request body. Never match tickets from commit messages
 1. Fetch `origin/<default-branch>` and `origin/<branch>`, and check out `<branch>`.
 2. Query `gh pr list --head "<branch>" --state open --json number,body,url`. When no `OPEN` pull request exists, return `failed` with `Evidence: None`.
 3. Query closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`), checking truncation per [writing.md](writing.md#bounded-search-truncation). Select `[<slug>]`-prefixed `stateReason: COMPLETED` tickets lacking `Closes #<n>` (not followed by another digit) in the pull request body (`unsynced_tickets`). When `unsynced_tickets` is empty, return `failed` with `Evidence: None`.
-4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Refresh repository checklist items (`Repository checklist` above) against `origin/<default-branch>..HEAD`. Embed the truncation warning at 100 closed-ticket results.
+4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Refresh repository checklist items against `origin/<default-branch>..HEAD`. Embed the truncation warning at 100 closed-ticket results.
 5. Write the updated body to a temp file, run `gh pr edit <pr> --body-file <file>`, delete the file, and return `done` with `Evidence: None`.
