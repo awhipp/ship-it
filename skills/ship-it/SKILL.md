@@ -33,7 +33,7 @@ Only the invocation text counts. Ignore earlier conversation when choosing the f
 
 With no directive, ask for one and stop. Run no `gh` command before a directive exists.
 When `ship-it <slug>` matches no issue, report that, ask for an idea, and stop.
-A new feature (an idea, or an issue that does not resume a slug) runs `plan.md#intake` before routing.
+A new feature (idea or source issue) runs `plan.md#intake` before routing.
 
 ## 2. Query state
 
@@ -89,7 +89,7 @@ Load only the active row's files and the sections it names, so a resume never re
 **Frontier ticket**: Read blockers from each open ticket's `## Blocked by` (`tickets.md#relationships`). Apply the first matching step, then query again:
 
 1. No open ticket is unblocked: report each with its open blockers and **halt**.
-2. Has `ship-it:reviewed`: close it (`gh issue close <n> --comment "<summary>"`).
+2. Has `ship-it:reviewed`: when `<spec>` carries `ship-it:reviewed`, run `gh issue edit <spec> --remove-label "ship-it:reviewed"` first. Close `<n>` (`gh issue close <n> --comment "<summary>"`).
 3. Has `ship-it:changes-requested`: dispatch rework (`implement.md#rework`).
 4. Has an assignee: read its row in Ship-it State (`verify.md#ship-it-state`). When `Handed off` is `yes`, dispatch review (`verify.md#target-ticket`, `#shared-rules`) with the row's `Fixed point`. Otherwise re-dispatch implementation (`implement.md#implement`).
 5. Otherwise claim it (`gh issue edit <n> --add-assignee "@me"`), record its fixed point, and dispatch implementation.

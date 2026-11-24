@@ -35,7 +35,7 @@ A packet holds only these items:
 - The Decision Register: the spec's `## Decision Register`, or the map's `## Decisions so far` for `decide`.
 - Settled answers: `## Answers` on the issue the conductor posted them to, and `## Auto-resolved Decisions` on the spec.
 - The repository at the named ref.
-- On pass 2+, the delta-audit directive and the gate's prior reports.
+- When `Passes` is at least 1, or on `final-review` with an `OPEN` pull request for the branch, the delta-audit directive and prior reports.
 
 A packet never holds conversation history, conductor summaries of intent, prior-phase prose beyond the named artifacts, or the `## Ship-it State` comment.
 A role reads nothing outside its packet.
@@ -64,15 +64,15 @@ Pass only these fields:
 - **Slug** and **Default branch** (read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`).
 - **Branch**: For every role except `decide` and `slice`.
 - **Fixed point**: The ticket's starting commit from the `## Ship-it State` comment, for `review` only.
-- **Delta audit**: The [Delta-audit directive](#delta-audit-directive) block, copied verbatim, when the gate's `Passes` is at least 1 (a pass after a reset included). Omit it on pass 1 and on non-verification roles.
+- **Delta audit**: Copy [Delta-audit directive](#delta-audit-directive) verbatim when `Passes` is at least 1 (resets included) or `final-review` runs with an `OPEN` pull request for the branch. Omit the directive on other pass-1 runs and non-verification roles.
 - **Return block**: The [Return schema](#return-schema) block, copied verbatim.
 
 ## Delta-audit directive
 
-Copy the directive block below verbatim into pass-2+ verification packets in Tier 1, or apply the directive directly on pass-2+ verification runs in Tier 2:
+Copy the block below verbatim into Tier 1 verification packets, or apply the directive directly in Tier 2, when `Passes` is at least 1 or `final-review` runs with an `OPEN` pull request for the branch:
 
 ```text
-Delta-audit directive (pass 2+):
+Delta-audit directive:
 1. Read the prior reports for this gate and the control comments (`## Answers` and `## Auto-resolved Decisions`) from GitHub.
 2. Verify clearance of every prior Blocker and Question.
 3. Restrict new Blockers and `Clarifying Questions` to three classes: uncleared prior findings, defects in text or diffs modified since the prior pass, and factual regressions or contradictions against active code or source requirements.
@@ -101,4 +101,4 @@ Run every action in the current session, with one exception.
 A session may validate or review only as the session's first action.
 When the next routing row is validation or review after any other action, halt and print `ship-it <slug>` for a fresh session.
 
-Apply [Delta-audit directive](#delta-audit-directive) directly whenever a first-action verification run executes at pass 2 or later (the gate's `Passes` in the `## Ship-it State` comment is at least 1), and read the `review` fixed point from that comment.
+Apply [Delta-audit directive](#delta-audit-directive) directly when a first-action verification run executes with `Passes` at least 1 in `## Ship-it State` or as `final-review` with an `OPEN` pull request for the branch. Omit the directive on other pass-1 runs and non-verification roles, and read the `review` fixed point from `## Ship-it State`.
