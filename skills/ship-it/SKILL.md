@@ -15,7 +15,7 @@ References live in `references/` (folder omitted below).
 
 1. **Never guess.** Ask the user when a fact on scope, observable behavior, or irreversible architecture is missing. Only `slice` auto-resolves reversible slice-local defaults (`isolation.md#context-packets`).
 2. **Never verify your own work.** Validation and review run in a fresh context per `isolation.md`.
-3. **Run every boundary to its exit halt.** Loop until a halt or user prompt. The developer approves Boundaries 1–2 via `ship-it <slug>`, and Boundary 3 by merging.
+3. **Run every boundary to its exit halt.** Loop until a row halts or needs the user. The developer approves Boundaries 1 and 2 by invoking `ship-it <slug>` again, and Boundary 3 by merging.
 4. **Never merge a pull request.**
 5. **Write every artifact per `writing.md`.**
 
