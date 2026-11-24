@@ -26,7 +26,7 @@ Across both tiers, use GitHub issues, comments, labels, and branch commits as th
 | Validate spec or ticket set | [validate-spec.md](validate-spec.md) (`Target: spec`), [validate-tickets.md](validate-tickets.md) with [tickets.md#granularity-thresholds](tickets.md#granularity-thresholds), [tickets.md#slicing-anti-patterns](tickets.md#slicing-anti-patterns), and [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) (`Target: ticket-set`) | Subagent: `validate` |
 | Review ticket | [review-ticket.md](review-ticket.md), [review-core.md](review-core.md) | Subagent: `review` |
 | Final review | [review-final.md](review-final.md), [review-core.md](review-core.md), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `final-review` |
-| Close out | [close-out.md#initial-close-out](close-out.md#initial-close-out) (`Mode: initial`), [close-out.md#synchronization](close-out.md#synchronization) (`Mode: sync`) | Subagent: `close-out` |
+| Close out | [close-out.md#initial-close-out](close-out.md#initial-close-out) | Subagent: `close-out` |
 
 ## Tier 1: dispatch packet
 
@@ -34,7 +34,6 @@ Pass only these fields to the subagent:
 
 - **Role**: One of the subagent roles above.
 - **Target**: `spec` | `ticket-set`, for `validate`.
-- **Mode**: `initial` | `sync`, for `close-out`.
 - **Complexity**: `low` | `medium` | `high`.
 - **Reference**: The assigned reference file(s) to follow, plus [writing.md](writing.md). Load only the assigned reference file(s) and `writing.md`; treat links to other reference files as citations rather than files to load. When an assignment names a section anchor, follow only that section of the file.
 - **Issues**: The target issue number and the parent spec or map number.

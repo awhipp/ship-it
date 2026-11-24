@@ -71,10 +71,8 @@ gh pr list --head "<branch>" --state all --json number,state,url
   - `ticket_set`: issues bearing `ship-it:ticket`, deduplicated by issue number (used across Rows 5, 6, 8, 9, and 11).
   - `unprepared_bugs`: open issues bearing `ship-it:bug` and lacking `ship-it:ticket` (used in Rows 9 and 10).
   - `frontier_ticket`: the lowest-numbered open issue in `ticket_set` whose blockers are all `CLOSED` (used in Row 11).
-  - `unsynced_completed_bugs`: closed issues bearing both `ship-it:bug` and `ship-it:ticket` with `stateReason` `COMPLETED` that have no `Closes #<n>` line in the `OPEN` pull request's body (used in Row 14).
 - **Branch name**: Read the branch name from the spec's `## Source` once via `gh issue view <spec> --json body --jq .body`. Retain that branch name across routing passes.
 - **Pull requests**: Run the pull request query only once a spec exists. A pull request `state` is `OPEN`, `CLOSED` (closed unmerged), or `MERGED`. Evaluate multiple pull requests for the branch in priority order: `MERGED` > `OPEN` > `CLOSED`.
-- **Closing references**: When Rows 1–13 miss, an `OPEN` pull request exists, and a closed issue bears both `ship-it:bug` and `ship-it:ticket` with `stateReason` `COMPLETED`, read the pull request body via `gh pr view <pr> --json body --jq .body` to compute `unsynced_completed_bugs`. Sync close-out writes that `Closes #<n>` line itself, so a finished sync never re-fires Row 14.
 - **Query errors**: Treat any failed query as an environment error, and run [preflight.md](references/preflight.md), which reports its findings and halts. Never interpret a failed query as "no artifacts". An authentication, network, or permission failure would otherwise match Row 1 or Row 4 and create duplicate maps or specs. When a conductor GitHub write fails with a transient GraphQL, HTTP 5xx, or timeout error instead of a failed query, inspect target state and retry once per [writing.md](references/writing.md#cross-platform-shell-conventions) before routing to [preflight.md](references/preflight.md).
 
 ## Reference index
@@ -95,7 +93,7 @@ Load only [isolation.md](references/isolation.md), [writing.md](references/writi
 | [review-core.md](references/review-core.md) | Row 11 Step 4 and Row 12 (shared two-axis review passes and report template) |
 | [review-ticket.md](references/review-ticket.md) | Row 11 Step 4 (ticket review, loaded with [review-core.md](references/review-core.md)) |
 | [review-final.md](references/review-final.md) | Row 12 (final review, loaded with [review-core.md](references/review-core.md)) |
-| [close-out.md](references/close-out.md) | Rows 13 and 14 (initial close-out and bug synchronization) |
+| [close-out.md](references/close-out.md) | Row 13 (close-out) |
 | [preflight.md](references/preflight.md) | `ship-it preflight`, `ship-it init`, or `ship-it version` (Check 0 only), or a `gh` command fails |
 | [writing.md](references/writing.md) | Every step (prose, shell, and search-truncation rules) |
 
@@ -118,16 +116,11 @@ Complete the matched action, then follow the row's **Transition** column.
 | 10 | `unprepared_bugs` is non-empty | Prepare the lowest-numbered issue in `unprepared_bugs` ([bug-prep.md](references/bug-prep.md)). | Query state and route again (hits row 10 when `unprepared_bugs` remains non-empty, or row 9). |
 | 11 | An open issue exists in `ticket_set` | Work `frontier_ticket` (below). | Query state and route again after each frontier step. |
 | 12 | Spec lacks `ship-it:reviewed` | Run the final review ([review-final.md](references/review-final.md), [review-core.md](references/review-core.md)), enforcing the circuit breaker (below). | On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets. Otherwise: query state and route again (hits row 12 after handling questions). |
-| 13 | No pull request exists for the branch | Close out in initial mode ([close-out.md](references/close-out.md#initial-close-out)). | **Halt (Boundary 3 exit).** |
-| 14 | An `OPEN` pull request exists and `unsynced_completed_bugs` is non-empty | Close out in sync mode for the lowest-numbered issue in `unsynced_completed_bugs` ([close-out.md](references/close-out.md#synchronization)). | Query state and route again (hits row 14 when `unsynced_completed_bugs` remains non-empty, or row 15). |
-| 15 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging, and prompt the user to reopen it. On confirmation, run `gh pr reopen <pr>` and query state and route again. When declined, report the feature abandoned and stop. | Query state and route again on reopen (hits row 15 in `OPEN` state); otherwise **stop**. |
+| 13 | No pull request exists for the branch | Close out ([close-out.md](references/close-out.md#initial-close-out)). | **Halt (Boundary 3 exit).** |
+| 14 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging. | **Stop.** |
 
 - **On-demand comment reads**: Rows 5–7, 9, 11, and 12 read issue comments on demand for circuit-breaker checks, handoff counts, and remediation reports.
 - **Tier 2 fresh-session halts**: In Tier 2, Rows 7, 9, 11 (Step 4), and 12 halt for a fresh session per [isolation.md](references/isolation.md) whenever validation or review is not the session's first action.
-
-**Bug tickets after final review**: Bug tickets prepared after the final review run ticket-set validation (Row 9) and ticket review (Row 11) but no repeat final review, because the spec keeps `ship-it:reviewed`. Merging the pull request is the final gate.
-
-**Fix tickets after final review**: Final review creates fix tickets already labeled `ship-it:validated`, so they skip Row 9. The user's approval at the Row 12 halt stands in for ticket-set validation, and ticket review (Row 11) plus the next final review still audit the fixes.
 
 **Frontier ticket** (`frontier_ticket` in § 2): Resolve each open ticket's blockers per [tickets.md](references/tickets.md#relationships), running `gh issue view <n> --json body --jq .body` to read its `## Blocked by` tasklist when `blockedBy` is empty.
 Apply the first matching step:
@@ -236,9 +229,9 @@ Otherwise, end with exactly one next step:
 
 | Halt | Next step |
 | :--- | :--- |
-| Boundary 3 exit, or row 15 with an `OPEN` pull request | `Merge <pr-url> to complete the feature. No further ship-it run is needed.` |
+| Boundary 3 exit, or row 14 with an `OPEN` pull request | `Merge <pr-url> to complete the feature. No further ship-it run is needed.` |
 | Row 3 | `Feature complete.` Print no command. |
-| Row 15 with a `CLOSED` pull request | Report that `<pr-url>` closed unmerged and prompt to reopen. When declined, report feature abandoned. Print no command. |
+| Row 14 with a `CLOSED` pull request | Report that `<pr-url>` closed unmerged. Print no command. |
 | Row 9 with open `ship-it:bug` tickets | Review the bug tickets and run `ship-it <slug>` to begin implementation. |
 | Row 2 or Row 11 Step 1 with all open tickets blocked | Break or close the blocker cycle on the reported tickets before re-running `ship-it <slug>`. |
 | Any other halt | `ship-it <slug>` |
@@ -249,4 +242,4 @@ Otherwise, end with exactly one next step:
 | :--- | :--- | :--- |
 | 1. Mapping | 1 (map), 2 | Map closed with all decisions resolved |
 | 2. Definition | 1 (spec), 4–9 | Ticket set validated |
-| 3. Execution | 10–15 | Pull request opened and annotated; also halts when the final review creates fix tickets or bug tickets await approval |
+| 3. Execution | 10–14 | Pull request opened and annotated; also halts when the final review creates fix tickets or bug tickets await approval |
