@@ -5,7 +5,7 @@ The conductor orchestrates without absorbing raw diffs, transcripts, or implemen
 
 ## Pick the tier
 
-- **Tier 1**: An execution-capable subagent dispatch tool with shell execution and file-writing capabilities exists. Launch subagents with fresh, unforked context without inherited conversation history. Disable context inheritance when configurable. Select an execution-capable subagent rather than a read-only exploration subagent so the subagent can run `gh` and `git` commands.
+- **Tier 1**: An execution-capable subagent dispatch tool with shell execution and file-writing capabilities exists. Launch a fresh, unforked subagent without inherited conversation history for every verification pass (`validate`, `review`, `final-review`) and every non-verification role. Disable context inheritance when configurable. Select an execution-capable subagent rather than a read-only exploration subagent so the subagent can run `gh` and `git` commands. Use GitHub issues, comments, labels, and branch commits as the sole state across passes instead of tracking subagent handles, resume prompts, or in-memory conductor state.
 - **Tier 2**: No execution-capable subagent dispatch tool exists, or the harness supports only full-context session forking.
 
 ## Actions
@@ -38,8 +38,11 @@ Pass only these fields to the subagent:
 - **Slug**: The feature slug.
 - **Default branch**: The default branch name (such as `main`), read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
 - **Branch**: The feature branch, for `prepare-bug`, `validate`, `implement`, `rework`, `review`, `final-review`, and `close-out`.
+- **Delta audit**: The [Delta-audit directive](#delta-audit-directive) block, copied verbatim, when `SKILL.md` § 3 `Count check` finds at least one prior report matching the active `Report heading` in the current cycle (because subagents never load `isolation.md`). Omit `- **Delta audit**:` on pass 1 and on non-verification roles.
 - **Return block**: The [Return schema](#return-schema) block, copied verbatim, because subagents never load `isolation.md`.
 
+Launch a fresh, unforked subagent for every verification pass (`validate`, `review`, `final-review`) and every non-verification role.
+Use GitHub issues, comments, labels, and branch commits as the sole state across passes instead of subagent handles, resume prompts, or in-memory conductor state.
 Never pass conversation history, summaries of user intent, or opinions.
 Forbid subagents from loading `SKILL.md` in the skill directory, running routing queries, or spawning subagents. Each subagent executes one bounded leaf action and returns control to the conductor's routing loop.
 Every requirement a subagent needs lives in the issues.
@@ -72,6 +75,19 @@ Include the matching directive in the subagent dispatch prompt:
 
 When the dispatch tool accepts a reasoning-effort setting, set the setting to the same level.
 
+## Delta-audit directive
+
+Copy the directive block below verbatim into pass-2+ verification packets in Tier 1, or apply the directive directly on pass-2+ verification runs in Tier 2:
+
+```text
+Delta-audit directive (pass 2+):
+1. Read prior reports from the active cycle and all control comments (`## Answers`, `## Auto-resolved Decisions`, and `## Circuit Breaker Reset`) from GitHub.
+2. Verify clearance of every prior Blocker and Question.
+3. Restrict new Blockers and `Clarifying Questions` to uncleared prior findings, defects introduced in text or diffs modified since the prior pass, sections rewritten under a broad `## Circuit Breaker Reset`, or concrete factual contradictions against active code or source requirements.
+4. Keep prior Warnings and belated non-regression notes on unchanged surface non-blocking by recording those findings as advisory Warnings in validation gates, or by classifying those findings as Nits or omitting those notes in review gates. Suppress verbatim repeated Warnings.
+5. Honor all prior settled decisions. Count active Blockers that reintroduce cleared Blockers from the active cycle as `**Reintroduced**: <M>`, starting after the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Approved` or `**Verdict**: Validated` report matching the active `Report heading`.
+```
+
 ## Return schema
 
 Every subagent returns exactly this block:
@@ -92,6 +108,8 @@ The conductor reads only this block.
 
 Run every action in the current session, with one exception.
 A session may validate or review only as the session's first action.
+Apply [Delta-audit directive](#delta-audit-directive) directly whenever a first-action verification run executes at pass 2 or later in the current cycle (when `SKILL.md` § 3 `Count check` finds at least one prior report matching the active `Report heading`).
+Use GitHub issues, comments, labels, and branch commits as the sole state across fresh-session halts instead of session handles or in-memory state.
 When the next routing row is validation or review after any other action, halt and print `ship-it <slug>` for a fresh session.
 
 ## Source-issue adoption
