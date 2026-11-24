@@ -6,7 +6,7 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 
 | Rule | Requirement | Example |
 | :--- | :--- | :--- |
-| **1. High Scannability** | Structure text with bulleted lists, bold lead-ins, short paragraphs, and clear tables. Keep paragraphs under four sentences. | Use bulleted lists for multi-item sequences. |
+| **1. Sentence Brevity** | Express at most one idea or instruction per sentence. Keep phrasing tight without wandering compound clauses. | *Good*: Run the test suite before opening a pull request. |
 | **2. Controlled Vocabulary** | Use one consistent term per concept across all files. State explicit antecedents instead of bare pronouns like "this" or "it". | *Good*: The ticket defines acceptance criteria (*not* It defines them). |
 | **3. Single Source of Truth** | State each requirement, contract, or decision once in its canonical section. Reference parent sections from child `ship-it` artifacts instead of restating parent content. | *Good*: Implement the retry policy in Spec § Shared contracts (*not* restating the full retry contract in the ticket). |
 

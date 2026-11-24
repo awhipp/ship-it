@@ -63,8 +63,8 @@ Audit the whole feature diff after every ticket closes. The fixed point is `git 
 2. Run the spec's `## Testing seams` and the closed tickets' criteria. Missing verification is a Blocker. On pass 2+, re-run only changed checks, fix-ticket criteria, and prior failures.
 3. Run the [diff axes](#diff-axes), and check across tickets: the branch delivers every observable behaviour and Decision Register entry, no scaffolding or dead code remains, and names stay consistent. On pass 2+, also verify closed fix tickets and raise only uncleared findings, new commits, fix-ticket defects, and cross-ticket regressions.
 4. Post `## Review: Final` on `<spec>`, with `ship-it:reviewed` on `<spec>` when approved.
-5. On Blockers, create one fix ticket per Blocker, list them in `Issues:`, and link each with `gh issue edit <n> --parent <spec-id>`, ignoring errors. Titles read `[<slug>] Ticket: Fix <gist>`, labels `ship-it:ticket,ship-it:validated`.
-   Human approval at the fix-ticket halt fulfills the non-author validation check under Invariant 3 for fix tickets carrying `ship-it:validated`. Use the [ticket template](tickets.md#ticket-template): `## Slice goal` quotes the Blocker and cites `Spec §`, and settled guidance goes into the criteria.
+5. On Blockers, create one fix ticket per Blocker, list them in `Issues:`, and link each with `gh issue edit <n> --parent <spec-id>`, ignoring errors. Titles read `[<slug>] Ticket: Fix <gist>`, labels `ship-it:ticket,ship-it:validated`. Use the [ticket template](tickets.md#ticket-template): `## Slice goal` quotes the Blocker and cites `Spec §`, and settled guidance goes into the criteria.
+   Human approval at the fix-ticket halt fulfills the non-author validation check under Invariant 3 for fix tickets carrying `ship-it:validated`.
 
 ### Diff axes
 
