@@ -1,64 +1,105 @@
-# Implement: build one ticket, verified
+# Implement: build, rework, and close out
+
+## Implement
 
 Build exactly what one ticket describes.
-The ticket body and its spec body (`gh issue view <n> --json body --jq .body`) are the only requirements.
+The ticket body, its spec body (`gh issue view <n> --json body --jq .body`), and settled `## Answers` are the only requirements.
 
-## Process
+### Process
 
-### 1. Branch and fixed point
+#### 1. Branch and settled decisions
 
-1. Fetch the target refs (`git fetch origin <default-branch>` and `git fetch origin <branch>` when the branch exists on `origin`). Check out the branch when it exists on `origin`; otherwise create the branch from `origin/<default-branch>` and push the branch with `git push -u origin <branch>`.
-2. Fetch the ticket comments once via `gh issue view <n> --json comments --jq '[.comments[].body]'`, and check the returned array in-agent for an existing `Fixed point:` comment. When no `Fixed point:` comment exists, post the comment before the first change on a best-effort basis: `gh issue comment <n> --body "Fixed point: <output of git rev-parse HEAD>"`. Proceed with implementation when an enterprise policy blocks the comment, as ticket-tagged commits (`(#<ticket>)`) allow review to derive the fixed point from Git history.
-3. Inspect the comment array fetched in step 2 in-agent for the latest `## Answers` or `## Circuit Breaker Reset` comment, and fold settled decisions into the ticket body via surgical body edit before modifying code. Preserve `## Consolidation checklist` checkboxes unchecked (`- [ ]`) during edits, because only `review` toggles checkboxes after independent verification so unverified self-checkoffs never bypass review. When a decision alters a shared contract in the spec, update both the ticket body and the spec body.
+1. Fetch the target refs (`git fetch origin <default-branch>` and `git fetch origin <branch>` when the branch exists on `origin`). Check out the branch when it exists on `origin`; otherwise create it from `origin/<default-branch>` and push it with `git push -u origin <branch>`.
+2. Fetch the ticket's `## Answers` comments once via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Answers")) | .body]'`. Fold settled decisions from the latest one into the ticket body via surgical body edit before modifying code. When a decision alters a shared contract, update the spec body too.
 
-### 2. Verify
+Only `review` toggles `## Consolidation checklist` checkboxes, after independent verification. Leave every box as it is (`- [ ]` stays `- [ ]`) in every edit.
 
-Tailor verification to the repository, change type, and complexity tier:
+#### 2. Verify
 
-- **Use existing test conventions**: Run the repository's existing test runner and the test seams named in the spec and ticket before writing code.
-- **Reproduce defects first**: For `fix` feature types or `ship-it:bug` tickets, execute the reproduction seam in the spec's `## Testing Decisions` or the bug ticket's `## Reproduction seam` to confirm failure before modifying code.
-- **Red-Green where tests apply**: Write a failing test first for each acceptance criterion where tests apply.
-- **Direct checks elsewhere**: For documentation, configuration, assets, or repositories without a runner, verify each acceptance criterion with linting, type checks, builds, CLI checks, or inspection.
+Tailor verification to the change type:
 
-#### Complexity tiers
+- **Reproduce defects first**: For `fix` feature types or `ship-it:bug` tickets, run the reproduction seam (spec `## Testing seams` or bug `## Reproduction seam`) to confirm failure before modifying code.
+- **Red-Green**: Write a failing test first for each acceptance criterion where tests apply.
+- **Direct checks elsewhere**: For docs, configuration, assets, or repositories without a runner, verify each criterion with linting, type checks, builds, CLI checks, or inspection.
+- **Scope**: Run the suites for touched modules, test the edge cases the ticket names, and sweep callers outside the touched files when a signature or shared contract changes.
 
-Scale verification scope to the complexity tier recorded on the ticket:
+#### 3. Check as you go
 
-| Complexity | Scope |
-| :--- | :--- |
-| `low` | Restrict tests and direct checks to touched files. |
-| `medium` | Execute domain module suites and test named edge cases. |
-| `high` | Run broad test suites, audit cross-cutting invariants, and sweep callers outside touched files. |
+Before handoff, run the full scope above.
+When `## Consolidation checklist` is present, implement and verify every item in full.
+Follow the [ticket-naming prohibition](writing.md#ticket-naming-prohibition) and [transient-reference prohibition](writing.md#transient-reference-prohibition) across source, tests, comments, and docstrings, and sweep for negative invariants and transient references with targeted search.
 
-### 3. Check as you go
+#### 4. Ask instead of guessing
 
-Run type checks and targeted tests throughout development.
-Before handoff, execute the full verification scope required by the ticket's complexity tier.
-When `## Consolidation checklist` is present, implement and verify every `- [ ]` item in full while leaving every checkbox unchecked (`- [ ]`), because only `review` toggles checkboxes after independent verification so unverified self-checkoffs never bypass review.
-
-Follow the [ticket-naming prohibition](writing.md#ticket-naming-prohibition) and [transient-reference prohibition](writing.md#transient-reference-prohibition) across source files, tests, comments, and docstrings.
-Sweep for negative invariants (such as "no callers of the old API remain") and transient references after implementation, using targeted search.
-
-### 4. Ask instead of guessing
-
-Never edit or reinterpret acceptance criteria, low-level design contracts, root causes, or reproduction seams, and preserve every `## Consolidation checklist` checkbox as `- [ ]`.
-Silent contract edits bypass validation, and only `review` toggles checkboxes after independent verification so unverified self-checkoffs never bypass review.
-When the ticket's `## Consolidation checklist`, low-level design, root cause, reproduction seam, or acceptance criteria conflict with active code or leave a design decision unwritten:
+Never edit or reinterpret acceptance criteria, low-level design, root causes, or reproduction seams.
+When any of them conflict with active code or leave a design decision unwritten:
 
 1. Post the question on the ticket.
 2. Push any commits, and discard uncommitted work.
 3. Unassign yourself: `gh issue edit <n> --remove-assignee "@me"`.
 4. Return `questions`.
 
-### 5. Commit, push, and hand off
+#### 5. Commit, push, and hand off
 
-- Stage only the specific files modified for the ticket (`git add <file>...`) so temporary files never enter the commit.
-- Derive the commit `<type>` from the branch prefix before `/`. Commit with the subject `<type>(<slug>): <summary> (#<ticket>)`. Every commit names its ticket; close-out traces files through these subjects.
-- Push after every commit.
-- Write the handoff comment to a temporary file, recording verification results for every acceptance criterion and every `## Consolidation checklist` item (when present). Post the comment (`gh issue comment <n> --body-file <file>`), delete the temporary file, and return `done`, leaving the ticket assigned and open so the assignee signals that review is next.
+- Stage only the files modified for the ticket (`git add <file>...`).
+- Commit with the subject `<type>(<slug>): <summary> (#<ticket>)`, taking `<type>` from the branch prefix before `/`. Push after every commit.
+- Post the handoff (`gh issue comment <n> --body-file <file>`), delete the temporary file, and return `done`, leaving the ticket assigned and open:
 
 ```markdown
 ## Handoff
 - **Commits**: <sha list>
-- **Verification**: <tests run and results, or each criterion and ## Consolidation checklist item with its direct check>
+- **Verification**: <tests run and results, or each criterion and checklist item with its direct check>
 ```
+
+## Rework
+
+Resolve every Blocker in the latest review of a ticket carrying `ship-it:changes-requested`.
+Follow [Implement](#implement), with these differences:
+
+1. Check out `<branch>`, then read the latest `## Review:` report and any `## Answers` posted after it. Fold settled decisions as in Implement step 1.
+2. Fix every Blocker and sweep every unchecked checklist item, adding a test or direct check for each. A Blocker is also a trigger for [Ask instead of guessing](#4-ask-instead-of-guessing).
+3. Commit and push as in Implement, then post a `## Rework` comment:
+
+```markdown
+## Rework
+- **Commits**: <sha list>
+- **Fixes**: <each Blocker and swept item, fix summary, and check result>
+```
+
+4. Remove the label and restore the assignee (`gh issue edit <n> --remove-label "ship-it:changes-requested" --add-assignee "@me"`). Return `done`.
+
+## Close-out
+
+### Initial close-out
+
+Fetch `<default-branch>` and `<branch>` from origin, check out `<branch>`, and run these steps after final review approves:
+
+1. Read the spec body and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`). Check the count per [writing.md](writing.md#bounded-search-truncation) before keeping titles starting with `[<slug>]`. Open the pull request from a temporary body file, then delete it:
+
+   ```shell
+   gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
+   ```
+
+   - **Closing references**: List each closed ticket with `stateReason` `COMPLETED` by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue other than the spec).
+   - **Addendum bugs**: Append `### Addendum Bugs` listing each completed bug ticket as `- #<n> (<title>) - Closes #<n>`.
+   - **Truncation notice**: At 100 items, embed the [writing.md](writing.md#bounded-search-truncation) warning in the body.
+
+2. Annotate every changed file with one file-level review comment, deleting each temporary `<annotation-file>` after posting:
+
+   ```shell
+   gh pr diff <pr> --name-only
+   gh pr view <pr> --json headRefOid --jq .headRefOid
+   git merge-base origin/<default-branch> HEAD
+   git --no-pager log --format=%s <merge-base>..HEAD -- <file>
+   gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
+   ```
+
+   Take ticket numbers from commit subjects. Annotation form:
+
+   ```markdown
+   **Change**: <what changed, one sentence>
+   **Why**: <rationale, one sentence>
+   **Traces to**: #<ticket>, Spec § <section heading>
+   ```
+
+3. Return `done` with `Evidence: None`. Never merge the pull request.
