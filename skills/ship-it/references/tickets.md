@@ -130,6 +130,20 @@ When ticket-set validation applies `ship-it:changes-requested` to `<spec>`:
 4. **Clear**: Remove `ship-it:changes-requested` from `<spec>`.
 5. **Continue**: Return to `SKILL.md` § 2 (`Query state`).
 
+## Pre-validation gate
+
+The conductor runs this inside Row 9 before dispatching `validate` (`Target: ticket-set`), on every path into Row 9 (slicing, remediation, bug preparation, a cap-halt reset, and folded answers).
+
+1. **Read**: Run `gh issue list --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels`, check truncation per [writing.md](writing.md#bounded-search-truncation), and reconcile with `gh issue view <n> --json number,title,body,labels` for issues the preceding action returned or edited.
+2. **Filter**: Keep only open issues whose title starts with `[<slug>]` or whose number the preceding action returned or edited. Exclude `ship-it:spec`, `ship-it:map`, decision-ticket labels (`ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, `ship-it:task`), and `ship-it:bug` issues lacking `ship-it:ticket`.
+3. **Repair directly** (no subagent; temporary `--body-file` payloads, deleted immediately):
+   - A missing or malformed `[<slug>] ` title prefix (`gh issue edit <n> --title ...`).
+   - A missing `ship-it:ticket` label (`gh issue edit <n> --add-label "ship-it:ticket"`).
+   - A missing `Part of #<spec>` header.
+   - A non-canonical `## Blocked by` tasklist: normalize to `- [ ] Blocked by #<id>` or `None (can start immediately).`, stripping self-links and duplicates.
+   - An under-tiered `## Complexity` below the [taxonomy](#complexity-taxonomy) bands (`low` 1–2, `medium` 3–5, `high` 6+ non-test source files): raise the tier and update the rationale to state the touched source-file count. Keep higher tiers justified by non-file dimensions, skip `ship-it:bug` tickets, and leave a missing or invalid tier to `validate`.
+4. **Invalidate and halt**: Strip `ship-it:validated` from every ticket the gate edited and its open direct dependency neighbors (per [Relationships](#relationships)). Halt and ask the user when the open blocker graph holds a multi-ticket semantic cycle.
+
 ## Bug preparation
 
 Diagnose an open `ship-it:bug` issue lacking `ship-it:ticket`, define a reproduction seam, and format the issue as a bug ticket.
