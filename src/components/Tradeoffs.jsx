@@ -5,7 +5,7 @@ const CAPABILITIES = [
     id: 'capability-github-state',
     title: 'Deterministic GitHub state',
     description:
-      'All lifecycle state, tickets, specifications, and test evidence live directly in git commits, issues, and labels. There are no opaque third-party databases or hidden state machines.',
+      'One first-match routing table derives every next step from GitHub labels, issue bodies, and a single state comment. No hidden databases.',
     icon: (
       <svg className="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -14,9 +14,9 @@ const CAPABILITIES = [
   },
   {
     id: 'capability-fresh-context',
-    title: 'Fresh-context verification',
+    title: 'Fresh-context review',
     description:
-      'Autonomous validation and two-axis review run in pristine, independent sessions without conversational history pollution, eliminating context drift and developer confirmation bias.',
+      'Validation and two-axis review (Standards and Spec) run in isolated subagents or fresh sessions, so no author verifies their own work.',
     icon: (
       <svg className="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -24,10 +24,21 @@ const CAPABILITIES = [
     ),
   },
   {
-    id: 'capability-pr-closeouts',
-    title: 'Automated PR closeouts',
+    id: 'capability-human-gates',
+    title: 'Three human gates',
     description:
-      'End-to-end closeout opens pull requests with traceability links to upstream issues, verified commit ranges, and file-level review annotations explaining why and what changed.',
+      'Work runs continuously inside each boundary and halts at its exit. Any gate hands control to you after two non-approved passes.',
+    icon: (
+      <svg className="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
+  {
+    id: 'capability-pr-annotations',
+    title: 'Annotated pull requests',
+    description:
+      'Every changed file gets a comment tracing it to its ticket and spec section. ship-it never merges; you do.',
     icon: (
       <svg className="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -41,7 +52,7 @@ const TRADEOFFS = [
     id: 'tradeoff-gh-cli',
     title: 'GitHub CLI requirements',
     description:
-      'Requires the official GitHub CLI (gh) installed and authenticated in your terminal environment. Local work relies on GitHub issue tracking, branch management, and PR APIs.',
+      'Requires git and the GitHub CLI (gh) 2.18.0 or later, authenticated, plus a github.com remote with Issues enabled and write access.',
     icon: (
       <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />
@@ -52,9 +63,9 @@ const TRADEOFFS = [
   },
   {
     id: 'tradeoff-gate-pacing',
-    title: 'Multi-step gate pacing',
+    title: 'Deliberate gate pacing',
     description:
-      'Enforces deliberate human checkpoints between plan, spec, ticket, and review stages. Pacing is intentionally slower than unverified one-shot code generation to guarantee alignment and prevent bugs.',
+      'Three human halts, at the end of Mapping, Definition, and Execution. Pacing is intentionally slower than unverified one-shot code generation.',
     icon: (
       <svg className="w-5 h-5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="10" />

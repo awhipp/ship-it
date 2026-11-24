@@ -1,58 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useClipboard } from '../hooks/useClipboard.js';
+
+const installCmd = 'npx skills install awhipp/ship-it';
 
 export function Hero() {
-  const [copied, setCopied] = useState(false);
-  const installCmd = 'npx skills install awhipp/ship-it';
-
-  const fallbackCopy = (text) => {
-    if (typeof document === 'undefined') return;
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    textarea.style.pointerEvents = 'none';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    try {
-      document.execCommand('copy');
-    } finally {
-      document.body.removeChild(textarea);
-    }
-  };
-
-  const handleCopy = async () => {
-    let success = false;
-    try {
-      if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-        await navigator.clipboard.writeText(installCmd);
-        success = true;
-      } else {
-        fallbackCopy(installCmd);
-        success = true;
-      }
-    } catch {
-      try {
-        fallbackCopy(installCmd);
-        success = true;
-      } catch {
-        success = false;
-      }
-    }
-
-    if (success) {
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    }
-  };
+  const [copied, copy] = useClipboard();
 
   return (
     <section id="hero" className="hero-section py-20 sm:py-28 text-center" aria-labelledby="hero-title">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-        <div className="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full text-xs font-semibold uppercase tracking-wider bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800">
-          Autonomous Agents &bull; Human Control
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800">
+            Autonomous Agents &bull; Human Control
+          </div>
+          <a
+            id="hero-version-badge"
+            href="https://github.com/awhipp/ship-it/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex"
+          >
+            <img
+              src="https://img.shields.io/github/v/release/awhipp/ship-it?style=flat-square&color=blue"
+              alt="Latest ship-it release"
+              height="20"
+            />
+          </a>
         </div>
 
         <h1
@@ -63,7 +36,7 @@ export function Hero() {
         </h1>
 
         <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-          Structured lifecycle automation for software teams. Coordinate feature delivery across GitHub issues using phase gates, fresh-context validation, and automated PR close-outs.
+          Disciplined feature delivery for engineering teams. Drive features from idea to pull request using explicit phase gates, independent reviews, isolated subagents, and GitHub issues as the single source of truth.
         </p>
 
         <div className="mt-10 max-w-xl mx-auto">
@@ -78,7 +51,7 @@ export function Hero() {
             <button
               type="button"
               id="btn-copy-install"
-              onClick={handleCopy}
+              onClick={() => copy(installCmd)}
               aria-label="Copy install command"
               title="Copy install command to clipboard"
               className={`btn-copy ml-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 focus:outline-none focus:ring-2 focus:ring-sky-500 ${

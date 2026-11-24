@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar.jsx';
 import { Hero } from './components/Hero.jsx';
 import { StageStepper } from './components/StageStepper.jsx';
+import { MapVsSpec } from './components/MapVsSpec.jsx';
 import { Tradeoffs } from './components/Tradeoffs.jsx';
 import { QuickStart } from './components/QuickStart.jsx';
 import { Footer } from './components/Footer.jsx';
@@ -20,6 +21,7 @@ export function App() {
       <main id="main-content" className="flex-1">
         <Hero />
         <StageStepper />
+        <MapVsSpec />
         <Tradeoffs />
         <QuickStart />
       </main>
