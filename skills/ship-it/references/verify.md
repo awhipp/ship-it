@@ -8,7 +8,7 @@
 - **Pass 1 is complete**: Map every spec behaviour, Decision Register entry, and Deferred entry to the artifact.
 - **Pass 2+ is delta-only**: Apply the packet's [delta-audit directive](isolation.md#delta-audit-directive) and raise nothing outside it.
 - **Altitude is a finding class**: Under `Target: spec`, low-level detail is a Blocker (file paths, internal functions, slice-local flags not registered in `## Decision Register`; public interface contracts and the `Reproduction seam` command are exempt). Under `Target: ticket-set`, missing low-level detail is a Blocker (no exact touchpoints, bare pointer-only `Design deltas`, criteria that are not self-contained). `Not applicable, because <reason>.` counts as content.
-- **Prose**: Text that breaks [writing.md](writing.md) is a Blocker, except non-conflicting restatement, which is a Warning.
+- **Prose**: Local writing guides override [Core Rules](writing.md#core-rules); non-overridden breaches are validation Warnings and review Nits. Ambiguity, contradictions, altitude defects, [Universal Testing Standards](writing.md#universal-testing-standards), [shell conventions](writing.md#shell-conventions), and [bounded-search truncation](writing.md#bounded-search-truncation) are Blockers.
 - **Reports**: Render only populated subsections, each finding as `**<B|W|Q|S|D>-<n>** [<anchor>]: <text>`. Post the report as a comment and return its URL in `Evidence:` per [isolation.md](isolation.md#return-schema). A clean pass 1 validation posts nothing (`Evidence: None`). A clean pass 2+ validation posts only `## Validation: <Spec|Ticket set>` and `**Verdict**: Validated`.
 
 ### Severity and outcomes
@@ -17,8 +17,8 @@
 | :--- | :--- | :--- |
 | **Blocker** | Wrong, incomplete, unverified, or contradicts a requirement, settled decision, invariant, or active code. | Verdict `changes-requested` (list Questions too). Add `ship-it:changes-requested` to the spec, or the ticket under review. |
 | **Question** | A needed fact is unwritten and has no unambiguous active-code or spec-implied default. | Verdict `questions` when no Blocker. No label. |
-| **Warning** | Non-conflicting repetition, polish, an unambiguous inherited default (name default and anchor), or a belated note on unchanged surface. Validation only. | Advisory. |
-| **Nit** | A typo or naming fix on a correct diff. Review only. | Report only. |
+| **Warning** | Non-overridden Core Rules breach, non-conflicting repetition, an unambiguous inherited default (name default and anchor), or a belated note on unchanged surface. Validation only. | Advisory. |
+| **Nit** | Non-overridden Core Rules breach, typo, or naming fix on a correct diff. Review only. | Report only. |
 
 Warnings, Nits, or nothing: verdict `approved`, adding `ship-it:validated` (validation) or `ship-it:reviewed` (review).
 `Target: ticket-set` labels per ticket: add `ship-it:validated` to every open ticket with no Blocker or Question, and remove it from any ticket cited with one. `ship-it:changes-requested` goes on `<spec>`.
@@ -64,10 +64,11 @@ Audit the whole feature diff after every ticket closes. The fixed point is `git 
 3. Run the [diff axes](#diff-axes), and check across tickets: the branch delivers every observable behaviour and Decision Register entry, no scaffolding or dead code remains, and names stay consistent. On pass 2+, also verify closed fix tickets and raise only uncleared findings, new commits, fix-ticket defects, and cross-ticket regressions.
 4. Post `## Review: Final` on `<spec>`, with `ship-it:reviewed` on `<spec>` when approved.
 5. On Blockers, create one fix ticket per Blocker, list them in `Issues:`, and link each with `gh issue edit <n> --parent <spec-id>`, ignoring errors. Titles read `[<slug>] Ticket: Fix <gist>`, labels `ship-it:ticket,ship-it:validated`. Use the [ticket template](tickets.md#ticket-template): `## Slice goal` quotes the Blocker and cites `Spec §`, and settled guidance goes into the criteria.
+   Human approval at the fix-ticket halt fulfills the non-author validation check under Invariant 3 for fix tickets carrying `ship-it:validated`.
 
 ### Diff axes
 
-- **Standards**: Read `CONTRIBUTING.md`, style guides, and linter configuration, skipping what linters catch. Always flag ticket-numbered files ([prohibition](writing.md#ticket-naming-prohibition)), ad-hoc test harnesses ([prohibition](writing.md#ad-hoc-test-harness-prohibition)), and transient references in code ([prohibition](writing.md#transient-reference-prohibition)) as Blockers.
+- **Standards**: Read `CONTRIBUTING.md`, style guides, and linter configuration, skipping what linters catch. Local style guides override [Core Rules](writing.md#core-rules); non-overridden diff breaches are Nits. Always flag ticket-numbered files ([prohibition](writing.md#ticket-naming-prohibition)), ad-hoc test harnesses ([prohibition](writing.md#ad-hoc-test-harness-prohibition)), and transient references in code ([prohibition](writing.md#transient-reference-prohibition)) as Universal Testing Standards Blockers.
 - **Spec**: Audit against the spec's cross-cutting design and the ticket's `## Low-level design` and `## Acceptance criteria` (bug tickets: `## Root cause`, `## Reproduction seam`, `## Acceptance criteria`). Quote the requirement for each divergence.
 
 Review report: `## Review: <Ticket #n | Final>`, `**Verdict**: Approved | Changes requested | Questions pending`, ``**Audited**: `<fixed-point>..<head-sha>` (<diff stat>; <verification summary>)``, then `### Standards` (S-n, `[<file#Lx>]`), `### Spec` (D-n, `[<spec § heading>]`), and `### Clarifying Questions` (Q-n). A clean pass keeps only the first three lines, and `**Audited**:` always spans the full range.
