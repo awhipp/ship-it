@@ -47,7 +47,7 @@ Every invocation requires an explicit directive so the conductor never guesses w
 ```
 
 A bare `/ship-it` halts immediately and asks for one of these five directives before running any GitHub queries.
-Starting from an existing issue (`/ship-it #<n>`) prompts the user to adopt the source issue in place or create a new issue for the initial map or spec.
+Starting from an existing issue (`/ship-it #<n>`) adopts the source issue in place as the initial map or spec.
 
 ---
 
@@ -57,18 +57,18 @@ Starting from an existing issue (`/ship-it #<n>`) prompts the user to adopt the 
 The conductor routes GitHub state and dispatches role-scoped tasks to isolated subagents or fresh sessions.
 
 Work runs continuously within each boundary and pauses at the boundary exit for human review.
-Circuit Breakers halt repeated validation failures, review loops, or blocker deadlocks for user direction.
+Every gate halts for the human after two non-approved passes: reply with guidance, apply the approval label by hand, or stop.
 
 Run `ship-it <slug>` to approve Boundary 1 or Boundary 2 and advance to the next boundary.
 Merge the pull request to approve Boundary 3 and complete the feature.
 
 | Boundary | Phase | Phase exit / Boundary halt | Reference |
 | :--- | :--- | :--- | :--- |
-| **1. Mapping** | **Plan** | **Halt (Boundary 1 exit)**: Map closes with all decisions settled. | [`SKILL.md`](skills/ship-it/SKILL.md) |
-| **2. Definition** | **Spec** | **Continues to Tickets** once the spec carries `ship-it:validated`. | [`SKILL.md`](skills/ship-it/SKILL.md) |
-| **2. Definition** | **Tickets** | **Halt (Boundary 2 exit)**: Every ticket carries `ship-it:validated`. | [`SKILL.md`](skills/ship-it/SKILL.md) |
-| **3. Execution** | **Implement & Review** | **Continues to Final Review** once all tickets close. | [`SKILL.md`](skills/ship-it/SKILL.md) |
-| **3. Execution** | **Final Review & PR** | **Halt (Boundary 3 exit)**: PR opens and awaits human merge. | [`SKILL.md`](skills/ship-it/SKILL.md) |
+| **1. Mapping** | **Plan** | **Halt (Boundary 1 exit)**: Map closes with all decisions settled. | [`plan.md`](skills/ship-it/references/plan.md) |
+| **2. Definition** | **Spec** | **Continues to Tickets** once the spec carries `ship-it:validated`. | [`plan.md`](skills/ship-it/references/plan.md), [`verify.md`](skills/ship-it/references/verify.md) |
+| **2. Definition** | **Tickets** | **Halt (Boundary 2 exit)**: Every ticket carries `ship-it:validated`. | [`tickets.md`](skills/ship-it/references/tickets.md), [`verify.md`](skills/ship-it/references/verify.md) |
+| **3. Execution** | **Implement & Review** | **Continues to Final Review** once all tickets close. | [`implement.md`](skills/ship-it/references/implement.md), [`verify.md`](skills/ship-it/references/verify.md) |
+| **3. Execution** | **Final Review & PR** | **Halt (Boundary 3 exit)**: PR opens and awaits human merge. | [`verify.md`](skills/ship-it/references/verify.md), [`implement.md`](skills/ship-it/references/implement.md) |
 
 ### Map vs. Spec
 
@@ -84,14 +84,20 @@ Merge the pull request to approve Boundary 3 and complete the feature.
 
 ## Core guarantees
 
-- **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub queries, comments, and session state, enforcing Circuit Breakers for validation, review, and deadlock limits.
+- **Deterministic Routing**: One first-match routing table in [`SKILL.md`](skills/ship-it/SKILL.md) derives the next action from GitHub labels, issue bodies, and one `## Ship-it State` comment, and caps every gate at two non-approved passes before a human halt.
 - **Explicit Directives Only**: Invoking `ship-it` without a slug, issue number, idea, `preflight` (`init`), or `version` (`--version`, `-v`) halts immediately instead of scanning or guessing.
 - **Zero-Assumption Verification**: Evaluators conduct read-only audits classifying findings as **Blocker**, **Warning**, or **Question** without in-place edits, matching audit altitude to artifact scope and withholding approval on unwritten facts.
 - **Two-Tier Context Isolation**: A single conductor dispatches role-scoped leaf subagents with fresh, unforked context in Tier 1 per [`isolation.md`](skills/ship-it/references/isolation.md), falling back to Tier 2 fresh-session handoffs for session-forking harnesses.
-- **Two-Axis Review and Final Audit**: Reviewers audit each ticket diff across Standards and Spec axes from a recorded or derived `Fixed point: <sha>`, followed by a full-branch final review against the specification.
+- **Two-Axis Review and Final Audit**: Reviewers audit each ticket diff across Standards and Spec axes from the ticket's `Fixed point` recorded in `## Ship-it State`, followed by a full-branch final review against the specification.
 - **Annotated Pull Requests**: The `close-out` subagent posts a file-level comment on every changed file tracing the change to its ticket and specification section.
 - **Pragmatic, Domain-Aligned Verification**: Implementation verifies behavior using existing test runners or direct checks while prohibiting ticket-named files, ad-hoc test scripts, and transient issue or spec citations in product code.
 - **Search-First Context Efficiency**: Conductor and subagent passes use bounded GitHub queries, role-scoped reference loading, and targeted symbol search to stay fast across repositories.
+
+---
+
+## Migrating to 1.0.0
+
+1.0.0 is a breaking release. Features in flight on the old version finish on it or are re-baselined by hand. No automated state migration is promised.
 
 ---
 
