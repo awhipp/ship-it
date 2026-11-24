@@ -49,7 +49,7 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
 - **Multi-line bodies**: Use a file-writing tool or a single-quoted PowerShell here-string (`@' ... '@`) instead of Bash heredocs or double-quoted PowerShell strings (`"..."`) so Markdown backticks stay literal. Write multi-line text to a temporary file, pass `--body-file <path>` or `-F body=@<path>`, and delete the temporary file once the `gh` command completes.
 - **Surgical body edits**: Fetch the raw issue body (`gh issue view <n> --json body --jq .body`) to a temporary file, and edit only the target section with a file-editing tool so remaining sections and `- [ ]` tasklists stay intact. Inspect the diff with `git --no-pager diff --no-index`. Apply the update via `gh issue edit <n> --body-file <path>`, then delete the temporary file.
 - **Diff exit codes**: Treat exit code `1` from `git diff --no-index` as differences detected rather than command failure.
-- **Single-quoted `--jq` filters**: Single-quote the whole `--jq` argument and write jq string literals in double quotes inside it. Use field selection and prefix slicing (such as `.body`, `[.comments[].body]`, or `[.comments[].body[:120]]`) for bounded reads. Filter comment headings and verdict lines in-agent or in the `--jq` query.
+- **Single-quoted `--jq` filters**: Single-quote the whole `--jq` argument and write jq string literals in double quotes inside it. Use field selection (such as `.body` or `[.comments[].body]`) for bounded reads, and filter comments in-agent or in the `--jq` query.
 - **PowerShell special characters**: Quote `"@me"` (`--add-assignee "@me"`) and `"repos/{owner}/{repo}/..."` in `gh api` calls. PowerShell parses unquoted `@me` as a splat expression and unquoted `{owner}` as a script block.
 - **Title prefix**: Prefix every issue and pull request title with `[<slug>]`, except leftover-idea issues filed on the narrow intake path.
 - **Explicit-path search**: Supply an explicit file or directory path in every `rg`, `grep`, or `find` search (`rg -n "pattern" skills/ship-it/` or `grep -rn "pattern" .`) so searches target paths rather than standard input. Reserve pathless `grep` or `rg` exclusively for upstream pipeline filters (`<cmd> | grep -q ...`). On Windows, unpathed `find` invokes `find.exe` against standard input.
@@ -58,10 +58,10 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
 - **Command chaining**: Chain dependent commands with `&&` or `||` in POSIX shells and `pwsh` 7.4 or later.
 - **Transient write retry**: Inspect target state before retrying once when `gh issue edit`, `gh issue create`, `gh issue comment`, `gh issue close`, `gh pr create` or a `gh api` comment write fails with a transient GraphQL, HTTP 5xx, or timeout error. Retain any temporary `--body-file` until the retry completes. Retry once only when inspection confirms the mutation is absent from target state; route to [preflight.md](preflight.md) (conductor) or return `failed` (subagent) on repeated or non-transient errors:
   - **Issue edits and closes**: `gh issue view <n> --json title,body,labels,assignees,state`
-  - **Issue comments**: `gh issue view <n> --json comments --jq '[.comments[-3:][].body[:120]]'`
+  - **Issue comments**: `gh issue view <n> --json comments --jq '[.comments[-3:][].body]'`
   - **Issue creates**: `gh issue list --state open --limit 100 --json number,title` (checking the returned count per [bounded search truncation](#bounded-search-truncation) before matching the expected title in-agent)
   - **Pull request create**: `gh pr list --head "<branch>" --state all --json number,state,url` and `gh pr view <pr> --json state,body`
-  - **Comments on pull request files**: `gh api "repos/{owner}/{repo}/pulls/<pr>/comments?per_page=100" --jq '[.[] | {path, commit_id, body: .body[:120]}]'`
+  - **Comments on pull request files**: `gh api "repos/{owner}/{repo}/pulls/<pr>/comments?per_page=100" --jq '[.[] | {path, commit_id, body: .body}]'`
 
 ## Bounded search truncation
 
