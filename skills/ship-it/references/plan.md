@@ -173,12 +173,12 @@ List explicitly excluded capabilities.
 When validation applies `ship-it:changes-requested` to the specification:
 
 Conductors update the spec body directly via surgical edits without posting issue comments.
-Conductors must never post comments or author `## Answers` or `## Circuit Breaker Reset` headings during autonomous blocker resolutions or deferrals of slice-local questions.
+Conductors must never post comments or author `## Answers` headings during autonomous blocker resolutions or deferrals of slice-local questions.
 
-1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Spec") or startswith("## Answers") or startswith("## Circuit Breaker Reset")) | .body]'` and select the latest `## Validation: Spec` report in-agent.
-2. **Resolve cited Blockers**: Limit remediation edits to cited Blockers, settled cross-cutting guidance from `## Answers` or `## Circuit Breaker Reset` comments, and any remaining slice-local `Clarifying Questions`:
+1. **Read the report**: Read the spec comments via `gh issue view <spec-number> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Spec") or startswith("## Answers")) | .body]'` and select the latest `## Validation: Spec` report in-agent.
+2. **Resolve cited Blockers**: Limit remediation edits to cited Blockers, settled cross-cutting guidance from `## Answers` comments, and any remaining slice-local `Clarifying Questions`:
    - **Active-code checks**: Run `git fetch origin <default-branch>`, and compare active-code claims against `origin/<default-branch>` using read-only git commands (`git --no-pager show` or `git --no-pager grep` on explicit paths) so local branches and dirty trees remain untouched. Warn the user when local `HEAD` diverges from `origin/<default-branch>`.
-   - **Settled guidance**: Fold cross-cutting `## Answers` and `## Circuit Breaker Reset` decisions into the spec body.
+   - **Settled guidance**: Fold cross-cutting `## Answers` decisions into the spec body.
    - **Slice-local questions**: Append any remaining slice-local `Clarifying Questions` not already recorded by `SKILL.md` § 4 strictly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions`. Apply that surgical edit (`gh issue edit <spec-number> --body-file <file>`, deleting the temporary file immediately) without prompting the user or posting a comment per `SKILL.md` § 4 (`Dispatch and verdicts`).
    - **Advisory warnings**: Leave advisory Warnings untouched. Editing warning-only sections expands the active edit surface on later validation passes. Warnings never trigger independent remediation passes or revalidation loops.
 

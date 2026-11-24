@@ -107,18 +107,17 @@ Complete the matched action, then follow the row's **Transition** column.
 | 2 | Map is open | Resolve the next decision ticket ([plan.md](references/plan.md)). When none remain, close the map. | While open decision tickets remain: query state and route again, or **halt** when every open decision ticket is blocked. When the map closes: **halt (Boundary 1 exit)**. |
 | 3 | Spec is closed, or a pull request for the branch is `MERGED` | Close the spec when open (`gh issue close <spec> --comment "Merged in <pr-url>"`), then report the feature complete. | **Stop.** |
 | 4 | No spec | Draft and publish the spec ([plan.md](references/plan.md#spec)). | Query state and route again (hits row 7). |
-| 5 | Spec has `ship-it:changes-requested` and `ticket_set` is empty | Remediate the spec through direct body updates without posting issue comments ([plan.md](references/plan.md#spec-remediation)), enforcing the circuit breaker (below). | Query state and route again (hits row 7). |
-| 6 | Spec has `ship-it:changes-requested` and `ticket_set` is non-empty | Remediate `ticket_set` through direct body updates ([tickets.md](references/tickets.md#remediation)), posting at most `## Auto-resolved Decisions` on `<spec>` (never `## Answers`, `## Circuit Breaker Reset`, or ticket comments), and enforcing the circuit breaker (below). | Query state and route again (hits row 9). |
-| 7 | Spec lacks `ship-it:validated` | Validate the spec ([verify.md](references/verify.md#target-spec)), enforcing the circuit breaker (below). | Query state and route again (hits row 8 on pass, row 5 on blockers, or row 7 after handling questions). |
+| 5 | Spec has `ship-it:changes-requested` and `ticket_set` is empty | Remediate the spec through direct body updates without posting issue comments ([plan.md](references/plan.md#spec-remediation)), applying the two-pass cap (below). | Query state and route again (hits row 7). |
+| 6 | Spec has `ship-it:changes-requested` and `ticket_set` is non-empty | Remediate `ticket_set` through direct body updates ([tickets.md](references/tickets.md#remediation)), posting at most `## Auto-resolved Decisions` on `<spec>` (never `## Answers` or ticket comments), and applying the two-pass cap (below). | Query state and route again (hits row 9). |
+| 7 | Spec lacks `ship-it:validated` | Validate the spec ([verify.md](references/verify.md#target-spec)), applying the two-pass cap (below). | Query state and route again (hits row 8 on pass, row 5 on blockers, or row 7 after handling questions). |
 | 8 | `ticket_set` is empty | Slice tickets ([tickets.md](references/tickets.md)). | Query state and route again (hits row 9). |
-| 9 | An open issue in `ticket_set` lacks `ship-it:validated` and `unprepared_bugs` is empty | Enforce the circuit breaker (below), run the mechanical pre-validation gate (below), then validate `ticket_set` ([verify.md](references/verify.md#target-ticket-set)). | On `approved`: **halt (Boundary 2 exit)** when no open ticket has `ship-it:bug`, or **halt** for approval of the bug tickets when an open ticket has `ship-it:bug`. Otherwise: query state and route again (hits row 6 on blockers, or row 9 after handling questions). |
+| 9 | An open issue in `ticket_set` lacks `ship-it:validated` and `unprepared_bugs` is empty | Apply the two-pass cap (below), run the mechanical pre-validation gate (below), then validate `ticket_set` ([verify.md](references/verify.md#target-ticket-set)). | On `approved`: **halt (Boundary 2 exit)** when no open ticket has `ship-it:bug`, or **halt** for approval of the bug tickets when an open ticket has `ship-it:bug`. Otherwise: query state and route again (hits row 6 on blockers, or row 9 after handling questions). |
 | 10 | `unprepared_bugs` is non-empty | Prepare the lowest-numbered issue in `unprepared_bugs` ([tickets.md](references/tickets.md#bug-preparation)). | Query state and route again (hits row 10 when `unprepared_bugs` remains non-empty, or row 9). |
 | 11 | An open issue exists in `ticket_set` | Work `frontier_ticket` (below). | Query state and route again after each frontier step. |
-| 12 | Spec lacks `ship-it:reviewed` | Run the final review ([verify.md](references/verify.md#target-final), [verify.md](references/verify.md#shared-rules)), enforcing the circuit breaker (below). | On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets. Otherwise: query state and route again (hits row 12 after handling questions). |
+| 12 | Spec lacks `ship-it:reviewed` | Run the final review ([verify.md](references/verify.md#target-final), [verify.md](references/verify.md#shared-rules)), applying the two-pass cap (below). | On `approved`: query state and route again (hits row 13). When the review creates fix tickets: **halt** for approval of the fix tickets. Otherwise: query state and route again (hits row 12 after handling questions). |
 | 13 | No pull request exists for the branch | Close out ([implement.md](references/implement.md#initial-close-out)). | **Halt (Boundary 3 exit).** |
 | 14 | A pull request is `OPEN` or `CLOSED` | `OPEN`: report that the pull request awaits human merge. `CLOSED`: report that the pull request closed without merging. | **Stop.** |
 
-- **On-demand comment reads**: Rows 5–7, 9, 11, and 12 read issue comments on demand for circuit-breaker checks, handoff counts, and remediation reports.
 - **Tier 2 fresh-session halts**: In Tier 2, Rows 7, 9, 11 (Step 4), and 12 halt for a fresh session per [isolation.md](references/isolation.md) whenever validation or review is not the session's first action.
 
 **Frontier ticket** (`frontier_ticket` in § 2): Resolve each open ticket's blockers from its `## Blocked by` tasklist per [tickets.md](references/tickets.md#relationships), reading bodies via `gh issue list`/`gh issue view <n> --json body --jq .body` as needed.
@@ -126,9 +125,9 @@ Apply the first matching step:
 
 1. No open ticket is unblocked: report each open ticket with its open blockers and **halt**.
 2. Has `ship-it:reviewed`: close the ticket (`gh issue close <n> --comment "<summary>"`), then query state and route again.
-3. Has `ship-it:changes-requested`: enforce the `Review` circuit breaker (below) before dispatching rework ([implement.md](references/implement.md#rework)), then query state and route again.
-4. Has an assignee: fetch comment prefixes via `gh issue view <n> --json comments --jq '[.comments[].body[:120]]'` and count array elements starting with `## Handoff` in-agent. When the count is at least one, enforce the `Review` circuit breaker (below) before dispatching review ([verify.md](references/verify.md#target-ticket), [verify.md](references/verify.md#shared-rules)), then query state and route again. When the handoff count is zero, re-dispatch implementation ([implement.md](references/implement.md#implement)), then query state and route again.
-5. Otherwise: claim the ticket (`gh issue edit <n> --add-assignee "@me"`), dispatch implementation ([implement.md](references/implement.md#implement)), then query state and route again.
+3. Has `ship-it:changes-requested`: apply the two-pass cap to the ticket's review gate (below) before dispatching rework ([implement.md](references/implement.md#rework)), then query state and route again.
+4. Has an assignee: read the ticket's row in the `## Ship-it State` comment. When `Handed off` is `yes`, apply the two-pass cap to the ticket's review gate (below), then dispatch review ([verify.md](references/verify.md#target-ticket), [verify.md](references/verify.md#shared-rules)) with the row's `Fixed point`, then query state and route again. Otherwise, re-dispatch implementation ([implement.md](references/implement.md#implement)), then query state and route again.
+5. Otherwise: claim the ticket (`gh issue edit <n> --add-assignee "@me"`), record its fixed point per **Ship-it State**, dispatch implementation ([implement.md](references/implement.md#implement)), then query state and route again.
 
 **Mechanical pre-validation gate** (Row 9): Run inside Row 9 before dispatching `validate` (`Target: ticket-set`) across every path entering Row 9 (Row 8 slicing, Row 6 remediation, Row 10 bug preparation, `§ 3` `Reset and fold`, and `§ 4` `Fold settled answers`):
 
@@ -147,39 +146,46 @@ gh issue view <n> --json number,title,body,labels
   5. Valid under-tiered `## Complexity` declarations below non-overlapping source-file bands excluding test files per [tickets.md](references/tickets.md#complexity-taxonomy) (`low` = 1–2, `medium` = 3–5, `high` = 6+): upgrade the tier and update the adjacent rationale sentence to state the touched source-file count. Keep higher tiers justified by non-file dimensions, skip source-file checks on `ship-it:bug` tickets, and defer missing or invalid non-`low`/`medium`/`high` `## Complexity` headers to [verify.md](references/verify.md#target-ticket-set).
 - **Label invalidation and cycle halt**: Strip `ship-it:validated` (`gh issue edit <n> --remove-label "ship-it:validated"`) when present from any ticket edited by the gate and its open direct dependency neighbors (per [tickets.md](references/tickets.md#relationships)). Halt and ask the user when the open blocker graph contains a multi-ticket semantic dependency cycle.
 
-**Circuit Breaker protocol**: Rows 5–7, 9, 11 (Steps 3 and 4), and 12 enforce the unified progress-based circuit breaker with one shared query:
+**Ship-it State**: One `## Ship-it State` comment on `<spec>` holds the counts that route every gate. The conductor alone writes it, and it never reads a report heading or header text.
 
-```shell
-gh issue view <issue> --json comments --jq '[.comments[].body[:120]]'
-```
+- **Lookup**: `gh issue view <spec> --json comments --jq '[.comments[] | select(.body | startswith("## Ship-it State")) | {url, body}] | last'`. This exact heading match is the only one in the skill. Read the whole body.
+- **Contents**:
 
-Comments bearing `## Circuit Breaker Reset` originate solely from user replies.
-Enforce the active breaker in sequence before running the row or step action:
+  ```markdown
+  ## Ship-it State
+  | Gate | Passes | Non-approved | Last verdict |
+  | :--- | :--- | :--- | :--- |
+  | spec-validation | 0 | 0 | none |
+  | ticket-set-validation | 0 | 0 | none |
+  | final-review | 0 | 0 | none |
 
-- **Count check**: Run the shared comment query on the breaker's **Verdict issue**, or reuse the array already fetched in Row 11 Step 4 for `Review`. Inspect elements starting with the active **Report heading** after the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Approved` or `**Verdict**: Validated` report matching that heading, whichever is more recent.
-- **Cycle boundary and history**: Ignore `## Validation Override` and `## Auto-resolved Decisions`. A reset on `<spec>` restarts every breaker counted there. For `## Validation: Spec` (Rows 5 and 7), also count all non-approved `## Validation: Spec` reports in the array as the full-history total.
-- **Pass tracking**: Track `**Verdict**: Changes requested` passes separately from trailing consecutive `**Verdict**: Questions pending` passes. Read `**Blockers**: <N>` and `**Reintroduced**: <M>`, defaulting omitted `<M>` to `0` and rendering missing `**Blockers**:` on a legacy report as `?`.
-- **Threshold halt**: Check before executing the row or step action, or on short-circuit from § 4. Trip when any active-cycle condition holds: `M > 0` (`oscillating/reintroduced blocker`), two consecutive `Changes requested` passes with `current >= previous` or either member lacking `**Blockers**:` (`stalled blocker count`; a single legacy report never trips alone), five strictly decreasing `Changes requested` passes (`converging safety cap reached`), or two trailing consecutive `Questions pending` passes (`repeated questions pending`).
-- **Trip routing**: Route a tripped `## Validation: Spec` breaker (Rows 5 and 7) with six or more full-history reports to **Spec-validation override**, and route every other trip to **Standard halt**. Reaching six total reports never trips a breaker by itself, preserving Option 2's cycle.
-- **Standard halt**: Emit the loop classification, active pass count, and Blocker trajectory (for example, `7 -> 4 -> 4`, or `5 -> ?` for missing `**Blockers**:`). Tell the user which breaker tripped (`Review`, `Validation`, or `Final review`), which `<issue>` holds the count, and that only a `## Circuit Breaker Reset` reply on `<issue>` resets that breaker.
-- **Halt findings and prompt**: Fetch the latest report on the active breaker's **Verdict issue** (`<issue>`) and **Report heading** (`<heading>`) with the query below (an empty result means no report exists). Present its unresolved findings alongside any remaining `Questions` when § 4 short-circuited. Ask the user for guidance using an interactive question tool when available, or in plain text before ending the turn.
-
-  ```shell
-  gh issue view <issue> --json comments --jq '[.comments[] | select(.body | startswith("<heading>")) | .body] | last'
+  | Ticket | Fixed point | Handed off | Passes | Non-approved | Last verdict |
+  | :--- | :--- | :--- | :--- | :--- | :--- |
+  | #<n> | <sha> | no | 0 | 0 | none |
   ```
 
-- **Reset and fold**: After a standard halt, post the user's reply as a `## Circuit Breaker Reset` comment on `<issue>` via temporary `--body-file`, deleting the temporary file immediately. Fold settled guidance into the breaker's **Guidance-folding target**, strip `ship-it:validated` when present from edited open tickets and their open direct dependency neighbors (per [tickets.md](references/tickets.md#relationships)), then query state and route again.
-- **Spec-validation override**: Read the latest `## Validation: Spec` report with the query in **Halt findings and prompt** (`<issue>` = `<spec>`, `<heading>` = `## Validation: Spec`). State `<spec>`, the loop classification, active pass count, Blocker trajectory, the total full-history count of non-approved reports, the unresolved `Blockers` and `Questions`, and Option 1's Row 9 caveat. Present three options using an interactive question tool when available, or in plain text before ending the turn:
-  1. **Proceed to slicing as-is**: Post a `## Validation Override` comment on `<spec>` via temporary `--body-file`, deleting the temporary file immediately, to record the user's waiver under Hard rule 2 (not conductor self-verification) and list the unresolved `Blockers` and `Questions`. Leave the spec body as-is without adding waived findings to `- **Deferred to slicing**:`, remove `ship-it:changes-requested` when present, add `ship-it:validated`, and query state and route again (advancing to Row 8). Slicing and ticket-set validation never read `## Validation Override`, so waived contradictions or cross-cutting gaps can resurface in Row 9.
-  2. **Reset with revised guidance**: Collect the user's revised guidance, prompting for it when missing. Post it as `## Circuit Breaker Reset` on `<spec>` via temporary `--body-file`, deleting the temporary file immediately. Fold settled guidance into `<spec>`, then query state and route again to start the next cycle.
-  3. **Stop and rescope**: Halt without adding `ship-it:validated` or posting a reset or override comment.
-- **Override and control isolation**: Keep `## Validation Override` and `## Auto-resolved Decisions` distinct from `<heading>` and `## Circuit Breaker Reset` in `.body[:120]` prefix checks.
+  `Last verdict` is the verdict plus its `Evidence:` URL. A ticket's row counts its review gate.
+- **Writes**: Create the comment with `gh issue comment`, and edit it in place afterwards (`gh api -X PATCH repos/{owner}/{repo}/issues/comments/<id> -F body=@<file>`, with `<id>` the number ending its `url`), deleting the temporary file immediately. It changes only when:
+  - **A verdict passes the § 4 cross-check**: `Passes` + 1 and `Last verdict` set. A `changes-requested` or `questions` verdict also adds 1 to `Non-approved`. An `approved` verdict closes the gate instance and zeroes both counts, so the next instance starts at pass 1.
+  - **A ticket is handed off**: Before dispatching `implement` for a ticket without a `Fixed point`, record the sha from `git ls-remote origin refs/heads/<branch>`, or from `git rev-parse origin/<default-branch>` when the branch is not on `origin`. When `implement` returns `done`, set `Handed off` to `yes`.
+  - **A human resets a gate** (halt choice 1 below): `Non-approved` becomes 0 and `Passes` stays, so passes after a reset stay delta-only.
+- **Missing comment**: Create it with zero counts and report that in the next halt. A ticket under review with no `Fixed point` halts and asks.
+- **Labels win**: A gate whose approval label is present is closed, whatever the counts say. A stale count cannot approve anything.
 
-| Breaker | Verdict issue | Report heading | Guidance-folding target |
-| :--- | :--- | :--- | :--- |
-| **Review** (Row 11, Steps 3–4) | `<n>` | `## Review: Ticket` | Ticket body (and spec body when shared contracts change) via surgical edit |
-| **Validation** (Rows 5–7 and 9) | `<spec>` | `## Validation: Spec` (Rows 5 and 7) or `## Validation: Ticket set` (Rows 6 and 9) | Spec body or open ticket bodies via surgical edit |
-| **Final review** (Row 12) | `<spec>` | `## Review: Final` | Spec body, or open fix-ticket acceptance criteria, via surgical edit |
+**Two-pass cap**: Pass 1 is the only full audit, and every later pass carries the Delta-audit directive. Rows 5–7, 9, 11 (Steps 3 and 4), and 12 check the cap before acting. When the gate's `Non-approved` is 2, **halt**. Every non-approved verdict counts, `changes-requested` and `questions` alike. The § 4 question prompt gives way to this halt when the verdict brought `Non-approved` to 2.
+
+**Cap halt**: Name the gate and its issue, link the `Last verdict` report, list its unresolved findings and any remaining `Questions`, and offer exactly three choices (ask with an interactive question tool when available, or in plain text before ending the turn):
+
+1. **Reply with guidance**: Post the reply as `## Answers` on the gate's issue via temporary `--body-file`, deleting it immediately. Fold it into the gate's folding target, strip `ship-it:validated` when present from edited open tickets and their open direct dependency neighbors (per [tickets.md](references/tickets.md#relationships)), reset the gate's `Non-approved` to 0, then query state and route again.
+2. **Apply the approval label by hand**: The only waiver. Waiver labels are below. Route again once applied.
+3. **Stop**: End the run without changing labels.
+
+| Gate | Rows | Verdict issue | Folding target | Waiver label |
+| :--- | :--- | :--- | :--- | :--- |
+| spec-validation | 5, 7 | `<spec>` | Spec body | `ship-it:validated` on `<spec>` |
+| ticket-set-validation | 6, 9 | `<spec>` | Open ticket bodies | `ship-it:validated` on every open ticket in `ticket_set` |
+| ticket review (per ticket) | 11 (Steps 3–4) | `<n>` | Ticket body (and spec body when shared contracts change) | `ship-it:reviewed` on `<n>` |
+| final-review | 12 | `<spec>` | Spec body, or open fix-ticket acceptance criteria | `ship-it:reviewed` on `<spec>` |
 
 ## 4. Dispatch and verdicts
 
@@ -187,9 +193,9 @@ Run every action per [isolation.md](references/isolation.md) (including the suba
 Dispatch at most one leaf subagent at a time.
 Await the subagent's four-line return block before resuming the routing loop.
 
-Before any verification pass (`validate`, `review`, or `final-review`), record the pre-dispatch comment count `C_pre` and active-cycle count of reports from the § 3 `Count check` array on the active `Verdict issue` (non-approved reports matching the active `Report heading` after the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Approved` or `**Verdict**: Validated` report matching that heading, whichever is more recent).
-Copy the [Delta-audit directive](references/isolation.md#delta-audit-directive) block verbatim into `- **Delta audit**:` of verification packets in Tier 1 when the active-cycle count is at least one, omitting `- **Delta audit**:` on pass 1 and on non-verification roles.
-Apply [Delta-audit directive](references/isolation.md#delta-audit-directive) directly on first-action verification runs at pass 2 or later in Tier 2.
+Before any verification pass (`validate`, `review`, or `final-review`), read the gate's `Passes` from the `## Ship-it State` comment and record the pre-dispatch comment count `C_pre` with `gh issue view <issue> --json comments --jq '.comments | length'` on the active `Verdict issue`.
+Copy the [Delta-audit directive](references/isolation.md#delta-audit-directive) block verbatim into `- **Delta audit**:` of verification packets in Tier 1 when `Passes` is at least 1, omitting it on pass 1 and on non-verification roles. A pass after a reset keeps it. For `review`, also pass the ticket's `Fixed point` in `- **Fixed point**:`.
+Apply the directive directly on first-action verification runs at pass 2 or later in Tier 2.
 
 - **Conductor action completes** ([plan.md](references/plan.md), [plan.md](references/plan.md#spec), or [tickets.md](references/tickets.md#remediation)): Follow the row's **Transition** column.
 - **Subagent returns `failed` or no valid [return block](references/isolation.md#return-schema)**: **Halt** and report the error, the issue, and the step, so a crashed subagent never passes as a success.
@@ -197,25 +203,24 @@ Apply [Delta-audit directive](references/isolation.md#delta-audit-directive) dir
   - **Verdict issue query**: Fetch labels and comments on the active `Verdict issue` (`<spec>` for `validate` and `final-review`, or `<n>` for `review`) once with single-quoted `--jq` syntax and zero inner quotes:
 
     ```shell
-    gh issue view <issue> --json labels,comments --jq '{labels: [.labels[].name], comments: [.comments[] | {url, prefix: .body[:120]}]}'
+    gh issue view <issue> --json labels,comments --jq '{labels: [.labels[].name], comments: [.comments[].url]}'
     ```
 
   - **Report and return-field check**: Verify return fields and newly posted report comments before checking labels:
     - Reject `approved` returns with `Questions:` other than `None` and reject unrecognized verdicts (such as `done`).
-    - Allow `Evidence: None` strictly when `validate` (`Target: spec` or `Target: ticket-set`) returns `approved` and active-cycle non-approved reports before dispatch equal zero, and reject `Evidence: None` on every other verification return.
-    - Whenever `Evidence:` is not `None` (including Pass 1 `approved` returns from `validate` carrying a report URL), inspect `comments[C_pre:]` in-agent so stale reports predating the pass fail verification, and confirm `comments[C_pre:]` includes a comment whose `url` equals `Evidence:`.
-    - Confirm line 1 of that matching comment's `prefix` starts with the active `Report heading` (`## Validation: Spec`, `## Validation: Ticket set`, `## Review: Ticket`, or `## Review: Final`) and line 2 matches `**Verdict**: <expected>` (`Validated` for `validate` `approved`, `Approved` for `review` and `final-review` `approved`, `Changes requested` for `changes-requested`, or `Questions pending` for `questions`).
+    - Allow `Evidence: None` strictly when `validate` (`Target: spec` or `Target: ticket-set`) returns `approved` on pass 1 (`Passes` is 0 before dispatch), and reject `Evidence: None` on every other verification return.
+    - Whenever `Evidence:` is not `None` inspect `comments[C_pre:]` in-agent so stale reports predating the pass fail verification, and confirm `comments[C_pre:]` includes a comment whose `url` equals `Evidence:`.
   - **`validate` (`Target: spec`) labels**: Require `ship-it:validated` without `ship-it:changes-requested` on `<spec>` for `approved`, `ship-it:changes-requested` without `ship-it:validated` for `changes-requested`, and absence of both labels for `questions`.
   - **`validate` (`Target: ticket-set`) labels**: Require `ship-it:changes-requested` on `<spec>` for `changes-requested`. For `approved` and `questions`, confirm `<spec>` lacks `ship-it:changes-requested` and inspect each open ticket `<t>` in `ticket_set` directly via `gh issue view <t> --json labels --jq '[.labels[].name]'` to bypass search-index lag. Require `ship-it:validated` on every open ticket in `ticket_set` for `approved`, and require at least one open ticket in `ticket_set` lacking `ship-it:validated` for `questions`.
   - **`review` labels**: Require `ship-it:reviewed` without `ship-it:changes-requested` on `<n>` for `approved`, `ship-it:changes-requested` without `ship-it:reviewed` for `changes-requested`, and absence of both labels for `questions`.
   - **`final-review` labels and fix tickets**: Require `ship-it:reviewed` on `<spec>` for `approved`, and confirm `<spec>` lacks `ship-it:reviewed` for `questions` and `changes-requested`. On `changes-requested`, verify that `Issues:` includes at least one newly created open fix ticket absent from pre-dispatch `ticket_set` via `gh issue view <fix> --json number,state,labels,title --jq '{number, state, labels: [.labels[].name], title}'`, confirming `state` equals `OPEN`, `labels` includes `ship-it:ticket` and `ship-it:validated`, and `title` starts with `[<slug>]`.
-  - **Mismatch halt**: Treat missing or unresolved fix-ticket numbers as a mismatch, and route authentication or network `gh` errors to § 2 `Query errors`. When any report, `Evidence:`, `Questions:`, label, or fix-ticket check fails, halt immediately as a `failed` return reporting expected versus observed verdict, expected versus observed labels, expected versus observed report header, the affected issue number, and the active step.
+  - **Mismatch halt**: Treat missing or unresolved fix-ticket numbers as a mismatch, and route authentication or network `gh` errors to § 2 `Query errors`. When any report, `Evidence:`, `Questions:`, label, or fix-ticket check fails, halt immediately as a `failed` return reporting expected versus observed verdict, expected versus observed labels, the affected issue number, and the active step. When every check passes, update the `## Ship-it State` comment per § 3.
 - **Subagent returns `Questions` other than `None`** (on `questions` or `changes-requested`):
   - **Combined-finding ordering**: Resolve `Questions` before Row 5, Row 6, or Row 11 Step 3 remediation whenever a report carries both Blockers and Questions so that report counts once.
-  - **Triage spec validation questions**: When `validate` runs with `Target: spec`, append stray slice-local questions on implementation, touchpoints, or error paths strictly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` in `<spec>` via `gh issue edit <spec> --body-file <file>`, deleting the temporary file immediately. Leave other spec sections untouched, skip user prompts for deferred items, and post no comment. When zero cross-cutting questions remain, query state and route again (deferral-only passes still count toward the breaker).
+  - **Triage spec validation questions**: When `validate` runs with `Target: spec`, append stray slice-local questions on implementation, touchpoints, or error paths strictly to `- **Deferred to slicing**: <detail>` under `## Implementation Decisions` in `<spec>` via `gh issue edit <spec> --body-file <file>`, deleting the temporary file immediately. Leave other spec sections untouched, skip user prompts for deferred items, and post no comment. When zero cross-cutting questions remain, query state and route again (deferral-only passes still count toward the cap).
   - **Auto-resolve ticket-set validation questions**: When `validate` runs with `Target: ticket-set`, resolve reversible slice-local `Questions` into open ticket bodies via surgical `--body-file` edit, post one `## Auto-resolved Decisions` comment on `<spec>` using the bullet format in [tickets.md](references/tickets.md#3-publish-in-dependency-order), strip `ship-it:validated` when present from edited tickets and open direct dependency neighbors (per [tickets.md](references/tickets.md#relationships)), and delete temporary files immediately. When zero irreversible questions on scope, observable product behavior, or irreversible architecture remain, query state and route again.
-  - **Pre-prompt breaker short-circuit**: Before prompting for `## Answers` on remaining questions across all validation and review gates (`validate` with `Target: spec` or `Target: ticket-set`, `review`, `final-review`), reuse the `prefix` values from the `comments` array already fetched in `Verdict cross-check` to evaluate § 3 `Count check` through `Pass tracking` on the active breaker (`Verdict issue` and `Report heading`) without a second comment query. When tripped, short-circuit into the § 3 `Threshold halt` and `Trip routing` (which selects `Standard halt` or `Spec-validation override`) and present unresolved findings alongside the remaining questions.
-  - **Prompt and record replies**: When below the § 3 trip threshold (or when `slice`, `decide`, `prepare-bug`, `implement`, or `rework` asks questions), batch-prompt the user once for all remaining questions using an interactive question tool when available, or in plain text before ending the turn. Post the reply as a `## Answers` comment on the target issue (`<spec>` for slicing, validation, and final review; the ticket or bug issue otherwise) via temporary `--body-file`, deleting the temporary file immediately.
+  - **Cap halt before prompting**: When the verdict brought the gate's `Non-approved` to 2, run the § 3 cap halt and present the remaining questions alongside the unresolved findings instead of prompting for `## Answers`.
+  - **Prompt and record replies**: When below the cap (or when `slice`, `decide`, `prepare-bug`, `implement`, or `rework` asks questions), batch-prompt the user once for all remaining questions using an interactive question tool when available, or in plain text before ending the turn. Post the reply as a `## Answers` comment on the target issue (`<spec>` for slicing, validation, and final review; the ticket or bug issue otherwise) via temporary `--body-file`, deleting the temporary file immediately.
   - **Fold settled answers**: For implementation questions, delegate folding answers to the next implementation subagent. For decision-ticket, slicing, bug-preparation, validation, ticket-review, or final-review questions, fold settled answers into the map, decision ticket, spec, bug issue, or open ticket bodies via surgical body edit (`gh issue edit <n> --body-file <file>`, deleting the temporary file immediately), or into fix-ticket acceptance criteria. Strip `ship-it:validated` when present from edited open tickets and their open direct dependency neighbors (per [tickets.md](references/tickets.md#relationships)). Halt when Row 12 created fix tickets; otherwise query state and route again.
 - **Subagent returns any other packet**: Follow the row's **Transition** column (halt on Boundary 2 exit or bug-ticket approval at row 9, fix-ticket approval at row 12, or Boundary 3 exit at row 13, and otherwise query state and route again).
 
