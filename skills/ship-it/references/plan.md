@@ -92,7 +92,7 @@ Reserve decision tickets for open architectural, scope, or user-preference forks
 
 #### Subagent execution
 
-Execute `research`, `prototype`, and `task` tickets in a `decide` subagent per [## Ticket types](#ticket-types):
+Execute `research`, `prototype`, and `task` tickets in a `decide` subagent per [## Ticket types](#ticket-types). Read only the ticket body, its `## Answers` comments, and the map body.
 
 - **Single-line settlement**: Close the ticket (`gh issue close <n> --comment "<settled decision and rationale>"`) and return `done` with `Evidence: None`.
 - **Multi-line findings**: Post findings via `gh issue comment <n> --body-file <file>`, delete the temporary file immediately, close the ticket (`gh issue close <n>`), and return `done` with `Evidence: <comment-url>`.
