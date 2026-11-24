@@ -4,9 +4,9 @@
 
 - **Read-only**: Never edit the artifact under audit, except the checklist toggles named below.
 - **Zero assumption**: Record a Question when judging needs a fact the requirements omit. Never infer intent or assume edge-case safety.
-- **Command-backed Blockers**: Before raising a Blocker that asserts a repository fact (file, path, symbol, caller, git ref) or environment fact (tool version, CLI behaviour, test failure), run a read-only command in this pass and cite its output.
+- **Command-backed Blockers**: Before raising a Blocker on a repository or environment fact, run a read-only command this pass and cite its output.
 - **Pass 1 is complete**: Map every spec behaviour, Decision Register entry, and Deferred entry to the artifact.
-- **Delta-only when directed**: When a packet or Tier 2 run carries the [delta-audit directive](isolation.md#delta-audit-directive) (including `final-review` pass 1 with an `OPEN` pull request), follow that directive and raise nothing outside its scope.
+- **Delta-only when directed**: Under the [delta-audit directive](isolation.md#delta-audit-directive) (including `final-review` with an `OPEN` pull request), raise nothing outside its scope.
 - **Altitude is a finding class**: `Target: spec` forbids low-level detail (file paths, internal functions, slice flags absent from `## Decision Register`; public contracts and `Reproduction seam` commands exempt). `Target: ticket-set` requires concrete `Touchpoints`, non-stub `Design deltas`, and self-contained criteria. Violations are Blockers; `Not applicable, because <reason>.` counts as content.
 - **Prose**: Local style guides override [Core Rules](writing.md#core-rules); other breaches are validation Warnings and review Nits. Ambiguity, contradictions, altitude defects, [Universal Testing Standards](writing.md#universal-testing-standards), [shell conventions](writing.md#shell-conventions), and [bounded-search truncation](writing.md#bounded-search-truncation) are Blockers.
 - **Reports**: Render populated subsections only, each finding `**<B|W|Q|S|D>-<n>** [<anchor>]: <text>`. Post the report and return its URL in `Evidence:` ([isolation.md](isolation.md#return-schema)). Clean pass-1 validation posts nothing (`Evidence: None`); clean pass 2+ posts only `## Validation: <Spec|Ticket set>` and `**Verdict**: Validated`.
@@ -43,13 +43,13 @@ The conductor closes reviewed tickets.
   - Bug tickets follow the [bug template](tickets.md#bug-preparation) and skip design and slicing checks.
   - Consolidation checklists: required on a feature ticket whose criteria quantify over an unnamed enumerable set, forbidden on bug tickets. A pre-checked `- [x]` item is a Blocker only when no `ship-it:reviewed`, `ship-it:changes-requested`, or prior `## Review: Ticket` report exists.
 - **Pass 2+**: Deep-audit only unvalidated open tickets and their open direct dependency neighbors per [Relationships](tickets.md#relationships). Downgrade belated notes on untouched `ship-it:validated` tickets to Warnings.
-- **Report**: `## Validation: Ticket set` in the spec format, on `<spec>`, tagging every bullet `[#<n>, ...]` with each affected open ticket.
+- **Report**: `## Validation: Ticket set` in the spec format on `<spec>`, tagging each bullet `[#<n>, ...]` with affected open tickets.
 
 ## Target: ticket
 
 Audit one ticket's diff. Return `failed` when the fixed point is missing or unresolvable, or `<fixed-point>...HEAD` is empty.
 
-1. Fetch and check out `<branch>`, surveying `git --no-pager diff --stat <fixed-point>...HEAD`. On pass 2+, inspect `<prev-head-sha>..HEAD` (latest `**Audited**:` line) or `## Rework` commits, falling back to `<fixed-point>..HEAD`; if `HEAD` is unchanged, check folded edits against `<fixed-point>..HEAD`.
+1. Fetch and check out `<branch>`, surveying `git --no-pager diff --stat <fixed-point>...HEAD`. On pass 2+, inspect `<prev-head-sha>..HEAD` (latest `**Audited**:`) or `## Rework` commits, else `<fixed-point>..HEAD`; when `HEAD` is unchanged, check folded edits against `<fixed-point>..HEAD`.
 2. Check verification evidence in `## Handoff` and `## Rework`. Missing evidence is a Blocker.
 3. Run [diff axes](#diff-axes), touched-module suites, named edge cases, and external caller sweeps when a signature or shared contract changes.
 4. Verify all `- [ ]` items and any `- [x]` regression in `## Consolidation checklist` (failures are `### Spec` Blockers); never approve with unchecked items. Toggle verified items once via `gh issue edit <n> --body-file <file>`.
@@ -59,9 +59,9 @@ Audit one ticket's diff. Return `failed` when the fixed point is missing or unre
 
 Audit the feature diff after every ticket closes. The fixed point is `git merge-base origin/<default-branch> HEAD`. Read no comments on closed tickets. Return `failed` when the merge-base does not resolve or the diff is empty.
 
-1. Fetch and check out `<branch>`, and survey `git --no-pager diff --stat <merge-base>...HEAD`. On full runs, inspect `<merge-base>..HEAD`. On delta-audit runs (carrying the delta-audit directive), read `<prev-head-sha>` from the latest `## Review: Final` `**Audited**:` line and inspect `<prev-head-sha>..HEAD`, falling back to `<merge-base>..HEAD` when no prior report exists. When `HEAD` is unchanged, check folded edits against `<merge-base>..HEAD`.
-2. Run the spec's `## Testing seams` and closed tickets' criteria; missing verification is a Blocker. On delta-audit runs, re-run only changed checks, prior failures, and criteria of tickets closed since the latest `## Review: Final` report (addendum bugs, fix tickets, or other completed tickets; all closed tickets if no prior report exists).
-3. Run [diff axes](#diff-axes), checking across tickets for every observable behaviour and Decision Register entry without dead code or inconsistent names. On delta-audit runs, also verify newly closed tickets, raising only uncleared prior findings, defects in the delta range or newly closed tickets, and cross-ticket regressions.
+1. Fetch and check out `<branch>`, and survey `git --no-pager diff --stat <merge-base>...HEAD`. On full runs, inspect `<merge-base>..HEAD`. On delta-audit runs, read `<prev-head-sha>` from the latest `## Review: Final` `**Audited**:` line and inspect `<prev-head-sha>..HEAD`, else `<merge-base>..HEAD` when no prior report exists. When `HEAD` is unchanged, check folded edits against `<merge-base>..HEAD`.
+2. Run the spec's `## Testing seams` and closed tickets' criteria; missing verification is a Blocker. On delta-audit runs, re-run only changed checks, prior failures, and criteria of tickets closed since the latest `## Review: Final` report (all closed tickets when none exists).
+3. Run [diff axes](#diff-axes), checking across tickets for every observable behaviour and Decision Register entry without dead code or inconsistent names. On delta-audit runs, also verify newly closed tickets, raising only uncleared findings, defects in the delta or those tickets, and cross-ticket regressions.
 4. Post `## Review: Final` on `<spec>` with `**Audited**:` spanning the full `<merge-base>..<head-sha>` range, adding `ship-it:reviewed` on `<spec>` when approved.
 5. On Blockers, create one fix ticket per Blocker, list in `Issues:`, and link via `gh issue edit <n> --parent <spec-id>` (ignore errors). Title: `[<slug>] Ticket: Fix <gist>`; labels: `ship-it:ticket,ship-it:validated`. Follow [ticket template](tickets.md#ticket-template): `## Slice goal` quotes the Blocker and cites `Spec §`; settled guidance enters criteria.
    Human approval at the fix-ticket halt satisfies Invariant-3 non-author validation for fix tickets carrying `ship-it:validated`.
@@ -114,7 +114,7 @@ Run before question triage or routing on every non-`failed` `validate`, `review`
 1. **Fetch** `gh issue view <issue> --json labels,comments --jq '{labels: [.labels[].name], comments: [.comments[].url]}'` on the Verdict issue.
 2. **Return fields**: Reject `approved` with non-`None` `Questions:` and unknown verdicts (e.g. `done`). Allow `Evidence: None` only on pass-1 `validate` `approved` (`Passes` 0); else `comments[C_pre:]` must hold `Evidence:` URL.
 3. **Labels**: Approval label is `ship-it:validated` (spec, ticket-set) or `ship-it:reviewed` (ticket, final). `approved` needs that label without `ship-it:changes-requested`; `changes-requested` needs `ship-it:changes-requested` without that label; `questions` needs neither. Exceptions:
-   - **Ticket-set**: `approved` needs `validated` on all open `ticket_set` tickets (read via `gh issue view <t> --json labels --jq '[.labels[].name]'` to bypass search lag). `changes-requested` needs `changes-requested` on `<spec>`; `questions` needs `<spec>` without that label and an open ticket lacking `validated`.
+   - **Ticket-set**: `approved` needs `validated` on all open `ticket_set` tickets (`gh issue view <t> --json labels`, bypassing search lag). `changes-requested` needs `changes-requested` on `<spec>`; `questions` needs `<spec>` without that label and an open ticket lacking `validated`.
    - **Final `changes-requested`**: `<spec>` lacks `reviewed`, and `Issues:` names a new ticket absent from pre-dispatch `ticket_set`; `gh issue view <fix> --json state,labels,title` shows `OPEN`, `ship-it:ticket`, `ship-it:validated`, and `[<slug>]` prefix.
 4. **Mismatch halt**: Route auth/network `gh` errors to `SKILL.md` § 2 `Errors`. On any failed check (including unresolved fix-ticket IDs), halt as `failed` reporting expected vs. observed verdict, labels, issue, and step. When all checks pass, update Ship-it State.
 
