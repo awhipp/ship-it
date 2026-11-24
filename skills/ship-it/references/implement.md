@@ -3,7 +3,7 @@
 ## Implement
 
 Build exactly what one ticket describes.
-Requirements come only from the ticket body, spec body (`gh issue view <n> --json body --jq .body`), and settled `## Answers`.
+The ticket body, its spec body (`gh issue view <n> --json body --jq .body`), and settled `## Answers` are the only requirements.
 
 ### Process
 
@@ -42,7 +42,7 @@ When any conflict with active code or leave a decision unwritten:
 
 - Stage only ticket files (`git add <file>...`).
 - Commit as `<type>(<slug>): <summary> (#<ticket>)` (`<type>` = branch prefix before `/`), and push every commit.
-- Post `## Handoff` (`gh issue comment <n> --body-file <file>`), delete the temp file, and return `done`, leaving the ticket assigned and open:
+- Post the handoff (`gh issue comment <n> --body-file <file>`), delete the temporary file, and return `done`, leaving the ticket assigned and open:
 
 ```markdown
 ## Handoff

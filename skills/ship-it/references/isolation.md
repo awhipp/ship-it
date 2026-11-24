@@ -33,7 +33,7 @@ Both tiers keep GitHub issues, comments, labels, and branch commits as the sole 
 A packet holds only:
 
 - The artifact under work and its parent (table below).
-- The Decision Register (`## Decision Register` on the spec, or `## Decisions so far` on the map for `decide`).
+- The Decision Register: the spec's `## Decision Register`, or the map's `## Decisions so far` for `decide`.
 - Settled answers: `## Answers` on the target issue, and `## Auto-resolved Decisions` on the spec.
 - The repository at the named ref.
 - When triggered by [Delta-audit directive](#delta-audit-directive) (`Passes` >= 1, or `final-review` with an `OPEN` branch pull request), the directive and prior reports.
@@ -60,13 +60,13 @@ Launch a fresh, unforked subagent per [Context packets](#context-packets), forbi
 Pass only:
 
 - **Role** and **Target** (`spec` | `ticket-set` for `validate`; `ticket` for `review`; `final` for `final-review`).
-- **Reference**: Assigned reference file(s) and section anchors, plus [writing.md](writing.md). Treat links to other reference files as citations.
+- **Reference**: The assigned reference file(s) and section anchors, plus [writing.md](writing.md). Treat links to other reference files as citations.
 - **Issues**: Target issue number and parent spec or map number.
 - **Slug** and **Default branch** (read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`).
-- **Branch**: Every role except `decide` and `slice`.
+- **Branch**: For every role except `decide` and `slice`.
 - **Fixed point**: Ticket's starting commit from `## Ship-it State`, for `review` only.
 - **Delta audit**: Copy [Delta-audit directive](#delta-audit-directive) verbatim when `Passes` >= 1 (resets included) or `final-review` runs with an `OPEN` branch pull request; omit otherwise.
-- **Return block**: [Return schema](#return-schema) block, copied verbatim.
+- **Return block**: The [Return schema](#return-schema) block, copied verbatim.
 
 ## Delta-audit directive
 
@@ -83,7 +83,7 @@ Delta-audit directive:
 
 ## Return schema
 
-Every subagent returns this exact block:
+Every subagent returns exactly this block:
 
 ```text
 Verdict: done | approved | changes-requested | questions | failed
@@ -92,7 +92,7 @@ Questions: <numbered list, or None>
 Evidence: <link to the issue comment holding the full report, or None>
 ```
 
-`slice` lists created tickets in `Issues:` and returns its `## Auto-resolved Decisions` comment URL in `Evidence:` when posted.
+`slice` lists all created tickets in `Issues:` and returns its `## Auto-resolved Decisions` comment URL in `Evidence:` when posted.
 Actions posting no report return `Evidence: None`.
 The conductor reads only this block.
 

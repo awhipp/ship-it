@@ -32,7 +32,7 @@ Only the invocation text counts. Ignore earlier conversation when choosing the f
 | `ship-it version`, `--version`, or `-v` | Run only Check 0 in `preflight.md`, report the version, and halt. |
 
 Without a directive, ask and stop without running `gh`.
-If `ship-it <slug>` matches no issue, report that, ask for an idea, and stop.
+When `ship-it <slug>` matches no issue, report that, ask for an idea, and stop.
 A new feature (idea or source issue) runs `plan.md#intake` before routing.
 
 ## 2. Query state
@@ -46,8 +46,8 @@ gh pr list --head "<branch>" --state all --json number,state,url
 
 - **Truncation**: At 100 results, warn per `writing.md#bounded-search-truncation`, rerun once per label (`ship-it:map`, `spec`, `ticket`, `bug`, `research`, `prototype`, `grilling`, `task`) with `--label`, and merge by number; halt if a rerun hits 100.
 - **Fresh reads**: Search indexes late: re-read each issue an action created or changed with `gh issue view <n> --json number,title,labels,assignees,state,stateReason`, in place of its search entry.
-- **Predicates**: Partition by label into `map`, `spec`, `ticket`, and `bug`. `ticket_set` holds `ship-it:ticket` issues; `unprepared_bugs` are open `ship-it:bug` issues lacking `ship-it:ticket`; `frontier_ticket` is the lowest-numbered open `ticket_set` issue whose blockers are all `CLOSED`. Evaluate `unsynced_tickets` lazily only when Rows 1–13 miss and the branch pull request is `OPEN` (definition: [implement.md#pull-request-sync](implement.md#pull-request-sync)).
-- **Branch**: Read once from the spec's `## Source`.
+- **Predicates**: Partition by label into `map`, `spec`, `ticket`, and `bug`. `ticket_set` is the `ship-it:ticket` issues. `unprepared_bugs` are open `ship-it:bug` issues lacking `ship-it:ticket`. `frontier_ticket` is the lowest-numbered open `ticket_set` issue whose blockers are all `CLOSED`. Evaluate `unsynced_tickets` lazily only when Rows 1–13 miss and the branch pull request is `OPEN` (definition: [implement.md#pull-request-sync](implement.md#pull-request-sync)).
+- **Branch**: Read it once from the spec's `## Source`.
 - **Pull requests**: Prefer `MERGED` > `OPEN` > `CLOSED` (`CLOSED` = unmerged).
 - **Errors**: On query failure, run `preflight.md` (it halts); never read it as empty, which duplicates artifacts at Row 1 or 4. Retry transient writes once per `preflight.md#shell-conventions`.
 
@@ -98,7 +98,7 @@ Load only the active row's files and named sections (resumes skip `#intake`). In
 ## 4. Dispatch and verdicts
 
 Run actions per `isolation.md` (packet: `isolation.md#tier-1-dispatch-packet`).
-Dispatch one leaf subagent at a time; await its four-line return block.
+Dispatch one leaf subagent at a time and await its four-line return block.
 
 - **`failed` or invalid return** (`isolation.md#return-schema`): **Halt**, reporting error, issue, and step.
 - **Verification returns**: Run `verify.md#verdict-cross-check`, then `verify.md#question-triage-after-verification`.
