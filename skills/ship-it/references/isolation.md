@@ -16,24 +16,24 @@ Across both tiers, use GitHub issues, comments, labels, and branch commits as th
 | Action | Reference | Runs in |
 | :--- | :--- | :--- |
 | Chart map, resolve grilling ticket | [plan.md](plan.md) | Conductor (needs the user) |
-| Draft spec, remediate spec | [spec.md](spec.md) | Conductor (needs the user) |
+| Draft spec, remediate spec | [plan.md](plan.md#spec) | Conductor (needs the user) |
 | Remediate ticket set | [tickets.md#remediation](tickets.md#remediation) | Conductor (needs the user) |
 | Resolve research, prototype, or task ticket | [plan.md#ticket-types](plan.md#ticket-types), [plan.md#subagent-execution](plan.md#subagent-execution) | Subagent: `decide` |
 | Slice tickets | [tickets.md](tickets.md) | Subagent: `slice` |
-| Prepare bug | [bug-prep.md](bug-prep.md), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `prepare-bug` |
-| Implement ticket | [implement.md](implement.md) | Subagent: `implement` |
-| Rework ticket | [rework.md](rework.md) | Subagent: `rework` |
-| Validate spec or ticket set | [validate-spec.md](validate-spec.md) (`Target: spec`), [validate-tickets.md](validate-tickets.md) with [tickets.md#granularity-thresholds](tickets.md#granularity-thresholds), [tickets.md#slicing-anti-patterns](tickets.md#slicing-anti-patterns), and [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) (`Target: ticket-set`) | Subagent: `validate` |
-| Review ticket | [review-ticket.md](review-ticket.md), [review-core.md](review-core.md) | Subagent: `review` |
-| Final review | [review-final.md](review-final.md), [review-core.md](review-core.md), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `final-review` |
-| Close out | [close-out.md#initial-close-out](close-out.md#initial-close-out) | Subagent: `close-out` |
+| Prepare bug | [tickets.md](tickets.md#bug-preparation), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `prepare-bug` |
+| Implement ticket | [implement.md](implement.md#implement) | Subagent: `implement` |
+| Rework ticket | [implement.md](implement.md#rework) | Subagent: `rework` |
+| Validate spec or ticket set | [verify.md](verify.md#target-spec) (`Target: spec`), [verify.md](verify.md#target-ticket-set) with [tickets.md#granularity-thresholds](tickets.md#granularity-thresholds), [tickets.md#slicing-anti-patterns](tickets.md#slicing-anti-patterns), and [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) (`Target: ticket-set`) | Subagent: `validate` |
+| Review ticket | [verify.md](verify.md#target-ticket), [verify.md](verify.md#shared-rules) (`Target: ticket`) | Subagent: `review` |
+| Final review | [verify.md](verify.md#target-final), [verify.md](verify.md#shared-rules) (`Target: final`), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `final-review` |
+| Close out | [implement.md#initial-close-out](implement.md#initial-close-out) | Subagent: `close-out` |
 
 ## Tier 1: dispatch packet
 
 Pass only these fields to the subagent:
 
 - **Role**: One of the subagent roles above.
-- **Target**: `spec` | `ticket-set`, for `validate`.
+- **Target**: `spec` | `ticket-set`, for `validate`; `ticket`, for `review`; `final`, for `final-review`.
 - **Complexity**: `low` | `medium` | `high`.
 - **Reference**: The assigned reference file(s) to follow, plus [writing.md](writing.md). Load only the assigned reference file(s) and `writing.md`; treat links to other reference files as citations rather than files to load. When an assignment names a section anchor, follow only that section of the file.
 - **Issues**: The target issue number and the parent spec or map number.
@@ -117,32 +117,3 @@ When the next routing row is validation or review after any other action, halt a
 
 Apply [Delta-audit directive](#delta-audit-directive) directly whenever a first-action verification run executes at pass 2 or later in the current cycle (when `SKILL.md` § 3 `Count check` finds at least one prior non-approved report matching the active `Report heading`).
 Use GitHub issues, comments, labels, and branch commits as the sole state across fresh-session halts instead of session handles or in-memory state.
-
-## Source-issue adoption
-
-Publish a new map or spec when the phase precondition applies, using four parameters:
-
-- **Precondition**: Applicability rule supplied by [plan.md](plan.md#charting-no-map-exists) or [spec.md](spec.md#process).
-- **Title**: `[<slug>] Map: <gist>` or `[<slug>] Spec: <gist>`.
-- **Type label**: `ship-it:map` or `ship-it:spec`.
-- **Notes bullet**: Optional line recorded under `## Notes` during in-place adoption.
-
-When the precondition holds, follow these steps:
-
-1. Present two interactive options:
-   - **Option 1 (Recommended)**: `Adopt source issue #<n> in place (updates title, adds artifact label, keeps the original body as a comment, and replaces the body with the artifact template)`
-   - **Option 2**: `Create a new issue (retains original source issue #<n> untouched as external reference)`
-2. Write the artifact body to a temporary payload file per [writing.md](writing.md#cross-platform-shell-conventions).
-3. On **Option 1**, keep the original request before replacing the body. Write `## Original request` and the current body (`gh issue view <n> --json body --jq .body`) to a second temporary file, post it with `gh issue comment <n> --body-file <file>`, and delete that file. Skip this comment when the body is empty. Then include the `## Notes` bullet when configured, and run:
-
-   ```shell
-   gh issue edit <n> --title "<title>" --add-label "<type-label>" --body-file <file>
-   ```
-
-4. On **Option 2**, leave source issue `#<n>` untouched and run:
-
-   ```shell
-   gh issue create --title "<title>" --body-file <file> --label "<type-label>"
-   ```
-
-5. Delete the temporary payload file immediately after `gh issue edit` or `gh issue create` completes.
