@@ -41,7 +41,7 @@ A string match passes whenever the text exists, so it proves presence rather tha
 
 ### Transient-reference prohibition
 
-Omit `Spec § ...` citations, ticket identifiers, and `#<n>` issue references from product code, tests, code comments, and docstrings.
+Omit `Spec § ...` citations, ticket identifiers, and `#<n>` issue references from product code, tests, code comments, docstrings, and repository documentation files.
 Follow local repository rules when `CONTRIBUTING.md`, style guides, or repository conventions explicitly require issue references in comments or tests.
 Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)`), pull request descriptions, closing lists, and pull request `**Traces to**:` annotations retain required traceability.
 
@@ -49,7 +49,7 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
 
 - **Payloads**: Write multi-line text to a temporary file, pass `--body-file <path>`, and delete the file once `gh` completes.
 - **`--jq` filters**: Single-quote the whole filter and write jq string literals in double quotes.
-- **Title prefix**: Prefix every issue and pull request title with `[<slug>]`, except leftover-idea issues filed on the narrow intake path.
+- **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.
 - **Other conventions**: Read [preflight.md](preflight.md#shell-conventions) when a command misbehaves.
 
 ## Bounded search truncation

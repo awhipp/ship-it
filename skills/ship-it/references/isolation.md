@@ -19,12 +19,12 @@ Across both tiers, GitHub issues, comments, labels, and branch commits are the s
 | Remediate ticket set | [tickets.md#remediation](tickets.md#remediation) | Conductor (needs the user) |
 | Resolve research, prototype, or task ticket | [plan.md#ticket-types](plan.md#ticket-types), [plan.md#subagent-execution](plan.md#subagent-execution) | Subagent: `decide` |
 | Slice tickets | [tickets.md](tickets.md) | Subagent: `slice` |
-| Prepare bug | [tickets.md](tickets.md#bug-preparation), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `prepare-bug` |
+| Prepare bug | [tickets.md](tickets.md#bug-preparation) | Subagent: `prepare-bug` |
 | Implement ticket | [implement.md](implement.md#implement) | Subagent: `implement` |
 | Rework ticket | [implement.md](implement.md#rework) | Subagent: `rework` |
-| Validate spec or ticket set | [verify.md](verify.md#target-spec) (`Target: spec`), [verify.md](verify.md#target-ticket-set) with [tickets.md#granularity-thresholds](tickets.md#granularity-thresholds), [tickets.md#slicing-anti-patterns](tickets.md#slicing-anti-patterns), and [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) (`Target: ticket-set`) | Subagent: `validate` |
+| Validate spec or ticket set | [verify.md](verify.md#target-spec) (`Target: spec`), [verify.md](verify.md#target-ticket-set) with [tickets.md#granularity-thresholds](tickets.md#granularity-thresholds), and [tickets.md#slicing-anti-patterns](tickets.md#slicing-anti-patterns) (`Target: ticket-set`) | Subagent: `validate` |
 | Review ticket | [verify.md](verify.md#target-ticket), [verify.md](verify.md#shared-rules) (`Target: ticket`) | Subagent: `review` |
-| Final review | [verify.md](verify.md#target-final), [verify.md](verify.md#shared-rules) (`Target: final`), [tickets.md#complexity-taxonomy](tickets.md#complexity-taxonomy) | Subagent: `final-review` |
+| Final review | [verify.md](verify.md#target-final), [verify.md](verify.md#shared-rules) (`Target: final`) | Subagent: `final-review` |
 | Close out | [implement.md#initial-close-out](implement.md#initial-close-out) | Subagent: `close-out` |
 
 ## Context packets
@@ -40,16 +40,16 @@ A packet holds only these items:
 A packet never holds conversation history, conductor summaries of intent, prior-phase prose beyond the named artifacts, or the `## Ship-it State` comment.
 A role reads nothing outside its packet.
 
-| Role | Artifact under work | Parent | Complexity |
-| :--- | :--- | :--- | :--- |
-| `decide` | Decision ticket | Map | `low` for research, `medium` for prototypes and tasks |
-| `slice` | Tickets it creates | Spec | `high` |
-| `prepare-bug` | Bug issue | Spec | `medium` |
-| `validate` | Spec, or open tickets | `## Source` request and map, or spec and completed closed tickets | `medium` for `spec`, `high` for `ticket-set` |
-| `implement`, `rework` | Ticket (`rework`: plus latest `## Review:`) | Spec | Ticket `## Complexity`, else `high` |
-| `review` | Diff from the fixed point, plus `## Handoff` and `## Rework` | Ticket and spec | Ticket `## Complexity`, else `high` |
-| `final-review` | Branch diff from the merge-base | Spec and completed closed tickets | `high` |
-| `close-out` | Feature branch | Spec and closed tickets | `low` |
+| Role | Artifact under work | Parent |
+| :--- | :--- | :--- |
+| `decide` | Decision ticket | Map |
+| `slice` | Tickets it creates | Spec |
+| `prepare-bug` | Bug issue | Spec |
+| `validate` | Spec, or open tickets | `## Source` request and map, or spec and completed closed tickets |
+| `implement`, `rework` | Ticket (`rework`: plus latest `## Review:`) | Spec |
+| `review` | Diff from the fixed point, plus `## Handoff` and `## Rework` | Ticket and spec |
+| `final-review` | Branch diff from the merge-base | Spec and completed closed tickets |
+| `close-out` | Feature branch | Spec and closed tickets |
 
 A role that finds a requirement missing returns it as a Question, except `slice`, which may auto-resolve reversible slice-local defaults into ticket bodies and `## Auto-resolved Decisions` on the spec, escalating only scope, observable product behavior, or irreversible architecture choices.
 
@@ -58,7 +58,7 @@ A role that finds a requirement missing returns it as a Question, except `slice`
 Launch a fresh, unforked subagent per [Context packets](#context-packets) for every action, and forbid it from loading `SKILL.md`, running routing queries, or spawning subagents.
 Pass only these fields:
 
-- **Role**, **Complexity**, and **Target** (`spec` | `ticket-set` for `validate`; `ticket` for `review`; `final` for `final-review`).
+- **Role** and **Target** (`spec` | `ticket-set` for `validate`; `ticket` for `review`; `final` for `final-review`).
 - **Reference**: The assigned reference file(s) and section anchors, plus [writing.md](writing.md). Treat links to other reference files as citations.
 - **Issues**: The target issue number and the parent spec or map number.
 - **Slug** and **Default branch** (read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`).
@@ -66,16 +66,6 @@ Pass only these fields:
 - **Fixed point**: The ticket's starting commit from the `## Ship-it State` comment, for `review` only.
 - **Delta audit**: The [Delta-audit directive](#delta-audit-directive) block, copied verbatim, when the gate's `Passes` is at least 1 (a pass after a reset included). Omit it on pass 1 and on non-verification roles.
 - **Return block**: The [Return schema](#return-schema) block, copied verbatim.
-
-### Complexity directives
-
-Include the matching directive in the subagent dispatch prompt:
-
-- **`low`**: `Complexity: low. Expect a localized change. Check each requirement in the assigned issues.`
-- **`medium`**: `Complexity: medium. Check each requirement and edge case the assigned issues name.`
-- **`high`**: `Complexity: high. Check each requirement, edge case, and invariant against active code, including callers outside the named touchpoints.`
-
-When the dispatch tool accepts a reasoning-effort setting, set the setting to the same level.
 
 ## Delta-audit directive
 

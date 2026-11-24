@@ -13,7 +13,7 @@ References live in `references/`, and names below omit the folder.
 
 ## Hard rules
 
-1. **Never guess.** Ask the user when a fact on scope, observable behavior, or irreversible architecture is missing. Slice-local questions defer or auto-resolve per `verify.md#question-triage-after-verification`.
+1. **Never guess.** Ask the user when a fact on scope, observable behavior, or irreversible architecture is missing. Only `slice` auto-resolves reversible slice-local defaults (`isolation.md#context-packets`).
 2. **Never verify your own work.** Validation and review run in a fresh context per `isolation.md`.
 3. **Run every boundary to its exit halt.** Loop until a row halts or needs the user. The developer approves Boundaries 1 and 2 by invoking `ship-it <slug>` again, and Boundary 3 by merging.
 4. **Never merge a pull request.**

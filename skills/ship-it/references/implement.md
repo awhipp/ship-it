@@ -21,18 +21,11 @@ Tailor verification to the change type:
 - **Reproduce defects first**: For `fix` feature types or `ship-it:bug` tickets, run the reproduction seam (spec `## Testing seams` or bug `## Reproduction seam`) to confirm failure before modifying code.
 - **Red-Green**: Write a failing test first for each acceptance criterion where tests apply.
 - **Direct checks elsewhere**: For docs, configuration, assets, or repositories without a runner, verify each criterion with linting, type checks, builds, CLI checks, or inspection.
-
-##### Complexity tiers
-
-| Complexity | Scope |
-| :--- | :--- |
-| `low` | Restrict tests and direct checks to touched files. |
-| `medium` | Run domain module suites and test named edge cases. |
-| `high` | Run broad suites, audit cross-cutting invariants, and sweep callers outside touched files. |
+- **Scope**: Run the suites for touched modules, test the edge cases the ticket names, and sweep callers outside the touched files when a signature or shared contract changes.
 
 #### 3. Check as you go
 
-Before handoff, run the full scope the tier requires.
+Before handoff, run the full scope above.
 When `## Consolidation checklist` is present, implement and verify every item in full.
 Follow the [ticket-naming prohibition](writing.md#ticket-naming-prohibition) and [transient-reference prohibition](writing.md#transient-reference-prohibition) across source, tests, comments, and docstrings, and sweep for negative invariants and transient references with targeted search.
 

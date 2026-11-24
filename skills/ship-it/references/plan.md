@@ -4,15 +4,14 @@ Intake starts a feature, a map settles open decisions, and the spec turns them i
 
 ## Intake
 
-Run only for a new feature. Hold the confirmed `Request` and leftover list in context until first publication.
+Run only for a new feature. Hold the confirmed `Request` in context until first publication.
 
 1. **Clarify**: Check whether the request answers **goal**, **success criteria**, **constraints**, and **scope** with concrete, checkable statements (a passing mention is unanswered). When all four are answered, state the skip in one line and keep the verbatim request as `Request`. Otherwise ask one batch of at most four questions on the unanswered topics (interactive question tool when available) and end the turn. On "skip" or a decline, keep the verbatim request.
 2. **Check size**: Judge whether the request fits one spec. When too big, state why and ask the user to choose **narrow the feature** or **proceed as is**, ending the turn. Flag the request for step 6 on **proceed as is**.
-3. **Confirm**: On the narrow path, draft the narrowed request and the leftover-idea list (possibly empty) and ask the user to confirm both. Otherwise, when step 1 asked questions, restate the request refined by the answers and ask for confirmation. End the turn each time, and on rejection revise and re-confirm. Skip confirmation when step 1 was skipped or declined and step 2 did not narrow.
+3. **Confirm**: On the narrow path, draft the narrowed request and ask the user to confirm it. Otherwise, when step 1 asked questions, restate the request refined by the answers and ask for confirmation. End the turn each time, and on rejection revise and re-confirm. Skip confirmation when step 1 was skipped or declined and step 2 did not narrow.
 4. **Slug and type**: Propose a kebab-case slug and a Conventional Commits type (`feat`, `fix`, `refactor`, `docs`, `chore`, `perf`, `test`, `build`, `ci`). Check it with `gh issue list --search "[<slug>] in:title" --state all --limit 100 --json title`. Treat it as taken when any title starts with `[<slug>]` or 100 results return ([truncation warning](writing.md#bounded-search-truncation)), and propose another.
 5. **Source issue**: From `ship-it #<n>`, capture the issue title and number for in-place adoption, and format `Request` as `#<n> (<original-title>): <confirmed text>`.
 6. **Choose the path**: Ask the user to confirm the slug and type, and to choose charting a map or writing the spec directly. Recommend a map when the idea leaves a scope or architecture decision open, or when step 2 flagged the request.
-7. **File leftovers**: Right after Row 1 publishes the first map or spec (never after Row 4), and before the next query, file each idea from the confirmed leftover list (never from `Out of scope`) with `gh issue create`: a short title, a one- or two-sentence body (`Split from #<n>` when an issue sourced the request), no `ship-it:` labels, no `[<slug>]` prefix. On a failed create, report that title and file the rest.
 
 ## The map
 
@@ -136,7 +135,7 @@ List explicitly excluded capabilities.
 When validation applies `ship-it:changes-requested`, edit the spec body directly (`gh issue edit <spec-number> --body-file <file>`). Post no comments and no `## Answers`.
 
 1. **Read**: `gh issue view <spec-number> --json comments --jq '[.comments[] | select(.body | startswith("## Validation: Spec") or startswith("## Answers")) | .body]'`, and take the latest report.
-2. **Resolve**: Limit edits to cited Blockers, settled cross-cutting `## Answers`, and slice-local `Clarifying Questions` not yet deferred per [question triage](verify.md#question-triage-after-verification). Check active-code claims against fetched `origin/<default-branch>`. Leave advisory Warnings alone, since editing them widens later validation.
+2. **Resolve**: Limit edits to cited Blockers and settled `## Answers`. Check active-code claims against fetched `origin/<default-branch>`. Leave advisory Warnings alone, since editing them widens later validation.
    - **Edit**: Apply the minimal fix for the cited contradiction or gap. Route new cross-slice contract fixes to `## Decision Register`.
    - **Defer**: Record slice-local details and caller edge cases under `## Deferred to slicing`, with no prompt.
    - **Descope** or **split scope**: Only after explicit user approval, record the capability under `## Out of scope`, or file a follow-up issue and link it there.
@@ -144,8 +143,7 @@ When validation applies `ship-it:changes-requested`, edit the spec body directly
 
 ## Source-issue adoption
 
-Publish a map or spec from `ship-it #<n>` with the caller's title, type label, and optional Notes bullet.
+Publish a map or spec from `ship-it #<n>` by adopting `#<n>` in place, with the caller's title, type label, and optional Notes bullet.
 
-1. Offer **adopt in place (Recommended)**, which retitles `#<n>`, adds the label, keeps the original body as a comment, and swaps in the template, or **create a new issue** leaving `#<n>` untouched.
-2. On adoption, first post a comment of `## Original request` plus the current body (`gh issue view <n> --json body --jq .body`), skipping it when the body is empty. Then run `gh issue edit <n> --title "<title>" --add-label "<type-label>" --body-file <file>`, with the Notes bullet in the body when configured.
-3. On a new issue, run `gh issue create --title "<title>" --body-file <file> --label "<type-label>"`.
+1. Post a comment of `## Original request` plus the current body (`gh issue view <n> --json body --jq .body`), skipping it when the body is empty.
+2. Run `gh issue edit <n> --title "<title>" --add-label "<type-label>" --body-file <file>`, with the Notes bullet in the body when configured.
