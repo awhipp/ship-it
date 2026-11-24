@@ -1,13 +1,8 @@
-# Close-out: open and synchronize the pull request
-
-Route by the dispatch packet `Mode` field:
-
-- Run [## Initial close-out](#initial-close-out) when `Mode` is `initial`.
-- Skip directly to [## Synchronization](#synchronization) when `Mode` is `sync`.
+# Close-out: open the pull request
 
 ## Initial close-out
 
-When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-branch> <branch>`), check out `<branch>`, and run these steps after the final review approves the spec:
+Fetch the target refs (`git fetch origin <default-branch> <branch>`), check out `<branch>`, and run these steps after the final review approves the spec:
 
 1. Read the spec body (`gh issue view <spec> --json body --jq .body`) and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`). Check the returned count per [writing.md](writing.md#bounded-search-truncation) before keeping titles starting with `[<slug>]`. Open the pull request using a temporary body file, then delete that file once the command completes:
 
@@ -36,43 +31,6 @@ When `Mode` is `initial`, fetch the target refs (`git fetch origin <default-bran
    **Change**: <what changed, one sentence>
    **Why**: <rationale, one sentence>
    **Traces to**: #<ticket>, Spec § <section heading>
-   ```
-
-3. Return `done`. Never merge the pull request.
-
-## Synchronization
-
-Run when `Mode` is `sync` for a closed `ship-it:bug` ticket with no `Closes #<n>` line in the open pull request's body.
-Fetch the target refs (`git fetch origin <default-branch> <branch>`), check out `<branch>`, and resolve `<pr>` via `gh pr list --head "<branch>" --state open --json number --jq '.[0].number'`.
-
-1. Update the pull request description:
-
-   Read the pull request body (`gh pr view <pr> --json body --jq .body`) and the bug ticket title (`gh issue view <bug-ticket> --json title --jq .title`).
-   Return `failed` when the pull request body already contains `Closes #<bug-ticket>`.
-   Append `### Addendum Bugs` when the heading is absent, and append `- #<bug-ticket> (<bug-title>) - Closes #<bug-ticket>` under that heading.
-
-   Write the updated description to a temporary file, update the pull request, and delete the temporary file once the command completes:
-
-   ```shell
-   gh pr edit <pr> --body-file <file>
-   ```
-
-2. Annotate the files touched by the bug ticket's commits:
-
-   ```shell
-   gh pr diff <pr> --name-only
-   git --no-pager log -F --grep="(#<bug-ticket>)" origin/<default-branch>..HEAD --name-only --format=
-   gh pr view <pr> --json headRefOid --jq .headRefOid
-   gh api "repos/{owner}/{repo}/pulls/<pr>/comments" -f commit_id=<head-sha> -f path=<file> -f subject_type=file -F body=@<annotation-file>
-   ```
-
-   Return `failed` when no commit matches.
-   Annotate each unique matched file still present in `gh pr diff <pr> --name-only` with one file-level review comment, deleting each temporary `<annotation-file>` after posting:
-
-   ```markdown
-   **Change**: <what changed, one sentence>
-   **Why**: <rationale, one sentence>
-   **Traces to**: #<bug-ticket>
    ```
 
 3. Return `done`. Never merge the pull request.

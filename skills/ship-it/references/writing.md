@@ -60,7 +60,7 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
   - **Issue edits and closes**: `gh issue view <n> --json title,body,labels,assignees,state`
   - **Issue comments**: `gh issue view <n> --json comments --jq '[.comments[-3:][].body[:120]]'`
   - **Issue creates**: `gh issue list --state open --limit 100 --json number,title` (checking the returned count per [bounded search truncation](#bounded-search-truncation) before matching the expected title in-agent)
-  - **Pull request create, edit, or reopen**: `gh pr list --head "<branch>" --state all --json number,state,url` and `gh pr view <pr> --json state,body`
+  - **Pull request create**: `gh pr list --head "<branch>" --state all --json number,state,url` and `gh pr view <pr> --json state,body`
   - **Comments on pull request files**: `gh api "repos/{owner}/{repo}/pulls/<pr>/comments?per_page=100" --jq '[.[] | {path, commit_id, body: .body[:120]}]'`
 
 ## Bounded search truncation
