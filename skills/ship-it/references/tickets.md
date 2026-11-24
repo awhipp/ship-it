@@ -47,11 +47,11 @@ Return `done` with `Issues: #<n>, ...`, and the comment URL in `Evidence:` when 
 
 ## Slicing anti-patterns
 
-- **Docs-Tail**: A trailing ticket only for documentation. Bundle docs into the functional ticket.
-- **Config-Preamble**: A first ticket declaring unused settings or dependencies. Fold them into the first consumer.
-- **Horizontal Slice**: Separate tickets for data, logic, and interface. Cut vertically through all layers.
-- **Orphaned Scaffolding**: Empty modules or stubs as a ticket. Create scaffolding inside the ticket that wires real callers.
-- **Micro-Refactor**: A rename or cleanup ticket blocking functional work. Absorb it into the ticket touching those files.
+- **Docs-Tail**: A trailing ticket only for documentation. Bundle docs into the functional ticket to prevent stale or omitted docs apart from behaviour.
+- **Config-Preamble**: A first ticket declaring unused settings or dependencies. Fold config into the first consumer to prevent dead defaults and unused config.
+- **Horizontal Slice**: Separate tickets for data, logic, and interface. Cut vertically through all layers to prevent unintegrated layers blocking verification.
+- **Orphaned Scaffolding**: Empty modules or stubs as a ticket. Create scaffolding in the ticket wiring real callers to prevent dead placeholders and untested seams.
+- **Micro-Refactor**: A rename or cleanup ticket blocking functional work. Absorb cleanup into the touched ticket to prevent review churn without a user-visible seam.
 
 ## Ticket template
 

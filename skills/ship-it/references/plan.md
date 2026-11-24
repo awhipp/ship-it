@@ -4,7 +4,7 @@ Intake starts a feature, a map settles open decisions, and the spec turns them i
 
 ## Intake
 
-Run only for a new feature. Hold the confirmed `Request` in context until first publication.
+Run only for a new feature. Hold the confirmed `Request` in context until first GitHub publication; pre-publication session context is disposable and non-load-bearing under Invariant 1.
 
 1. **Clarify**: Check whether the request answers **goal**, **success criteria**, **constraints**, and **scope** with concrete, checkable statements (a passing mention is unanswered). When all four are answered, state the skip in one line and keep the verbatim request as `Request`. Otherwise ask one batch of at most four questions on the unanswered topics (interactive question tool when available) and end the turn. On "skip" or a decline, keep the verbatim request.
 2. **Check size**: Judge whether the request fits one spec. When too big, state why and ask the user to choose **narrow the feature** or **proceed as is**, ending the turn. Flag the request for step 6 on **proceed as is**.
