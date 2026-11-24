@@ -122,10 +122,6 @@ Complete the matched action, then follow the row's **Transition** column.
 - **On-demand comment reads**: Rows 5–7, 9, 11, and 12 read issue comments on demand for circuit-breaker checks, handoff counts, and remediation reports.
 - **Tier 2 fresh-session halts**: In Tier 2, Rows 7, 9, 11 (Step 4), and 12 halt for a fresh session per [isolation.md](references/isolation.md) whenever validation or review is not the session's first action.
 
-**Bug tickets after final review**: Bug tickets prepared after the final review run ticket-set validation (Row 9) and ticket review (Row 11) but no repeat final review, because the spec keeps `ship-it:reviewed`. Merging the pull request is the final gate.
-
-**Fix tickets after final review**: Final review creates fix tickets already labeled `ship-it:validated`, so they skip Row 9. The user's approval at the Row 12 halt stands in for ticket-set validation, and ticket review (Row 11) plus the next final review still audit the fixes.
-
 **Frontier ticket** (`frontier_ticket` in § 2): Resolve each open ticket's blockers from its `## Blocked by` tasklist per [tickets.md](references/tickets.md#relationships), reading bodies via `gh issue list`/`gh issue view <n> --json body --jq .body` as needed.
 Apply the first matching step:
 
