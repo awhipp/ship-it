@@ -1,7 +1,7 @@
 ---
 name: ship-it
 description: "Conducts one feature through plan, map, spec, tickets, validation, bug triage, implementation, and review of GitHub pull requests, using GitHub issues as the only state. Requires a directive: `ship-it [slug]`, `ship-it #[issue]`, `ship-it \"[idea]\"`, `ship-it preflight`, `ship-it init`, `ship-it version`, `ship-it --version`, or `ship-it -v`. Manual-only: invoke only when the user explicitly types ship-it or /ship-it."
-compatibility: Git repository, GitHub CLI (gh) 2.16.0 or later, and a cross-platform shell.
+compatibility: Git repository, GitHub CLI (gh) 2.18.0 or later, and a cross-platform shell.
 disable-model-invocation: true
 ---
 

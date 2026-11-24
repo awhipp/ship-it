@@ -18,7 +18,7 @@ Boundary 1: Mapping       Boundary 2: Definition       Boundary 3: Execution
 
 ### 1. Prerequisites
 
-Install and authenticate `git` and the GitHub CLI (`gh` 2.16.0 or later):
+Install and authenticate `git` and the GitHub CLI (`gh` 2.18.0 or later):
 
 ```bash
 gh auth status

@@ -78,7 +78,7 @@ Conductor only, read on gate rows. Verification roles skip this section.
 
 ### Ship-it State
 
-One `## Ship-it State` comment on `<spec>` holds the counts that route every gate. Only the conductor writes it, and nothing reads a report heading or header text.
+Only the conductor writes one `## Ship-it State` comment on `<spec>`. No routing, count, handoff, cross-check, or fixed-point decision reads a report.
 
 - **Lookup**: `gh issue view <spec> --json comments --jq '[.comments[] | select(.body | startswith("## Ship-it State")) | {url, body}] | last'`. Read the whole body.
 - **Contents**: Two markdown tables. The gate table has rows `spec-validation`, `ticket-set-validation`, and `final-review`, with columns `Passes`, `Non-approved`, and `Last verdict`. The ticket table has one row per `#<n>` for its review gate, with columns `Fixed point`, `Handed off` (`yes` or `no`), `Passes`, `Non-approved`, and `Last verdict`. Counts start at 0 and `Last verdict` at `none`, else it holds the verdict plus its `Evidence:` URL.

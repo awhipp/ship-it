@@ -18,6 +18,7 @@ Run every check, then report all findings at once and halt:
 4. **Writable issues**: Run `gh repo view --json hasIssuesEnabled,viewerPermission`. Confirm `hasIssuesEnabled` is `true` and `viewerPermission` is `WRITE`, `MAINTAIN`, or `ADMIN`.
 5. **Labels**: Run `gh label list --search "ship-it:" --limit 100 --json name`. Inspect the returned array count and emit the warning in [writing.md](writing.md#bounded-search-truncation) when 100 labels return before checking missing labels. Verify that every label below exists, and run the matching command below only for each missing label, so customized existing labels keep their colors and descriptions.
 6. **PowerShell session**: Read `$PSVersionTable` in the current session shell only, spawning no other shell. When `$PSVersionTable` is undefined, report nothing. When `PSEdition` is not `Core` or `PSVersion` is below 7.4, add an advisory finding that names the migration to `pwsh` 7.4 or later.
+
 ## Shell conventions
 
 - **Shell floor**: Run commands in POSIX shells or `pwsh` 7.4 or later on Windows. Windows PowerShell 5.1 is unsupported.
