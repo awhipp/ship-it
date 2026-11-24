@@ -32,7 +32,7 @@ Across both tiers, GitHub issues, comments, labels, and branch commits are the s
 A packet holds only these items:
 
 - The artifact under work and its parent (table below).
-- The Decision Register: the spec's `## Implementation Decisions`, or the map's `## Decisions so far` for `decide`.
+- The Decision Register: the spec's `## Decision Register`, or the map's `## Decisions so far` for `decide`.
 - Settled answers: `## Answers` on the issue the conductor posted them to, and `## Auto-resolved Decisions` on the spec.
 - The repository at the named ref.
 - On pass 2+, the delta-audit directive and the gate's prior reports.
