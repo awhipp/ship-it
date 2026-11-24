@@ -13,7 +13,7 @@ References live in `references/` (folder omitted below).
 
 ## Hard rules
 
-1. **Never guess.** Ask when scope, observable behavior, or irreversible architecture is missing. Only `slice` auto-resolves reversible slice-local defaults (`isolation.md#context-packets`).
+1. **Never guess.** Ask the user when a fact on scope, observable behavior, or irreversible architecture is missing. Only `slice` auto-resolves reversible slice-local defaults (`isolation.md#context-packets`).
 2. **Never verify your own work.** Validation and review run in a fresh context per `isolation.md`.
 3. **Run every boundary to its exit halt.** Loop until a halt or user prompt. The developer approves Boundaries 1–2 via `ship-it <slug>`, and Boundary 3 by merging.
 4. **Never merge a pull request.**
@@ -21,7 +21,7 @@ References live in `references/` (folder omitted below).
 
 ## 1. Read the directive
 
-Use only the invocation text; ignore earlier conversation.
+Only the invocation text counts. Ignore earlier conversation when choosing the feature.
 
 | Directive | Meaning |
 | :--- | :--- |
@@ -45,8 +45,8 @@ gh pr list --head "<branch>" --state all --json number,state,url
 ```
 
 - **Truncation**: At 100 results, warn per `writing.md#bounded-search-truncation`, rerun once per label (`ship-it:map`, `spec`, `ticket`, `bug`, `research`, `prototype`, `grilling`, `task`) with `--label`, and merge by number; halt if a rerun hits 100.
-- **Fresh reads**: Re-read created or changed issues via `gh issue view <n> --json number,title,labels,assignees,state,stateReason` instead of stale search entries.
-- **Predicates**: Partition by label into `map`, `spec`, `ticket`, and `bug`. `ticket_set` holds `ship-it:ticket` issues; `unprepared_bugs` are open `ship-it:bug` issues lacking `ship-it:ticket`; `frontier_ticket` is the lowest-numbered open `ticket_set` issue whose blockers are all `CLOSED`. Evaluate `unsynced_tickets` lazily only when Rows 1–13 miss and the branch pull request is `OPEN`: closed `[<slug>]`-prefixed `ship-it:ticket` issues with `stateReason: COMPLETED` whose `Closes #<n>` (not followed by another digit) is absent from `gh pr view <pr> --json body --jq '.body'`.
+- **Fresh reads**: Search indexes late: re-read each issue an action created or changed with `gh issue view <n> --json number,title,labels,assignees,state,stateReason`, in place of its search entry.
+- **Predicates**: Partition by label into `map`, `spec`, `ticket`, and `bug`. `ticket_set` holds `ship-it:ticket` issues; `unprepared_bugs` are open `ship-it:bug` issues lacking `ship-it:ticket`; `frontier_ticket` is the lowest-numbered open `ticket_set` issue whose blockers are all `CLOSED`. Evaluate `unsynced_tickets` lazily only when Rows 1–13 miss and the branch pull request is `OPEN` (definition: [implement.md#pull-request-sync](implement.md#pull-request-sync)).
 - **Branch**: Read once from the spec's `## Source`.
 - **Pull requests**: Prefer `MERGED` > `OPEN` > `CLOSED` (`CLOSED` = unmerged).
 - **Errors**: On query failure, run `preflight.md` (it halts); never read it as empty, which duplicates artifacts at Row 1 or 4. Retry transient writes once per `preflight.md#shell-conventions`.
