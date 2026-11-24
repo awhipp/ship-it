@@ -9,30 +9,29 @@ The ticket body, its spec body (`gh issue view <n> --json body --jq .body`), and
 
 #### 1. Branch and settled decisions
 
-1. Fetch the target refs (`git fetch origin <default-branch>` and `git fetch origin <branch>` when the branch exists on `origin`). Check out the branch when it exists on `origin`; otherwise create it from `origin/<default-branch>` and push it with `git push -u origin <branch>`.
-2. Fetch the ticket's `## Answers` comments once via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Answers")) | .body]'`. Fold settled decisions from the latest one into the ticket body via surgical body edit before modifying code. When a decision alters a shared contract, update the spec body too.
+1. Fetch `origin/<default-branch>` and `origin/<branch>` (when on `origin`); check out `<branch>` if on `origin`, else create it from `origin/<default-branch>` and push (`git push -u origin <branch>`).
+2. Fetch `## Answers` once via `gh issue view <n> --json comments --jq '[.comments[] | select(.body | startswith("## Answers")) | .body]'`. Fold settled decisions from the latest comment into the ticket body by surgical edit before coding (and the spec body on shared-contract changes).
 
-Only `review` toggles `## Consolidation checklist` checkboxes, after independent verification. Leave every box as it is (`- [ ]` stays `- [ ]`) in every edit.
+Only `review` toggles `## Consolidation checklist` boxes after verification; keep every `- [ ]` untouched.
 
 #### 2. Verify
 
 Tailor verification to the change type:
 
-- **Reproduce defects first**: For `fix` feature types or `ship-it:bug` tickets, run the reproduction seam (spec `## Testing seams` or bug `## Reproduction seam`) to confirm failure before modifying code.
-- **Red-Green**: Write a failing test first for each acceptance criterion where tests apply.
-- **Direct checks elsewhere**: For docs, configuration, assets, or repositories without a runner, verify each criterion with linting, type checks, builds, CLI checks, or inspection.
-- **Scope**: Run the suites for touched modules, test the edge cases the ticket names, and sweep callers outside the touched files when a signature or shared contract changes.
+- **Reproduce defects first**: For `fix` features or `ship-it:bug`, run the reproduction seam (spec `## Testing seams` or bug `## Reproduction seam`) to confirm failure first.
+- **Red-Green**: Write a failing test first for each testable criterion.
+- **Direct checks elsewhere**: For docs, config, assets, or runnerless repos, verify each criterion with linters, type checks, builds, CLI checks, or inspection.
+- **Scope**: Run touched-module suites, named edge cases, and external caller sweeps on signature or contract changes.
 
 #### 3. Check as you go
 
-Before handoff, run the full scope above.
-When `## Consolidation checklist` is present, implement and verify every item in full.
-Follow the [ticket-naming prohibition](writing.md#ticket-naming-prohibition) and [transient-reference prohibition](writing.md#transient-reference-prohibition) across source, tests, comments, and docstrings, and sweep for negative invariants and transient references with targeted search.
+Before handoff, run the full scope above and complete every `## Consolidation checklist` item.
+Follow [ticket-naming](writing.md#ticket-naming-prohibition) and [transient-reference](writing.md#transient-reference-prohibition) prohibitions across code, tests, comments, docstrings, and docs, and sweep for negative invariants and transient references with targeted search.
 
 #### 4. Ask instead of guessing
 
-Never edit or reinterpret acceptance criteria, low-level design, root causes, or reproduction seams.
-When any of them conflict with active code or leave a design decision unwritten:
+Never edit or reinterpret criteria, low-level design, root causes, or reproduction seams.
+When any conflict with active code or leave a decision unwritten:
 
 1. Post the question on the ticket.
 2. Push any commits, and discard uncommitted work.
@@ -41,8 +40,8 @@ When any of them conflict with active code or leave a design decision unwritten:
 
 #### 5. Commit, push, and hand off
 
-- Stage only the files modified for the ticket (`git add <file>...`).
-- Commit with the subject `<type>(<slug>): <summary> (#<ticket>)`, taking `<type>` from the branch prefix before `/`. Push after every commit.
+- Stage only ticket files (`git add <file>...`).
+- Commit as `<type>(<slug>): <summary> (#<ticket>)` (`<type>` = branch prefix before `/`), and push every commit.
 - Post the handoff (`gh issue comment <n> --body-file <file>`), delete the temporary file, and return `done`, leaving the ticket assigned and open:
 
 ```markdown
@@ -53,12 +52,11 @@ When any of them conflict with active code or leave a design decision unwritten:
 
 ## Rework
 
-Resolve every Blocker in the latest review of a ticket carrying `ship-it:changes-requested`.
-Follow [Implement](#implement), with these differences:
+Resolve every Blocker in the latest review of a `ship-it:changes-requested` ticket per [Implement](#implement), except:
 
-1. Check out `<branch>`, then read the latest `## Review:` report and any `## Answers` posted after it. Fold settled decisions as in Implement step 1.
+1. Check out `<branch>`; read the latest `## Review:` report and any later `## Answers`, folding settled decisions as in Implement step 1.
 2. Fix every Blocker and sweep every unchecked checklist item, adding a test or direct check for each. A Blocker is also a trigger for [Ask instead of guessing](#4-ask-instead-of-guessing).
-3. Commit and push as in Implement, then post a `## Rework` comment:
+3. Commit and push as in Implement, then post `## Rework`:
 
 ```markdown
 ## Rework
@@ -66,25 +64,25 @@ Follow [Implement](#implement), with these differences:
 - **Fixes**: <each Blocker and swept item, fix summary, and check result>
 ```
 
-4. Remove the label and restore the assignee (`gh issue edit <n> --remove-label "ship-it:changes-requested" --add-assignee "@me"`). Return `done`.
+4. Run `gh issue edit <n> --remove-label "ship-it:changes-requested" --add-assignee "@me"` and return `done`.
 
 ## Close-out
 
 ### Initial close-out
 
-Fetch `<default-branch>` and `<branch>` from origin, check out `<branch>`, and run these steps after final review approves:
+Fetch `<default-branch>` and `<branch>` from origin, check out `<branch>`, and run after final review approves:
 
-1. Read the spec body and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`). Check the count per [writing.md](writing.md#bounded-search-truncation) before keeping titles starting with `[<slug>]`. Open the pull request from a temporary body file, then delete it:
+1. Read the spec body and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`). Check count per [writing.md](writing.md#bounded-search-truncation), keeping `[<slug>]`-prefixed issues. Write the body to a temp file, open the pull request, then delete the file:
 
    ```shell
    gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
    ```
 
-   - **Closing references**: List each closed ticket with `stateReason` `COMPLETED` by title and include `Closes #<spec>` (plus `Closes #<issue>` when `## Source` names a request issue other than the spec).
-   - **Addendum bugs**: Append `### Addendum Bugs` listing each completed bug ticket as `- #<n> (<title>) - Closes #<n>`.
+   - **Closing references**: Main closing list: `Closes #<n>` (with title) for each `stateReason: COMPLETED` non-bug ticket, plus `Closes #<spec>` and distinct `Closes #<source>` (`## Source`). When `COMPLETED` `ship-it:bug` tickets exist, append `### Addendum Bugs` listing each as `- #<n> (<title>) - Closes #<n>`.
+   - **Repository checklist**: Inspect target-repository guidance documents (such as instruction files, contributing guides, or pull request templates) for pull request checklist requirements and satisfy them dynamically against `origin/<default-branch>..HEAD` without hardcoding repository-specific metrics.
    - **Truncation notice**: At 100 items, embed the [writing.md](writing.md#bounded-search-truncation) warning in the body.
 
-2. Annotate every changed file with one file-level review comment, deleting each temporary `<annotation-file>` after posting:
+2. Annotate every changed file with one file-level review comment, deleting each temp `<annotation-file>` after posting:
 
    ```shell
    gh pr diff <pr> --name-only
@@ -103,3 +101,13 @@ Fetch `<default-branch>` and `<branch>` from origin, check out `<branch>`, and r
    ```
 
 3. Return `done` with `Evidence: None`. Never merge the pull request.
+
+### Pull request sync
+
+Edit only the `OPEN` pull request body. Never match tickets from commit messages, post file-level comments, or merge:
+
+1. Fetch `origin/<default-branch>` and `origin/<branch>`, and check out `<branch>`.
+2. Query `gh pr list --head "<branch>" --state open --json number,body,url`. When no `OPEN` pull request exists, return `failed` with `Evidence: None`.
+3. Query closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`), checking truncation per [writing.md](writing.md#bounded-search-truncation). Select `[<slug>]`-prefixed `stateReason: COMPLETED` tickets lacking `Closes #<n>` (not followed by another digit) in the pull request body (`unsynced_tickets`). When `unsynced_tickets` is empty, return `failed` with `Evidence: None`.
+4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Satisfy the [Repository checklist](#initial-close-out) of initial close-out. Embed the truncation warning at 100 results.
+5. Write the updated body to a temp file, run `gh pr edit <pr> --body-file <file>`, delete the file, and return `done`.

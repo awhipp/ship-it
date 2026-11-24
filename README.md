@@ -68,7 +68,7 @@ Merge the pull request to approve Boundary 3 and complete the feature.
 | **2. Definition** | **Spec** | **Continues to Tickets** once the spec carries `ship-it:validated`. | [`plan.md`](skills/ship-it/references/plan.md), [`verify.md`](skills/ship-it/references/verify.md) |
 | **2. Definition** | **Tickets** | **Halt (Boundary 2 exit)**: Every ticket carries `ship-it:validated`. | [`tickets.md`](skills/ship-it/references/tickets.md), [`verify.md`](skills/ship-it/references/verify.md) |
 | **3. Execution** | **Implement & Review** | **Continues to Final Review** once all tickets close. | [`implement.md`](skills/ship-it/references/implement.md), [`verify.md`](skills/ship-it/references/verify.md) |
-| **3. Execution** | **Final Review & PR** | **Halt (Boundary 3 exit)**: PR opens and awaits human merge. | [`verify.md`](skills/ship-it/references/verify.md), [`implement.md`](skills/ship-it/references/implement.md) |
+| **3. Execution** | **Final Review & PR** | **Halt (Boundary 3 exit)**: PR opens, or syncs its body after delta final review on post-PR addenda, awaiting human merge. | [`verify.md`](skills/ship-it/references/verify.md), [`implement.md`](skills/ship-it/references/implement.md) |
 
 ### Map vs. Spec
 
@@ -89,7 +89,7 @@ Merge the pull request to approve Boundary 3 and complete the feature.
 - **Zero-Assumption Verification**: Evaluators conduct read-only audits classifying findings as **Blocker**, **Warning**, or **Question** without in-place edits, matching audit altitude to artifact scope and withholding approval on unwritten facts.
 - **Two-Tier Context Isolation**: A single conductor dispatches role-scoped leaf subagents with fresh, unforked context in Tier 1 per [`isolation.md`](skills/ship-it/references/isolation.md), falling back to Tier 2 fresh-session handoffs for session-forking harnesses.
 - **Two-Axis Review and Final Audit**: Reviewers audit each ticket diff across Standards and Spec axes from the ticket's `Fixed point` recorded in `## Ship-it State`, followed by a full-branch final review against the specification.
-- **Annotated Pull Requests**: The `close-out` subagent posts a file-level comment on every changed file tracing the change to its ticket and specification section.
+- **Annotated Pull Requests**: Initial `close-out` posts a file-level comment on every changed file tracing changes to tickets and specification sections. After post-PR addenda pass delta final review, body-only pull request sync updates closing references and repository checklists while preserving human merge ownership.
 - **Pragmatic, Domain-Aligned Verification**: Implementation verifies behavior using existing test runners or direct checks while prohibiting ticket-named files, ad-hoc test scripts, and transient issue or spec citations in product code.
 - **Search-First Context Efficiency**: Conductor and subagent passes use bounded GitHub queries, role-scoped reference loading, and targeted symbol search to stay fast across repositories.
 
