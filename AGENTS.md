@@ -1,69 +1,50 @@
-# Agent Instructions (`awhipp/ship-it`)
+## Invariants
 
-Coding agents working in `awhipp/ship-it` follow these rules for version management and release automation.
-Keep repository-specific release rules inside `AGENTS.md` so the files under `skills/ship-it/` remain portable across repositories.
+Change only by explicit breaking decision.
 
-## Version Manifest
+  1. GitHub issues, labels, comments, and the feature branch are the
+     only state. Nothing load-bearing lives in a session, a local file,
+     or a subagent's memory.
+  2. The human approves at three boundaries and merges the PR. The
+     skill never merges.
+  3. No author verifies their own work. Validation and review run in
+     fresh context, read-only on the artifact under audit.
+  4. Never guess on scope, observable behaviour, or irreversible
+     architecture. Ask, or defer explicitly to a named later stage.
+  5. Altitude: the Spec is high-level (behaviours, boundaries, shared
+     contracts); tickets are the low-level design (touchpoints, deltas,
+     acceptance criteria). Neither does the other's job.
+  6. Tickets are vertical, independently verifiable slices.
+  7. Portable by construction: agent-agnostic, OS-agnostic, any
+     codebase, nothing required beyond git and `gh`.
+  8. Convergence is structural: pass 1 is complete, pass 2+ is
+     delta-only, and no gate runs a third non-approved pass without a
+     human reset.
+  9. Size is an invariant, not an aspiration: the byte budgets in the
+     acceptance criteria are checked in the PR that changes the skill.
 
-[`skills/ship-it/version.json`](skills/ship-it/version.json) serves as the canonical version manifest for the `ship-it` skill.
+## Release and versioning
 
-- **`version`**: Semantic version (`MAJOR.MINOR.PATCH`) of the skill.
-- **`released`**: Release date in `YYYY-MM-DD` format.
-- **`minGhVersion`**: Minimum required version of the GitHub CLI (`gh`), synchronized with the `compatibility` field in [`skills/ship-it/SKILL.md`](skills/ship-it/SKILL.md) YAML frontmatter and the prerequisites line in [`README.md`](README.md).
+**Version manifest** (`skills/ship-it/version.json`):
+- `version`: SemVer of the skill. The release tag is `v<version>`.
+- `released`: date the version was cut, `YYYY-MM-DD`.
+- `minGhVersion`: lowest `gh` the skill supports. `references/preflight.md` checks `gh --version` against it.
 
-## SemVer Bump Rules
+**SemVer bumps**:
+- Major: a breaking change, including any change to an invariant.
+- Minor: a compatible behaviour change, including any change to a convention.
+- Patch: a fix or wording change that alters no behaviour.
 
-Update `skills/ship-it/version.json` whenever a change modifies files inside `skills/ship-it/`.
-Select the increment tier from the table below:
+**Lifecycle ownership**:
+- The PR author edits `skills/ship-it/version.json` (`version`, `released`, and `minGhVersion` when a newer `gh` is needed) in the same PR that changes `skills/ship-it/`.
+- `release.yml` owns the `v<version>` tag and the GitHub Release. Never create either by hand: an existing tag makes the workflow skip.
 
-| Tier | Criteria in `skills/ship-it/` |
-| :--- | :--- |
-| **Major** | Breaking interface changes, backward-incompatible directive syntax, or fundamental overhauls of the state machine. |
-| **Minor** | New directives, phase capabilities, or backward-compatible feature expansions. |
-| **Patch** | Bug fixes, documentation updates, or internal performance refinements. |
+**Release automation**:
+- `.github/workflows/version-check.yml` runs on a pull request that touches `skills/ship-it/**`. If the diff against the base branch lacks `skills/ship-it/version.json`, it emits a warning and a step-summary notice. It never fails the check.
+- `.github/workflows/release.yml` runs on a push to `main` that changes `skills/ship-it/version.json`. It reads `version` and runs `gh release create v<version> --generate-notes`. If that tag or release already exists, it exits without publishing, so a merge publishes only when `version` is new.
 
-## Non-Skill Exclusions
-
-Scope version updates strictly to files inside `skills/ship-it/`.
-Exclude changes exclusively outside `skills/ship-it/` (such as root `README.md`, `AGENTS.md`, `.github/workflows/`, or repository configuration) from version bumps.
-
-## Lifecycle Ownership and Release Flow
-
-- **Implementation ownership**: Bump `version` and set `released` to the current `YYYY-MM-DD` date in `skills/ship-it/version.json` during the implementation phase of the pull request touching `skills/ship-it/`.
-- **Single bump per pull request**: Apply one version increment per pull request regardless of how many build tickets touch `skills/ship-it/`.
-- **Safety check on pull requests**: `.github/workflows/version-check.yml` compares pull request changes against `origin/<base>` and emits a non-blocking warning when `skills/ship-it/` changes without a `version.json` update.
-- **Automated release publication**: Merging a `skills/ship-it/version.json` change into `main` triggers `.github/workflows/release.yml` to create tag `v<version>` and publish a GitHub Release with auto-generated release notes.
-
-## Skill Maintenance Invariants
-
-When auditing or refactoring `skills/ship-it/` (for example via `/skill-judge` or `/skill-creator`), review settled audit decisions in [`docs/audit-decisions.md`](docs/audit-decisions.md) before reopening resolved questions, and preserve these repository-specific invariants:
-
-- **Core workflow preservation**: Keep `ship-it`'s five phases, three boundaries, first-match routing table, zero-assumption verification, two-tier isolation (`isolation.md`), two-axis review, annotated pull requests, and GitHub-native state intact unless explicitly directed otherwise.
-- **Writing standard**: Author all skill, reference, and `README.md` edits per `skills/ship-it/references/writing.md` without scripts or word counters.
-- **Reference layout**: Maintain the 15 role-scoped reference files under `skills/ship-it/references/` (`plan.md`, `spec.md`, `tickets.md`, `bug-prep.md`, `validate-spec.md`, `validate-tickets.md`, `implement.md`, `rework.md`, `close-out.md`, `review-core.md`, `review-ticket.md`, `review-final.md`, `isolation.md`, `writing.md`, and `preflight.md`) without `Role / Scope / Skip` tables.
-- **Cross-platform shell & `gh` efficiency**: Preserve `pwsh` quoting (`"@me"`), single-quoted `--jq` filters with in-agent counting, `--body-file` temp cleanup, bounded `gh` queries (`--limit 100`, `--force`), and search-first codebase exploration. Also preserve explicit-path search targets (`rg`, `grep`, `find`), non-stdin execution (`< /dev/null` or `$null | <cmd>`), and non-pager `git` or `gh` flags and environment variables.
-- **Circuit-breaker & routing parity**: Enforce one shared progress-based circuit-breaker rule, flat single-purpose bullets, and one four-column table in `SKILL.md` across Rows 5–7, 9, 11, and 12. Reset Blocker trajectories and trailing `Questions pending` streaks at the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Approved` or `**Verdict**: Validated` report matching the active `Report heading` (whichever is more recent), tripping on `M > 0`, non-decreasing consecutive `Changes requested` counts (`current >= previous`), five strictly decreasing `Changes requested` passes, or two trailing `Questions pending` passes. Preserve the inline human override at six total full-history non-approved `## Validation: Spec` reports (Rows 5 and 7) inside `SKILL.md`'s unified circuit-breaker rule. Keep `README.md` linked to `skills/ship-it/SKILL.md` instead of restating phase internals, synchronizing `SKILL.md` § 1 directive forms and `minGhVersion`.
-- **Frontmatter gating**: Retain `disable-model-invocation: true` (a Claude Code extension outside the `agentskills.io` specification), retain the manual-only sentence in `SKILL.md`'s `description` as the portable manual-invocation guarantee across harnesses, and avoid `<` or `>` characters in `SKILL.md` YAML frontmatter.
-
-## Post-PR Skill Evaluation
-
-Pull requests that apply a minor or major SemVer bump in `skills/ship-it/version.json` undergo an advisory `skill-judge` evaluation after close-out completes.
-Skip the evaluation for patch bumps unless requested on demand.
-
-### Advisory Trigger and Gate Isolation
-
-- **Minor or major bump trigger**: Run an advisory `skill-judge` evaluation on modified `skills/ship-it/` files strictly after creating the pull request and posting close-out annotations when the pull request applies a minor or major SemVer bump in `skills/ship-it/version.json` (or on demand for patch bumps).
-- **Gate isolation**: Execute the `skill-judge` check outside the `final-review` gate of `ship-it`.
-- **Boundary preservation**: Preserve `skills/ship-it/references/isolation.md` and exit behavior at `Boundary 3`.
-
-### Invariant Filtering and Triage
-
-- **Invariant filter**: Filter `skill-judge` recommendations against [Skill Maintenance Invariants](#skill-maintenance-invariants), including `disable-model-invocation: true`, the five-phase workflow, and `README.md` parity.
-- **Pre-merge report**: Present explicit findings to the user before merge so the user decides whether to file follow-up `ship-it:bug` issues.
-- **Confirmed triage**: Open `ship-it:bug` issues only after the user confirms each finding.
-
-### Installation and Fallback
-
-- **Install command**: Install the skill with `npx skills add softaworks/agent-toolkit@skill-judge`.
-- **Global availability**: Add the optional `-g` flag to install `skill-judge` globally across workspaces.
-- **Unavailable-skill fallback**: Skip the advisory evaluation and report a brief note to the user when `skill-judge` is unavailable in the harness.
+**PR checklist** (a PR that changes `skills/ship-it/`):
+- [ ] The PR body reports the bytes of each touched file before and after, and these invariant-9 budgets, measured with `wc -c`:
+  - total over every file in `skills/ship-it/` ≤ 70,000
+  - `SKILL.md` ≤ 10,000
+  - `SKILL.md` + `references/isolation.md` + `references/writing.md` ≤ 25,000
