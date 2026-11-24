@@ -11,7 +11,14 @@ export function getStoredTheme() {
       }
     }
   } catch {
-    // SecurityError or restricted environment fallback to light
+    // SecurityError or restricted environment: fall through to the system preference
+  }
+  try {
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+  } catch {
+    // matchMedia unavailable: default to light
   }
   return 'light';
 }

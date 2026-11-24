@@ -15,7 +15,7 @@ export function Footer() {
               <span className="font-extrabold tracking-tight">ship-it</span>
             </div>
             <p className="footer-tagline text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Structured lifecycle automation that keeps developers in control. Coordinates planning, specifications, tests, and reviews directly on GitHub.
+              Disciplined feature delivery for engineering teams. Plan, spec, tickets, implementation, and review, all tracked on GitHub.
             </p>
           </div>
 
@@ -42,22 +42,11 @@ export function Footer() {
                 GitHub Issues
               </a>
             </li>
-            <li>
-              <a
-                href="https://github.com/awhipp/ship-it/blob/main/LICENSE"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-link hover:text-slate-900 dark:hover:text-white transition-colors"
-                id="footer-link-license"
-              >
-                MIT License
-              </a>
-            </li>
           </ul>
         </div>
 
         <div className="footer-bottom pt-8 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <p className="footer-attribution">&copy; 2026 ship-it. Structured lifecycle automation on GitHub.</p>
+          <p className="footer-attribution">&copy; 2026 ship-it. Disciplined feature delivery on GitHub.</p>
           <p>Open Source on GitHub</p>
         </div>
       </div>

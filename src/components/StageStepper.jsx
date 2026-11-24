@@ -53,16 +53,16 @@ export function StageStepper() {
       {/* Section Headline */}
       <div className="text-center max-w-3xl mx-auto mb-12">
         <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
-          5-Stage SDLC Architecture
+          How It Works
         </div>
         <h2
           id="stages-title"
           className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight"
         >
-          Structured delivery across <span className="gradient-text">five sequential stages</span>
+          Five phases across <span className="gradient-text">three human-gated boundaries</span>
         </h2>
         <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300">
-          Select any stage to inspect its boundaries, agent execution, human oversight, inputs, outputs, phase checkpoints, and anti-drift guarantees.
+          Work runs continuously inside each boundary and halts for you at its exit. Select a phase to see what the agent does and where you step in.
         </p>
       </div>
 

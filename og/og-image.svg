@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#090d16" />
+      <stop offset="1" stop-color="#111a2e" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1" />
+      <stop offset="0.5" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="text" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a5b4fc" />
+      <stop offset="1" stop-color="#38bdf8" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect x="24" y="24" width="1152" height="582" rx="28" stroke="#243048" stroke-width="2" />
+
+  <!-- Logo mark (from favicon.svg) -->
+  <g transform="translate(80 80) scale(1.5)">
+    <rect width="64" height="64" rx="14" fill="#0b0f19" stroke="rgba(99,102,241,0.5)" stroke-width="2" />
+    <path d="M32 12L48 20L32 28L16 20L32 12Z" fill="url(#accent)" />
+    <path d="M16 28L32 36L48 28" stroke="#06b6d4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M16 36L32 44L48 36" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="32" cy="28" r="3.5" fill="#ffffff" />
+  </g>
+  <text x="196" y="147" font-family="'Plus Jakarta Sans','Segoe UI',Arial,sans-serif" font-size="56" font-weight="800" fill="#f8fafc">ship-it</text>
+
+  <text x="80" y="290" font-family="'Plus Jakarta Sans','Segoe UI',Arial,sans-serif" font-size="68" font-weight="800" fill="#f8fafc">Disciplined feature delivery</text>
+  <text x="80" y="368" font-family="'Plus Jakarta Sans','Segoe UI',Arial,sans-serif" font-size="68" font-weight="800" fill="url(#text)">for engineering teams</text>
+  <text x="80" y="428" font-family="'Plus Jakarta Sans','Segoe UI',Arial,sans-serif" font-size="30" fill="#94a3b8">From idea to pull request, with GitHub as the single source of truth.</text>
+
+  <!-- Boundary flow -->
+  <g font-family="'Segoe UI',Arial,sans-serif" font-size="24" font-weight="700">
+    <rect x="80" y="486" width="300" height="72" rx="16" fill="#131d31" stroke="#6366f1" stroke-width="2" />
+    <text x="230" y="531" text-anchor="middle" fill="#a5b4fc">Plan</text>
+    <rect x="406" y="509" width="6" height="26" rx="2" fill="#fbbf24" /><rect x="418" y="509" width="6" height="26" rx="2" fill="#fbbf24" />
+    <rect x="450" y="486" width="300" height="72" rx="16" fill="#131d31" stroke="#38bdf8" stroke-width="2" />
+    <text x="600" y="531" text-anchor="middle" fill="#7dd3fc">Spec &#8594; Tickets</text>
+    <rect x="776" y="509" width="6" height="26" rx="2" fill="#fbbf24" /><rect x="788" y="509" width="6" height="26" rx="2" fill="#fbbf24" />
+    <rect x="820" y="486" width="300" height="72" rx="16" fill="#131d31" stroke="#10b981" stroke-width="2" />
+    <text x="970" y="531" text-anchor="middle" fill="#6ee7b7">Implement &#8594; PR</text>
+  </g>
+</svg>

@@ -148,24 +148,55 @@ describe('Marketing Site Architecture & Shell', () => {
   // =========================================================================
   describe('Domain: Document Shell & Metadata (index.html)', () => {
     it('should contain developer-focused page title, SEO meta tags, Open Graph, and Twitter metadata', () => {
-      expect(document.title).toBe('ship-it | Structured Lifecycle Automation for Software Teams');
+      const TITLE = 'ship-it | Disciplined Feature Delivery for Engineering Teams';
+      const DESC =
+        'Drive features from idea to pull request using explicit phase gates, independent reviews, isolated subagents, and GitHub issues as the single source of truth.';
+      expect(document.title).toBe(TITLE);
       const metaDesc = document.querySelector('meta[name="description"]');
-      expect(metaDesc).not.toBeNull();
-      expect(metaDesc.getAttribute('content').length).toBeGreaterThan(20);
+      expect(metaDesc?.getAttribute('content')).toBe(DESC);
 
       const ogTitle = document.querySelector('meta[property="og:title"]');
       const ogDesc = document.querySelector('meta[property="og:description"]');
       const ogType = document.querySelector('meta[property="og:type"]');
       const twitterCard = document.querySelector('meta[name="twitter:card"]');
       const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+      const twitterDesc = document.querySelector('meta[name="twitter:description"]');
 
-      expect(ogTitle?.getAttribute('content')).toBe('ship-it | Structured Lifecycle Automation for Software Teams');
-      expect(ogDesc?.getAttribute('content')).toBe(
-        'Keep developers in control. Coordinate feature delivery across GitHub issues using phase gates, fresh-session validation, and two-axis code reviews.'
-      );
+      expect(ogTitle?.getAttribute('content')).toBe(TITLE);
+      expect(ogDesc?.getAttribute('content')).toBe(DESC);
       expect(ogType, 'og:type meta tag must exist').not.toBeNull();
       expect(twitterCard, 'twitter:card meta tag must exist').not.toBeNull();
-      expect(twitterTitle?.getAttribute('content')).toBe('ship-it | Structured Lifecycle Automation for Software Teams');
+      expect(twitterTitle?.getAttribute('content')).toBe(TITLE);
+      expect(twitterDesc?.getAttribute('content')).toBe(DESC);
+    });
+
+    it('should reference an absolute 1200x630 PNG for Open Graph and Twitter preview images', () => {
+      const IMAGE_URL = 'https://awhipp.github.io/ship-it/og-image.png';
+      expect(document.querySelector('meta[property="og:image"]')?.getAttribute('content')).toBe(IMAGE_URL);
+      expect(document.querySelector('meta[name="twitter:image"]')?.getAttribute('content')).toBe(IMAGE_URL);
+      expect(document.querySelector('meta[property="og:image:width"]')?.getAttribute('content')).toBe('1200');
+      expect(document.querySelector('meta[property="og:image:height"]')?.getAttribute('content')).toBe('630');
+      expect(document.querySelector('meta[property="og:image:alt"]')?.getAttribute('content')).toBeTruthy();
+
+      const pngPath = path.join(ROOT_DIR, 'public/og-image.png');
+      expect(fs.existsSync(pngPath), 'public/og-image.png must exist').toBe(true);
+      const png = fs.readFileSync(pngPath);
+      expect(png.subarray(1, 4).toString('ascii')).toBe('PNG');
+      expect(png.readUInt32BE(16)).toBe(1200);
+      expect(png.readUInt32BE(20)).toBe(630);
+    });
+
+    it('should set a theme-color per color scheme, apply the theme before paint, and load CSS only through the bundle', () => {
+      const themeColors = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
+      expect(themeColors.map((m) => m.getAttribute('media'))).toEqual([
+        '(prefers-color-scheme: light)',
+        '(prefers-color-scheme: dark)',
+      ]);
+
+      const inline = Array.from(document.querySelectorAll('head script:not([src])')).map((s) => s.textContent);
+      expect(inline.some((s) => s.includes('ship-it-theme') && s.includes('prefers-color-scheme'))).toBe(true);
+
+      expect(document.querySelector('link[rel="stylesheet"][href*="main.css"]')).toBeNull();
     });
 
     it('should configure a valid favicon link referencing an existing asset', () => {
@@ -264,6 +295,22 @@ describe('Marketing Site Architecture & Shell', () => {
       }
     });
 
+    it('should fall back to the system color scheme when nothing is stored', async () => {
+      const { getStoredTheme } = await import('../src/components/ThemeToggle.jsx');
+      window.localStorage.clear();
+
+      window.matchMedia = (query) => ({ matches: query.includes('dark') });
+      try {
+        expect(getStoredTheme()).toBe('dark');
+
+        window.localStorage.setItem('ship-it-theme', 'light');
+        expect(getStoredTheme()).toBe('light');
+      } finally {
+        delete window.matchMedia;
+        window.localStorage.clear();
+      }
+    });
+
     it('should toggle the "dark" class on document.documentElement and persist to localStorage when clicking ThemeToggle', async () => {
       const themeToggleBtn = document.getElementById('theme-toggle-btn');
       expect(themeToggleBtn, '#theme-toggle-btn must exist in DOM').not.toBeNull();
@@ -346,7 +393,17 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(h1.textContent).toMatch(/driver's seat/i);
 
       const valueProp = hero.textContent;
-      expect(valueProp).toMatch(/structured lifecycle automation/i);
+      expect(valueProp).toMatch(/disciplined feature delivery for engineering teams/i);
+      expect(valueProp).toMatch(/GitHub issues as the single source of truth/i);
+    });
+
+    it('should link an auto-updating latest-release badge to GitHub Releases', () => {
+      const link = document.querySelector('#hero #hero-version-badge');
+      expect(link, '#hero-version-badge must exist inside hero').not.toBeNull();
+      expect(link.getAttribute('href')).toBe('https://github.com/awhipp/ship-it/releases');
+      const img = link.querySelector('img');
+      expect(img?.getAttribute('src')).toContain('img.shields.io/github/v/release/awhipp/ship-it');
+      expect(img?.getAttribute('alt')).toBeTruthy();
     });
 
     it('should render the install command "npx skills install awhipp/ship-it" inside hero', () => {
@@ -394,7 +451,7 @@ describe('Marketing Site Architecture & Shell', () => {
   // DOMAIN: Footer Landmarks & Metadata (Footer)
   // =========================================================================
   describe('Domain: Footer Landmarks & Metadata (Footer)', () => {
-    it('should render repository links, GitHub Issues link, MIT license link, and attribution inside the <footer> landmark', () => {
+    it('should render repository links, GitHub Issues link, and attribution inside the <footer> landmark, with no license link', () => {
       const footer = document.querySelector('footer.site-footer');
       expect(footer, 'footer.site-footer must exist').not.toBeNull();
 
@@ -406,9 +463,9 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(issuesLink, '#footer-link-issues must exist').not.toBeNull();
       expect(issuesLink.getAttribute('href')).toBe('https://github.com/awhipp/ship-it/issues');
 
-      const licenseLink = footer.querySelector('#footer-link-license');
-      expect(licenseLink, '#footer-link-license must exist').not.toBeNull();
-      expect(licenseLink.getAttribute('href')).toBe('https://github.com/awhipp/ship-it/blob/main/LICENSE');
+      // main has no LICENSE file, so linking one would 404.
+      expect(footer.querySelector('#footer-link-license')).toBeNull();
+      expect(footer.textContent).not.toMatch(/license/i);
 
       const attribution = footer.querySelector('.footer-attribution');
       expect(attribution, '.footer-attribution must exist').not.toBeNull();
@@ -476,7 +533,22 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(STAGES_BY_ID.tickets.humanOversight).toBe('Human approves Boundary 2');
 
       expect(STAGES_BY_ID.implement.agentExecution).toBe('Agent builds Red-Green & reviews diffs');
-      expect(STAGES_BY_ID.implement.humanOversight).toBe('Human handles rework retries');
+      expect(STAGES_BY_ID.implement.humanOversight).toBe('Human steps in after two non-approved passes');
+
+      // Phase names match the v1.x README table
+      expect(STAGES.map((s) => s.name)).toEqual([
+        'Plan',
+        'Spec',
+        'Tickets',
+        'Implement & Review',
+        'Final Review & PR',
+      ]);
+
+      // Spec continues straight to Tickets (no halt) once validated
+      expect(STAGES_BY_ID.spec.checkpoint).toMatch(/ship-it:validated/);
+      expect(STAGES_BY_ID.spec.checkpoint).toMatch(/no halt/i);
+      expect(STAGES_BY_ID.implement.inputs.join(' ')).toContain('<type>/<slug>');
+      expect(JSON.stringify(STAGES)).not.toMatch(/zero-blocker|traceability matrix/i);
 
       expect(STAGES_BY_ID.review.agentExecution).toBe('Agent runs final review & annotates PR');
       expect(STAGES_BY_ID.review.humanOversight).toBe('Human reviews and merges PR');
@@ -511,7 +583,7 @@ describe('Marketing Site Architecture & Shell', () => {
 
       const title = stagesSection.querySelector('#stages-title');
       expect(title, '#stages-title heading must exist inside section#stages').not.toBeNull();
-      expect(title.textContent).toMatch(/five sequential stages/i);
+      expect(title.textContent).toMatch(/five phases across three human-gated boundaries/i);
     });
 
     it('should render stage selection tabs for Plan, Spec, Tickets, Implement, and Review inside role="tablist"', () => {
@@ -753,6 +825,7 @@ describe('Marketing Site Architecture & Shell', () => {
       const cssPath = path.join(ROOT_DIR, 'src/styles/main.css');
       const cssContent = fs.readFileSync(cssPath, 'utf8');
 
+      expect(cssContent).not.toContain('.role-badge');
       expect(cssContent).toMatch(/\.stage-stepper-list\s*\{[^}]*flex-direction:\s*column/);
       expect(cssContent).toMatch(/@media\s*\([^)]*min-width:\s*769px\)[^{]*\{[\s\S]*?\.stage-stepper-list\s*\{[^}]*flex-direction:\s*row/);
     });
@@ -772,32 +845,27 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(title.textContent).toMatch(/Capabilities &.*Trade-offs/i);
     });
 
-    it('should render core capabilities highlighting deterministic GitHub state, fresh-context verification, and automated PR closeouts', () => {
+    it('should render core guarantees: deterministic GitHub state, fresh-context review, three human gates, and annotated PRs', () => {
       const capabilitiesList = document.querySelector('#tradeoffs #capabilities-list');
       expect(capabilitiesList, '#capabilities-list must exist in tradeoffs section').not.toBeNull();
 
       const items = Array.from(capabilitiesList.querySelectorAll('li'));
-      expect(items.length).toBe(3);
+      expect(items.length).toBe(4);
 
       const text = capabilitiesList.textContent;
       expect(text).toContain('Deterministic GitHub state');
-      expect(text).toContain('Fresh-context verification');
-      expect(text).toContain('Automated PR closeouts');
+      expect(text).toContain('Fresh-context review');
+      expect(text).toContain('Three human gates');
+      expect(text).toContain('Annotated pull requests');
 
-      const githubStateItem = document.getElementById('capability-github-state');
-      expect(githubStateItem).not.toBeNull();
-      expect(githubStateItem.textContent).toMatch(/git commits, issues, and labels/i);
-
-      const freshContextItem = document.getElementById('capability-fresh-context');
-      expect(freshContextItem).not.toBeNull();
-      expect(freshContextItem.textContent).toMatch(/independent sessions without conversational history pollution/i);
-
-      const prCloseoutsItem = document.getElementById('capability-pr-closeouts');
-      expect(prCloseoutsItem).not.toBeNull();
-      expect(prCloseoutsItem.textContent).toMatch(/traceability links to upstream issues/i);
+      expect(document.getElementById('capability-github-state').textContent).toMatch(/labels, issue bodies/i);
+      expect(document.getElementById('capability-fresh-context').textContent).toMatch(/no author verifies their own work/i);
+      const gates = document.getElementById('capability-human-gates').textContent;
+      expect(gates).toMatch(/two non-approved passes/i);
+      expect(document.getElementById('capability-pr-annotations').textContent).toMatch(/never merges/i);
     });
 
-    it('should render explicit trade-offs detailing GitHub CLI requirements and multi-step gate pacing', () => {
+    it('should render explicit trade-offs detailing GitHub CLI requirements and deliberate gate pacing', () => {
       const tradeoffsList = document.querySelector('#tradeoffs #tradeoffs-list');
       expect(tradeoffsList, '#tradeoffs-list must exist in tradeoffs section').not.toBeNull();
 
@@ -806,16 +874,34 @@ describe('Marketing Site Architecture & Shell', () => {
 
       const text = tradeoffsList.textContent;
       expect(text).toContain('GitHub CLI requirements');
-      expect(text).toContain('Multi-step gate pacing');
+      expect(text).toContain('Deliberate gate pacing');
 
       const ghCliItem = document.getElementById('tradeoff-gh-cli');
       expect(ghCliItem).not.toBeNull();
-      expect(ghCliItem.textContent).toMatch(/GitHub CLI \(gh\)/i);
+      expect(ghCliItem.textContent).toMatch(/GitHub CLI \(gh\) 2\.18\.0 or later/i);
+      expect(ghCliItem.textContent).toMatch(/github\.com remote/i);
 
       const gatePacingItem = document.getElementById('tradeoff-gate-pacing');
       expect(gatePacingItem).not.toBeNull();
-      expect(gatePacingItem.textContent).toMatch(/deliberate human checkpoints/i);
+      expect(gatePacingItem.textContent).toMatch(/three human halts/i);
       expect(gatePacingItem.textContent).toMatch(/slower than unverified one-shot code generation/i);
+    });
+  });
+
+  // =========================================================================
+  // DOMAIN: Map vs Spec entry points (MapVsSpec)
+  // =========================================================================
+  describe('Domain: Map vs Spec entry points (MapVsSpec)', () => {
+    it('should render a compact comparison table of Decision Map and Feature Spec', () => {
+      const section = document.querySelector('section#map-vs-spec');
+      expect(section, 'section#map-vs-spec must exist').not.toBeNull();
+      expect(section.getAttribute('aria-labelledby')).toBe('map-vs-spec-title');
+
+      const headers = Array.from(section.querySelectorAll('thead th')).map((th) => th.textContent);
+      expect(headers.join(' ')).toContain('ship-it:map');
+      expect(headers.join(' ')).toContain('ship-it:spec');
+      expect(section.querySelectorAll('tbody tr').length).toBe(4);
+      expect(section.textContent).toMatch(/research, prototype, grilling, task/i);
     });
   });
 
@@ -833,15 +919,19 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(title.textContent).toMatch(/Quick Start Onboarding/i);
     });
 
-    it('should render Step 1 detailing prerequisites for Node.js, Git, and authenticated GitHub CLI', () => {
+    it('should render Step 1 detailing prerequisites: Git, gh 2.18.0+, pwsh 7.4+ on Windows, Node.js for npx', () => {
       const stepPrereqs = document.getElementById('quickstart-step-prereqs');
       expect(stepPrereqs, '#quickstart-step-prereqs must exist').not.toBeNull();
 
       const text = stepPrereqs.textContent;
-      expect(text).toMatch(/Node\.js/i);
-      expect(text).toMatch(/Git/i);
-      expect(text).toMatch(/GitHub CLI/i);
-      expect(text).toMatch(/gh auth login/i);
+      expect(text).toMatch(/Git/);
+      expect(text).toMatch(/GitHub CLI/);
+      expect(text).toMatch(/2\.18\.0/);
+      expect(text).toMatch(/gh auth status/);
+      expect(text).toMatch(/pwsh/);
+      expect(text).toMatch(/7\.4/);
+      expect(text).toMatch(/Node\.js/);
+      expect(text).not.toMatch(/v20/);
     });
 
     it('should render Step 2 displaying the skill installation command "npx skills install awhipp/ship-it" with copy button', () => {
@@ -857,17 +947,33 @@ describe('Marketing Site Architecture & Shell', () => {
       expect(copyBtn.getAttribute('aria-label')).toBe('Copy install command');
     });
 
-    it('should render Step 3 displaying the agent invocation command "/ship-it <description>" with copy button', () => {
+    it('should render Step 2 with the manual-copy install alternative', () => {
+      const stepInstall = document.getElementById('quickstart-step-install');
+      expect(stepInstall.textContent).toContain('skills/ship-it');
+      expect(stepInstall.textContent).toContain('.agents/skills/ship-it');
+    });
+
+    it('should render Step 3 with a copyable start command plus the four other directives', () => {
       const stepInvoke = document.getElementById('quickstart-step-invoke');
       expect(stepInvoke, '#quickstart-step-invoke must exist').not.toBeNull();
 
       const cmdEl = stepInvoke.querySelector('#cmd-quickstart-invoke');
       expect(cmdEl, '#cmd-quickstart-invoke must exist').not.toBeNull();
-      expect(cmdEl.textContent.trim()).toBe('/ship-it <description>');
+      expect(cmdEl.textContent.trim()).toBe('/ship-it "add search caching"');
 
       const copyBtn = stepInvoke.querySelector('#btn-copy-quickstart-invoke');
       expect(copyBtn, '#btn-copy-quickstart-invoke must exist').not.toBeNull();
       expect(copyBtn.getAttribute('aria-label')).toBe('Copy invocation command');
+
+      const directives = Array.from(stepInvoke.querySelectorAll('#quickstart-directives li code')).map((c) =>
+        c.textContent.trim()
+      );
+      expect(directives).toEqual([
+        '/ship-it #42',
+        '/ship-it search-cache',
+        '/ship-it preflight',
+        '/ship-it version',
+      ]);
     });
 
     it('should copy installation command to clipboard and display visual feedback on click', async () => {
@@ -902,8 +1008,8 @@ describe('Marketing Site Architecture & Shell', () => {
         copyBtn.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
       });
 
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('/ship-it <description>');
-      expect(written).toBe('/ship-it <description>');
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('/ship-it "add search caching"');
+      expect(written).toBe('/ship-it "add search caching"');
       expect(copyBtn.classList.contains('copied')).toBe(true);
       expect(copyBtn.querySelector('.copy-text')?.textContent.trim()).toBe('Copied!');
     });
@@ -971,7 +1077,7 @@ describe('Marketing Site Architecture & Shell', () => {
       const sections = Array.from(main.querySelectorAll(':scope > section'));
       const sectionIds = sections.map((s) => s.getAttribute('id'));
 
-      expect(sectionIds).toEqual(['hero', 'stages', 'tradeoffs', 'quickstart']);
+      expect(sectionIds).toEqual(['hero', 'stages', 'map-vs-spec', 'tradeoffs', 'quickstart']);
     });
 
     it('should remove all temporary placeholder elements and content-placeholder classes from the DOM', () => {
