@@ -49,7 +49,7 @@ Exempt Git workflow records from this prohibition: commit subjects (`(#<ticket>)
 
 - **Payloads**: Write multi-line text to a temporary file, pass `--body-file <path>`, and delete the file once `gh` completes.
 - **`--jq` filters**: Single-quote the whole filter and write jq string literals in double quotes.
-- **Title prefix**: Prefix every issue and pull request title with `[<slug>]`, except leftover-idea issues filed on the narrow intake path.
+- **Title prefix**: Prefix every issue and pull request title with `[<slug>]`.
 - **Other conventions**: Read [preflight.md](preflight.md#shell-conventions) when a command misbehaves.
 
 ## Bounded search truncation

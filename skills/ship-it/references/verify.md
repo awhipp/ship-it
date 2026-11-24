@@ -119,6 +119,4 @@ Run before triaging questions or routing, on every non-`failed` return from `val
 
 ### Question triage after verification
 
-- **Spec**: Append stray slice-local questions on implementation, touchpoints, or error paths strictly to `## Deferred to slicing` in `<spec>` (`gh issue edit <spec> --body-file <file>`, deleting the file). Leave other sections untouched, skip prompts for deferred items, and post no comment. When no cross-cutting questions remain, route again. Deferral-only passes count toward the cap.
-- **Ticket set**: Resolve reversible slice-local `Questions` into open ticket bodies by surgical `--body-file` edit, and post one `## Auto-resolved Decisions` comment on `<spec>` ([format](tickets.md#3-publish-in-dependency-order)). Strip `ship-it:validated` from edited tickets and their open direct dependency neighbors. When no irreversible scope, behaviour, or architecture question remains, route again.
 - **Cap reached**: When the verdict brought `Non-approved` to 2, run the cap halt with the remaining questions instead of prompting for `## Answers`.
