@@ -29,17 +29,22 @@ Flag duplicated logic, unclear names, unused abstractions, and scattered changes
 
 ## Zero-assumption rule
 
-- When judging the diff needs a fact that the requirements do not state, record a Question.
-- Never assume undocumented behavior, intent, or edge-case safety.
-- An edge case with no test or check is a Question when the requirements are silent, and a Blocker when the requirements cover the edge case.
+- **Missing facts**: Record a Question when judging the diff requires a fact that the requirements omit. Never assume undocumented behavior, intent, or edge-case safety.
+- **Unchecked edge cases**: Classify an unverified edge case as a Question when requirements stay silent, and as a Blocker when requirements cover that edge case.
+- **Command-backed Blockers**: Observe command output from read-only git inspection, test runs, or direct CLI checks executed in the current pass before raising any Blocker that asserts a repository fact (file presence, symbol, caller, or code behavior) or environment fact (tool version, CLI flag behavior, or test failure). Cite that observed output in the Blocker finding, because unverified claims cause unnecessary rework cycles.
+- **Delta-audit scope (pass 2+)**: Apply [isolation.md](isolation.md#delta-audit-directive) whenever the dispatch packet attaches `Delta-audit directive` (`- **Delta audit**:`) or at least one prior non-approved review report exists in the active cycle (running from the latest `## Circuit Breaker Reset` or intervening `**Verdict**: Approved` report matching the active report heading, whichever is more recent):
+  - **Prior findings and guidance**: Verify clearance of every prior Blocker and Question, and honor settled guidance (`## Answers`, `## Auto-resolved Decisions`, and `## Circuit Breaker Reset`). Count active Blockers that repeat Blockers cleared in the active cycle as `**Reintroduced**: <M>`.
+  - **New findings**: Focus new Blockers and `Clarifying Questions` on newly modified commits and diffs since the prior pass, plus concrete factual regressions or contradictions against active code or source requirements.
+  - **Unchanged review surface**: Keep belated non-regression notes on unchanged review surface non-blocking by handling those observations as Nits (fixed in place) or omitting them instead of raising Blockers or `Clarifying Questions`.
+  - **Report schema**: Keep the existing `## Report` subsections (`### Standards`, `### Spec`, `### Clarifying Questions`, `### In-place Resolutions`) unchanged without adding a `### Warnings` subsection.
 
 ## Severity
 
 | Severity | Test | Effect |
 | :--- | :--- | :--- |
-| **Blocker** | The diff is wrong, incomplete, unverified, or breaks a standard. | Requests changes. |
+| **Blocker** | The diff is wrong, incomplete, unverified, or breaks a standard. Any Blocker asserting a repository or environment fact cites observed output from read-only git inspection, test runs, or direct CLI checks executed in the current pass per `Command-backed Blockers` in [Zero-assumption rule](#zero-assumption-rule), because unverified claims cause unnecessary rework cycles. | Requests changes. |
 | **Question** | A fact needed to judge the diff is unwritten. | Withholds approval until answered. |
-| **Nit** | The diff is correct but improves with a typo or naming fix. | Fix in place, stage modified files explicitly (`git add <file>...`), commit as `<type>(<slug>): <summary> (#<ticket-or-spec>)` with `<type>` taken from the branch prefix before `/`, and push. |
+| **Nit** | The diff is correct but improves with a typo fix, naming fix, or non-blocking observation on unchanged review surface during pass 2+. | Fix in place, stage modified files explicitly (`git add <file>...`), commit as `<type>(<slug>): <summary> (#<ticket-or-spec>)` with `<type>` taken from the branch prefix before `/`, and push. |
 
 ## Report
 

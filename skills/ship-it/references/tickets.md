@@ -15,11 +15,14 @@ Use targeted symbol and path searches anchored on the specification's modules an
 Read only the relevant sections of large files rather than scanning the entire repository.
 Look for prefactoring opportunities that reshape existing code in an initial ticket to simplify later slices.
 
+When a slice covers an enumerable source set, inspect the spec and active code on `origin/<default-branch>` to enumerate every member of that set.
+
 ### 2. Draft vertical slices
 
 - Cut each slice as a narrow, complete vertical path through every touched layer per [Slicing anti-patterns](#slicing-anti-patterns).
 - Author each slice using [Ticket template](#ticket-template), honoring `- **Decision Register**:` entries and citing `Spec § <section>` for spec-owned contracts in `## Slice goal` and `## Low-level design` while keeping slice-local `Design deltas` concrete.
 - Make `## Acceptance criteria` self-contained using Rule 6 controlled vocabulary per [writing.md](writing.md#application-across-artifacts), and cover all `- **Deferred to slicing**:` entries across the ticket set.
+- Emit `## Consolidation checklist` per [Ticket template](#ticket-template) whenever `## Acceptance criteria` quantify over an enumerable source set (`every`, `all`, or `each` without naming every member inside `## Acceptance criteria`), enumerating every member from the spec and active code on `origin/<default-branch>`. Omit `## Consolidation checklist` on non-consolidation tickets and `ship-it:bug` tickets.
 - Auto-resolve reversible slice-local defaults into ticket bodies when active code or spec context supports a safe default, and record each resolved item for `## Auto-resolved Decisions` on `<spec>`.
 - Batch any `Question` requiring an irreversible scope, observable product behavior, or architecture choice and return `Verdict: questions` with `Evidence: None` before creating any tickets, keeping `ticket_set` empty so Row 8 cleanly re-runs after `## Answers` fold into `<spec>`.
 - Incorporate verification into every slice. Organize automated tests by domain or module seam rather than issue numbers per the [ticket-naming prohibition](writing.md#ticket-naming-prohibition), or state direct checks without custom string-matching scripts per the [ad-hoc test harness prohibition](writing.md#ad-hoc-test-harness-prohibition).
@@ -112,12 +115,19 @@ Name the vertical slice in one to two sentences and cite the `Spec § <section>`
 - [ ] <Single-sentence imperative verification or edge-case check adhering to writing.md>
 - [ ] <Single-sentence imperative verification or edge-case check adhering to writing.md>
 
+<!-- Optional: include ## Consolidation checklist strictly between ## Acceptance criteria and ## Blocked by only when acceptance criteria quantify over an enumerable source set without naming every member. -->
+## Consolidation checklist
+
+- [ ] <member>
+
 ## Blocked by
 
 - [ ] Blocked by #<blocker-id>
 ```
 
 When a ticket has no blockers, write `None (can start immediately).` under `## Blocked by`.
+
+Emit `## Consolidation checklist` strictly between `## Acceptance criteria` and `## Blocked by` with unchecked `- [ ] <member>` bullets only on qualifying consolidation slices, and omit `## Consolidation checklist` on non-consolidation tickets and `ship-it:bug` tickets.
 Use `## Acceptance criteria` as the single home for imperative, testable slice verification, happy paths, edge cases, and negative invariants (such as "confirm as a final check that no callers of the old API remain").
 Apply section-scoped precedence per [writing.md](writing.md#application-across-artifacts): self-containment outranks Rule 7 inside `## Acceptance criteria` while preserving Rule 6 controlled vocabulary, whereas Rule 7 outranks restatement inside `## Slice goal` and for spec-owned contracts inside `## Low-level design` while keeping `Design deltas` concrete.
 Omit line numbers and literal code blocks while naming exact file paths, modules, and symbols.
@@ -146,6 +156,7 @@ When ticket-set validation applies `ship-it:changes-requested` to `<spec>`:
    - Correct the root cause, reproduction seam, or acceptance criteria on bug tickets, or update low-level design, create missing slices, and close redundant slices as not planned (`gh issue close <n> --reason "not planned"`) on feature tickets.
    - Obtain user approval when changes alter scope.
    - **Consistency sweep**: Whenever edits alter a term, numeric threshold, symbol or fixture home, or shared contract, sweep all open ticket bodies from the step 1 fetch to reconcile Rule 6 terminology and contract references in the same pass. Track every newly edited ticket for step 3.
+   - **Consolidation checklists**: Preserve `## Consolidation checklist` items during surgical edits, retaining existing `- [ ]` and `- [x]` states on tickets bearing `ship-it:reviewed` or `ship-it:changes-requested`. When `- [x]` appears inside `## Consolidation checklist` on a feature ticket lacking both labels, inspect `gh issue view <n> --json comments --jq '[.comments[].body[:120]]'` for a prior `## Review: Ticket` report, retaining existing checkbox states when present and resetting `- [x]` to `- [ ]` when absent. Reconcile checklist members when requirements or active-code members change (leaving added items `- [ ]`), and omit `## Consolidation checklist` on `ship-it:bug` tickets.
 3. **Selectively update ticket validation labels**: Retain `ship-it:validated` on untouched open tickets. Remove `ship-it:validated` (`gh issue edit <n> --remove-label "ship-it:validated"`) only when present on edited, created, or split tickets and their open direct dependency neighbors. Compute open direct dependency neighbors from both `blockedBy` and `blocks` relationships in the step 1 fetch, falling back to `## Blocked by` tasklists in the fetched ticket bodies per [§ Relationships](#relationships) when native `blockedBy` is empty.
 4. **Remove label**: Clear `ship-it:changes-requested` from `<spec>` (`gh issue edit <spec-number> --remove-label "ship-it:changes-requested"`).
 5. **Continue the routing loop**: Return to `SKILL.md` § 2 (`Query state`). Returning to Row 9 runs the conductor mechanical pre-validation gate before dispatching `validate`.
