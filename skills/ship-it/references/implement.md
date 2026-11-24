@@ -18,7 +18,7 @@ Only `review` toggles `## Consolidation checklist` checkboxes, after independent
 
 Tailor verification to the change type:
 
-- **Reproduce defects first**: For `fix` feature types or `ship-it:bug` tickets, run the reproduction seam (spec `## Testing Decisions` or bug `## Reproduction seam`) to confirm failure before modifying code.
+- **Reproduce defects first**: For `fix` feature types or `ship-it:bug` tickets, run the reproduction seam (spec `## Testing seams` or bug `## Reproduction seam`) to confirm failure before modifying code.
 - **Red-Green**: Write a failing test first for each acceptance criterion where tests apply.
 - **Direct checks elsewhere**: For docs, configuration, assets, or repositories without a runner, verify each criterion with linting, type checks, builds, CLI checks, or inspection.
 
