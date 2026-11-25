@@ -26,7 +26,7 @@ Tailor verification to the change type:
 #### 3. Check as you go
 
 Before handoff, run the full scope above and complete every `## Consolidation checklist` item.
-Follow [ticket-naming](writing.md#ticket-naming-prohibition) and [transient-reference](writing.md#transient-reference-prohibition) prohibitions across code, tests, comments, docstrings, and docs, and sweep for negative invariants and transient references with targeted search.
+Sweep for negative invariants and transient references with targeted search across code, tests, comments, docstrings, and docs.
 
 #### 4. Ask instead of guessing
 
@@ -42,7 +42,7 @@ When any conflict with active code or leave a decision unwritten:
 
 - Stage only ticket files (`git add <file>...`).
 - Commit as `<type>(<slug>): <summary> (#<ticket>)` (`<type>` = branch prefix before `/`), and push every commit.
-- Post the handoff (`gh issue comment <n> --body-file <file>`), delete the temporary file, and return `done`, leaving the ticket assigned and open:
+- Post the handoff (`gh issue comment <n> --body-file <file>`), and return `done`, leaving the ticket assigned and open:
 
 ```markdown
 ## Handoff
@@ -72,7 +72,7 @@ Resolve every Blocker in the latest review of a `ship-it:changes-requested` tick
 
 Fetch `<default-branch>` and `<branch>` from origin, check out `<branch>`, and run after final review approves:
 
-1. Read the spec body and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`). Check count per [writing.md](writing.md#bounded-search-truncation), keeping `[<slug>]`-prefixed issues. Write the body to a temp file, open the pull request, then delete the file:
+1. Read the spec body and closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`). Check count per [writing.md](writing.md#bounded-search-truncation), keeping `[<slug>]`-prefixed issues. Write the body to a temp file, open the pull request:
 
    ```shell
    gh pr create --base <default-branch> --head <branch> --title "[<slug>] <spec gist>" --body-file <file>
@@ -80,8 +80,6 @@ Fetch `<default-branch>` and `<branch>` from origin, check out `<branch>`, and r
 
    - **Closing references**: Main closing list: `Closes #<n>` (with title) for each `stateReason: COMPLETED` non-bug ticket, plus `Closes #<spec>` and distinct `Closes #<source>` (`## Source`). When `COMPLETED` `ship-it:bug` tickets exist, append `### Addendum Bugs` listing each as `- #<n> (<title>) - Closes #<n>`.
    - **Repository checklist**: Inspect target-repository guidance documents (such as instruction files, contributing guides, or pull request templates) for pull request checklist requirements and satisfy them dynamically against `origin/<default-branch>..HEAD` without hardcoding repository-specific metrics.
-   - **Truncation notice**: At 100 items, embed the [writing.md](writing.md#bounded-search-truncation) warning in the body.
-
 2. Annotate every changed file with one file-level review comment, deleting each temp `<annotation-file>` after posting:
 
    ```shell
@@ -109,5 +107,4 @@ Edit only the `OPEN` pull request body. Never match tickets from commit messages
 1. Fetch `origin/<default-branch>` and `origin/<branch>`, and check out `<branch>`.
 2. Query `gh pr list --head "<branch>" --state open --json number,body,url`. When no `OPEN` pull request exists, return `failed` with `Evidence: None`.
 3. Query closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`), checking truncation per [writing.md](writing.md#bounded-search-truncation). Select `[<slug>]`-prefixed `stateReason: COMPLETED` tickets lacking `Closes #<n>` (not followed by another digit) in the pull request body (`unsynced_tickets`). When `unsynced_tickets` is empty, return `failed` with `Evidence: None`.
-4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Satisfy the [Repository checklist](#initial-close-out) of initial close-out. Embed the truncation warning at 100 results.
-5. Write the updated body to a temp file, run `gh pr edit <pr> --body-file <file>`, delete the file, and return `done`.
+4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Satisfy the [Repository checklist](#initial-close-out) of initial close-out.5. Write the updated body to a temp file, run `gh pr edit <pr> --body-file <file>`, and return `done`.
