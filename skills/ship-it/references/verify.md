@@ -97,7 +97,7 @@ Rows 5–7, 9, 11 (Steps 3–4), and 12 check `Non-approved` first; at 2, run th
 
 Before a verification dispatch:
 - Read `Passes` and record `C_pre` via `gh issue view <issue> --json comments --jq '.comments | length'` on the Verdict issue (`<n>` for review, `<spec>` else).
-- Tier 1: copy [delta-audit directive](isolation.md#delta-audit-directive) verbatim into `- **Delta audit**:` when `Passes` is at least 1 (resets included) or `final-review` runs with an `OPEN` branch pull request; omit on other pass-1 runs and non-verification roles. Pass `- **Fixed point**:` for `review`. Tier 2: apply the directive under the same conditions.
+- Pass the delta audit and fixed point per [Tier 1](isolation.md#tier-1-dispatch-packet) and [Tier 2](isolation.md#tier-2); omit on non-verification roles.
 
 ### Cap halt
 
