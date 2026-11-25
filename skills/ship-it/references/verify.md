@@ -112,7 +112,7 @@ Name the gate and issue, link `Last verdict`, list unresolved findings and `Ques
 Run before question triage or routing on every non-`failed` `validate`, `review`, or `final-review` return.
 
 1. **Fetch** `gh issue view <issue> --json labels,comments --jq '{labels: [.labels[].name], comments: [.comments[].url]}'` on the Verdict issue.
-2. **Return fields**: Reject `approved` with non-`None` `Questions:` and unknown verdicts (e.g. `done`). Allow `Evidence: None` only on pass-1 `validate` `approved` (`Passes` 0). Otherwise `comments[C_pre:]` must contain a comment whose `url` equals `Evidence:`, so stale reports fail.
+2. **Return fields**: Reject `approved` with non-`None` `Questions:` and unknown verdicts (e.g. `done`). Allow `Evidence: None` only on pass-1 `validate` `approved` (`Passes` 0 before dispatch). Otherwise `comments[C_pre:]` must contain a comment whose `url` equals `Evidence:`, so stale reports fail.
 3. **Labels**: Approval label is `ship-it:validated` (spec, ticket-set) or `ship-it:reviewed` (ticket, final). `approved` needs that label without `ship-it:changes-requested`; `changes-requested` needs `ship-it:changes-requested` without that label; `questions` needs neither. Exceptions:
    - **Ticket-set**: `approved` needs `validated` on all open `ticket_set` tickets (`gh issue view <t> --json labels`, bypassing search lag). `changes-requested` needs `changes-requested` on `<spec>`; `questions` needs `<spec>` without that label and an open ticket lacking `validated`.
    - **Final `changes-requested`**: `<spec>` lacks `reviewed`, and `Issues:` names a new ticket absent from pre-dispatch `ticket_set`; `gh issue view <fix> --json state,labels,title` shows `OPEN`, `ship-it:ticket`, `ship-it:validated`, and `[<slug>]` prefix.
