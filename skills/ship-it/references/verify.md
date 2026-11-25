@@ -7,7 +7,7 @@
 - **Command-backed Blockers**: Before raising a Blocker on a repository or environment fact, run a read-only command this pass and cite its output.
 - **Pass 1 is complete**: Map every spec behaviour, Decision Register entry, and Deferred entry to the artifact.
 - **Delta-only when directed**: Under the [delta-audit directive](isolation.md#delta-audit-directive), raise nothing outside its scope.
-- **Altitude is a finding class**: `Target: spec` forbids low-level detail (file paths, internal functions, slice flags absent from `## Decision Register`; public contracts and `Reproduction seam` commands exempt). Altitude violations on either target are Blockers, including missing low-level detail under `Target: ticket-set` (no exact touchpoints, bare pointer-only `Design deltas`, criteria that are not self-contained).
+- **Altitude is a finding class**: `Target: spec` forbids low-level detail (file paths, internal functions, slice flags absent from `## Decision Register`; public contracts and `Reproduction seam` commands exempt). Altitude violations on either target are Blockers, including missing low-level detail under `Target: ticket-set` (no exact touchpoints, bare pointer-only `Design deltas`, criteria that are not self-contained). `Not applicable, because <reason>.` counts as content.
 - **Prose**: Local style guides override [Core Rules](writing.md#core-rules); other breaches are validation Warnings and review Nits. Ambiguity, contradictions, [Universal Testing Standards](writing.md#universal-testing-standards), [shell conventions](writing.md#shell-conventions), and [bounded-search truncation](writing.md#bounded-search-truncation) are Blockers.
 - **Reports**: Render populated subsections only, each finding `**<B|W|Q|S|D>-<n>** [<anchor>]: <text>`. Post the report and return its URL in `Evidence:` ([isolation.md](isolation.md#return-schema)). Clean pass-1 validation posts nothing (`Evidence: None`); clean pass 2+ posts only `## Validation: <Spec|Ticket set>` and `**Verdict**: Validated`.
 
@@ -68,7 +68,7 @@ Audit the feature diff after every ticket closes. The fixed point is `git merge-
 
 ### Diff axes
 
-- **Standards**: Read `CONTRIBUTING.md`, style guides, and linter config (skip what linters catch). Local guides override [Core Rules](writing.md#core-rules); other diff breaches are Nits. Flag ticket-numbered files, ad-hoc harnesses, and transient references as [Universal Testing Standards](writing.md#universal-testing-standards) Blockers.
+- **Standards**: Read `CONTRIBUTING.md`, style guides, and linter config (skip what linters catch). Flag ticket-numbered files, ad-hoc harnesses, and transient references as [Universal Testing Standards](writing.md#universal-testing-standards) Blockers.
 - **Spec**: Audit against cross-cutting spec design and ticket `## Low-level design` plus `## Acceptance criteria` (bugs: `## Root cause`, `## Reproduction seam`, `## Acceptance criteria`). Quote the requirement per divergence.
 
 Review report: `## Review: <Ticket #n | Final>`, `**Verdict**: Approved | Changes requested | Questions pending`, ``**Audited**: `<fixed-point>..<head-sha>` (<diff stat>; <verification summary>)``, then `### Standards` (S-n, `[<file#Lx>]`), `### Spec` (D-n, `[<spec § heading>]`), `### Clarifying Questions` (Q-n). Clean passes keep only the first three lines; `**Audited**:` always spans the full range.
