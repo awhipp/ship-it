@@ -80,6 +80,7 @@ Fetch `<default-branch>` and `<branch>` from origin, check out `<branch>`, and r
 
    - **Closing references**: Main closing list: `Closes #<n>` (with title) for each `stateReason: COMPLETED` non-bug ticket, plus `Closes #<spec>` and distinct `Closes #<source>` (`## Source`). When `COMPLETED` `ship-it:bug` tickets exist, append `### Addendum Bugs` listing each as `- #<n> (<title>) - Closes #<n>`.
    - **Repository checklist**: Inspect target-repository guidance documents (such as instruction files, contributing guides, or pull request templates) for pull request checklist requirements and satisfy them dynamically against `origin/<default-branch>..HEAD` without hardcoding repository-specific metrics.
+
 2. Annotate every changed file with one file-level review comment, deleting each temp `<annotation-file>` after posting:
 
    ```shell
@@ -107,4 +108,5 @@ Edit only the `OPEN` pull request body. Never match tickets from commit messages
 1. Fetch `origin/<default-branch>` and `origin/<branch>`, and check out `<branch>`.
 2. Query `gh pr list --head "<branch>" --state open --json number,body,url`. When no `OPEN` pull request exists, return `failed` with `Evidence: None`.
 3. Query closed tickets (`gh issue list --label "ship-it:ticket" --search "[<slug>] in:title" --state closed --limit 100 --json number,title,labels,stateReason`), checking truncation per [writing.md](writing.md#bounded-search-truncation). Select `[<slug>]`-prefixed `stateReason: COMPLETED` tickets lacking `Closes #<n>` (not followed by another digit) in the pull request body (`unsynced_tickets`). When `unsynced_tickets` is empty, return `failed` with `Evidence: None`.
-4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Satisfy the [Repository checklist](#initial-close-out) of initial close-out.5. Write the updated body to a temp file, run `gh pr edit <pr> --body-file <file>`, and return `done`.
+4. Preserve all other body text. Append missing `Closes #<n>` for each unsynced ticket: `ship-it:bug` as `- #<n> (<title>) - Closes #<n>` under `### Addendum Bugs` (created when absent), non-bug in the main closing list. Satisfy the [Repository checklist](#initial-close-out) of initial close-out.
+5. Write the updated body to a temp file, run `gh pr edit <pr> --body-file <file>`, and return `done`.
