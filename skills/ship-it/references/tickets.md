@@ -35,7 +35,7 @@ When defaults were auto-resolved, post one comment on `<spec>` with this format:
 - **#<ticket>** [<section>]: <chosen reversible default> (<spec or active-code anchor>; reversible: <scope>)
 ```
 
-Return `done` with `Issues: #<n>, ...`, and the comment URL in `Evidence:` when posted, or `Evidence: None`.
+Return `done` with `Issues:` listing all created tickets (`#<n>, ...`), and its `## Auto-resolved Decisions` comment URL in `Evidence:` when posted, or `Evidence: None`.
 
 ## Granularity thresholds
 
@@ -113,7 +113,7 @@ When ticket-set validation applies `ship-it:changes-requested` to `<spec>`:
 
 The conductor runs this inside Row 9 before dispatching `validate` (`Target: ticket-set`), on every path into Row 9.
 
-1. **Read**: Run `gh issue list --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels`, check truncation per [writing.md](writing.md#bounded-search-truncation), and re-read issues the preceding action returned or edited with `gh issue view`.
+1. **Read**: Run `gh issue list --search "[<slug>] in:title" --state open --limit 100 --json number,title,body,labels`, check truncation per [writing.md](writing.md#bounded-search-truncation). Re-read each issue the preceding action returned or edited with `gh issue view <n> --json number,title,body,labels,assignees,state,stateReason`.
 2. **Filter**: Keep only open issues whose title starts with `[<slug>]` or whose number the preceding action returned or edited. Exclude `ship-it:spec`, `ship-it:map`, decision-ticket labels (`ship-it:research`, `ship-it:prototype`, `ship-it:grilling`, `ship-it:task`), and `ship-it:bug` issues lacking `ship-it:ticket`.
 3. **Repair directly** (no subagent; temporary `--body-file` payloads, deleted immediately):
    - A missing or malformed `[<slug>] ` title prefix (`gh issue edit <n> --title ...`).

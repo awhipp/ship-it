@@ -6,9 +6,9 @@
 - **Zero assumption**: Record a Question when judging needs a fact the requirements omit. Never infer intent or assume edge-case safety.
 - **Command-backed Blockers**: Before raising a Blocker on a repository or environment fact, run a read-only command this pass and cite its output.
 - **Pass 1 is complete**: Map every spec behaviour, Decision Register entry, and Deferred entry to the artifact.
-- **Delta-only when directed**: Under the [delta-audit directive](isolation.md#delta-audit-directive) (including `final-review` with an `OPEN` pull request), raise nothing outside its scope.
-- **Altitude is a finding class**: `Target: spec` forbids low-level detail (file paths, internal functions, slice flags absent from `## Decision Register`; public contracts and `Reproduction seam` commands exempt). `Target: ticket-set` requires concrete `Touchpoints`, non-stub `Design deltas`, and self-contained criteria. Violations are Blockers; `Not applicable, because <reason>.` counts as content.
-- **Prose**: Local style guides override [Core Rules](writing.md#core-rules); other breaches are validation Warnings and review Nits. Ambiguity, contradictions, altitude defects, [Universal Testing Standards](writing.md#universal-testing-standards), [shell conventions](writing.md#shell-conventions), and [bounded-search truncation](writing.md#bounded-search-truncation) are Blockers.
+- **Delta-only when directed**: Under the [delta-audit directive](isolation.md#delta-audit-directive), raise nothing outside its scope.
+- **Altitude is a finding class**: `Target: spec` forbids low-level detail (file paths, internal functions, slice flags absent from `## Decision Register`; public contracts and `Reproduction seam` commands exempt). Altitude violations on either target are Blockers, including missing low-level detail under `Target: ticket-set` (no exact touchpoints, bare pointer-only `Design deltas`, criteria that are not self-contained). `Not applicable, because <reason>.` counts as content.
+- **Prose**: Local style guides override [Core Rules](writing.md#core-rules); other breaches are validation Warnings and review Nits. Ambiguity, contradictions, [Universal Testing Standards](writing.md#universal-testing-standards), [shell conventions](writing.md#shell-conventions), and [bounded-search truncation](writing.md#bounded-search-truncation) are Blockers.
 - **Reports**: Render populated subsections only, each finding `**<B|W|Q|S|D>-<n>** [<anchor>]: <text>`. Post the report and return its URL in `Evidence:` ([isolation.md](isolation.md#return-schema)). Clean pass-1 validation posts nothing (`Evidence: None`); clean pass 2+ posts only `## Validation: <Spec|Ticket set>` and `**Verdict**: Validated`.
 
 ### Severity and outcomes
@@ -47,7 +47,7 @@ The conductor closes reviewed tickets.
 
 ## Target: ticket
 
-Audit one ticket's diff. Return `failed` when the fixed point is missing or unresolvable, or `<fixed-point>...HEAD` is empty.
+Audit one ticket's diff. Return `failed` when the packet's fixed point is missing or unresolvable, or `<fixed-point>...HEAD` is empty.
 
 1. Fetch and check out `<branch>`, surveying `git --no-pager diff --stat <fixed-point>...HEAD`. On pass 2+, inspect `<prev-head-sha>..HEAD` (latest `**Audited**:`) or `## Rework` commits, else `<fixed-point>..HEAD`; when `HEAD` is unchanged, check folded edits against `<fixed-point>..HEAD`.
 2. Check verification evidence in `## Handoff` and `## Rework`. Missing evidence is a Blocker.
@@ -68,7 +68,7 @@ Audit the feature diff after every ticket closes. The fixed point is `git merge-
 
 ### Diff axes
 
-- **Standards**: Read `CONTRIBUTING.md`, style guides, and linter config (skip what linters catch). Local guides override [Core Rules](writing.md#core-rules); other diff breaches are Nits. Flag ticket-numbered files ([ticket naming](writing.md#ticket-naming-prohibition)), ad-hoc harnesses ([ad-hoc harness](writing.md#ad-hoc-test-harness-prohibition)), and transient references ([transient refs](writing.md#transient-reference-prohibition)) as Universal Testing Standards Blockers.
+- **Standards**: Read `CONTRIBUTING.md`, style guides, and linter config (skip what linters catch). Flag ticket-numbered files, ad-hoc harnesses, and transient references as [Universal Testing Standards](writing.md#universal-testing-standards) Blockers.
 - **Spec**: Audit against cross-cutting spec design and ticket `## Low-level design` plus `## Acceptance criteria` (bugs: `## Root cause`, `## Reproduction seam`, `## Acceptance criteria`). Quote the requirement per divergence.
 
 Review report: `## Review: <Ticket #n | Final>`, `**Verdict**: Approved | Changes requested | Questions pending`, ``**Audited**: `<fixed-point>..<head-sha>` (<diff stat>; <verification summary>)``, then `### Standards` (S-n, `[<file#Lx>]`), `### Spec` (D-n, `[<spec § heading>]`), `### Clarifying Questions` (Q-n). Clean passes keep only the first three lines; `**Audited**:` always spans the full range.
@@ -97,13 +97,13 @@ Rows 5–7, 9, 11 (Steps 3–4), and 12 check `Non-approved` first; at 2, run th
 
 Before a verification dispatch:
 - Read `Passes` and record `C_pre` via `gh issue view <issue> --json comments --jq '.comments | length'` on the Verdict issue (`<n>` for review, `<spec>` else).
-- Tier 1: copy [delta-audit directive](isolation.md#delta-audit-directive) verbatim into `- **Delta audit**:` when `Passes` is at least 1 (resets included) or `final-review` runs with an `OPEN` branch pull request; omit on other pass-1 runs and non-verification roles. Pass `- **Fixed point**:` for `review`. Tier 2: apply the directive under the same conditions.
+- Pass the [delta audit](isolation.md#delta-audit-directive) and fixed point per [Tier 1](isolation.md#tier-1-dispatch-packet) and [Tier 2](isolation.md#tier-2); omit on non-verification roles.
 
 ### Cap halt
 
-Name the gate and issue, link `Last verdict`, list unresolved findings and `Questions`, and offer three choices (interactive tool if available, else plain text before ending the turn):
+Name the gate and issue, link `Last verdict`, list unresolved findings and `Questions`, and offer exactly three choices (interactive tool if available, else plain text before ending the turn):
 
-1. **Reply with guidance**: Post `## Answers` on the gate issue, fold into target bodies (spec, open tickets, ticket and spec on contract changes, or open fix-ticket criteria), strip `ship-it:validated` from edited open tickets and open direct dependency neighbors, zero `Non-approved`, then re-query and route.
+1. **Reply with guidance**: Post `## Answers` on the gate issue, fold into target bodies (spec, open tickets, ticket and spec on contract changes, or open fix-ticket criteria), strip `ship-it:validated` from edited open tickets and open direct dependency neighbors, then re-query and route.
 2. **Apply approval label manually**: Only waiver (`ship-it:validated` on `<spec>` or all open `ticket_set` tickets; `ship-it:reviewed` on `<n>` or `<spec>`). Route again once applied.
 3. **Stop**: End the run without changing labels.
 
@@ -112,7 +112,7 @@ Name the gate and issue, link `Last verdict`, list unresolved findings and `Ques
 Run before question triage or routing on every non-`failed` `validate`, `review`, or `final-review` return.
 
 1. **Fetch** `gh issue view <issue> --json labels,comments --jq '{labels: [.labels[].name], comments: [.comments[].url]}'` on the Verdict issue.
-2. **Return fields**: Reject `approved` with non-`None` `Questions:` and unknown verdicts (e.g. `done`). Allow `Evidence: None` only on pass-1 `validate` `approved` (`Passes` 0); else `comments[C_pre:]` must hold `Evidence:` URL.
+2. **Return fields**: Reject `approved` with non-`None` `Questions:` and unknown verdicts (e.g. `done`). Allow `Evidence: None` only on pass-1 `validate` `approved` (`Passes` 0 before dispatch). Otherwise `comments[C_pre:]` must contain a comment whose `url` equals `Evidence:`, so stale reports fail.
 3. **Labels**: Approval label is `ship-it:validated` (spec, ticket-set) or `ship-it:reviewed` (ticket, final). `approved` needs that label without `ship-it:changes-requested`; `changes-requested` needs `ship-it:changes-requested` without that label; `questions` needs neither. Exceptions:
    - **Ticket-set**: `approved` needs `validated` on all open `ticket_set` tickets (`gh issue view <t> --json labels`, bypassing search lag). `changes-requested` needs `changes-requested` on `<spec>`; `questions` needs `<spec>` without that label and an open ticket lacking `validated`.
    - **Final `changes-requested`**: `<spec>` lacks `reviewed`, and `Issues:` names a new ticket absent from pre-dispatch `ticket_set`; `gh issue view <fix> --json state,labels,title` shows `OPEN`, `ship-it:ticket`, `ship-it:validated`, and `[<slug>]` prefix.

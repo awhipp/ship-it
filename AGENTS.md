@@ -48,3 +48,7 @@ Change only by explicit breaking decision.
   - total over every file in `skills/ship-it/` ≤ 70,000
   - `SKILL.md` ≤ 10,000
   - `SKILL.md` + `references/isolation.md` + `references/writing.md` ≤ 25,000
+- [ ] The PR leaves at least 2,000 bytes free under the 70,000-byte total, or includes a cut that achieves it.
+- [ ] The PR body lists every removed or merged skill rule with the rule or file that still carries it, or `deleted: <reason>`.
+
+- Tightening any sentence is allowed. A reworded sentence keeps every term, quantifier (such as `exactly`), and source it had. Reviewers judge meaning, not hunk count.

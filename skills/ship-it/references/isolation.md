@@ -36,7 +36,7 @@ A packet holds only:
 - The Decision Register: the spec's `## Decision Register`, or the map's `## Decisions so far` for `decide`.
 - Settled answers: `## Answers` on the target issue, and `## Auto-resolved Decisions` on the spec.
 - The repository at the named ref.
-- When triggered by [Delta-audit directive](#delta-audit-directive) (`Passes` >= 1, or `final-review` with an `OPEN` branch pull request), the directive and prior reports.
+- When triggered by [Delta-audit directive](#delta-audit-directive), the directive and prior reports.
 
 A packet never holds conversation history, conductor summaries of intent, prior-phase prose beyond named artifacts, or `## Ship-it State`.
 A role reads nothing outside its packet.
@@ -65,12 +65,12 @@ Pass only:
 - **Slug** and **Default branch** (read once via `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`).
 - **Branch**: For every role except `decide` and `slice`.
 - **Fixed point**: Ticket's starting commit from `## Ship-it State`, for `review` only.
-- **Delta audit**: Copy [Delta-audit directive](#delta-audit-directive) verbatim when `Passes` >= 1 (resets included) or `final-review` runs with an `OPEN` branch pull request; omit otherwise.
+- **Delta audit**: Copy [Delta-audit directive](#delta-audit-directive) verbatim when it applies; omit otherwise.
 - **Return block**: The [Return schema](#return-schema) block, copied verbatim.
 
 ## Delta-audit directive
 
-Copy verbatim into Tier 1 packets, or apply directly in Tier 2, when `Passes` >= 1 or `final-review` has an `OPEN` branch pull request:
+Copy verbatim into Tier 1 packets, or apply directly in Tier 2, when `Passes` >= 1 (resets included) or `final-review` has an `OPEN` branch pull request:
 
 ```text
 Delta-audit directive:
@@ -92,7 +92,6 @@ Questions: <numbered list, or None>
 Evidence: <link to the issue comment holding the full report, or None>
 ```
 
-`slice` lists all created tickets in `Issues:` and returns its `## Auto-resolved Decisions` comment URL in `Evidence:` when posted.
 Actions posting no report return `Evidence: None`.
 The conductor reads only this block.
 
@@ -101,4 +100,4 @@ The conductor reads only this block.
 Run actions in the current session, except validation or review may run only as the session's first action.
 When the next routing row is validation or review after another action, halt and print `ship-it <slug>` for a fresh session.
 
-Apply [Delta-audit directive](#delta-audit-directive) directly on first-action verification when `Passes` >= 1 in `## Ship-it State` or `final-review` runs with an `OPEN` branch pull request; omit otherwise, and read `review`'s fixed point from `## Ship-it State`.
+Apply [Delta-audit directive](#delta-audit-directive) directly on first-action verification when `Passes` >= 1 in `## Ship-it State` or when the directive otherwise applies, and read `review`'s fixed point from `## Ship-it State`.
