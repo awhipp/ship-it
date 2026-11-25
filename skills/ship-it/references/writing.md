@@ -20,7 +20,7 @@ Apply section-scoped precedence inside tickets:
 
 Every template section accepts `Not applicable, because <reason>.` in place of content.
 
-Evaluate the three Core Rules qualitatively by direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics. Mechanical word counters optimize for arbitrary metrics instead of reader clarity and waste tool turns.
+Evaluate the three Core Rules qualitatively by direct inspection. Never write scripts to count words, parse sentence lengths, or measure text metrics: such metrics ignore reader clarity and waste tool turns.
 
 ## Universal Testing Standards
 

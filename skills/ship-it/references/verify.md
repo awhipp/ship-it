@@ -6,9 +6,9 @@
 - **Zero assumption**: Record a Question when judging needs a fact the requirements omit. Never infer intent or assume edge-case safety.
 - **Command-backed Blockers**: Before raising a Blocker on a repository or environment fact, run a read-only command this pass and cite its output.
 - **Pass 1 is complete**: Map every spec behaviour, Decision Register entry, and Deferred entry to the artifact.
-- **Delta-only when directed**: Under the [delta-audit directive](isolation.md#delta-audit-directive) (including `final-review` with an `OPEN` pull request), raise nothing outside its scope.
-- **Altitude is a finding class**: `Target: spec` forbids low-level detail (file paths, internal functions, slice flags absent from `## Decision Register`; public contracts and `Reproduction seam` commands exempt). Under `Target: ticket-set`, missing low-level detail is a Blocker (no exact touchpoints, bare pointer-only `Design deltas`, criteria that are not self-contained). Violations are Blockers; `Not applicable, because <reason>.` counts as content.
-- **Prose**: Local style guides override [Core Rules](writing.md#core-rules); other breaches are validation Warnings and review Nits. Ambiguity, contradictions, altitude defects, [Universal Testing Standards](writing.md#universal-testing-standards), [shell conventions](writing.md#shell-conventions), and [bounded-search truncation](writing.md#bounded-search-truncation) are Blockers.
+- **Delta-only when directed**: Under the [delta-audit directive](isolation.md#delta-audit-directive), raise nothing outside its scope.
+- **Altitude is a finding class**: `Target: spec` forbids low-level detail (file paths, internal functions, slice flags absent from `## Decision Register`; public contracts and `Reproduction seam` commands exempt). Altitude violations on either target are Blockers, including missing low-level detail under `Target: ticket-set` (no exact touchpoints, bare pointer-only `Design deltas`, criteria that are not self-contained).
+- **Prose**: Local style guides override [Core Rules](writing.md#core-rules); other breaches are validation Warnings and review Nits. Ambiguity, contradictions, [Universal Testing Standards](writing.md#universal-testing-standards), [shell conventions](writing.md#shell-conventions), and [bounded-search truncation](writing.md#bounded-search-truncation) are Blockers.
 - **Reports**: Render populated subsections only, each finding `**<B|W|Q|S|D>-<n>** [<anchor>]: <text>`. Post the report and return its URL in `Evidence:` ([isolation.md](isolation.md#return-schema)). Clean pass-1 validation posts nothing (`Evidence: None`); clean pass 2+ posts only `## Validation: <Spec|Ticket set>` and `**Verdict**: Validated`.
 
 ### Severity and outcomes
@@ -97,7 +97,7 @@ Rows 5–7, 9, 11 (Steps 3–4), and 12 check `Non-approved` first; at 2, run th
 
 Before a verification dispatch:
 - Read `Passes` and record `C_pre` via `gh issue view <issue> --json comments --jq '.comments | length'` on the Verdict issue (`<n>` for review, `<spec>` else).
-- Pass the delta audit and fixed point per [Tier 1](isolation.md#tier-1-dispatch-packet) and [Tier 2](isolation.md#tier-2); omit on non-verification roles.
+- Pass the [delta audit](isolation.md#delta-audit-directive) and fixed point per [Tier 1](isolation.md#tier-1-dispatch-packet) and [Tier 2](isolation.md#tier-2); omit on non-verification roles.
 
 ### Cap halt
 

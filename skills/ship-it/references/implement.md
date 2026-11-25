@@ -26,7 +26,7 @@ Tailor verification to the change type:
 #### 3. Check as you go
 
 Before handoff, run the full scope above and complete every `## Consolidation checklist` item.
-Sweep for negative invariants and transient references with targeted search across code, tests, comments, docstrings, and docs.
+Sweep for negative invariants and transient references ([Universal Testing Standards](writing.md#universal-testing-standards)) with targeted search across code, tests, comments, docstrings, and docs.
 
 #### 4. Ask instead of guessing
 
