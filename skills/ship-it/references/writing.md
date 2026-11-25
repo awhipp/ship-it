@@ -4,11 +4,11 @@ Technical prose in `ship-it` must be clear, concise, and scannable. This standar
 
 ## Core Rules
 
-| Rule | Requirement | Example |
-| :--- | :--- | :--- |
-| **1. Sentence Brevity** | Express at most one idea or instruction per sentence. Keep phrasing tight without wandering compound clauses. | *Good*: Run the test suite before opening a pull request. |
-| **2. Controlled Vocabulary** | Use one consistent term per concept across all files. State explicit antecedents instead of bare pronouns like "this" or "it". | *Good*: The ticket defines acceptance criteria (*not* It defines them). |
-| **3. Single Source of Truth** | State each requirement, contract, or decision once in its canonical section. Reference parent sections from child `ship-it` artifacts instead of restating parent content. | *Good*: Implement the retry policy in Spec § Shared contracts (*not* restating the full retry contract in the ticket). |
+| Rule | Requirement |
+| :--- | :--- |
+| **1. Sentence Brevity** | Express at most one idea or instruction per sentence. Keep phrasing tight without wandering compound clauses. |
+| **2. Controlled Vocabulary** | Use one consistent term per concept across all files. State explicit antecedents instead of bare pronouns like "this" or "it". |
+| **3. Single Source of Truth** | State each requirement, contract, or decision once in its canonical section. Reference parent sections from child `ship-it` artifacts instead of restating parent content. |
 
 ## Application Across Artifacts
 
@@ -54,4 +54,3 @@ Check the returned item count after every `gh` query that specifies `--limit 100
 
 - **Threshold warning**: Emit `"Warning: Search returned 100 results; GitHub search may be truncated."` whenever the query returns 100 items.
 - **Subagent reporting**: Embed that warning inside the GitHub output of isolated subagents (`### Warnings` for `validate`, `## Review: Final` for `final-review`, or the pull request body for `close-out`). Subagents then continue, because a truncated audit list narrows coverage instead of recreating artifacts.
-- **Return block**: Preserve the four-line return block defined in [isolation.md](isolation.md).

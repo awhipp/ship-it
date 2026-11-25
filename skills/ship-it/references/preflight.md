@@ -34,19 +34,19 @@ Run every check, then report all findings at once and halt:
 
 Apply at most one type label per issue, plus any applicable status and provenance labels:
 
-| Label | Kind | Applied to |
-| :--- | :--- | :--- |
-| `ship-it:map` | type | Feature map ([plan.md](plan.md)) |
-| `ship-it:spec` | type | Feature specification ([plan.md](plan.md#spec)) |
-| `ship-it:ticket` | type | Build ticket ([tickets.md](tickets.md)) |
-| `ship-it:bug` | provenance | Addendum defect ticket ([tickets.md](tickets.md#bug-preparation)) |
-| `ship-it:research` | type | Research decision ticket ([plan.md](plan.md)) |
-| `ship-it:prototype` | type | Prototype decision ticket ([plan.md](plan.md)) |
-| `ship-it:grilling` | type | Grilling decision ticket ([plan.md](plan.md)) |
-| `ship-it:task` | type | Task decision ticket ([plan.md](plan.md)) |
-| `ship-it:validated` | status | Spec or ticket that passed validation ([verify.md](verify.md#target-spec), [verify.md](verify.md#target-ticket-set)) |
-| `ship-it:reviewed` | status | Ticket diff or full feature PR diff that passed review ([verify.md](verify.md#target-ticket), [verify.md](verify.md#target-final)) |
-| `ship-it:changes-requested` | status | Spec or ticket with unresolved Blockers ([verify.md](verify.md#target-spec), [verify.md](verify.md#target-ticket-set), [verify.md](verify.md#target-ticket)) |
+| Label | Kind |
+| :--- | :--- |
+| `ship-it:map` | type |
+| `ship-it:spec` | type |
+| `ship-it:ticket` | type |
+| `ship-it:bug` | provenance |
+| `ship-it:research` | type |
+| `ship-it:prototype` | type |
+| `ship-it:grilling` | type |
+| `ship-it:task` | type |
+| `ship-it:validated` | status |
+| `ship-it:reviewed` | status |
+| `ship-it:changes-requested` | status |
 
 Create each missing label with its idempotent command:
 
